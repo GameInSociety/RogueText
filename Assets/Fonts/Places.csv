@@ -1,0 +1,33 @@
+;Appelation;Genre;Loc;Adj Group
+Plain;Plaine;fs;sur;Rural
+Field;Champ;ms;dans;Rural
+Clearing;Clairière;fs;dans;Rural
+Hill;Coline;fs;sur;Rural
+Mountain;Montagne;fs;sur;Rural
+Forest;Forêt;fs;dans;Rural
+Woods;Bois;ms;dans;Rural
+Sea;Mer;fs;sur;Rural
+Lake;Lac;ms;sur;Rural
+River;Rivière;fs;sur;Rural
+Beach;Plage;fs;sur;Rural
+Road;Route;fs;sur;Rural
+TownRoad;Route de village;fs;sur;Rural
+CoastalRoad;Route Côtiere;fs;sur;Rural
+Path;Chemin;ms;sur;Rural
+Bridge;Pont;ms;sur;Rural
+Building;Immeuble;ms;devant;Urbain
+Farm;Ferme;fs;devant;Urbain
+ForestCabin;Cabane;fs;devant;Urbain
+CountryHouse;Maison de campagne;fs;devant;Urbain
+Hallway;Couloir;ms;dans;Urbain
+Stairs;Escaliers;ms;sur;Urbain
+LivingRoom;Salon;ms;dans;Urbain
+Kitchen;Cuisine;fs;dans;Urbain
+DiningRoom,;Salle à manger;fs;dans;Urbain
+ChildBedroom;Chambre pour enfant;fs;dans;Urbain
+Bedroom;Chambre à coucher;fs;dans;Urbain
+Bathroom;Salle de bain;fs;dans;Urbain
+Toilet;Toilette;fs;dans;Urbain
+Attic;Grenier;ms;dans;Urbain
+Basement;Cave;fs;dans;Urbain
+Cellar;Cellier;ms;dans;Urbain

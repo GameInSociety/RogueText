@@ -1,0 +1,20 @@
+Appear Rates;Plain;Field;Clearing;Hill;Mountain;Forest;Woods;Sea;Lake;River;Beach;Road;TownRoad;CoastalRoad;Path;Bridge;Building;Farm;ForestCabin;CountryHouse;Hallway;Stairs;LivingRoom;Kitchen;DiningRoom,;ChildBedroom;Bedroom;Bathroom;Toilet;Attic;Basement
+nord;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+est;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+sud-est;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+sud;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+nord-est;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+sud;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+sud-ouest;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+nord-ouest;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+devant;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+droite;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+derriere;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+gauche;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+inventaire;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+alentours;/;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+porte;;;;;;;;;;;;;;;;100;100;100;100;100;;;;;;;;;;;
+fleur;100;100;100;;;100;100;;;;;;;;;;;;;;;;;;;;;;;;
+champignon;;;30;;;50;30;;;;;20;20;20;;;;;;;;;;;10;;;;;;
+flaque;50;50;50;;;50;;;;;;;;;;;;;;;;;;;;;;;;;
+lit;;;;;;;;;;;;;;;;;;;;;;;;;100;100;;;;;

@@ -1,0 +1,22 @@
+;Genre ;aller, bouger;ouvrir;manger;dormir;regarder, observer;prendre, ramasser, saisir;remplir;boire;&
+nord;ms;MOVE(0);;;;;;;;&
+nord-est;ms;MOVE(1);;;;;;;;&
+est;ms;MOVE(2);;;;;;;;&
+sud-est;ms;MOVE(3);;;;;;;;&
+sud;ms;MOVE(4);;;;;;;;&
+sud-ouest;ms;MOVE(5);;;;;;;;&
+ouest;ms;MOVE(6);;;;;;;;&
+nord-ouest;ms;MOVE(7);;;;;;;;&
+devant;ms;MOVEREL(0);;;;;;;;&
+droite;ms;MOVEREL(2);;;;;;;;&
+derriere;ms;MOVEREL(4);;;;;;;;&
+gauche;ms;MOVEREL(6);;;;;;;;&
+inventaire;ms;;DISPLAYINVENTORY;;;DISPLAYINVENTORY;;;;&
+alentours;ms;;;;;DESCRIBE;;;;&
+porte;fs;;ENTER;;;;;;;&
+fleur;fs;;;EAT(1,2);;;TAKE;;;&
+champignon;ms;;;EAT(2,4);;;TAKE;;;&
+flaque;ms;;;;;;;;DRINK(1);&
+lit;ms;;;;SLEEP;;;;;&
+gourde;ms;;;;;;;;DRINK(5)/ADDTOINVENTORY(GOURDE VIDE)/REMOVEFROMINVENTORY(GOURDE);&
+gourde vide;ms;;;;;;;REMOVEFROMINVENTORY(GOURDE VIDE)/ADDTOINVENTORY(GOURDE);;&

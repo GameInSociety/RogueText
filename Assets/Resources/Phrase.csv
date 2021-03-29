@@ -1,0 +1,22 @@
+tile_continue,Vous continuez FULL/DEF/NONE/SING/LOC
+,Vous êtes encore FULL/DEF/NONE/SING/LOC
+tile_discover,Vous découvrez FULL/UNDEF/NONE/SING
+,Vous vous trouvez FULL/UNDEF/NONE/SING/LOC
+,Vous êtes FULL/UNDEF/NONE/SING/LOC
+tile_goback,Vous vous retrouvez FULL/UNDEF/NONE/SING/LOC
+,Vous revoilà FULL/UNDEF/NONE/SING/LOC
+surroundingTile_continue,"ORIENTATIONS, FULL/DEF/NONE/SING continue"
+,FULL/DEF/NONE/SING continue ORIENTATIONS
+surroundingTile_discover,Vous apercez FULL/UNDEF/NONE/SING ORIENTATIONS
+,FULL/UNDEF/NONE/SING se trouve ORIENTATIONS
+,"ORIENTATIONS, vous voyez FULL/UNDEF/NONE/SING"
+,"Vous voyez, ORIENTATIONS, FULL/UNDEF/NONE/SING"
+,FULL/UNDEF/NONE/SING se tient ORIENTATIONS
+surroundingTile_visited,Vous apercez FULL/DEF/NONE/SING ORIENTATIONS
+,FULL/DEF/NONE/SING se trouve ORIENTATIONS
+,"ORIENTATIONS, vous voyez FULL/DEF/NONE/SING"
+,"Vous voyez, ORIENTATIONS, FULL/DEF/NONE/SING"
+,FULL/DEF/NONE/SING se tient ORIENTATIONS
+movement_feedback,Vous marchez vers FULL/DEF/NONE/SING de ORIENTATION
+movement_blocked,Il n'y a pas FULL/DEF/DE/SING ORIENTATION
+,-

@@ -1,0 +1,203 @@
+,,,,,,help,aller,ouvrir,fermer,manger,dormir,regarder / observer,prendre / ramasser / saisir,remplir,boire,déplacer,lire,couper,entrer,jeter / bazarder,équiper / mettre,déséquiper / enlever,écouter,continuer,sortir,retourner,casser,déchirer,(fabriquer,allumer,éteindre
+verbe seul,ms,,,,,DisplayHelp,,,CLOSECONTAINER,,dormir par terre,description précise des lieux,,,,,,,,,,,,MOVEREL(0),,MOVEREL(4),,,,,
+nord,ms,,,,,,MOVE(0),,,,,,,,,,,,,,,,,,,,,,,,
+nord-est,ms,,,,,,MOVE(1),,,,,,,,,,,,,,,,,,,,,,,,
+est,ms,,,,,,MOVE(2),,,,,,,,,,,,,,,,,,,,,,,,
+sud-est,ms,,,,,,MOVE(3),,,,,,,,,,,,,,,,,,,,,,,,
+sud,ms,,,,,,MOVE(4),,,,,,,,,,,,,,,,,,,,,,,,
+sud-ouest,ms,,,,,,MOVE(5),,,,,,,,,,,,,,,,,,,,,,,,
+ouest,ms,,,,,,MOVE(6),,,,,,,,,,,,,,,,,,,,,,,,
+nord-ouest,ms,,,,,,MOVE(7),,,,,,,,,,,,,,,,,,,,,,,,
+devant,ms,,,,,,MOVEREL(0),,,,,,,,,,,,,,,,,,,,,,,,
+droite,ms,,,,,,MOVEREL(2),,,,,,,,,,,,,,,,,,,,,,,,
+arrière,ms,,,,,,MOVEREL(4),,,,,,,,,,,,,,,,,,,,,,,,
+derrière,ms,,,,,,MOVEREL(4),,,,,,,,,,,,,,,,,,,,,,,,
+gauche,ms,,,,,,MOVEREL(6),,,,,,,,,,,,,,,,,,,,,,,,
+inventaire,ms,,,,,,,DISPLAYINVENTORY,CLOSEINVENTORY,,,DISPLAYINVENTORY,,,,,,,,,,,,,,,,,,,
+sac,ms,,,,,,,DISPLAYINVENTORY,CLOSEINVENTORY,,,DISPLAYINVENTORY,,,,,,,,,,,,,,,,,,,
+alentours,ms,,,,,,,,,,,DESCRIBE,,,,,,,,,,,,,,,,,,,
+porte d’entrée (o),fs,,,stackable,,,,ENTER,,,,DESCRIBEITEM,,,,,,,ENTER,,,,,,,,,,,,
+porte d’entrée (f),fs,,,stackable,,,,"DISPLAY(La porte est vérrouillée…)
+REQUIRE(clé)
+DISPLAY(Vous dévérouillez la porte)
+REPLACEITEM(porte d’entrée (o))",,,,DESCRIBEITEM,,,,,,,DISPLAY(La porte est fermée),,,,,,,,CHECKSTAT(STR),,,,
+porte (o)(n),fs,,,stackable,,,,MOVE(0),,,,DESCRIBEITEM,,,,,,,MOVEREL(6),,,,,,,,,,,,
+porte (o)(w),fs,,,stackable,,,,MOVE(6),,,,DESCRIBEITEM,,,,,,,MOVEREL(0),,,,,,,,,,,,
+porte (o)(s),fs,,,stackable,,,,MOVE(4),,,,DESCRIBEITEM,,,,,,,MOVEREL(2),,,,,,,,,,,,
+porte (o)(e),fs,,,stackable,,,,MOVE(2),,,,,,,,,,,,,,,,,,,,,,,
+porte (f)(n),fs,,,stackable,,,,"DISPLAY(La porte est vérrouillée…)
+REQUIRE(clé)
+DISPLAY(Vous dévérouillez la porte)
+REPLACEITEM(porte (o)(n))",,,,DESCRIBEITEM,,,,,,,DISPLAY(La porte est fermée),,,,,,,,,,,,
+porte (f)(w),fs,,,stackable,,,,"DISPLAY(La porte est vérrouillée…)
+REQUIRE(clé)
+DISPLAY(Vous dévérouillez la porte)
+REPLACEITEM(porte (o)(w))",,,,DESCRIBEITEM,,,,,,,DISPLAY(La porte est fermée),,,,,,,,,,,,
+porte (f)(s),fs,,,stackable,,,,"DISPLAY(La porte est vérrouillée…)
+REQUIRE(clé)
+DISPLAY(Vous dévérouillez la porte)
+REPLACEITEM(porte (o)(s))",,,,DESCRIBEITEM,,,,,,,DISPLAY(La porte est fermée),,,,,,,,,,,,
+porte (f)(e),fs,,,stackable,,,,"DISPLAY(La porte est vérrouillée…)
+REQUIRE(clé)
+DISPLAY(Vous dévérouillez la porte)
+REPLACEITEM(porte (o)(e))",,,,,,,,,,,,,,,,,,,,,,,
+champignon,ms,1,,,,,,,,"EAT(1,1)",,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+flaque,fs,,,,,,,,,,,DESCRIBEITEM,,,DRINK(1),,,,,,,,,,,,,,,,
+lit,ms,,,,,,,,,,SLEEP(4),DESCRIBEITEM,,,,,,,,,,,,,,,,,CRAFT,,
+gourde pleine,fs,3,,,,,,,,,,DESCRIBEITEM,TAKE,,"DRINK(5)
+REPLACEITEM(gourde vide)",,,,,THROW,,,,,,,,,,,
+gourde vide,fs,2,,,,,,,,,,DESCRIBEITEM,TAKE,"DISPLAY(Il n’y a pas de source à proximité)
+REQUIRE(évier,douche,cuvette, lavabo)
+REPLACEITEM(gourde pleine)
+DISPLAY(La gourde est maintenant pleine)",,,,,,THROW,,,,,,,,,,,
+évier,ms,,,,,,,,,,,DESCRIBEITEM,,,DRINK(10),,,,,,,,,,,,,,,,
+douche,fs,,,,,,,,,,,DESCRIBEITEM,,,DRINK(10),,,,,,,,,,,,,,,,
+cuvette,fs,,,,,,,,,,,DESCRIBEITEM,,,DRINK(10),,,,,,,,,,,,,,,,
+lettre,ms,,,,,,,,,,,GIVECLUE,,,,,GIVECLUE,,,,,,,,,,,,,,
+tableau,ms,,,,,,,,,,,DESCRIBEITEM,,,,MOVEAWAY,,,,,,,,,,,,,,,
+arbre,ms,,,,,,,,,,,DESCRIBEITEM,,,,MOVEAWAY,,"DISPLAY(L’arbre s’écroule par terre)
+REMOVEFROMTILE(arbre)
+ADDTOTILE(bûche,5)
+ADDTOTILE(petit bois,10)","DISPLAY(L’arbre s’écroule par terre)
+REMOVEFROMTILE(arbre)
+ADDTOTILE(bûche,5)
+ADDTOTILE(petit bois,10)",,,,,,,,,,,,
+bûche,ms,4,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,"DISPLAY(Vous découpez la bûche en plusieurs morceaux)
+ADDTOTILE(petit bois,3)","DISPLAY(Vous découpez la bûche en plusieurs morceaux)
+ADDTOTILE(petit bois,3)",THROW,,,,,,,,,,,
+branche,fs,3,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+tomate pourrie,fs,1,,,,,,,,EAT(1),,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+brocoli pourri,ms,1,,,,,,,,EAT(1),,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+pomme pourrie,fs,1,,,,,,,,EAT(1),,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+banane pourrie,fs,1,,,,,,,,EAT(1),,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+bouteille de lait,fs,2,,,,,,,,,,DESCRIBEITEM,TAKE,,DRINKANDREMOVE(5),,,,,THROW,,,,,,,,,,,
+bouteille de lait périmé,fs,2,,,,,,,,,,DESCRIBEITEM,TAKE,,DRINKANDREMOVE(5),,,,,THROW,,,,,,,,,,,
+bout de pain,ms,1,,,,,,,,"EAT(1,1)",,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+bout de pain périmé,ms,1,,,,,,,,EAT(1),,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+bouteille d’eau,fs,2,,,,,,,,,,DESCRIBEITEM,TAKE,,DRINKANDREMOVE(5),,,,,THROW,,,,,,,,,,,
+carotte,fs,1,,,,,,,,"EAT(1,1)",,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+carotte douteuse,fs,1,,,,,,,,EAT(1),,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+conserve de viande,fs,3,,,,,,,,EAT(4),,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+conserve de tomate,fs,3,,,,,,,,EAT(3),,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+conserve de thon,fs,3,,,,,,,,EAT(3),,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+cannette de soda,fs,3,,,,,,,,,,DESCRIBEITEM,TAKE,,DRINKANDREMOVE(5),,,,,THROW,,,,,,,,,,,
+couteau,ms,2,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,CRAFT,,
+serpillière,fs,5,,,1,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(weapon),UNEQUIP,,,,,,,,,
+pelle,fs,6,,,3,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(weapon),UNEQUIP,,,,,,,,,
+clé,fs,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+roman,ms,3,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+recette,fs,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,READRECIPE,,,THROW,,,,,,,,,,,
+manuel,ms,2,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+journal,ms,2,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+magazine,ms,2,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+dollar,ms,,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+lecteur mp3,ms,4,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+poupée,fs,3,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,CRAFT,,
+stylo,ms,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+cuillère,fs,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+fourchette,fs,1,,,1,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(weapon),UNEQUIP,,,,,,,,,
+assiette,fs,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+bol,ms,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+verre,ms,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+éponge,fs,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+parfum,ms,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+canard en plastique,ms,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+serviette,fs,2,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+tube de dentifrice,ms,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+brosse à dent,fs,1,,,1,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(weapon),UNEQUIP(weapon),,,,,,,,,
+téléviseur,ms,,,,,,,,,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+table,fs,1,,,,,,,,,,DESCRIBEITEM,,,,,,,,,,,,,,,"DISPLAY(La table se brise)
+REMOVEFROMTILE(table)
+ADDTOTILE(petit bois,4)
+ADDTOTILE(planche,1)",,CRAFT,,
+canapé,ms,,,,,,,,,,SLEEP(2),DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+horloge,fs,,,,,,,,,,,DISPLAYTIMEOFDAY,,,,,,,,,,,,,,,,,,,
+fenêtre ouverte,fs,,,,,,,DISPLAY(La fenêtre est déjà ouverte),"DISPLAY(Vous fermez la fenêtre)
+REPLACEITEM(fenêtre fermée)",,,DESCRIBEEXTERIOR,,,,,,,,,,,,,"DISPLAY(Vous sortez pas la fenêtre)
+EXITBYWINDOW",,,,,,
+fenêtre fermée,fs,,,,,,,"DISPLAY(Vous ouvrez la fenêtre)
+REPLACEITEM(fenêtre ouverte)",DISPLAY(La fenêtre est déjà fermée),,,DESCRIBEEXTERIOR,,,,,,,,,,,,,"DISPLAY(La fenêtre est fermée, impossible de passer)",,,,,,
+téléphone,ms,,,,,,,,,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+ordinateur,ms,,,,,,,,,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+radio,fs,5,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,GIVECLUE,,,,,,CRAFT,,
+appareil photo,ms,3,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+voiture,fs,,,,,,,,,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+bâteau,ms,,,,,,,,,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+pantalon,ms,1,,,1,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(bottom),UNEQUIP(bottom),,,,,,"DISPLAY(Vous déchirez le pantalon en quelques bouts de tissu)
+ADDTOTILE(morceau de tissu,5)
+REMOVELASTITEM",CRAFT,,
+t-shirt,ms,1,,,1,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(body),UNEQUIP(body),,,,,,"DISPLAY(Vous déchirez le pantalon en quelques bouts de tissu)
+ADDTOTILE(morceau de tissu,5)
+REMOVELASTITEM",CRAFT,,
+veste,fs,1,,,2,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(body),UNEQUIP(body),,,,,,"DISPLAY(Vous déchirez le pantalon en quelques bouts de tissu)
+ADDTOTILE(morceau de tissu,5)
+REMOVELASTITEM",CRAFT,,
+manteau,ms,1,,,3,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(body),UNEQUIP(body),,,,,,"DISPLAY(Vous déchirez le pantalon en quelques bouts de tissu)
+ADDTOTILE(morceau de tissu,5)
+REMOVELASTITEM",CRAFT,,
+paire de chaussures,fs,2,,,1,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(feet),UNEQUIP(feet),,,,,,,CRAFT,,
+lunettes,ms,1,,,1,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(head),UNEQUIP(head),,,,,,,CRAFT,,
+montre,fs,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(head),UNEQUIP(head),,,,,,,,,
+casque moto,ms,3,,,3,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,EQUIP(head),UNEQUIP(head),,,,,,,,,
+machine à laver,fs,,,,,,,,,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+bougie,ms,,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+lampe torche (e),fs,1,,,,,,,,,,DISPLAY(Elle est éteinte),TAKE,,,,,,,THROW,EQUIP(misc),UNEQUIP(misc),,,,,,,CRAFT,"DISPLAY(Il vous faut une pile...)
+REQUIRE(pile)
+DISPLAY(Vous allumez la lampe torche avec un pile)
+REPLACEITEM(lampe torche (a))",DISPLAY(La lampe torche est déjà éteinte)
+lampe torche (a),fs,1,,,,,,,,,,DISPLAY(Elle est allumée),TAKE,,,,,,,THROW,EQUIP(misc),UNEQUIP(misc),,,,,,,CRAFT,DISPLAY(La lampe torche est déjà éteinte),"DISPLAY(Vous éteignez la lampe torche)
+REPLACEITEM(lampe torche (e))"
+rouleau de scotch,ms,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+vise,fs,,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+papier,ms,,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+baie,fs,,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+lavabo,ms,,,,,,,,,,,DESCRIBEITEM,,,DRINK(10),,,,,,,,,,,,,,,,
+boussole,fs,1,,,,,,,,,,POINTNORTH,TAKE,,,,,,,THROW,,,,,,,,,CRAFT,,
+planche,fs,4,,,,,,,,,,DESCRIBEITEM,,,,,,,,THROW,,,,,,,,,CRAFT,,
+morceau de tissu,ms,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,DISPLAY(Le morceau de tissu est déjà assez petit…),,,
+paire de ciseaux,fs,2,,,2,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+dé à coudre,ms,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+fil à tricoter,ms,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+pile,fs,1,,,,,,,,,,DESCRIBEITEM,TAKE,,,,,,,THROW,,,,,,,,,,,
+frigo,ms,,,,,,,OPENCONTAINER,CLOSECONTAINER,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+coffre,ms,,,,,,,OPENCONTAINER,CLOSECONTAINER,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+armoire,fs,,,,,,,OPENCONTAINER,CLOSECONTAINER,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+placard,ms,,,,,,,OPENCONTAINER,CLOSECONTAINER,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+étagère,fs,,,,,,,OPENCONTAINER,CLOSECONTAINER,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+porte monnaie,ms,2,,,,,,OPENCONTAINER,CLOSECONTAINER,,,DESCRIBEITEM,TAKE,,,,,,,,,,,,,,,,,,
+boîte à outil,ms,,,,,,,OPENCONTAINER,CLOSECONTAINER,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+armoire de toilette,fs,,,,,,,OPENCONTAINER,CLOSECONTAINER,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+carton,ms,,,,,,,OPENCONTAINER,CLOSECONTAINER,,,DESCRIBEITEM,,,,,,,,,,,,,,,,,,,
+plaine,fs,Rural,sur,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+champ,ms,Rural,dans,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+clairière,fs,Rural,dans,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+colline,fs,Rural,sur,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+montagne,fs,Rural,sur,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+forêt,fs,Rural,dans,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+bois,ms,Rural,dans,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+mer,fs,Rural,près/DE,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+lac,ms,Rural,près/DE,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+rivière,fs,Rural,près/DE,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+plage,fs,Rural,sur,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+route,fs,Rural,sur,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+route de village,fs,Rural,sur,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+route côtière,fs,Rural,sur,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+chemin,ms,Rural,sur,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+pont,ms,Rural,sur,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+maison,fs,Urbain,devant,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+ferme,fs,Urbain,devant,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+cabane,fs,Urbain,devant,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+villa,fs,Urbain,devant,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+couloir,ms,Urbain,dans,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+escalier,ms,Urbain,sur,stackable,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+salon,ms,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+cuisine,fs,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+salle à manger,fs,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+chambre d'enfant,fs,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+chambre à coucher,fs,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+salle de bain,fs,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+toilette,fs,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+grenier,ms,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+cave,fs,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+cellier,ms,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,MOVETOTARGETITEM,,MOVETOTARGETITEM,,,,,
+bureau,ms,Urbain,dans,,,,MOVETOTARGETITEM,,,,,,,,,,,,,,,,,,,,,,,,
