@@ -100,15 +100,6 @@ public class Tile
     #region items
     public string GetItemDescriptions()
     {
-        if (Container.openedItem != null)
-        {
-            return Container.openedItem.GetDescription();
-        }
-        else if (Inventory.Instance.opened)
-        {
-            return Inventory.Instance.GetDescription();
-        }
-
         if (items.Count == 0)
         {
             return "Il n'y a pas grand choses à voir par ici";
@@ -258,6 +249,24 @@ public class Tile
             default:
                 return "did not found name for type : " + type;
         }
+    }
+
+    public static void Describe()
+    {
+        string str = "";
+
+        // display current tile
+        str += Tile.current.GetDescription();
+        str += "\n";
+
+        // display surrounding tiles
+        str += TileGroupDescription.GetSurroundingTileDescription();
+        str += "\n";
+
+        // display tile items
+        str += Tile.current.GetItemDescriptions();
+
+        DisplayDescription.Instance.AddToDescription(str);
     }
 
     public enum Type

@@ -151,7 +151,6 @@ public class Player : MonoBehaviour {
     }
     IEnumerator MoveCoroutine(Direction dir)
     {
-
         // ?
         if (coords.x > 0)
         {
@@ -178,22 +177,19 @@ public class Player : MonoBehaviour {
         // set new direction
         direction = dir;
 
-        DisplayDescription.Instance.UpdateDescription();
+        Tile.Describe();
 
         TimeManager.Instance.AdvanceTime();
+
+        MapTexture.Instance.UpdateMap();
+
+        Tile.current.visited = true;
+
+        yield return new WaitForSeconds(Transition.Instance.duration);
 
         Phrase.item = Tile.current.tileItem;
         string str = Phrase.GetPhrase("movement_feedback");
         DisplayFeedback.Instance.Display(str);
-
-        //DisplayWeather.Instance.UpdateDescription();
-
-        MapTexture.Instance.UpdateMap();
-
-        // set current tile
-        Tile.current.visited = true;
-
-        yield return new WaitForSeconds(Transition.Instance.duration);
 
 
     }
@@ -406,7 +402,7 @@ public class Player : MonoBehaviour {
     }
     void SleepDelay()
     {
-        DisplayDescription.Instance.UpdateDescription();
+        Tile.Describe();
     }
     #endregion
 

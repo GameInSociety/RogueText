@@ -17,7 +17,7 @@ public class DisplayInput : MonoBehaviour {
 	}
 
 	void Start () {
-		Hide ();
+		//Hide ();
 	}
 
 	public void Show (){

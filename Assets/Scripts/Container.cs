@@ -5,7 +5,7 @@ using UnityEngine;
 public class Container
 {
     public static bool opened = false;
-    public static Item openedItem;
+    public static Item CurrentItem;
 
     bool emptied = false;
 
@@ -27,6 +27,12 @@ public class Container
         }
 
         Debug.Log("removing container");
+    }
+
+    public static void Describe()
+    {
+        string str = CurrentItem.GetContainedItemsDescription();
+        DisplayDescription.Instance.AddToDescription(str);
     }
 }
          

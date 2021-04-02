@@ -38,23 +38,6 @@ public class DisplayDescription : MonoBehaviour {
         UpdateScrollFade();
     }
 
-    public string GetCurrentDescription()
-    {
-        currentDescription = "";
-
-        // display current tile
-        AddToDescription(Tile.current.GetDescription());
-
-        // display surrounding tiles
-        AddToDescription(TileGroupDescription.GetSurroundingTileDescription());
-
-        // display tile items
-        string str = Tile.current.GetItemDescriptions();
-        AddToDescription(str);
-
-        return currentDescription;
-    }
-
     private void UpdateScrollFade()
     {
         /*if (scrollRect.verticalNormalizedPosition >= 1f - fade_Buffer)
@@ -85,8 +68,6 @@ public class DisplayDescription : MonoBehaviour {
 
     IEnumerator UpdateDescriptionCoroutine()
     {
-        newText = GetCurrentDescription();
-
         DisplayInput.Instance.Hide();
 
         Transition.Instance.FadeIn();
@@ -108,13 +89,17 @@ public class DisplayDescription : MonoBehaviour {
 
     public void AddToDescription(string str)
     {
-        /*uiText.text += "\n";
-        uiText.text += "\n";
-        uiText.text += str;*/
+        // archive
+        uiText_Old.text += uiText.text;
 
-        currentDescription += "\n";
-        currentDescription += "\n";
-        currentDescription += str;
+        // clear
+        uiText.text = "";
+
+        // add
+        uiText.text += "\n";
+        uiText.text += "----------------";
+        uiText.text += "\n";
+        uiText.text += str;
 
         Invoke("AddToDescriptionDelay", 0.001f);
     }

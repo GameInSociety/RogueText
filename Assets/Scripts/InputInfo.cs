@@ -66,19 +66,18 @@ public class InputInfo
 
         foreach (var inputpart in DisplayInput.Instance.inputParts)
         {
-            foreach (var item in Item.FindAllByName(inputpart))
+            Item item = Item.FindInWorld(inputpart);
+            if  (item != null)
             {
                 item.inputToFind = inputpart;
                 possibleItems.Add(item);
+                Debug.Log("found in world : " + item.word.text);
             }
+        }
 
-            /*Item tmpItem = Item.FindByName(inputpart);
-
-            if (tmpItem != null)
-            {
-                items.Add(tmpItem);
-                continue;
-            }*/
+        if (possibleItems.Count == 0)
+        {
+            return;
         }
 
         Item mostProbableItem = possibleItems[0];

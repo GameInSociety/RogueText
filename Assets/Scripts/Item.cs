@@ -32,7 +32,7 @@ public class Item
     /// </summary>
     public List<string> positionInItems = new List<string>();
 
-    public List<Item> containedItems = new List<Item>();
+    public List<Item> containedItems;
 
     public Word word;
 
@@ -97,37 +97,44 @@ public class Item
 
 
     #region remove
-    public static void Remove(Item item)
+    public static void Remove(Item targetItem)
     {
         if (Container.opened)
         {
-            Debug.Log("from container");
+            Debug.Log("target item hash code : " + targetItem.GetHashCode());
 
-            if (Container.openedItem.containedItems.Contains(item))
+            foreach (var containedItem in Container.CurrentItem.containedItems)
             {
-                Container.openedItem.RemoveItem(item);
+                Debug.Log("cotnained hash code : " + containedItem.GetHashCode());
             }
+
+            if (Container.CurrentItem.containedItems.Contains(targetItem))
+            {
+                Container.CurrentItem.RemoveItem(targetItem);
+            }
+
+            Container.Describe();
+
             return;
         }
 
-        foreach (var crotin in Tile.current.items)
+        if (Tile.current.items.Contains(targetItem))
         {
-            Debug.Log( "all items in tile : " + crotin.word.text );
-        }
+            Debug.Log("removing item from tile");
 
-        if (Tile.current.items.Contains(item))
-        {
-            Debug.Log("remobing item from time");
+            Tile.current.RemoveItem(targetItem);
 
-            Tile.current.RemoveItem(item);
+            Tile.Describe ();
             return;
         }
 
-        if (Inventory.Instance.items.Contains(item))
+        if (Inventory.Instance.items.Contains(targetItem))
         {
             Debug.Log("from inventory");
 
-            Inventory.Instance.RemoveItem(item);
+            Inventory.Instance.RemoveItem(targetItem);
+
+            Inventory.Instance.Describe();
             return;
         }
 
@@ -140,6 +147,11 @@ public class Item
         public int itemIndex = 0;
         public int rate = 0;
         public int amount = 0;
+
+        public Item GetItem()
+        {
+            return Item.items[itemIndex];
+        }
 
         public bool CanAppear()
         {
@@ -247,35 +259,50 @@ public class Item
     #endregion
 
     #region search
-    public static Item GetInWorld(string str)
+    public static Item FindInWorld(string str)
     {
         Item item = null;
 
+        // dans un container
         if (Container.opened)
         {
-            item = Container.openedItem.containedItems.Find(x => x.word.text.StartsWith(str));
+            Debug.Log("looking in container");
+
+            item = Container.CurrentItem.containedItems.Find(x => x.word.text.StartsWith(str));
         }
 
         // chercher une premiere fois dans l'inventaire s'il est ouvert
         if (Inventory.Instance.opened)
         {
+            Debug.Log("looking in inventory");
+
             item = FindInInventory(str);
+            if (item != null)
+            {
+                return item;
+            }
         }
 
         // is the item one of the surrounding tiles ?
         if (item == null)
         {
+            Debug.Log("looking in tile");
+
             item = FindInTile(str);
         }
 
         if (item == null)
         {
+            Debug.Log("looking in for usable anytime");
+
             item = FindUsableAnytime(str);
         }
 
         // et en dernier s'il est fermé
         if (item == null)
         {
+            Debug.Log("looking in inventory if closed");
+
             item = FindInInventory(str);
         }
 
@@ -368,7 +395,7 @@ public class Item
     {
         foreach (var part in words)
         {
-            Item item = GetInWorld(part);
+            Item item = FindInWorld(part);
 
             if (item != null && item.index != forbiddenRow)
             {
@@ -385,19 +412,6 @@ public class Item
 
         Item item = items.Find(x => x.word.text.ToLower() == str);
 
-        /*List<Item> possibleItems = items.FindAll(x => x.word.content.StartsWith(str));
-
-        foreach (var i in possibleItems)
-        {
-            Debug.Log("possible item : " + i.word.content);
-            if (i.word.content.Length > mostProbableItem.word.content.Length)
-            {
-                mostProbableItem = i;
-            }
-        }*/
-
-        //Item item = items.Find(x => x.word.content.ToLower() == str );
-
         if (item == null)
         {
             // find plural
@@ -405,8 +419,8 @@ public class Item
 
             if (item != null)
             {
+                Debug.Log("found plural");
                 InputInfo.GetCurrent.actionOnAll = true;
-                Debug.Log("PLURAL");
                 return item;
             }
         }
@@ -423,27 +437,6 @@ public class Item
         str = str.ToLower();
 
         return items.FindAll(x => x.word.text.StartsWith(str));
-
-        Item item = items.Find(x => x.word.text.ToLower() == str);
-
-        if (item == null)
-        {
-            // find plural
-            item = items.Find(x => x.word.text.ToLower() == str);
-
-            if (item != null)
-            {
-                InputInfo.GetCurrent.actionOnAll = true;
-                return items;
-            }
-        }
-
-        if (item == null)
-        {
-
-        }
-
-        return items;
     }
     #endregion
 
@@ -489,24 +482,61 @@ public class Item
     #region container
     public void GenerateItems()
     {
-        foreach (var item in Item.items)
+        if ( containedItems != null)
         {
-            int targetItemIndex = InputInfo.GetCurrent.MainItem.index;
-            Item.AppearInfo appearInfo = item.appearInfos.Find(x => x.itemIndex == targetItemIndex);
+            return;   
+        }
 
-            if (appearInfo != null )
+        Debug.Log("first time open");
+        containedItems = new List<Item>();
+
+        foreach (var appearInfo in appearInfos)
+        {
+            for (int i = 0; i < appearInfo.amount; i++)
             {
-                for (int i = 0; i < appearInfo.amount; i++)
+                if (Random.value * 100f < appearInfo.rate)
                 {
-                    if (Random.value * 100f < appearInfo.rate)
-                    {
-                        Item newItem = Item.CreateNewItem(item);
-                        items.Add(item);
-                    }
+                    Item newItem = Item.CreateNewItem(appearInfo.GetItem());
+
+                    Debug.Log("new item hash code : " + newItem.GetHashCode());
+
+                    containedItems.Add(newItem);
                 }
             }
-
         }
+
+    }
+
+
+    public void Open()
+    {
+        Item item = InputInfo.GetCurrent.MainItem;
+        item.GenerateItems();
+
+        Container.opened = true;
+        Container.CurrentItem = item;
+
+        Container.Describe();
+    }
+
+    public void Close()
+    {
+        // toujours dans la classe inventory.cs pour l'intsant
+    }
+
+    public string GetContainedItemsDescription()
+    {
+        string word_str = word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.None);
+
+        if (containedItems.Count == 0)
+        {
+            return "Il n'y a rien dans " + word_str;
+        }
+
+        string str = "Dans " + word_str + " : vous voyez : \n" +
+            "" + Item.ItemListString(containedItems, true, true);
+
+        return str;
     }
 
     public string GetDescription()
@@ -558,4 +588,3 @@ public class Item
     }
     #endregion
 }
-

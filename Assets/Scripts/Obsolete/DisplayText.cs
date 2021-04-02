@@ -13,12 +13,10 @@ public class DisplayText : MonoBehaviour
 
     }
 
-    public virtual void Display (string str)
+    public virtual void Display(string str)
     {
         Show();
         uiText.text = str;
-
-        
     }
 
     public void Show()

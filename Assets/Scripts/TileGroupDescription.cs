@@ -129,7 +129,6 @@ public class TileGroupDescription {
         // same tile
         if ( Tile.current.tileItem.SameTypeAs(surroundingTile.tile.tileItem))
         {
-            Debug.Log("same tile as before");
             if (Tile.current.tileItem.stackable)
             {
                 // tu es dans une forêt, la forêt continue

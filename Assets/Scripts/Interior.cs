@@ -118,10 +118,9 @@ public class Interior {
 
         TileSet.SetCurrent(TileSet.map);
 
-        DisplayDescription.Instance.UpdateDescription();
+        Tile.Describe();
 
         TimeManager.Instance.ChangeMovesPerHour(10);
-
 
     }
     #endregion

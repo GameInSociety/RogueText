@@ -54,23 +54,20 @@ public class ActionManager : MonoBehaviour
                 Debug.LogError("only verb, no item");
             }
 
+            // get verb only action
             Item verbItem = Item.FindByName("verbe seul");
+            inputInfo.items.Add(verbItem);
+            inputInfo.FindCombination();
 
-            if (verbItem == null)
+            // no verb, displaying thing
+            if (inputInfo.combination == null)
             {
-                DisplayFeedback.Instance.Display(inputInfo.verb.question + " voulez vous " + inputInfo.verb.names[0]);
+                string str = inputInfo.verb.question + " voulez vous " + inputInfo.verb.names[0];
+                str = TextManager.WithCaps(str);
+                DisplayFeedback.Instance.Display(str);
                 return;
             }
         }
-        
-            // only verb
-        if (!inputInfo.HasItems())
-        {
-            // ????? pas déjà fait avant ça ?
-            DisplayFeedback.Instance.Display(inputInfo.verb.question + " voulez vous " + inputInfo.verb.names[0]);
-            return;
-        }
-
 
         // verb / item combinaison doesn't exist
         if (inputInfo.combination == null)

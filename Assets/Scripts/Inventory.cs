@@ -33,9 +33,9 @@ public class Inventory : MonoBehaviour {
 		switch (action.type) {
 		case Action.Type.Take:
 			PickUpCurrentItem ();
-			break; 
-		case Action.Type.DisplayInventory:
-			GetDescription ();
+			break;
+            case Action.Type.DisplayInventory:
+			Describe ();
 			break;
         case Action.Type.CloseInventory:
             CloseInventory();
@@ -100,36 +100,31 @@ public class Inventory : MonoBehaviour {
 
     void PickUpCurrentItem()
     {
-        Debug.Log("picking up item");
+        Item item = InputInfo.GetCurrent.MainItem;
+
         List<Item> targetItems = new List<Item>();
 
-        if ( InputInfo.GetCurrent.actionOnAll)
+        if (InputInfo.GetCurrent.actionOnAll)
         {
             targetItems = Tile.current.items.FindAll(x => x.word.text == InputInfo.GetCurrent.MainItem.word.text);
-
-            Debug.Log("found " + targetItems.Count + " items named " + InputInfo.GetCurrent.MainItem.word.text);
         }
         else
         {
             targetItems.Add(InputInfo.GetCurrent.MainItem);
         }
 
-        foreach (var item in targetItems)
+        if (weight + item.weight > maxWeight)
         {
-            if (weight + item.weight > maxWeight)
-            {
-                DisplayFeedback.Instance.Display(InputInfo.GetCurrent.MainItem.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.Singular) + " est trop lourd pour le sac, il ne rentre pas");
-                return;
-            }
-
-            Item.Remove(item);
-
-            AddItem(item);
-
-            DisplayFeedback.Instance.Display("Vous avez pris : " + item.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.Singular));
+            DisplayFeedback.Instance.Display(InputInfo.GetCurrent.MainItem.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.Singular) + " est trop lourd pour le sac, il ne rentre pas");
+            return;
         }
 
-        DisplayDescription.Instance.UpdateDescription();
+        Item.Remove(item);
+
+        AddItem(item);
+
+        DisplayFeedback.Instance.Display("Vous avez pris : " + item.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.Singular));
+
     }
 
     #region remove item
@@ -275,13 +270,19 @@ public class Inventory : MonoBehaviour {
 
     #region open / close inventory
     public bool opened = false;
-    public string GetDescription ()
+    public void Describe ()
 	{
-		if ( items.Count == 0 ) {
-			return "Vous n'avez rien dans votre sac";
-		}
-
         opened = true;
+
+        DisplayDescription.Instance.AddToDescription(GetDescription());
+    }
+
+    public string GetDescription()
+    {
+        if (items.Count == 0)
+        {
+            return "Vous n'avez rien dans votre sac";
+        }
 
         string str = "Dans votre sac :\n\n";
 
@@ -290,24 +291,19 @@ public class Inventory : MonoBehaviour {
         str += "\n\nFermer le sac ?";
 
         return str;
-	}
+    }
     void CloseInventory()
     {
         opened = false;
-        DisplayDescription.Instance.UpdateDescription();
+
+        Tile.Describe();
     }
     #endregion
 
     #region container
     private void OpenContainer()
     {
-        Debug.Log("opening container");
-
-        Item item = InputInfo.GetCurrent.MainItem;
-
-        item.GenerateItems();
-        Container.opened = true;
-        Container.openedItem = item;
+        InputInfo.GetCurrent.MainItem.Open();
     }
 
     private void CloseContainer()
@@ -320,7 +316,7 @@ public class Inventory : MonoBehaviour {
 
         Container.opened = false;
 
-        DisplayDescription.Instance.UpdateDescription();
+        Tile.Describe();
     }
     #endregion
 }
