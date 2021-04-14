@@ -23,10 +23,6 @@ public class DisplayFeedback : DisplayText{
     {
         Tween.Bounce(transform);
 
-        /*str = str.Replace("<color=lime>", "");
-        str = str.Replace("<color=green>", "");
-        str = str.Replace("</color>", "");*/
-
         base.Display(str);
     }
 

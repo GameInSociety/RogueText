@@ -24,7 +24,14 @@ public class ItemSocket
         }
         else
         {
-            return item.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Undefined, Word.Preposition.None, Word.Number.Singular);
+            if (item.unique)
+            {
+                return item.word.GetContent(Word.ContentType.FullGroup, Word.Definition.Undefined, Word.Preposition.None, Word.Number.Singular);
+            }
+            else
+            {
+                return item.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Undefined, Word.Preposition.None, Word.Number.Singular);
+            }
         }
     }
 

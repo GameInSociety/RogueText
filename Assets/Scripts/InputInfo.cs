@@ -67,11 +67,11 @@ public class InputInfo
         foreach (var inputpart in DisplayInput.Instance.inputParts)
         {
             Item item = Item.FindInWorld(inputpart);
+
             if  (item != null)
             {
                 item.inputToFind = inputpart;
                 possibleItems.Add(item);
-                Debug.Log("found in world : " + item.word.text);
             }
         }
 
@@ -88,10 +88,7 @@ public class InputInfo
             {
                 mostProbableItem = item;
             }
-            //Debug.Log("possible items in phrase : " + item.word.text);
         }
-
-        //Debug.Log("the most probable item is : " + mostProbableItem.word.text);
 
         items.Add(mostProbableItem);
     }

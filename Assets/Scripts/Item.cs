@@ -35,9 +35,8 @@ public class Item
     public List<Item> containedItems;
 
     public Word word;
-
-    private Adjective adjective;
-    public bool stackable = true;
+    public bool stackable = false;
+    public bool unique = false;
 
     /// <summary>
     /// container
@@ -61,38 +60,9 @@ public class Item
         newItem.positionInItems = copy.positionInItems;
         newItem.word = copy.word;
         newItem.stackable = copy.stackable;
-
-        if (copy.adjective == null)
-        {
-            newItem.SetRandomAdj();
-        }
-        else
-        {
-            newItem.adjective = copy.adjective;
-        }
+        newItem.unique = copy.unique;
 
         return newItem;
-    }
-
-    public string GetWord()
-    {
-        string wordStr = word.GetContent(Word.ContentType.JustWord, Word.Definition.Undefined, Word.Preposition.None, Word.Number.None);
-
-        if (!stackable)
-        {
-            string adjStr = GetAdjective.GetContent(word.genre, Word.Number.Singular);
-
-            string wordGroup = wordStr + " " + adjStr;
-
-            if (GetAdjective.beforeWord)
-            {
-                wordGroup = adjStr + " " + wordStr;
-            }
-
-            return wordGroup;
-        }
-
-        return wordStr;
     }
 
 
@@ -170,7 +140,7 @@ public class Item
 
         foreach (var item in _items)
         {
-            text += item.GetWord();
+            text += item.word.GetContent(Word.ContentType.JustWord, Word.Definition.Undefined, Word.Preposition.None, Word.Number.None);
 
             if (displayWeight)
             {
@@ -274,8 +244,6 @@ public class Item
         // chercher une premiere fois dans l'inventaire s'il est ouvert
         if (Inventory.Instance.opened)
         {
-            Debug.Log("looking in inventory");
-
             item = FindInInventory(str);
             if (item != null)
             {
@@ -286,23 +254,17 @@ public class Item
         // is the item one of the surrounding tiles ?
         if (item == null)
         {
-            Debug.Log("looking in tile");
-
             item = FindInTile(str);
         }
 
         if (item == null)
         {
-            Debug.Log("looking in for usable anytime");
-
             item = FindUsableAnytime(str);
         }
 
         // et en dernier s'il est fermé
         if (item == null)
         {
-            Debug.Log("looking in inventory if closed");
-
             item = FindInInventory(str);
         }
 
@@ -335,27 +297,19 @@ public class Item
 
         if (items.Count == 0)
         {
-            Debug.Log("did not find singular : trying plural");
             items = Tile.current.items.FindAll(x => x.word.GetContent(Word.ContentType.JustWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.Plural).StartsWith(str));
+        }
 
-            if (items.Count > 0)
-            {
-                Debug.Log("found plural word : " + items[0].word.text);
-            }
-        }
-        else
-        {
-            Debug.Log("il y a des objets? ");
-        }
 
         /// chercher les adjectifs pour différencier les objets ( porte bleu, porte rouge )
         if (items.Count > 0)
         {
+
             foreach (var inputPart in DisplayInput.Instance.inputParts)
             {
                 foreach (var item in items)
                 {
-                    string adjSTR = item.GetAdjective.GetContent(item.word.genre, Word.Number.Singular);
+                    string adjSTR = item.word.GetAdjective.GetContent(item.word.genre, Word.Number.Singular);
 
                     if (adjSTR == inputPart)
                     {
@@ -386,26 +340,6 @@ public class Item
         return item;
     }
 
-    public static Item GetInWords(string[] words)
-    {
-        return GetInWords(words, -1);
-    }
-
-    public static Item GetInWords(string[] words, int forbiddenRow)
-    {
-        foreach (var part in words)
-        {
-            Item item = FindInWorld(part);
-
-            if (item != null && item.index != forbiddenRow)
-            {
-                return item;
-            }
-        }
-
-        return null;
-    }
-
     public static Item FindByName(string str)
     {
         str = str.ToLower();
@@ -419,7 +353,7 @@ public class Item
 
             if (item != null)
             {
-                Debug.Log("found plural");
+                //Debug.Log("found plural");
                 InputInfo.GetCurrent.actionOnAll = true;
                 return item;
             }
@@ -457,27 +391,6 @@ public class Item
         // prendre une position générique ( ex : à quelques pas , non loin etc... )
         return PhraseManager.Instance.positionPhrases[Random.Range(0, PhraseManager.Instance.positionPhrases.Length)];
     }
-
-    #region adjective 
-    public Adjective GetAdjective
-    {
-        get
-        {
-            if (adjective == null)
-                SetRandomAdj();
-
-            return adjective;
-        }
-    }
-    public void SetRandomAdj()
-    {
-        SetAdjective(Adjective.GetRandom(Adjective.Type.Item));
-    }
-    public void SetAdjective(Adjective adj)
-    {
-        adjective = adj;
-    }
-    #endregion
 
     #region container
     public void GenerateItems()
@@ -539,41 +452,6 @@ public class Item
         return str;
     }
 
-    public string GetDescription()
-    {
-        Debug.Log("DISPLAYING CONTAINER");
-
-        string text = "";
-
-        if (items.Count == 0)
-        {
-            word.hasBeenInteractedWith = true;
-
-            if (emptied)
-            {
-                text = "Il n'y a plus rien dans " + word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.None);
-            }
-            else
-            {
-                text = "Il n'y a rien dans " + word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.None); ;
-            }
-
-        }
-        else
-        {
-            text = "Dans " + word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.None) + ", vous voyez : ";
-
-            text += Item.ItemListString(items, false, false);
-
-        }
-
-        text += "" +
-            "\n" +
-            "\n" +
-            "Fermer " + word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.None) + " ?";
-
-        return text;
-    }
     public void RemoveItem (Item item)
     {
         containedItems.Remove(item);

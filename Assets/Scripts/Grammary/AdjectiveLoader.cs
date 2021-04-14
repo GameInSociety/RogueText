@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AdjectiveLoader : MonoBehaviour {
+public class AdjectiveLoader : TextParser {
 
     public string[] maleTerminaisons;
     public string[] femaleTerminaisons;
@@ -14,53 +14,35 @@ public class AdjectiveLoader : MonoBehaviour {
         Instance = this;
     }
 
-    public void LoadAdjectives()
+    public override void GetCell(int rowIndex, List<string> cells)
     {
-		TextAsset textAsset = Resources.Load ("Adjectives") as TextAsset;
+        base.GetCell(rowIndex, cells);
 
-		for (int i = 0; i < (int)Adjective.Type.Any; i++) {
+        if ( rowIndex == 0)
+        {
+            foreach (var cell in cells)
+            {
+                AdjectiveGroup adjectiveGroup = new AdjectiveGroup();
+                adjectiveGroup.name = cell.ToLower();
 
-			Adjective.adjectives.Add (new List<Adjective> ());
+                Adjective.adjectiveGroups.Add(adjectiveGroup);
+            }
+        }
+        else
+        {
+            for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
+            {
+                Adjective newAdjective = new Adjective();
 
-		}
-		string[] rows = textAsset.text.Split ('\n');
+                newAdjective._text = cells[cellIndex];
+                if (newAdjective._text.Contains("("))
+                {
+                    newAdjective.beforeWord = true;
+                    newAdjective._text = newAdjective._text.Replace("(", "");
+                }
 
-		for (int rowIndex = 2; rowIndex < rows.Length-1; rowIndex++) {
-
-			string row = rows [rowIndex];
-			row = row.TrimEnd ('\r', '\n');
-
-			string[] cells = row.Split (';');
-
-			Adjective.Type adjType = Adjective.Type.Rural;
-			foreach (var cell in cells) {
-
-				if (cell.Length > 1) {
-				
-					Adjective newAdjective = new Adjective ();
-
-					newAdjective._text = cells [(int)adjType];
-                    if (newAdjective._text.Contains("("))
-                    {
-                        newAdjective.beforeWord = true;
-                        newAdjective._text = newAdjective._text.Replace("(", "");
-                    }
-
-					Adjective.adjectives [(int)adjType].Add (newAdjective);
-
-//					Debug.LogError ("adding adjective : " + newAdjective.GetName(Word.Genre.Masculine, Word.Number.Singular) );
-
-
-				} else {
-//					Debug.LogError ("cell trop petite : " + cell);
-				}
-
-				++adjType;
-
-			}
-
-
-		}
-
-	}
+                Adjective.adjectiveGroups[cellIndex].adjectives.Add(newAdjective);
+            }
+        }
+    }
 }

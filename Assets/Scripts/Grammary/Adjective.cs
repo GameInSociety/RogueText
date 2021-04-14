@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Adjective {
 
+    public static List<AdjectiveGroup> adjectiveGroups = new List<AdjectiveGroup>();
     public static List<List<Adjective>> adjectives = new List<List<Adjective>>();
 
     public bool beforeWord = false;
@@ -38,7 +39,7 @@ public class Adjective {
                 ++a;
             }
 
-            if ( !foundEnding && adj[adj.Length-1] != 'e')
+            if (adj.Length > 1 && !foundEnding && adj[adj.Length-1] != 'e')
             {
                 adj += "e";
             }
@@ -54,7 +55,22 @@ public class Adjective {
 	}
 
 
-	public static Adjective GetRandom ( Adjective.Type type ) {
-		return adjectives [(int)type] [Random.Range (0, adjectives [(int)type].Count)];
+	public static Adjective GetRandom ( string _name ) {
+
+        AdjectiveGroup adjectiveGroup = adjectiveGroups.Find(x => x.name == _name);
+
+        if ( adjectiveGroup == null)
+        {
+            Debug.LogError("couldn't find adjective group : " + _name);
+            adjectiveGroup = adjectiveGroups[0];
+        }
+
+        return adjectiveGroup.adjectives[Random.Range(0, adjectiveGroup.adjectives.Count)];
 	}
+}
+
+public class AdjectiveGroup
+{
+    public string name;
+    public List<Adjective> adjectives = new List<Adjective>();
 }

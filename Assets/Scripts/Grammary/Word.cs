@@ -39,8 +39,8 @@ public class Word
 
     // ADJECTIVE
     // more logic if word have adjectives, and not items or location or tiles. fuck s
-    public List<Adjective> adjectives = new List<Adjective>();
-    public Adjective.Type adjectiveType;
+    private Adjective adjective;
+    public string adjectiveType;
 
     public Number currentNumber = Number.None;
     public Definition currentDefinition = Definition.Undefined;
@@ -100,36 +100,7 @@ public class Word
         }
     }
     #endregion
-
-    #region adjectives
-    public void SetRandomAdjectives()
-    {
-        int count = 1;
-
-        for (int i = 0; i < count; i++)
-        {
-            Adjective newAdjective = Adjective.GetRandom(adjectiveType);
-            adjectives.Add(newAdjective);
-        }
-    }
-    public void UpdateAdjectiveType(string str)
-    {
-        for (int i = 0; i < (int)Adjective.Type.Any; i++)
-        {
-            Adjective.Type a = (Adjective.Type)i;
-            if (a.ToString() == str)
-            {
-                adjectiveType = a;
-                return;
-            }
-
-        }
-
-        Debug.LogError("pas trouvé adj type pour " + str);
-
-    }
-    #endregion
-
+    
     public string GetArticle()
     {
         // l'espace est inclu dans l'article par qu'il 
@@ -470,8 +441,7 @@ public class Word
                 return article + word_str;
             case ContentType.FullGroup:
 
-                Adjective adjective = adjectives[0];
-                string adjective_str = adjectives[0].GetContent(genre, currentNumber);
+                string adjective_str = GetAdjective.GetContent(genre, currentNumber);
 
                 adjective_str = "<color=green>" + adjective_str + "</color>";
 
@@ -498,4 +468,24 @@ public class Word
         text = _text;
         text_parts = text.Split(' ');
     }
+
+    #region adjective
+    public void SetRandomAdj()
+    {
+        SetAdjective(Adjective.GetRandom(adjectiveType));
+    }
+
+    public Adjective GetAdjective
+    {
+        get
+        {
+            return adjective;
+        }
+    }
+
+    public void SetAdjective ( Adjective adj)
+    {
+        adjective = adj;
+    }
+    #endregion
 }

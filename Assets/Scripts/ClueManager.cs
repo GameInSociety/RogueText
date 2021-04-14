@@ -60,7 +60,7 @@ public class ClueManager : MonoBehaviour {
 
     private void CheckMoveAway()
     {
-        if (Interior.current.coords == bunkerCoords)
+        if (Interior.GetCurrent.coords == bunkerCoords)
         {
             Item.Remove(InputInfo.GetCurrent.MainItem);
 

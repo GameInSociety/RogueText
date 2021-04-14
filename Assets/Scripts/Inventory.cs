@@ -177,7 +177,7 @@ public class Inventory : MonoBehaviour {
     {
         Item item = AddToTile();
 
-        item.SetAdjective(InputInfo.GetCurrent.MainItem.GetAdjective);
+        item.word.SetAdjective(InputInfo.GetCurrent.MainItem.word.GetAdjective);
 
         Item.Remove(InputInfo.GetCurrent.MainItem);
 

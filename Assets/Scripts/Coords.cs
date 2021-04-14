@@ -50,6 +50,7 @@ public struct Coords
             return new Coords(Random.Range(1, WorldGeneration.Instance.mapScale - 1), Random.Range(1, WorldGeneration.Instance.mapScale - 1));
         }
     }
+
     public Coords(int x, int y)
     {
         this.x = x;
@@ -280,6 +281,62 @@ public struct Coords
         }
 
         return Player.Orientation.None;
+
+    }
+
+    public void Turn()
+    {
+         if ( x == 0 && y == 1 || x == 0 && y == -1)
+        {
+            if ( Random.value < 0.5f)
+            {
+                x = 1;
+                y = 0;
+            }
+            else
+            {
+                x = -1;
+                y = 0;
+            }
+        }
+        else if (x == 1 && y == 0 || x == -1 && y == 0)
+        {
+            if (Random.value < 0.5f)
+            {
+                x = 0;
+                y = 1;
+            }
+            else
+            {
+                x = 0;
+                y = -1;
+            }
+        }
+
+    }
+
+    public static Coords GetRandom4()
+    {
+        int randomDir = Random.Range(0, 4);
+
+        switch (randomDir)
+        {
+            case 0:
+                return new Coords(0, 1);
+
+            case 1:
+                return new Coords(1, 0);
+
+            case 2:
+                return new Coords(0, -1);
+
+            case 3:
+                return new Coords(-1, 0);
+
+            default:
+                return new Coords(0, 0);
+        }
+
 
     }
 

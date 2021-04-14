@@ -6,7 +6,7 @@ using System.IO;
 
 public class MapTexture : MonoBehaviour {
 
-	public static MapTexture Instance;
+    public static MapTexture Instance;
 
 	public Image mainMap_Image;
     public Texture2D mainMap_Texture;
@@ -14,15 +14,19 @@ public class MapTexture : MonoBehaviour {
     public Image feedbackMap_Image;
     public Texture2D feedbackMap_Texture;
 
+    public Image interiorMap_Image;
+    public Texture2D interiorMap_Texture;
+
     public int range = 1;
-    int scale = 0;
+    private int scale = 0;
     public Color[] tileColors;
     public int testcolorx = 0;
     public int testcolory = 0;
-    
-    void Awake () {
-		Instance = this;
-	}
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     public void SaveTextureToFile(Texture2D textureToSave, string fileName)
     {
@@ -33,7 +37,7 @@ public class MapTexture : MonoBehaviour {
         file.Close();
     }
     
-    public void UpdateMap()
+    public void UpdateFeedbackMap()
     {
         for (int x = 0; x < feedbackMap_Texture.width; x++)
         {
@@ -46,6 +50,26 @@ public class MapTexture : MonoBehaviour {
         Paint(Player.Instance.coords, Color.blue);
         //Paint(ClueManager.Instance.clueCoords, Color.cyan);
         RefreshTexture();
+    }
+
+    public void UpdateInteriorMap()
+    {
+        for (int x = 0; x < interiorMap_Texture.width; x++)
+        {
+            for (int y = 0; y < interiorMap_Texture.height; y++)
+            {
+                interiorMap_Texture.SetPixel(x,y, Color.black);
+            }
+        }
+
+        foreach (var coords in TileSet.current.tiles.Keys)
+        {
+            Color color = tileColors[(int)TileSet.current.tiles[coords].type];
+            interiorMap_Texture.SetPixel(coords.x, coords.y, color);
+        }
+
+        interiorMap_Texture.Apply();
+        interiorMap_Image.sprite = Sprite.Create(interiorMap_Texture, new Rect(0, 0, interiorMap_Texture.width, interiorMap_Texture.height), Vector2.one * 0.5f);
     }
 
     #region read map from texture
@@ -198,20 +222,6 @@ public class MapTexture : MonoBehaviour {
     #endregion
 
     #region texture
-    /*public void InitTexture (int scale)
-	{
-		this.scale = scale;
-
-		mainMap_Texture = new Texture2D (scale, scale);
-
-		mainMap_Texture.filterMode = FilterMode.Point;
-		mainMap_Texture.anisoLevel = 0;
-		mainMap_Texture.mipMapBias = 0;
-		mainMap_Texture.wrapMode = TextureWrapMode.Clamp;
-
-		mainMap_Texture.Resize (scale,scale);
-	}*/
-
 	public void ResetTexture () {
 		Color[] colors = new Color[scale*scale];
 		for (int i = 0; i < colors.Length; i++) {

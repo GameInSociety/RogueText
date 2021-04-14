@@ -7,19 +7,22 @@ public class Interior {
 
 	public Coords coords;
 
-    public static Interior current;
+    public static Interior GetCurrent;
 
 	public static Dictionary<Coords, Interior> interiors= new Dictionary<Coords, Interior>();
 
     public TileSet tileSet;
 
     public static float chanceLockedDoor = 0.2f;
-    public static float chanceClosedDoor = 0.2f;
-    public static float chanceCreateRoom = 0.35f;
+    public static float chanceClosedDoor = 1f;
+    //public static float chanceClosedDoor = 0.2f;
+    public static float chanceCreateRoom = 1f;
+    //public static float chanceCreateRoom = 0.65f;
+    public static float chanceHallwayTurn = 0.5f;
 
     public static bool InsideInterior()
     {
-        return current != null;
+        return GetCurrent != null;
     }
 
     public static void NewInterior ( Tile tile)
@@ -71,12 +74,16 @@ public class Interior {
     {
         TileSet.map.playerCoords = Player.Instance.coords;
 
+        GetCurrent = this;
+
         if (tileSet == null)
         {
             Genererate();
         }
 
         TileSet.SetCurrent(tileSet);
+
+        MapTexture.Instance.UpdateInteriorMap();
 
         Player.Instance.coords = tileSet.Center;
         Player.Instance.Move(Direction.None);
@@ -100,7 +107,7 @@ public class Interior {
         }
         else
         {
-            DisplayFeedback.Instance.Display("la fenêtre est bloquée par une haie");
+            DisplayFeedback.Instance.Display("La fenêtre est bloquée par un grillage");
         }
         
     }
@@ -114,11 +121,11 @@ public class Interior {
 
     void Exit()
     {
-        Interior.current = null;
+        Interior.GetCurrent = null;
 
         TileSet.SetCurrent(TileSet.map);
 
-        Tile.Describe();
+        Player.Instance.Move(Direction.None);
 
         TimeManager.Instance.ChangeMovesPerHour(10);
 
@@ -129,14 +136,14 @@ public class Interior {
 
         /// create tile set 
 		tileSet = new TileSet();
+        tileSet.width = TileSet.map.width;
+        tileSet.height = TileSet.map.height;
 
         // create room types
-		List<Tile.Type> roomTypes = new List<Tile.Type> ();
+        List<Tile.Type> roomTypes = new List<Tile.Type> ();
 		Tile.Type type = Tile.Type.LivingRoom;
 
-
         /// debug interior : create fix list of rooms
-
         roomTypes.Add(Tile.Type.Bathroom);
         roomTypes.Add(Tile.Type.Bedroom);
         roomTypes.Add(Tile.Type.ChildBedroom);
@@ -145,7 +152,7 @@ public class Interior {
 
         // create hallway
         Coords hallway_Coords = tileSet.Center;
-
+        Coords hallway_Dir = new Coords(0,1);
         int a = 0;
 
 		while ( roomTypes.Count > 0 ) {
@@ -153,6 +160,14 @@ public class Interior {
             // add new hallway tile
 			Tile newHallwayTile = new Tile (hallway_Coords);
 			newHallwayTile.SetType (Tile.Type.Hallway);
+
+            if (tileSet.tiles.ContainsKey(hallway_Coords))
+            {
+                hallway_Coords += hallway_Dir;
+                ++a;
+                continue;
+            }
+
 			tileSet.Add (hallway_Coords, newHallwayTile);
 
             // set entrance door
@@ -161,13 +176,22 @@ public class Interior {
                 Item doorItem = Item.FindByName("porte d’entrée (o)");
 
                 newHallwayTile.AddItem(doorItem);
-                newHallwayTile.items[0].SetAdjective(TileSet.map.GetTile(TileSet.map.playerCoords).items[0].GetAdjective);
+                newHallwayTile.items[0].word.SetAdjective(TileSet.map.GetTile(TileSet.map.playerCoords).items[0].word.GetAdjective);
             }
 
             // check if room appears
-            if ( Random.value * 100 < chanceCreateRoom ) {
+            if ( Random.value < chanceCreateRoom ) {
 
-				Coords coords = newHallwayTile.coords + new Coords (1, 0);
+                Coords side = new Coords(hallway_Dir.x, hallway_Dir.y);
+                side.Turn();
+
+                Coords coords = newHallwayTile.coords + side
+                    ;
+
+                if (tileSet.tiles.ContainsKey(coords))
+                {
+                    continue;
+                }
 
 				Tile newRoomTile = new Tile(coords);
 				Tile.Type roomType = roomTypes [Random.Range (0, roomTypes.Count)];
@@ -181,33 +205,42 @@ public class Interior {
                 tileSet.Add ( coords, newRoomTile );
 			}
 
-			hallway_Coords += new Coords (0, 1);
+            hallway_Coords += hallway_Dir;
+            
+            if ( Random.value < chanceHallwayTurn)
+            {
+                hallway_Dir.Turn();
+            }
 
             ++a;
 
         }
 
-        // GENERATING BUNKER
+        //InitStoryTiles();
 
-        if ( coords == ClueManager.Instance.bunkerCoords)
+        // ADDING DOORS
+        AddDoors(tileSet);
+
+	}
+
+    void InitStoryTiles()
+    {
+        if (coords == ClueManager.Instance.bunkerCoords)
         {
             int i = Random.Range(1, tileSet.tiles.Count);
             Item bunkerItem = Item.FindByName("tableau");
             tileSet.tiles.Values.ElementAt(i).items.Add(bunkerItem);
         }
 
-        if (coords== ClueManager.Instance.clueCoords)
+        if (coords == ClueManager.Instance.clueCoords)
         {
             int i = Random.Range(1, tileSet.tiles.Count);
             Item clueItem = Item.FindByName("radio");
             tileSet.tiles.Values.ElementAt(i).items.Add(clueItem);
         }
 
-        // ADDING DOORS
-        AddDoors(tileSet);
+    }
 
-	}
-    
     void AddDoors(TileSet tileset)
     {
         foreach (var tile in tileset.tiles.Values)
@@ -254,14 +287,15 @@ public class Interior {
                         break;
                 }
 
-                Adjective adjective = Adjective.GetRandom(Adjective.Type.Item);
+                Adjective adjective = Adjective.GetRandom("objet");
 
                 if (tile.items.Find(x => x.word.text == currentTileDoorItemName) == null)
                 {
                     //Debug.Log("adding " + currentTileDoorItemName + " to tile " + tile.type);
 
+
                     Item doorItem = Item.FindByName(currentTileDoorItemName);
-                    doorItem.SetAdjective(adjective);
+                    doorItem.word.SetAdjective(adjective);
                     tile.AddItem(doorItem);
 
                 }
@@ -271,7 +305,7 @@ public class Interior {
                     //Debug.Log("adding " + adjTileDoorItemName + " to adj tile " + adjTile.type);
 
                     Item doorItem = Item.FindByName(adjTileDoorItemName);
-                    doorItem.SetAdjective(adjective);
+                    doorItem.word.SetAdjective(adjective);
                     adjTile.AddItem(doorItem);
 
                 }

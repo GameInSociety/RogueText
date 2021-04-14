@@ -4,4 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/EasyTTS/EasyTTSDemo/DemoEasyTTS.unity
+    guid: 31621a684064b401884b3007240c568a
+  m_configObjects: {}

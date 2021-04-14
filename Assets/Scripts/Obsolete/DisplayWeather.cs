@@ -28,7 +28,7 @@ public class DisplayWeather : MonoBehaviour {
 
         if (TimeManager.Instance.raining)
         {
-            if (Interior.current != null)
+            if (Interior.GetCurrent != null)
             {
                 switch (TimeManager.Instance.currentPartOfDay)
                 {
@@ -83,7 +83,7 @@ public class DisplayWeather : MonoBehaviour {
         }
         else
         {
-            if (Interior.current != null)
+            if (Interior.GetCurrent != null)
             {
                 switch (TimeManager.Instance.currentPartOfDay)
                 {

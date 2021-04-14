@@ -98,7 +98,7 @@ public class Player : MonoBehaviour {
 			EnterCurrentInterior ();
 			break;
         case Action.Type.ExitByWindow:
-            Interior.current.ExitByWindow();
+            Interior.GetCurrent.ExitByWindow();
             break;
 		case Action.Type.GoOut:
 			break;
@@ -124,13 +124,13 @@ public class Player : MonoBehaviour {
 
     void EnterCurrentInterior ()
 	{
-        if (Interior.current == null)
+        if (Interior.GetCurrent == null)
         {
             Interior.Get(coords).Enter();
         }
         else
         {
-            Interior.current.ExitByDoor();
+            Interior.GetCurrent.ExitByDoor();
         }
 	}
 
@@ -177,20 +177,19 @@ public class Player : MonoBehaviour {
         // set new direction
         direction = dir;
 
-        Tile.Describe();
-
         TimeManager.Instance.AdvanceTime();
 
-        MapTexture.Instance.UpdateMap();
+        Tile.Describe();
+
+        MapTexture.Instance.UpdateFeedbackMap();
 
         Tile.current.visited = true;
-
-        yield return new WaitForSeconds(Transition.Instance.duration);
 
         Phrase.item = Tile.current.tileItem;
         string str = Phrase.GetPhrase("movement_feedback");
         DisplayFeedback.Instance.Display(str);
 
+        yield return new WaitForEndOfFrame();
 
     }
 

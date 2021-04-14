@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
         Screen.fullScreenMode = FullScreenMode.Windowed;
         Screen.SetResolution(500, 500, false);
 
-        AdjectiveLoader.Instance.LoadAdjectives();
+        AdjectiveLoader.Instance.Load();
 
         PhraseLoader.Instance.Load();
 
@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
         ItemAppearInfoLoader.Instance.Load();
         ItemPositionLoader.Instance.Load();
         PositionsInItemLoader.Instance.Load();
+
         MapTexture.Instance.CreateMapFromTexture();
 
         ClueManager.Instance.Init();
@@ -38,8 +39,18 @@ public class GameManager : MonoBehaviour
     void StartDelay()
     {
         Player.Instance.Init();
-
     }
 
+    /*private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            Interior interior = Interior.GetCurrent;
+            interior.Genererate();
 
+            TileSet.SetCurrent(interior.tileSet);
+
+            MapTexture.Instance.UpdateInteriorMap();
+        }
+    }*/
 }

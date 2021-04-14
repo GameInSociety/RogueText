@@ -54,7 +54,6 @@ public class TileSet {
     public void RemoveAt (Coords c)
     {
         tiles.Remove(c);
-        MapTexture.Instance.Paint(c, Color.black);
     }
 
 }

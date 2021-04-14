@@ -41,10 +41,14 @@ public class DisplayInput : MonoBehaviour {
 
     public void OnEndEdit () {
 
-            // get text from  input field
-		text = inputField.text;
+        ParsePhrase(inputField.text);
+    }
 
-		if (text.Length == 0)
+    public void ParsePhrase (string str)
+    {
+        text = str;
+
+        if (text.Length == 0)
         {
             return;
         }
@@ -67,8 +71,7 @@ public class DisplayInput : MonoBehaviour {
 
         ActionManager.Instance.DisplayInputFeedback();
 
-		Clear ();
-
+        Clear();
     }
 
     public string[] SplitInWordGroups(string[] args)

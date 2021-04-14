@@ -31,7 +31,7 @@ public class Tile
     {
         this.type = type;
 
-        //MapTexture.Instance.Paint(coords, type);
+        //MapTexture_Feedback.Instance.Paint(coords, type);
 
         string tileName = GetTileName(type);
         Item item = Item.FindByName(tileName);
@@ -48,8 +48,8 @@ public class Tile
             {
                 if (Random.value * 100f < appearInfo.rate)
                 {
-                    Item itemToAdd = Item.items[appearInfo.itemIndex];
-                    AddItem(itemToAdd);
+                    Item newItem = Item.CreateNewItem(appearInfo.GetItem());
+                    AddItem(newItem);
                 }
             }
         }
@@ -64,7 +64,6 @@ public class Tile
     public void AddItem(Item item)
     {
         Item newItem = Item.CreateNewItem(item);
-        newItem.SetRandomAdj();
         items.Add(newItem);
     }
     #endregion

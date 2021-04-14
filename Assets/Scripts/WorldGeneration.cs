@@ -98,7 +98,7 @@ public class WorldGeneration : MonoBehaviour {
 	{
 		TileSet.map = new TileSet ();
 
-        Adjective adjective = Adjective.GetRandom(Adjective.Type.Rural);
+        Adjective adjective = Adjective.GetRandom("rural");
 
         for (int x = 0; x < Instance.mapScale; x++) {
 			for (int y = 0; y < Instance.mapScale; y++) {
@@ -139,11 +139,6 @@ public class WorldGeneration : MonoBehaviour {
 
 	IEnumerator GenerateMap () {
 		
-		if (MapTexture.Instance)
-        {
-            //MapTexture.Instance.InitTexture(Instance.mapScale);
-        }
-
         InitMapTiles();
 
         TileSet.SetCurrent(TileSet.map);
@@ -345,7 +340,7 @@ public class WorldGeneration : MonoBehaviour {
 
 		int waitRate = 0;
 
-		Adjective adj = Adjective.GetRandom (Adjective.Type.Rural);
+		Adjective adj = Adjective.GetRandom ("rural");
 
 		while ( true ) {
 
@@ -485,8 +480,8 @@ public class WorldGeneration : MonoBehaviour {
     #endregion
 
     void RefreshTexture () {
-		if (MapTexture.Instance)
-			MapTexture.Instance.RefreshTexture ();
+		/*if (MapTexture.Instance)
+			MapTexture.Instance.RefreshTexture ();*/
 	}
 }
 
@@ -545,7 +540,7 @@ public class GenerationPath {
 		coords = _coords;
 		dir = _dir;
 		dir_Coords = (Coords)dir;
-		adj = Adjective.GetRandom (Adjective.Type.Rural);
+		adj = Adjective.GetRandom ("rural");
         tileType = _tileType;
 
 	}

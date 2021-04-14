@@ -28,7 +28,6 @@ public class ItemLoader : TextParser {
         Word itemWord = new Word();
 
         itemWord.SetText(cells[0]);
-        itemWord.SetRandomAdjectives();
 
         // word
         newItem.word = itemWord;
@@ -36,13 +35,15 @@ public class ItemLoader : TextParser {
         itemWord.UpdateGenre(cells[1]);
 
         // weight
-        if (cells[2].Length > 0)
+        newItem.word.adjectiveType = cells[2].ToLower();
+        itemWord.SetRandomAdj();
+
+        /*if (cells[2].Length > 0)
         {
             int weight = 1;
 
             if (int.TryParse(cells[2], out weight) == false)
             {
-                newItem.word.UpdateAdjectiveType(cells[2]);
 
                 //Debug.Log("item weight : " + cells[2] + " does not parse");
             }
@@ -51,16 +52,22 @@ public class ItemLoader : TextParser {
             }
 
             newItem.weight = weight;
-        }
+        }*/
 
         if ( cells[3].Length > 1)
         {
             newItem.word.SetLocationPrep(cells[3]);
         }
 
-        if (cells[4].Length > 0)
+        newItem.stackable = cells[4] == "stackable";
+        
+        if (cells[4] == "unique")
         {
-            newItem.stackable = true;
+            newItem.unique = true;
+        }
+        else
+        {
+            newItem.unique = false;
         }
 
         // value 

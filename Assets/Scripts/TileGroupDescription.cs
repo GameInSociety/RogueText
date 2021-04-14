@@ -145,7 +145,16 @@ public class TileGroupDescription {
         if (Interior.InsideInterior())
         {
             // tu es dans la cuisine, et tu vois LE couloir ( dans un intérieur, les articles définis ont plus de sens )
-            return Phrase.GetPhrase("surroundingTile_continue");
+            if (surroundingTile.tile.tileItem.stackable)
+            {
+                // tu es dans une forêt, la forêt continue
+                return Phrase.GetPhrase("surroundingTile_continue");
+            }
+            else
+            {
+                // tu es près d'une maison, tu vois une maison que tu connais pas
+                return Phrase.GetPhrase("surroundingTile_visited");
+            }
         }
         else
         {

@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(TextParser), true)]
@@ -16,3 +17,4 @@ public class TextParserEditor : Editor
         DrawDefaultInspector();
     }
 }
+#endif
