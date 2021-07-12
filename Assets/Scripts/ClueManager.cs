@@ -14,6 +14,8 @@ public class ClueManager : MonoBehaviour {
 
     public Coords clueCoords;
 
+    public string letterContent;
+
 	void Awake () {
 		Instance = this;
 	}
@@ -21,9 +23,8 @@ public class ClueManager : MonoBehaviour {
 	// Use this for initialization
     public void Init()
     {
-
         int bunkerID = Random.Range(1, Interior.interiors.Count);
-        bunkerCoords = Interior.interiors.Values.ElementAt(bunkerID).coords;
+        //bunkerCoords = Interior.interiors.Values.ElementAt(bunkerID).coords;
 
         int clueID = Random.Range(1, Interior.interiors.Count);
         if ( clueID == bunkerID)
@@ -39,18 +40,18 @@ public class ClueManager : MonoBehaviour {
         }
         clueCoords = Interior.interiors.Values.ElementAt(clueID).coords;
 
-        ActionManager.onAction += HandleOnAction;
+        PlayerActionManager.onPlayerAction += HandleOnAction;
 
 	}
 
-    private void HandleOnAction(Action action)
+    private void HandleOnAction(PlayerAction action)
     {
         switch (action.type)
         {
-            case Action.Type.GiveClue:
+            case PlayerAction.Type.GiveClue:
                 DisplayBunkerSurrounding();
                 break;
-            case Action.Type.MoveAway:
+            case PlayerAction.Type.MoveAway:
                 CheckMoveAway();
                 break;
             default:
@@ -82,7 +83,13 @@ public class ClueManager : MonoBehaviour {
 
 	}
 
-    void DisplayBunkerSurrounding ()
+    void DisplayBunkerSurrounding()
+    {
+        DisplayDescription.Instance.AddToDescription
+                (letterContent);
+    }
+
+    /*void DisplayBunkerSurrounding ()
 	{
 		List<Direction> directions = new List<Direction> ();
 
@@ -98,13 +105,13 @@ public class ClueManager : MonoBehaviour {
         string facingPart = "";
         string placePart = "";
 
-        string direction_str = Coords.GetWordsDirection(randomDirection).GetContent(Word.ContentType.ArticleAndWord , Word.Definition.Defined, Word.Preposition.A, Word.Number.Singular);
+        string direction_str = Coords.GetWordsDirection(randomDirection).GetContent("au chien");
 
         facingPart += direction_str;
 
         Tile tile = TileSet.map.GetTile( bunkerCoords + (Coords)randomDirection);
 
-        string wordGroup = tile.tileItem.word.GetContent(Word.ContentType.FullGroup, Word.Definition.Undefined, Word.Preposition.None, Word.Number.Singular);
+        string wordGroup = tile.tileItem.word.GetContent("un chien sage");
 
         placePart = wordGroup + " " + locationPhrase;
 
@@ -114,6 +121,6 @@ public class ClueManager : MonoBehaviour {
             "\n" +
             "On dit qu'" + str + " de l'abri");
 
-	}
+	}*/
 
 }

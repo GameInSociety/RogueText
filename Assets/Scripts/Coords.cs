@@ -31,7 +31,7 @@ public struct Coords
 
             float closestDirectionAngle = Vector2.Angle(v, (Vector2)((Coords)closestDirection));
 
-            string direction_str = Coords.GetWordsDirection(direction).GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.A, Word.Number.Singular);
+            string direction_str = Coords.GetWordsDirection(direction).GetContent("au chien");
 
             if (angle < closestDirectionAngle)
             {
@@ -47,7 +47,7 @@ public struct Coords
     {
         get
         {
-            return new Coords(Random.Range(1, WorldGeneration.Instance.mapScale - 1), Random.Range(1, WorldGeneration.Instance.mapScale - 1));
+            return new Coords(Random.Range(1, TileSet.current.width - 1), Random.Range(1, TileSet.current.height - 1));
         }
     }
 
@@ -126,8 +126,8 @@ public struct Coords
     public bool OutOfMap()
     {
         return
-            x > WorldGeneration.Instance.mapScale - 2 || x < 1 ||
-            y > WorldGeneration.Instance.mapScale - 2 || y < 1;
+            x > TileSet.current.width - 2 || x < 1 ||
+            y > TileSet.current.height - 2 || y < 1;
     }
 
     public static Coords Zero

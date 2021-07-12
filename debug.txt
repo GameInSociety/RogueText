@@ -1,0 +1,2 @@
+- est-ce que les positions items changent tout le temps ?
+	-> non -> assigner des items positios fixes aux objets

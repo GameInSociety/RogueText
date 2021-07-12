@@ -26,17 +26,17 @@ public class CraftManager : MonoBehaviour {
     {
         //LoadCraftables();
 
-        ActionManager.onAction += HandleOnAction;
+        PlayerActionManager.onPlayerAction += HandleOnAction;
     }
 
-    private void HandleOnAction(Action action)
+    private void HandleOnAction(PlayerAction action)
     {
         switch (action.type)
         {
-            case Action.Type.Craft:
+            case PlayerAction.Type.Craft:
                 Craft();
                 break;
-            case Action.Type.ReadRecipe:
+            case PlayerAction.Type.ReadRecipe:
                 ReadRecipe();
                 break;
             default:
@@ -87,7 +87,7 @@ public class CraftManager : MonoBehaviour {
 
         string text = Item.ItemListString(requiredItems, false, false);
         DisplayFeedback.Instance.Display("" +
-            "Pour fabriquer " + Item.items[targetCraftInfo.itemRow].word.GetContent(Word.ContentType.JustWord,Word.Definition.Undefined, Word.Preposition.None , Word.Number.None) + "\n" +
+            "Pour fabriquer " + Item.items[targetCraftInfo.itemRow].word.GetContent("un chien") + "\n" +
         "Il vous faut " + text);
     }
 
@@ -134,7 +134,7 @@ public class CraftManager : MonoBehaviour {
 
                 Inventory.Instance.AddItem(InputInfo.GetCurrent.MainItem);
 
-                DisplayFeedback.Instance.Display("Vous avez fabriqué " + InputInfo.GetCurrent.MainItem.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Undefined, Word.Preposition.None, Word.Number.None));
+                DisplayFeedback.Instance.Display("Vous avez fabriqué " + InputInfo.GetCurrent.MainItem.word.GetContent("un chien"));
 
             }
             else

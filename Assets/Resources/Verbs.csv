@@ -8,19 +8,22 @@ regarder / observer,que,,
 prendre / ramasser / saisir,que,,on dirait que ITEM peut rentrer dans votre sac
 remplir,que,,ITEM peut peut être remplir quelque chose d’eau
 boire,que,,ITEM peut être bon pour se déshydrater un peu…
-déplacer,que,,
+déplacer,que,,ITEM peut être déplacé ailleurs
 lire,que,,ITEM pourra vous enseigner une chose ou deux.
-couper,que,,
-entrer,ou,dans,
+couper,que,,Vous pouvez couper ITEM en morceaux
+entrer,ou,dans,Vous pouvez entrer dans ITEM
 jeter / bazarder,que,,
-équiper / mettre,que,,
+équiper / mettre,que,,Vous pouvez porter ITEM
 déséquiper / enlever,que,,
-écouter,que,,
+écouter,que,,Ça vaut peut être le coup d'écouter ITEM
 continuer,ou,vers,
-sortir,par ou,,
+sortir,par ou,par,
 retourner,ou,vers,
-casser,ou,,
-déchirer,ou,,
+casser,ou,,Vous pouvez casser ITEM
+déchirer,ou,,Vous pouvez déchirer ITEM
 (fabriquer,que,,
-allumer,que,,
-éteindre,que,,
+allumer,que,,On dirait que ITEM peut s'allumer
+éteindre,que,,On dirait que ITEM peut s'éteindre
+avancer,où,vers,
+planter,que,dans,"Clairement, ITEM peut se planter quelque part"
+détérrer,que,dans,Vous pouvez détérer ITEM

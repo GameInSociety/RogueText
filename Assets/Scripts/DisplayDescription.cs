@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,10 +14,6 @@ public class DisplayDescription : MonoBehaviour {
     string currentDescription;
 
     public ScrollRect scrollRect;
-    public CanvasGroup fade_Top_CanvasGroup;
-    public CanvasGroup fade_Bottom_CanvasGroup;
-    public float fade_Buffer = 0.1f;
-    public float fade_Speed = 1f;
 
     public float test;
 
@@ -31,55 +28,16 @@ public class DisplayDescription : MonoBehaviour {
     {
         uiText_Old.text = "";
         uiText.text = "";
+
+        PlayerActionManager.onPlayerAction += HandleOnAction;
     }
 
-    private void Update()
+    private void HandleOnAction(PlayerAction action)
     {
-        UpdateScrollFade();
-    }
-
-    private void UpdateScrollFade()
-    {
-        /*if (scrollRect.verticalNormalizedPosition >= 1f - fade_Buffer)
+        if (action.type == PlayerAction.Type.LookAround)
         {
-            fade_Top_CanvasGroup.alpha = Mathf.Lerp(fade_Top_CanvasGroup.alpha, 0f, fade_Speed * Time.deltaTime);
+            UpdateDescription();
         }
-        else
-        {
-            fade_Top_CanvasGroup.alpha = Mathf.Lerp(fade_Top_CanvasGroup.alpha, 1f, fade_Speed * Time.deltaTime);
-        }
-
-        if (scrollRect.verticalNormalizedPosition <= fade_Buffer)
-        {
-            fade_Bottom_CanvasGroup.alpha = Mathf.Lerp(fade_Bottom_CanvasGroup.alpha, 0f, fade_Speed * Time.deltaTime);
-        }
-        else
-        {
-            fade_Bottom_CanvasGroup.alpha = Mathf.Lerp(fade_Bottom_CanvasGroup.alpha, 1f, fade_Speed * Time.deltaTime);
-        }
-
-        test = scrollRect.verticalNormalizedPosition;*/
-    }
-
-    public void UpdateDescription()
-    {
-        StartCoroutine(UpdateDescriptionCoroutine());
-    }
-
-    IEnumerator UpdateDescriptionCoroutine()
-    {
-        DisplayInput.Instance.Hide();
-
-        Transition.Instance.FadeIn();
-
-        yield return new WaitForSeconds(Transition.Instance.duration);
-
-        Transition.Instance.FadeOut();
-
-        uiText.text = newText;
-
-        DisplayInput.Instance.Show();
-
     }
 
     public void ClearDescription()
@@ -87,8 +45,37 @@ public class DisplayDescription : MonoBehaviour {
         uiText.text = "";
     }
 
+    public void UpdateDescription()
+    {
+        string str = "";
+
+        // display current tile
+        str += Tile.current.GetDescription();
+        str += "\n";
+
+        // display surrounding tiles
+        str += TileGroupDescription.GetSurroundingTileDescription();
+        str += "\n";
+
+        // display tile items
+        str += Tile.current.GetItemDescriptions();
+
+        // pas sûr que les choses d'état de santé, de temps et autre trucs divers doivent être là, pense à changer
+        str += StateManager.GetInstance().GetDescription();
+
+        // l'indication de la lettre
+        if ( !Story.Instance.GetParam("retrieved_letter"))
+        {
+            str += "\n\nJ'ai laissé la lettre quelque part dans cette maison, mais je ne sais plus où...";
+        }
+
+        DisplayDescription.Instance.AddToDescription(str);
+    }
+
     public void AddToDescription(string str)
     {
+        str = Phrase.ReplaceItemInString(str);
+
         // archive
         uiText_Old.text += uiText.text;
 
@@ -101,12 +88,15 @@ public class DisplayDescription : MonoBehaviour {
         uiText.text += "\n";
         uiText.text += str;
 
+        AudioInteraction.Instance.StartSpeaking(str);
+
         Invoke("AddToDescriptionDelay", 0.001f);
     }
 
     void AddToDescriptionDelay()
     {
         scrollRect.verticalNormalizedPosition = 0f;
+
     }
 
 }

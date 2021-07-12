@@ -29,10 +29,16 @@ public class TileGroupDescription {
 
     public static string GetSurroundingTileDescription()
     {
+        // enclosed, so no description of hallway, other rooms etc...
+        if (Tile.current.enclosed)
+        {
+            return "";
+        }
+
         string str = "";
 
         /// light / night
-        if ( TimeManager.Instance.currentPartOfDay == TimeManager.PartOfDay.Night)
+        if ( TimeManager.GetInstance().currentPartOfDay == TimeManager.PartOfDay.Night)
         {
             if ( Inventory.Instance.GetItem("lampe torche (a)") != null)
             {
@@ -88,25 +94,24 @@ public class TileGroupDescription {
 
             Coords targetCoords = Player.Instance.coords + (Coords)dir;
 
-            Tile tile = TileSet.current.GetTile(targetCoords);
+            Tile targetTile = TileSet.current.GetTile(targetCoords);
 
-            if (tile == null)
+            if (targetTile == null)
             {
                 continue;
             }
 
-            if (tile.locked)
+            if (targetTile.enclosed)
             {
-                Debug.Log("la tile " + tile.type + " est fermée donc on l'affiche pas ");
                 continue;
             }
 
-            TileGroup newTileGroup = tileGroups.Find(x => x.tile.type == tile.type);
+            TileGroup newTileGroup = tileGroups.Find(x => x.tile.type == targetTile.type);
 
             if (newTileGroup == null)
             {
                 newTileGroup = new TileGroup();
-                newTileGroup.tile = tile;
+                newTileGroup.tile = targetTile;
 
                 newTileGroup.orientations = new List<Player.Orientation>();
                 newTileGroup.orientations.Add(orientation);
@@ -123,7 +128,6 @@ public class TileGroupDescription {
 
     public static string GetSurroundingTileDescription(TileGroup surroundingTile)
     {
-        Phrase.item = surroundingTile.tile.tileItem;
         Phrase.orientations = surroundingTile.orientations;
 
         // same tile
@@ -132,12 +136,12 @@ public class TileGroupDescription {
             if (Tile.current.tileItem.stackable)
             {
                 // tu es dans une forêt, la forêt continue
-                return Phrase.GetPhrase("surroundingTile_continue");
+                return Phrase.GetPhrase("surroundingTile_continue", surroundingTile.tile.tileItem);
             }
             else
             {
                 // tu es près d'une maison, tu vois une maison que tu connais pas
-                return Phrase.GetPhrase("surroundingTile_discover");
+                return Phrase.GetPhrase("surroundingTile_discover", surroundingTile.tile.tileItem);
             }
         }
 
@@ -148,12 +152,12 @@ public class TileGroupDescription {
             if (surroundingTile.tile.tileItem.stackable)
             {
                 // tu es dans une forêt, la forêt continue
-                return Phrase.GetPhrase("surroundingTile_continue");
+                return Phrase.GetPhrase("surroundingTile_continue", surroundingTile.tile.tileItem);
             }
             else
             {
                 // tu es près d'une maison, tu vois une maison que tu connais pas
-                return Phrase.GetPhrase("surroundingTile_visited");
+                return Phrase.GetPhrase("surroundingTile_visited", surroundingTile.tile.tileItem);
             }
         }
         else
@@ -162,11 +166,11 @@ public class TileGroupDescription {
             if ( surroundingTile.tile.visited)
             {
                 // tu vois es près d'une maison
-                return Phrase.GetPhrase("surroundingTile_visited");
+                return Phrase.GetPhrase("surroundingTile_visited", surroundingTile.tile.tileItem);
             }
             else
             {
-                return Phrase.GetPhrase("surroundingTile_discover");
+                return Phrase.GetPhrase("surroundingTile_discover", surroundingTile.tile.tileItem);
             }
         }
 

@@ -16,85 +16,76 @@ gauche,,,,,,,,,,,,
 inventaire,,,,,,,,,,,,
 sac,,,,,,,,,,,,
 alentours,,,,,,,,,,,,
-porte d’entrée (o),,,,,,,1,1,1,,,
-porte d’entrée (f),,,,,,,1,1,1,,,
-porte (o)(n),,,,,,,,,,1,,
-porte (o)(w),,,,,,,,,,1,,
-porte (o)(s),,,,,,,,,,1,,
-porte (o)(e),,,,,,,,,,1,,
-porte (f)(n),,,,,,,,,,1,,
-porte (f)(w),,,,,,,,,,1,,
-porte (f)(s),,,,,,,,,,1,,
-porte (f)(e),,,,,,,,,,1,,
-champignon,,,,,,,,,,,,
-flaque,,,,,,,,,,,,
-lit,,,,,,,,,,,1,1
-gourde pleine,,,,,,,,,,,1,1
-gourde vide,,,,,,,,,,,,
-évier,,,,,1,,,,,,,
-douche,1,,,,,,,,,,,
-cuvette,,,,,,,,,,,,
-lettre,,,,,,,,,,,,
-tableau,1,,,,,,,,,,,
-arbre,,1,,,,,,,,,,
-bûche,,,,,,,,,,,,
-branche,,,,,,,,,,,,
-tomate pourrie,,,,,,,,,,,1,1
-brocoli pourri,,,,,,,,,,,1,1
-pomme pourrie,,,,,,,,,,,1,1
-banane pourrie,,,,,,,,,,,1,1
-bouteille de lait,,,,,,,,,,,1,1
-bouteille de lait périmé,,,,,,,,,,,1,1
-bout de pain,,,,,,,,,,,1,1
-bout de pain périmé,,,,,,,,,,,1,1
-bouteille d’eau,,,,,,,,,,,1,1
+porte d’entrée,,,,,,,1,1,1,,,
+porte,,,,,,,1,1,1,,,
+champignon,,,,,,,,,,1,,
+flaque,,,,,,,,,,1,,
+lit,,,,,,,,,,1,,
+gourde,,,,,,,,,,1,,
+évier,,,,,,,,,,1,,
+douche,,,,,,,,,,1,,
+cuvette,,,,,,,,,,1,,
+lettre,,,,,,,,,,1,,
+tableau,,,,,,,,,,,,
+arbre,,,,,,,,,,,,
+bûche,1,,1,,,1,,,1,1,,
+branche,,,,,,,,,,,1,1
+tomate,,,,,,,,,,,1,1
+brocoli,,,,,1,,,,,,,
+pomme,1,,,,,,,,,,,
+banane,,,,,,,,,,,,
+bouteille de lait,,,,,,,,,,,,
+bouteille de lait périmé,1,,,,,,,,,,,
+bout de pain,,1,,,,,,,,,,
+bout de pain périmé,,,,,,,,,,,,
+bouteille d’eau,,,,,,,,,,,,
 carotte,,,,,,,,,,,1,1
-carotte douteuse,,,,,,,,,,,1,1
+carotte pourrie,,,,,,,,,,,1,1
 conserve de viande,,,,,,,,,,,1,1
 conserve de tomate,,,,,,,,,,,1,1
 conserve de thon,,,,,,,,,,,1,1
 cannette de soda,,,,,,,,,,,1,1
 couteau,,,,,,,,,,,1,1
-serpillière,,,,,,,,,,,,
-pelle,,,,,,,,,,,,
-clé,,,,,,,,,,,,
-roman,,,,,,,,,,,,
+serpillière,,,,,,,,,,,1,1
+pelle,,,,,,,,,,,1,1
+clé,,,,,,,,,,,1,1
+roman,,,,,,,,,,,1,1
 recette,,,,,,,,,,,1,1
 manuel,,,,,,,,,,,1,1
 journal,,,,,,,,,,,1,1
-magazine,,,,,,,,,,,,
-dollar,,,,,,,,,,,,
+magazine,,,,,,,,,,,1,1
+dollar,,,,,,,,,,,1,1
 lecteur mp3,,,,,,,,,,,,
 poupée,,,,,,,,,,,,
-stylo,,,,,,,,,,,1,1
-cuillère,,,,,,,,,,,1,1
+stylo,,,,,,,,,,,,
+cuillère,,,,,,,,,,,,
 fourchette,,,,,,,,,,,1,1
 assiette,,,,,,,,,,,1,1
 bol,,,,,,,,,,,1,1
-verre,,,,,,,,,,,1,1
-éponge,,,,,,,,,,,1,1
+verre,,,,,,,,,,,,
+éponge,,,,,,,,,,,,
 parfum,,,,,,,,,,,,
 canard en plastique,,,,,,,,,,,,
-serviette,,,,,,,,,,,,
-tube de dentifrice,,,,,,,,,,,,
-brosse à dent,,,,,,,,,,,,
-téléviseur,,,,,,,,,,,,
-table,1,,1,,,,,,,,,
-canapé,1,,1,,,,,,,,,
-horloge,,,,,,,,,,,,
-fenêtre ouverte,,,,,1,,,,,,,
-fenêtre fermée,,,,,1,,,,,,,
+serviette,,,,,,,,,,,1,1
+tube de dentifrice,,,,,,,,,,,1,1
+brosse à dent,,,,,,,,,,,1,1
+téléviseur,,,,,,,,,,,1,1
+table,,,,,,,,,,,1,1
+canapé,,,,,,,,,,,1,1
+horloge,,,,,,,,,,,1,1
+fenêtre ouverte,,,,,,,,,,,,
+fenêtre fermée,,,,,,,,,,,,
 téléphone,,,,,,,,,,,,
-ordinateur,,,,1,,,,,,,,
+ordinateur,,,,,,,,,,,,
 radio,,,,,,,,,,,,
 appareil photo,,,,,,,,,,,,
-voiture,,,,,,,,,,,,
-bâteau,,,,,,,,,,,,
+voiture,1,,1,,,,,,,,,
+bâteau,1,,1,,,,,,,,,
 pantalon,,,,,,,,,,,,
-t-shirt,,,,,,,,,,,,
-veste,,,,,,,,,,,,
+t-shirt,,,,,1,,,,,,,
+veste,,,,,1,,,,,,,
 manteau,,,,,,,,,,,,
-paire de chaussures,,,,,,,,,,,,
+paire de chaussures,,,,1,,,,,,,,
 lunettes,,,,,,,,,,,,
 montre,,,,,,,,,,,,
 casque moto,,,,,,,,,,,,
@@ -114,22 +105,24 @@ paire de ciseaux,,,,,,,,,,,,
 dé à coudre,,,,,,,,,,,,
 fil à tricoter,,,,,,,,,,,,
 pile,,,,,,,,,,,,
-frigo,1,,,,,,,,,,,
-coffre,,,,,,1,,,,,,
-armoire,1,,,,1,1,,,,,,
-placard,1,,,,1,1,,,,,,
-étagère,1,,,,,1,,,,,,
+frigo,,,,,,,,,,,,
+coffre,,,,,,,,,,,,
+armoire,,,,,,,,,,,,
+placard,,,,,,,,,,,,
+étagère,,,,,,,,,,,,
 porte monnaie,,,,,,,,,,,,
 boîte à outil,,,,,,,,,,,,
-armoire de toilette,,,,,1,,,,,,,
-carton,,,,,1,,,,,,,
-plaine,,,,,,,,,,,,
-champ,,,,,,,,,,,,
-clairière,,,,,,,,,,,,
+armoire de toilette,,,,,,,,,,,,
+carton,,,,,,,,,,,,
+graines de carottes,1,,,,,,,,,,,
+pousse de carotte,,,,,,1,,,,,,
+plaine,1,,,,1,1,,,,,,
+champ,1,,,,1,1,,,,,,
+clairière,1,,,,,1,,,,,,
 colline,,,,,,,,,,,,
 montagne,,,,,,,,,,,,
-forêt,,,,,,,,,,,,
-bois,,,,,,,,,,,,
+forêt,,,,,1,,,,,,,
+bois,,,,,1,,,,,,,
 mer,,,,,,,,,,,,
 lac,,,,,,,,,,,,
 rivière,,,,,,,,,,,,
@@ -138,24 +131,31 @@ route,,,,,,,,,,,,
 route de village,,,,,,,,,,,,
 route côtière,,,,,,,,,,,,
 chemin,,,,,,,,,,,,
-pont,1,,,,,,,,,,,
-maison,1,,,,,,,,,,,
-ferme,1,,,,,,,,,,,
-cabane de forêt,,,,,,,,,,,,
-maison de campagne,,,,,,,,,,,,
-couloir,1,1,1,,,,,,,,,
-escalier,1,1,1,,,,,,,,,
-salon,,,,,,,,,,,,
-cuisine,,,,,,,,,,,,
-salle à manger,,,,,,,,,,,,
+pont,,,,,,,,,,,,
+maison,,,,,,,,,,,,
+ferme,,,,,,,,,,,,
+cabane,,,,,,,,,,,,
+villa,,,,,,,,,,,,
+couloir,,,,,,,,,,,,
+escalier,,,,,,,,,,,,
+salon,1,,,,,,,,,,,
+cuisine,1,,,,,,,,,,,
+salle à manger,1,,,,,,,,,,,
 chambre d'enfant,,,,,,,,,,,,
 chambre à coucher,,,,,,,,,,,,
-salle de bain,,,,,,,,,,,,
-toilette,,,,,,,,,,,,
+salle de bain,1,1,1,,,,,,,,,
+toilette,1,1,1,,,,,,,,,
 grenier,,,,,,,,,,,,
 cave,,,,,,,,,,,,
-cellier,,,,,,,,,1,,,
-bureau,,,,,,,,,1,,,
+cellier,,,,,,,,,,,,
+bureau,,,,,,,,,,,,
+bureau,,,,,,,,,,,,
+arrosoir,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,1,,,
+,,,,,,,,,1,,,
 ,,,,,,,,,1,,,
 ,,,,,,,,,1,,,
 ,,,,,,1,,,,,,

@@ -19,7 +19,7 @@ public class Adjective {
 		Any,
 	}
 
-	public string GetContent ( Word.Genre genre , Word.Number num) {
+	public string GetContent ( Word.Genre genre , bool plural) {
 
 		string adj = _text;
 
@@ -46,7 +46,7 @@ public class Adjective {
 
 		}
 
-		if (num == Word.Number.Plural) {
+		if (plural) {
 			adj += "s";
 		}
 
@@ -54,8 +54,21 @@ public class Adjective {
 
 	}
 
+    public static List<Adjective> GetAll(string _name)
+    {
+        AdjectiveGroup adjectiveGroup = adjectiveGroups.Find(x => x.name == _name);
 
-	public static Adjective GetRandom ( string _name ) {
+
+        if (adjectiveGroup == null)
+        {
+            Debug.LogError("couldn't find adjective group : " + _name);
+            adjectiveGroup = adjectiveGroups[0];
+        }
+        List<Adjective> adjectives = new List<Adjective>(adjectiveGroup.adjectives);
+        return adjectives;
+    }
+
+    public static Adjective GetRandom ( string _name ) {
 
         AdjectiveGroup adjectiveGroup = adjectiveGroups.Find(x => x.name == _name);
 

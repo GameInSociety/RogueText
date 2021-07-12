@@ -15,7 +15,17 @@ public class ItemAppearInfoLoader : TextParser
     {
         base.GetCell(rowIndex, cells);
 
+        if ( cells.Count == 0)
+        {
+            return;
+        }
+
         if (rowIndex < 1)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(cells[0]))
         {
             return;
         }
@@ -24,10 +34,9 @@ public class ItemAppearInfoLoader : TextParser
 
         if ( itemToAddIndex >= Item.items.Count)
         {
-            Debug.Log(" item index : " +itemToAddIndex + " out of item range : " + Item.items.Count );
+            Debug.LogError("fuck");
             return;
         }
-
 
         Item itemToAdd = Item.items[itemToAddIndex];
 
@@ -40,6 +49,7 @@ public class ItemAppearInfoLoader : TextParser
         for (int cellIndex = 2; cellIndex < cells.Count; cellIndex++)
         {
             string cell = cells[cellIndex];
+
 
             string amount_str = "";
 
@@ -81,11 +91,13 @@ public class ItemAppearInfoLoader : TextParser
             }
 
             int itemIndex = cellIndex - 2;
-            Item targetItem = Item.items[itemIndex];
+            if ( itemIndex < Item.items.Count)
+            {
+                Item targetItem = Item.items[itemIndex];
 
-            targetItem.appearInfos.Add(newAppearInfo);
-
-            //Debug.Log("adding : " + Item.items[newAppearInfo.itemIndex].GetWord() + " to tile " + targetItem.GetWord());
+                targetItem.appearInfos.Add(newAppearInfo);
+            }
+            
         }
     }
 }

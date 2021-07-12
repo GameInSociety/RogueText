@@ -16,6 +16,7 @@ public class DisplayText : MonoBehaviour
     public virtual void Display(string str)
     {
         Show();
+        str = TextManager.WithCaps(str);
         uiText.text = str;
     }
 

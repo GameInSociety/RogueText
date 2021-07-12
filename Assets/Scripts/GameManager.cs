@@ -6,6 +6,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public Story story;
+
     private void Awake()
     {
         Instance = this;
@@ -14,10 +16,6 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Screen.fullScreen = false;
-        Screen.fullScreenMode = FullScreenMode.Windowed;
-        Screen.SetResolution(500, 500, false);
-
         AdjectiveLoader.Instance.Load();
 
         PhraseLoader.Instance.Load();

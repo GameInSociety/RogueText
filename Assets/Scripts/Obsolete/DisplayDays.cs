@@ -9,7 +9,7 @@ public class DisplayDays : MonoBehaviour{
     // Use this for initialization
     public void Start()
     {
-        TimeManager.Instance.onNextDay += HandleOnNextDay;
+        TimeManager.GetInstance().onNextDay += HandleOnNextDay;
 
         UpdateUI();
     }
@@ -21,6 +21,6 @@ public class DisplayDays : MonoBehaviour{
 
     private void UpdateUI()
     {
-        //Display("j:" + TimeManager.Instance.daysPasted);
+        //Display("j:" + TimeManager.GetInstance().daysPasted);
     }
 }

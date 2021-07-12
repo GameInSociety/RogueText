@@ -26,7 +26,7 @@ public class Equipment {
     {
         Instance = this;
 
-        ActionManager.onAction += HandleOnAction;
+        PlayerActionManager.onPlayerAction += HandleOnAction;
 
         InitItems();
     }
@@ -41,14 +41,14 @@ public class Equipment {
         }
     }
 
-    void HandleOnAction(Action action)
+    void HandleOnAction(PlayerAction action)
     {
         switch (action.type)
         {
-            case Action.Type.Equip:
+            case PlayerAction.Type.Equip:
                 Action_Equip();
                 break;
-            case Action.Type.Unequip:
+            case PlayerAction.Type.Unequip:
                 Action_Unequip();
                 break;
             default:
@@ -58,7 +58,7 @@ public class Equipment {
 
     void Action_Equip()
     {
-        Part part = GetPartFromString(Action.GetCurrent.contents[0]);
+        Part part = GetPartFromString(PlayerAction.GetCurrent.contents[0]);
 
         if ( GetEquipement(part) != null)
         {
@@ -70,23 +70,23 @@ public class Equipment {
         Item.Remove(InputInfo.GetCurrent.MainItem);
 
 
-        DisplayFeedback.Instance.Display("Vous avez équipé " + InputInfo.GetCurrent.MainItem.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Undefined , Word.Preposition.None, Word.Number.Singular) + " à " + part.ToString());
+        DisplayFeedback.Instance.Display("Vous avez équipé " + InputInfo.GetCurrent.MainItem.word.GetContent("un chien") + " à " + part.ToString());
 
     }
 
     void Action_Unequip()
     {
-        Part part = GetPartFromString(Action.GetCurrent.contents[0]);
+        Part part = GetPartFromString(PlayerAction.GetCurrent.contents[0]);
 
         if ( GetEquipement(part) != InputInfo.GetCurrent.MainItem)
         {
-            DisplayFeedback.Instance.Display("Vous n'avez pas " + InputInfo.GetCurrent.MainItem.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.De, Word.Number.Singular) + " sur vous");
+            DisplayFeedback.Instance.Display("Vous n'avez pas " + InputInfo.GetCurrent.MainItem.word.GetContent("de chien") + " sur vous");
             return;
         }
 
         Inventory.Instance.AddItem(InputInfo.GetCurrent.MainItem);
 
-        DisplayFeedback.Instance.Display("Vous enlevez " + InputInfo.GetCurrent.MainItem.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.None) );
+        DisplayFeedback.Instance.Display("Vous enlevez " + InputInfo.GetCurrent.MainItem.word.GetContent("le chien") );
 
         SetEquipment(part, null);
     }

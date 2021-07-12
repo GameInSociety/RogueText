@@ -14,6 +14,11 @@ public class TextParserEditor : Editor
             myScript.DownloadCSVs();
         }
 
+        if (GUILayout.Button("Open Link"))
+        {
+            Application.OpenURL(myScript.url);
+        }
+
         DrawDefaultInspector();
     }
 }

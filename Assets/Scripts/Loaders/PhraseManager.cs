@@ -11,6 +11,7 @@ public class PhraseManager : MonoBehaviour
         Instance = this;
     }
 
+    public Socket[] genericSockets;
     public string[] positionPhrases;
     public string[] visionPhrases;
     public string[] locationPhrases;

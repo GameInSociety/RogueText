@@ -4,9 +4,17 @@ using UnityEngine;
 
 public class TimeManager : MonoBehaviour {
 
-	public static TimeManager Instance;
+    private static TimeManager _instance;
+    public static TimeManager GetInstance()
+    {
+        if (_instance == null)
+        {
+            _instance = GameObject.FindObjectOfType<TimeManager>();
+        }
 
-	public int daysPasted = 0;
+        return _instance;
+    }
+    public int daysPasted = 0;
 
 	public int timeOfDay = 0;
 
@@ -15,7 +23,7 @@ public class TimeManager : MonoBehaviour {
     /// </summary>
 	public int rainRate_Max = 40;
 	public int rainRate_Min = 10;
-	public int hoursToRain = 0;
+	public int hoursLeftToRain = 0;
 	public int rainDuration_Max = 10;
 	public int rainDuration_Min = 1;
     public bool raining = false;
@@ -31,13 +39,19 @@ public class TimeManager : MonoBehaviour {
 	public int hourToNight = 21;
 
     public int movesToNextHour = 3;
-    public int currentMoves = 0;
+    public int currentMove = 0;
 
     public bool changedPartOfDay = false;
 
 	public int [] hoursToPartOfDay;
 
-	public enum PartOfDay {
+    public delegate void OnNextDay();
+    public OnNextDay onNextDay;
+
+    public delegate void OnNextHour();
+    public OnNextHour onNextHour;
+
+    public enum PartOfDay {
 		Dawn,
 		Morning,
 		Noon,
@@ -72,10 +86,6 @@ public class TimeManager : MonoBehaviour {
 		return PartOfDay.Night;
 	}
 
-	void Awake () {
-		Instance = this;
-	}
-
     private void Start()
     {
         ResetRain();
@@ -84,11 +94,11 @@ public class TimeManager : MonoBehaviour {
 
     public void AdvanceTime()
     {
-        currentMoves++;
+        currentMove++;
 
-        if (currentMoves >= movesToNextHour)
+        if (currentMove >= movesToNextHour)
         {
-            currentMoves = 0;
+            currentMove = 0;
 
             NextHour();
         }
@@ -98,7 +108,7 @@ public class TimeManager : MonoBehaviour {
     {
         movesToNextHour = i;
 
-        currentMoves = 0;
+        currentMove = 0;
 
         NextHour();
     }
@@ -111,7 +121,7 @@ public class TimeManager : MonoBehaviour {
 
         currentPartOfDay = GetPartOfDay();
 
-        Player.Instance.UpdateStates();
+        StateManager.GetInstance().AdvanceStates();
 
         UpdateRain();
 
@@ -124,13 +134,19 @@ public class TimeManager : MonoBehaviour {
             timeOfDay = 0;
             NextDay();
         }
+
+        if (onNextHour != null)
+        {
+            onNextHour();
+        }
+
     }
 
     private void UpdateRain()
     {
-        --hoursToRain;
+        --hoursLeftToRain;
 
-        if ( hoursToRain == 0) {
+        if ( hoursLeftToRain == 0) {
 
             if (raining)
             {
@@ -151,16 +167,13 @@ public class TimeManager : MonoBehaviour {
     {
         if (raining)
         {
-            hoursToRain = Random.Range(rainDuration_Min, rainDuration_Max);
+            hoursLeftToRain = Random.Range(rainDuration_Min, rainDuration_Max);
         }
         else
         {
-            hoursToRain = Random.Range(rainRate_Min, rainRate_Max);
+            hoursLeftToRain = Random.Range(rainRate_Min, rainRate_Max);
         }
     }
-
-    public delegate void OnNextDay();
-    public OnNextDay onNextDay;
 
     public void NextDay()
     {

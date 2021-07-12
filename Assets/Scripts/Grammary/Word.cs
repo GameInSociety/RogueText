@@ -13,7 +13,7 @@ public class Word
 
             if (str.Contains("/DE"))
             {
-                currentPreposition = Preposition.De;
+                currentInfo.preposition = Preposition.De;
                 str = str.Replace("/DE", "");
             }
 
@@ -36,15 +36,14 @@ public class Word
 
     // GENRE
     public Genre genre;
+    public Number defaultNumber = Number.Singular;
 
     // ADJECTIVE
     // more logic if word have adjectives, and not items or location or tiles. fuck s
     private Adjective adjective;
     public string adjectiveType;
 
-    public Number currentNumber = Number.None;
-    public Definition currentDefinition = Definition.Undefined;
-    public Preposition currentPreposition = Preposition.None;
+    public Info currentInfo;
 
     public enum Number
     {
@@ -94,6 +93,14 @@ public class Word
             case "fs":
                 genre = Genre.Feminine;
                 break;
+            case "mp":
+                genre = Genre.Masculine;
+                defaultNumber = Number.Plural;
+                break;
+            case "fp":
+                genre = Genre.Feminine;
+                defaultNumber = Number.Plural;
+                break;
             default:
                 Debug.LogError("pas trouvé de genre pour l'item : " + text + " ( content : " + str + ")");
                 break;
@@ -104,11 +111,16 @@ public class Word
     public string GetArticle()
     {
         // l'espace est inclu dans l'article par qu'il 
+        if ( defaultNumber == Number.Plural)
+        {
+            currentInfo.plural = true;
+        }
+        
 
         // NUMBER
-        if (currentNumber == Number.Plural)
+        if (currentInfo.plural)
         {
-            switch (currentPreposition)
+            switch (currentInfo.preposition)
             {
                 case Preposition.None:
                     return "des ";
@@ -119,7 +131,7 @@ public class Word
                     }
                     else
                     {
-                        if (currentDefinition == Definition.Defined)
+                        if (currentInfo.defined)
                             return "des ";
                         else
                             return "de ";
@@ -132,11 +144,11 @@ public class Word
 
         }
 
-        if (currentDefinition == Definition.Defined)
+        if (currentInfo.defined)
         {
             if (StartsWithVowel())
             {
-                switch (currentPreposition)
+                switch (currentInfo.preposition)
                 {
                     case Preposition.None:
                         return "l'";
@@ -155,7 +167,7 @@ public class Word
                 {
                     case Genre.Masculine:
 
-                        switch (currentPreposition)
+                        switch (currentInfo.preposition)
                         {
                             case Preposition.None:
                                 return "le ";
@@ -170,7 +182,7 @@ public class Word
 
                     case Genre.Feminine:
 
-                        switch (currentPreposition)
+                        switch (currentInfo.preposition)
                         {
                             case Preposition.None:
                                 return "la ";
@@ -196,7 +208,7 @@ public class Word
             {
                 case Genre.Masculine:
 
-                    switch (currentPreposition)
+                    switch (currentInfo.preposition)
                     {
                         case Preposition.None:
                             return "un ";
@@ -214,7 +226,7 @@ public class Word
                     break;
                 case Genre.Feminine:
 
-                    switch (currentPreposition)
+                    switch (currentInfo.preposition)
                     {
                         case Preposition.None:
                             return "une ";
@@ -258,208 +270,141 @@ public class Word
     }
 
     #region getter
-    public string GetContentTest(string key_phrase)
+    public struct Info
     {
-        string[] parts = key_phrase.Split(' ');
-
-        switch (key_phrase)
-        {
-            case "route":
-                return GetContent(ContentType.JustWord, Definition.Undefined, Preposition.None, Number.Singular);
-            case "routes":
-                return GetContent(ContentType.JustWord, Definition.Undefined, Preposition.None, Number.Plural);
-            case "la route":
-                return GetContent(ContentType.ArticleAndWord, Definition.Defined, Preposition.None, Number.Singular);
-            case "les routes":
-                return GetContent(ContentType.ArticleAndWord, Definition.Defined, Preposition.None, Number.Plural);
-            case "des routes":
-                return GetContent(ContentType.ArticleAndWord, Definition.Undefined, Preposition.De, Number.Plural);
-            case "à la route":
-                return GetContent(ContentType.ArticleAndWord, Definition.Defined, Preposition.A, Number.Singular);
-            case "aux routes":
-                return GetContent(ContentType.ArticleAndWord, Definition.Undefined, Preposition.A, Number.Plural);
-            case "de la route":
-                return GetContent(ContentType.ArticleAndWord, Definition.Defined, Preposition.De, Number.Singular);
-            case "sur la route":
-                return GetContent(ContentType.ArticleAndWord, Definition.Defined, Preposition.None, Number.Singular, true);
-            case "sur une route":
-                return GetContent(ContentType.ArticleAndWord, Definition.Undefined, Preposition.None, Number.Singular, true);
-            case "sur les routes":
-                return GetContent(ContentType.ArticleAndWord, Definition.Defined, Preposition.None, Number.Singular, true);
-            case "sur des routes":
-                return GetContent(ContentType.ArticleAndWord, Definition.Undefined, Preposition.None, Number.Singular, true);
-            default:
-                return "/// " + key_phrase + "///";
-        }
-    }
-    public string GetContent(string item_key)
-    {
-        string[] parts = item_key.Split('/');
-
-        // CONTENT TYPE
-        ContentType contentType = ContentType.ArticleAndWord;
-
-        switch (parts[0])
-        {
-            case "FULL":
-                contentType = ContentType.FullGroup;
-                break;
-            case "JW":
-                contentType = ContentType.JustWord;
-                break;
-            case "AOW":
-                contentType = ContentType.ArticleOtherAndWord;
-                break;
-            case "AW":
-                contentType = ContentType.ArticleAndWord;
-                break;
-        }
-        //
-
-        // DEFINITION
-        Definition definition = Definition.Defined;
-
-        switch (parts[1])
-        {
-            case "DEF":
-                definition = Definition.Defined;
-                break;
-            case "UNDEF":
-                definition = Definition.Undefined;
-                break;
-        }
-        //
-
-        // PREPOSITION
-        Preposition preposition = Preposition.None;
-
-        switch (parts[2])
-        {
-            case "A":
-                preposition = Preposition.A;
-                break;
-            case "DE":
-                preposition = Preposition.De;
-                break;
-            case "NONE":
-                preposition = Preposition.None;
-                break;
-        }
-
-        // NUMBER
-        Number number = Number.None;
-
-        switch (parts[3])
-        {
-            case "SING":
-                number = Number.Singular;
-                break;
-            case "PLUR":
-                number = Number.Plural;
-                break;
-        }
-        //
-
-        bool hasLocation = false;
-        if ( parts.Length >= 5)
-        {
-            hasLocation = true;
-        }
-        else
-        {
-
-        }
-
-        return GetContent(contentType, definition, preposition, number, hasLocation);
-    }
-    public string GetPlural()
-    {
-        string plural = text.ToLower();
-
-        plural += "s";
-
-        return plural;
-    }
-    public string GetContent(ContentType contentType, Definition _definition, Preposition _preposition, Number _number)
-    {
-        return GetContent(contentType, _definition, _preposition, _number, false);
+        public bool article;
+        public bool defined;
+        public bool adjective;
+        public bool other;
+        public bool location;
+        public bool plural;
+        public Preposition preposition;
     }
 
-    public string GetContent(ContentType contentType, Definition _definition, Preposition _preposition, Number _number, bool location)
+    public string GetContent(string str)
+    {
+
+        Info info = new Info();
+
+        // article
+        if (str.Contains("le") || str.Contains("les"))
+        {
+            info.article = true;
+            info.defined = true;
+        }
+
+        if (str.Contains("un") || str.Contains("des"))
+        {
+            info.article = true;
+            info.defined = false;
+        }
+
+        if (str.Contains("chiens"))
+        {
+            info.plural = true;
+        }
+
+        if (str.Contains("au") || str.Contains("aux"))
+        {
+            info.article = true;
+            info.preposition = Preposition.A;
+        }
+
+        if (str.Contains("du") || str.Contains("des"))
+        {
+            info.article = true;
+            info.preposition = Preposition.De;
+            info.defined = true;
+        }
+
+        if (str.Contains("de") || str.Contains("des"))
+        {
+            info.article = true;
+            info.preposition = Preposition.De;
+            info.defined = false;
+        }
+
+        if (str.Contains("autre"))
+        {
+            info.other = true;
+        }
+
+        if (str.Contains("sage"))
+        {
+            info.adjective = true;
+        }
+
+        if (str.Contains("sur"))
+        {
+            info.article = true;
+            info.location = true;
+        }
+
+        return GetContent(info);
+    }
+
+    //public string GetContent(ContentType contentType, Definition _definition, Preposition _preposition, Number _number, bool location)
+    private string GetContent(Info info)
     {
         // set current params
-        currentDefinition = _definition;
-        currentPreposition = _preposition;
-        currentNumber = _number;
+        currentInfo = info;
         //
-
         
         /// WORD
-        string word_str = text.ToLower();
+        string str = text.ToLower();
 
         // set number
-        if (currentNumber == Number.Plural)
+        if (currentInfo.plural)
         {
-            word_str = GetPlural();
+            str = GetPlural();
         }
 
         // ?
-        if (word_str.Contains("("))
+        if (str.Contains("("))
         {
-            word_str = word_str.Remove(word_str.IndexOf("(") - 1);
+            str = str.Remove(str.IndexOf("(") - 1);
         }
 
-        word_str = "<color=lime>" + word_str + "</color>";
+        if ( info.adjective)
+        {
+            // adjectif
+            string adjective_str = GetAdjective.GetContent(genre, currentInfo.plural);
+
+            if (GetAdjective.beforeWord)
+            {
+                str = adjective_str + " " + str;
+            }
+            else
+            {
+                str = str + " " + adjective_str;
+            }
+        }
+
+        if ( info.other)
+        {
+            str = "autre " + str;
+        }
 
         /// ARTICLE
         string article = "";
 
-        if (location)
-        {
-            string loc = GetLocationPrep;
-            article = loc + " " + GetArticle();
-        }
-        else
-        {
-            article = GetArticle();
-        }
         /// ARTICLE
-
-        /// ADJECTIVES
-        if (!Tile.SameAsPrevious())
+        if (info.article)
         {
+            if (info.location)
+            {
+                string loc = GetLocationPrep;
+                article = loc + " " + GetArticle();
+            }
+            else
+            {
+                article = GetArticle();
+            }
 
+            str = article + str;
         }
-        /// ADJECTIVES
 
-        /// STRUCTURE
-        switch (contentType)
-        {
-            case ContentType.JustWord:
-                return word_str;
-            case ContentType.ArticleAndWord:
-                return article + word_str;
-            case ContentType.FullGroup:
-
-                string adjective_str = GetAdjective.GetContent(genre, currentNumber);
-
-                adjective_str = "<color=green>" + adjective_str + "</color>";
-
-                // espace inclu dans l'article pour les 'd'" etc...
-                if (adjective.beforeWord)
-                {
-                    return article + adjective_str + " " + word_str;
-                }
-                else
-                {
-                    return article + word_str + " " + adjective_str;
-                }
-            case ContentType.ArticleOtherAndWord:
-                return article + "autre " + word_str;
-            default:
-                return "error : no word content type";
-        }
-        // STRUCTURE
+        return str;
     }
     #endregion
 
@@ -469,16 +414,25 @@ public class Word
         text_parts = text.Split(' ');
     }
 
-    #region adjective
-    public void SetRandomAdj()
+    public string GetPlural()
     {
-        SetAdjective(Adjective.GetRandom(adjectiveType));
+        string plural = text.ToLower();
+
+        plural += "s";
+
+        return plural;
     }
 
+    #region adjective
     public Adjective GetAdjective
     {
         get
         {
+            if (adjective == null)
+            {
+                SetAdjective(Adjective.GetRandom(adjectiveType));
+            }
+
             return adjective;
         }
     }
@@ -488,4 +442,12 @@ public class Word
         adjective = adj;
     }
     #endregion
+
+    public bool Compare(string input_part)
+    {
+        return
+            (text.StartsWith(input_part))
+            ||
+            (GetPlural().StartsWith(input_part));
+    }
 }

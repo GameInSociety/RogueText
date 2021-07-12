@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class ItemPhrase
 {
-    public List<ItemSocket> itemSockets = new List<ItemSocket>();
+    public List<ItemGroup> itemGroups = new List<ItemGroup>();
 
-    public string itemPosition = "";
+    public Socket socket;
 
     public string GetText()
     {
-        string itemText = Item.ItemListString(itemSockets, false, false);
+        string itemText = Item.ItemListString(itemGroups, false, false);
 
         // phrases de vision ( vous voyez, remarquez etc... )
         string visionPhrase = PhraseManager.Instance.visionPhrases[Random.Range(0, PhraseManager.Instance.visionPhrases.Length)];
         // phrases de location ( se trouve, se tient etc ... )
-        string locationVerbs = PhraseManager.Instance.locationPhrases[Random.Range(0, PhraseManager.Instance.locationPhrases.Length)];
+        string locationVerb = PhraseManager.Instance.locationPhrases[Random.Range(0, PhraseManager.Instance.locationPhrases.Length)];
 
         // PHRASE ORDER 
 
@@ -26,22 +26,25 @@ public class ItemPhrase
 
         string text = "";
 
+        Item firstItem = itemGroups[0].item;
+
         switch (phraseType)
         {
             case 0:
-                text = itemText + " " + locationVerbs + " " + itemPosition;
+                text = itemText + " " + locationVerb + " " + socket.GetText(firstItem);
                 break;
             case 1:
-                text = itemPosition + " " + locationVerbs + " " + itemText;
+                text = socket.GetText(firstItem) + " " + locationVerb + " " + itemText;
                 break;
             case 2:
-                text = itemPosition + ", " + visionPhrase + " " + itemText;
+                text = socket.GetText(firstItem) + ", " + visionPhrase + " " + itemText;
+
                 break;
             case 3:
-                text = visionPhrase + " " + itemPosition + " " + itemText;
+                text = visionPhrase + " " + socket.GetText(firstItem) + " " + itemText;
                 break;
             case 4:
-                text = itemPosition + ", " + itemText;
+                text = socket.GetText(firstItem) + ", " + itemText;
                 break;
             default:
                 break;

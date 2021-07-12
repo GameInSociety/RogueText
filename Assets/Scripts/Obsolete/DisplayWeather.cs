@@ -13,7 +13,7 @@ public class DisplayWeather : MonoBehaviour {
 
     public void UpdateDescription()
     {
-		if (TimeManager.Instance.changedPartOfDay == false)
+		if (TimeManager.GetInstance().changedPartOfDay == false)
         {
             return;
         }
@@ -26,11 +26,11 @@ public class DisplayWeather : MonoBehaviour {
     {
         string str = "";
 
-        if (TimeManager.Instance.raining)
+        if (TimeManager.GetInstance().raining)
         {
             if (Interior.GetCurrent != null)
             {
-                switch (TimeManager.Instance.currentPartOfDay)
+                switch (TimeManager.GetInstance().currentPartOfDay)
                 {
                     case TimeManager.PartOfDay.Dawn:
                         str = "Une faible lueur, derrière la pluie, rentre dans la pièce";
@@ -56,7 +56,7 @@ public class DisplayWeather : MonoBehaviour {
             }
             else
             {
-                switch (TimeManager.Instance.currentPartOfDay)
+                switch (TimeManager.GetInstance().currentPartOfDay)
                 {
                     case TimeManager.PartOfDay.Dawn:
                         str = "Une faible lueur commence à apparaitre derrière la pluie battante";
@@ -85,7 +85,7 @@ public class DisplayWeather : MonoBehaviour {
         {
             if (Interior.GetCurrent != null)
             {
-                switch (TimeManager.Instance.currentPartOfDay)
+                switch (TimeManager.GetInstance().currentPartOfDay)
                 {
                     case TimeManager.PartOfDay.Dawn:
                         str = "La lumière de l'aube commence à rentrer dans la pièce";
@@ -111,7 +111,7 @@ public class DisplayWeather : MonoBehaviour {
             }
             else
             {
-                switch (TimeManager.Instance.currentPartOfDay)
+                switch (TimeManager.GetInstance().currentPartOfDay)
                 {
                     case TimeManager.PartOfDay.Dawn:
                         str = "Le soleil apparait doucement et le ciel s'éclaircie";

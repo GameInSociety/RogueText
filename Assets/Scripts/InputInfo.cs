@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class InputInfo
 {
@@ -19,6 +20,11 @@ public class InputInfo
         }
     }
 
+    // static
+    public static string text;
+    public static List<string> parts = new List<string>();
+
+    //local 
     public Verb verb;
     public List<Item> items = new List<Item>();
     public Combination combination;
@@ -40,9 +46,37 @@ public class InputInfo
         }
     }
 
+    public static void ParsePhrase(string str)
+    {
+        text = str;
+
+        if (text.Length == 0)
+        {
+            return;
+        }
+
+        // separate text
+        parts = text.Split(new char[3] { ' ', '\'' , '\''}).ToList<string>();
+
+        // create action
+        InputInfo newInputInfo = new InputInfo();
+
+        InputInfo.SetCurrent(newInputInfo);
+
+        newInputInfo.FindVerb();
+
+        newInputInfo.FindOrientation();
+
+        newInputInfo.FindItems();
+
+        newInputInfo.FindCombination();
+
+        PlayerActionManager.Instance.DisplayInputFeedback();
+    }
+
     public void FindVerb()
     {
-        string str = DisplayInput.Instance.inputParts[0];
+        string str = InputInfo.parts[0];
 
         verb = Verb.Find(str);
 
@@ -57,32 +91,42 @@ public class InputInfo
         actionOnAll = false;
         items.Clear();
 
-        if (DisplayInput.Instance.text.Contains("tous"))
+        if (InputInfo.text.Contains("tous"))
         {
             actionOnAll = true;
         }
 
-        List<Item> possibleItems = new List<Item>();
+        List<Item> probableItems = new List<Item>();
 
-        foreach (var inputpart in DisplayInput.Instance.inputParts)
+        foreach (var input_part in InputInfo.parts)
         {
-            Item item = Item.FindInWorld(inputpart);
+            // ici c'est la longueur minimale de chaine de character pour la detection
+            // ( pour éviter que " l' " soit détécté comme n'importe quel mot commençant par " l " dans l'inventaire*
+            // la tile ou les mots utilisables n'importe ou
+            if (input_part.Length < 3)
+                continue;
+
+            Item item = Item.FindInWorld(input_part);
 
             if  (item != null)
             {
-                item.inputToFind = inputpart;
-                possibleItems.Add(item);
+                Debug.Log("found : " + item.word.text);
+
+                item.inputToFind = input_part;
+
+                Debug.Log("input to find : " + item.word.text + " is " + input_part);
+                probableItems.Add(item);
             }
         }
 
-        if (possibleItems.Count == 0)
+        if (probableItems.Count == 0)
         {
             return;
         }
 
-        Item mostProbableItem = possibleItems[0];
+        Item mostProbableItem = probableItems[0];
 
-        foreach (var item in possibleItems)
+        foreach (var item in probableItems)
         {
             if (item.inputToFind.Length > mostProbableItem.inputToFind.Length)
             {
@@ -90,14 +134,23 @@ public class InputInfo
             }
         }
 
-        items.Add(mostProbableItem);
+        items = probableItems;
+
+        //items.Sort((a, b) => a.word.text.Length.CompareTo(b.word.text.Length));
+
+        foreach (var item in items)
+        {
+            Debug.Log("item in input : " + item.word.text);
+        }
+
+        //items.Add(mostProbableItem);
     }
 
     public void FindOrientation()
     {
         orientation = Player.Orientation.None;
 
-        foreach (var inputPart in DisplayInput.Instance.inputParts)
+        foreach (var inputPart in InputInfo.parts)
         {
             // actuellement ça fonctionne pas trop aprce que "devant à droite" c'est plusieurs parties par exemple
             string[] strs = new string[8]

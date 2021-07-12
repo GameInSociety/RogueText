@@ -16,35 +16,41 @@ public class DisplayFeedback : DisplayText{
 	{
 		base.Start ();
 
-		ActionManager.onAction += HandleOnAction;
+        uiText.text = "";
+
+		PlayerActionManager.onPlayerAction += HandleOnAction;
     }
 
     public override void Display(string str)
     {
         Tween.Bounce(transform);
 
+        str = Phrase.ReplaceItemInString(str);
+
+        AudioInteraction.Instance.StartSpeaking(str);
+
         base.Display(str);
     }
 
-    void HandleOnAction (Action action)
+    void HandleOnAction (PlayerAction action)
 	{
 		switch (action.type) {
-		case Action.Type.Display:
+		case PlayerAction.Type.Display:
 			    Display (action.contents [0]);
 			    break;
-            case Action.Type.DescribeExterior:
+            case PlayerAction.Type.DescribeExterior:
                 DescribeExterior();
                 break;
-            case Action.Type.DisplayTimeOfDay:
+            case PlayerAction.Type.DisplayTimeOfDay:
                 DisplayTimeOfDay();
                 break;
-            case Action.Type.DescribeItem:
+            case PlayerAction.Type.DescribeItem:
                 DescribeItem();
                 break;
-            case Action.Type.PointNorth:
+            case PlayerAction.Type.PointNorth:
                 PointNorth();
                 break;
-            case Action.Type.DisplayHelp:
+            case PlayerAction.Type.DisplayHelp:
                 DisplayHelp();
                 break;
             default:
@@ -63,21 +69,21 @@ public class DisplayFeedback : DisplayText{
     {
         string str = "";
 
-        if ( TimeManager.Instance.timeOfDay == 12)
+        if ( TimeManager.GetInstance().timeOfDay == 12)
         {
             str = "Il est midi";
         }
-        else if(TimeManager.Instance.timeOfDay == 0)
+        else if(TimeManager.GetInstance().timeOfDay == 0)
         {
             str = "Il est minuit";
         }
-        else if (TimeManager.Instance.timeOfDay < 12)
+        else if (TimeManager.GetInstance().timeOfDay < 12)
         {
-            str = "Il est " + TimeManager.Instance.timeOfDay + "h du matin";
+            str = "Il est " + TimeManager.GetInstance().timeOfDay + "h du matin";
         }
         else 
         {
-            str = "Il est " + (TimeManager.Instance.timeOfDay-12) + "h du soir";
+            str = "Il est " + (TimeManager.GetInstance().timeOfDay-12) + "h du soir";
         }
 
         Display(str);
@@ -103,37 +109,41 @@ public class DisplayFeedback : DisplayText{
         {
             foreach (var combination in verb.combinations)
             {
-                if (verb.helpPhrase.Length > 2)
+                if ( combination.itemIndex == item.index)
                 {
-                    if (count == 0)
+                    if (verb.helpPhrase.Length > 2)
                     {
-                        str += verb.helpPhrase.Replace("ITEM", item.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.None));
-                    }
-                    else
-                    {
-                        if (item.word.genre == Word.Genre.Masculine)
+                        if (count == 0)
                         {
-                            str += "\n" + verb.helpPhrase.Replace("ITEM", "il");
+                            str += verb.helpPhrase.Replace("ITEM", item.word.GetContent("le chien"));
                         }
                         else
                         {
-                            str += "\n" + verb.helpPhrase.Replace("ITEM", "elle");
+                            if (item.word.genre == Word.Genre.Masculine)
+                            {
+                                str += "\n" + verb.helpPhrase.Replace("ITEM", "il");
+                            }
+                            else
+                            {
+                                str += "\n" + verb.helpPhrase.Replace("ITEM", "elle");
+                            }
                         }
-                    }
 
-                    ++count;
+                        ++count;
+                    }
                 }
+                
             }
             
         }
 
         if ( count == 0)
         {
-            Display(str);
+            Display("Vous ne vous pouvez pas faire grand chose avec " + item.word.GetContent("le chien"));
         }
         else
         {
-            Display("Vous ne vous pouvez pas faire grand chose avec " + item.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined , Word.Preposition.None, Word.Number.None));
+            Display(str);
         }
 
     }

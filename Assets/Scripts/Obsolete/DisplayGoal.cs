@@ -31,7 +31,7 @@ public class DisplayGoal : DisplayText {
         }
 
         Direction dir = Coords.GetDirectionFromCoords(Player.Instance.coords , ClueManager.Instance.clueCoords);
-        string direction_str = Coords.GetWordsDirection(dir).GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.A, Word.Number.Singular);
+        string direction_str = Coords.GetWordsDirection(dir).GetContent("au chien");
 
         goal = goal.Replace("CLUEPOSITION",direction_str);
 

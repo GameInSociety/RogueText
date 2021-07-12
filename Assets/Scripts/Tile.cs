@@ -14,7 +14,7 @@ public class Tile
 
     public static Tile current;
     public static Tile previous;
-    public bool locked = false;
+    public bool enclosed = false;
 
     public static bool itemsChanged = false;
 
@@ -31,10 +31,13 @@ public class Tile
     {
         this.type = type;
 
-        //MapTexture_Feedback.Instance.Paint(coords, type);
-
-        string tileName = GetTileName(type);
+        string tileName = GetName();
         Item item = Item.FindByName(tileName);
+
+        if ( item == null)
+        {
+            Debug.LogError("couldn't find tile item of name : " + tileName);
+        }
 
         tileItem = Item.CreateNewItem(item);
     }
@@ -48,12 +51,10 @@ public class Tile
             {
                 if (Random.value * 100f < appearInfo.rate)
                 {
-                    Item newItem = Item.CreateNewItem(appearInfo.GetItem());
-                    AddItem(newItem);
+                    AddItem(appearInfo.GetItem());
                 }
             }
         }
-
     }
 
     public void RemoveItem(Item item)
@@ -77,8 +78,6 @@ public class Tile
 
         Word word = tileItem.word;
 
-        Phrase.item = tileItem;
-
         // tile is continued ( road, forest etc... )
         if (SameAsPrevious() && tileItem.stackable )
         {
@@ -97,6 +96,25 @@ public class Tile
     #endregion
 
     #region items
+    public bool HasItem(List<string> item_names)
+    {
+        return HasItem(item_names.ToArray());
+    }
+    public bool HasItem(string[] item_names)
+    {
+        foreach (var item_name in item_names)
+        {
+            if (HasItem(item_name))
+                return true;
+        }
+
+        return false;
+    }
+
+    public bool HasItem(string item_name)
+    {
+        return items.Find(x => x.word.text == item_name) != null;
+    }
     public string GetItemDescriptions()
     {
         if (items.Count == 0)
@@ -105,40 +123,36 @@ public class Tile
         }
 
         // item AND item counts
-        List<ItemSocket> itemSockets = ItemSocket.GetItemSockets(items);
+        List<ItemGroup> itemGroups = ItemGroup.GetItemGroups(items);
 
+        // ITEM GROUP " est près de l'évier " SOCKET 
         List<ItemPhrase> phrases = new List<ItemPhrase>();
 
-        // dans l'évier... près du mur... etc...
-        List<string> itemPositions = new List<string>();
+        // note : en quoi ItemGroup & ItemPhrase ne peuvent pas être les memes classes ?
+        // bonne question
 
-        for (int i = 0; i < itemSockets.Count; i++)
+        for (int item_group_index = 0; item_group_index < itemGroups.Count; item_group_index++)
         {
-            ItemSocket itemSocket = itemSockets[i];
+            ItemGroup itemGroup = itemGroups[item_group_index];
 
             // retourne la phrase de position appropriée
-            string itemPosition = itemSocket.item.GetItemPosition();
-
-            if (itemPosition.StartsWith("relative"))
-            {
-                itemPosition = ItemSocket.GetRelativeItemPositionPhrase(itemSocket.item.word.text);
-            }
+            Socket socket = itemGroup.item.GetSocket();
 
             // si la position a déjà été trouve ( pour éviter : près du mur, une armoire, près de mur, une fenêtre )
             // et donc addictioner les noms ( près du mur, une armoire ET une fenêtre )
-            ItemPhrase matchingPhrase = phrases.Find(x => x.itemPosition == itemPosition);
+            ItemPhrase matchingPhrase = phrases.Find(x => x.socket == socket);
 
-            if (matchingPhrase != null)
+            if (matchingPhrase != null && matchingPhrase.socket.relative == false)
             {
-                matchingPhrase.itemSockets.Add(itemSocket);
+                matchingPhrase.itemGroups.Add(itemGroup);
+
                 continue;
             }
 
-
             ItemPhrase newPhrase = new ItemPhrase();
 
-            newPhrase.itemSockets.Add(itemSocket);
-            newPhrase.itemPosition = itemPosition;
+            newPhrase.itemGroups.Add(itemGroup);
+            newPhrase.socket = socket;
 
             phrases.Add(newPhrase);
 
@@ -152,7 +166,7 @@ public class Tile
         {
             text += phrase.GetText();
 
-            if (a < itemSockets.Count - 1)
+            if (a < itemGroups.Count - 1)
             {
                 text += "\n";
             }
@@ -175,7 +189,7 @@ public class Tile
     }
     #endregion
 
-    public string GetTileName ( Tile.Type type )
+    public string GetName ()
     {
         switch (type)
         {
@@ -248,24 +262,6 @@ public class Tile
             default:
                 return "did not found name for type : " + type;
         }
-    }
-
-    public static void Describe()
-    {
-        string str = "";
-
-        // display current tile
-        str += Tile.current.GetDescription();
-        str += "\n";
-
-        // display surrounding tiles
-        str += TileGroupDescription.GetSurroundingTileDescription();
-        str += "\n";
-
-        // display tile items
-        str += Tile.current.GetItemDescriptions();
-
-        DisplayDescription.Instance.AddToDescription(str);
     }
 
     public enum Type

@@ -23,52 +23,55 @@ public class Inventory : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        ActionManager.onAction += HandleOnAction;
+        PlayerActionManager.onPlayerAction += HandleOnAction;
 
         items.Add( Item.FindByName("boussole") );
     }
 
-	void HandleOnAction (Action action)
+	void HandleOnAction (PlayerAction action)
 	{
 		switch (action.type) {
-		case Action.Type.Take:
+		case PlayerAction.Type.Take:
 			PickUpCurrentItem ();
 			break;
-            case Action.Type.DisplayInventory:
+            case PlayerAction.Type.DisplayInventory:
 			Describe ();
 			break;
-        case Action.Type.CloseInventory:
+        case PlayerAction.Type.CloseInventory:
             CloseInventory();
             break;
-        case Action.Type.AddToInventory:
+        case PlayerAction.Type.AddToInventory:
 			AddToInventoryFromString ();
 			break;
-		case Action.Type.RemoveFromInventory:
+		case PlayerAction.Type.RemoveFromInventory:
 			RemoveFromInventoryFromString ();
 			break;
-        case Action.Type.AddToTile:
+        case PlayerAction.Type.AddToTile:
             AddToTile();
             break;
-        case Action.Type.RemoveFromTile:
+        case PlayerAction.Type.RemoveFromTile:
             RemoveCurrentItemFromTile();
             break;
-        case Action.Type.Require:
+        case PlayerAction.Type.Require:
 			CheckRequire ();
 			break;
-        case Action.Type.Throw:
+        case PlayerAction.Type.Throw:
             ThrowCurrentItem();
             break;
-        case Action.Type.OpenContainer:
+        case PlayerAction.Type.OpenContainer:
             OpenContainer();
             break;
-        case Action.Type.CloseContainer:
+        case PlayerAction.Type.CloseContainer:
             CloseContainer();
             break;
-        case Action.Type.RemoveLastItem:
+        case PlayerAction.Type.RemoveLastItem:
             RemoveLastItem();
             break;
-        case Action.Type.ReplaceItem:
+        case PlayerAction.Type.ReplaceItem:
             ReplaceCurrentItem();
+            break;
+            case PlayerAction.Type.Fill:
+            FillItem();
             break;
             default:
 			break;
@@ -86,7 +89,7 @@ public class Inventory : MonoBehaviour {
 
         if (item == null)
         {
-            DisplayFeedback.Instance.Display("Vous n'avez pas " + InputInfo.GetCurrent.MainItem.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Undefined, Word.Preposition.De, Word.Number.None));
+            DisplayFeedback.Instance.Display("Vous n'avez pas " + InputInfo.GetCurrent.MainItem.word.GetContent("de chien"));
             return;
         }
 
@@ -94,7 +97,7 @@ public class Inventory : MonoBehaviour {
 
         Tile.current.AddItem(InputInfo.GetCurrent.MainItem);
 
-        DisplayFeedback.Instance.Display("Vous posez " + InputInfo.GetCurrent.MainItem.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.None) + " par terre");
+        DisplayFeedback.Instance.Display("Vous posez " + InputInfo.GetCurrent.MainItem.word.GetContent("le chien") + " par terre");
 
     }
 
@@ -115,7 +118,7 @@ public class Inventory : MonoBehaviour {
 
         if (weight + item.weight > maxWeight)
         {
-            DisplayFeedback.Instance.Display(InputInfo.GetCurrent.MainItem.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.Singular) + " est trop lourd pour le sac, il ne rentre pas");
+            DisplayFeedback.Instance.Display(InputInfo.GetCurrent.MainItem.word.GetContent("le chien") + " est trop lourd pour le sac, il ne rentre pas");
             return;
         }
 
@@ -123,8 +126,52 @@ public class Inventory : MonoBehaviour {
 
         AddItem(item);
 
-        DisplayFeedback.Instance.Display("Vous avez pris : " + item.word.GetContent(Word.ContentType.ArticleAndWord, Word.Definition.Defined, Word.Preposition.None, Word.Number.Singular));
+        DisplayFeedback.Instance.Display("Vous avez pris : " + item.word.GetContent("le chien"));
 
+    }
+
+    void FillItem()
+    {
+
+        Item item = InputInfo.GetCurrent.MainItem;
+
+        if (InputInfo.GetCurrent.items.Count < 2)
+        {
+            DisplayFeedback.Instance.Display("Ou voulez vous remplir &le chapeau chic&");
+            return;
+        }
+
+        // solution crasseuse et pas pratique :
+        // ce qu'il faut faire :
+        // rajouter une property "fillArea" ou "usedToFill" tu vois le genre.
+        // les properties ça va te changer la vie je pense.
+        List<string> itemNames = new List<string>();
+        itemNames.Add("évier");
+        itemNames.Add("douche");
+        itemNames.Add("cuvette");
+        itemNames.Add("lavabo");
+
+        if (InputInfo.GetCurrent.items.Find(x => itemNames.Contains(x.word.text)) == null)
+        {
+            DisplayFeedback.Instance.Display("Vous vous ne pouvez pas remplir &le chapeau chic& dans &le chapeau chic2&");
+        }
+
+        if (!Tile.current.HasItem(itemNames.ToArray()))
+        {
+            DisplayFeedback.Instance.Display("Vous n'avez nulle part ou remplir &le chapeau chic&");
+            return;
+        }
+
+        if ( item.GetProperty("full").GetValue() == "true")
+        {
+            DisplayFeedback.Instance.Display("&le chapeau chic& est déjà plein");
+            return;
+        }
+        else
+        {
+            DisplayFeedback.Instance.Display("Vous remplissez ITEM...");
+            item.GetProperty("full").SetValue("true");
+        }
     }
 
     #region remove item
@@ -144,10 +191,10 @@ public class Inventory : MonoBehaviour {
 
 	void RemoveFromInventoryFromString ()
 	{
-		Item item = items.Find ( x => x.word.text.ToLower() == Action.GetCurrent.contents[0].ToLower() );
+		Item item = items.Find ( x => x.word.text.ToLower() == PlayerAction.GetCurrent.contents[0].ToLower() );
 
 		if (item == null) {
-			Debug.LogError ("couldn't find item " + Action.GetCurrent.contents[0] + " in inventory");
+			Debug.LogError ("couldn't find item " + PlayerAction.GetCurrent.contents[0] + " in inventory");
 			return;
 		}
 
@@ -155,11 +202,11 @@ public class Inventory : MonoBehaviour {
 	}
     void RemoveCurrentItemFromTile()
     {
-        Item item = Tile.current.items.Find(x => x.word.text.ToLower() == Action.GetCurrent.contents[0].ToLower());
+        Item item = Tile.current.items.Find(x => x.word.text.ToLower() == PlayerAction.GetCurrent.contents[0].ToLower());
 
         if (item == null)
         {
-            Debug.LogError("couldn't find item " + Action.GetCurrent.contents[0] + " in inventory");
+            Debug.LogError("couldn't find item " + PlayerAction.GetCurrent.contents[0] + " in inventory");
             return;
         }
 
@@ -185,17 +232,17 @@ public class Inventory : MonoBehaviour {
 
     void AddToInventoryFromString ()
 	{
-		Item item = Item.items.Find ( x => x.word.text.ToLower() == Action.GetCurrent.contents[0].ToLower() );
+		Item item = Item.items.Find ( x => x.word.text.ToLower() == PlayerAction.GetCurrent.contents[0].ToLower() );
 
 		if (item == null) {
-			Debug.LogError ("couldn't find item " + Action.GetCurrent.contents[0] + " in item list");
+			Debug.LogError ("couldn't find item " + PlayerAction.GetCurrent.contents[0] + " in item list");
 			return;
 		}
 
         int amount = 1;
-        if (Action.GetCurrent.ints.Count > 0)
+        if (PlayerAction.GetCurrent.values.Count > 0)
         {
-            amount = Action.GetCurrent.ints[0];
+            amount = PlayerAction.GetCurrent.values[0];
         }
 
         for (int i = 0; i < amount; i++)
@@ -203,20 +250,20 @@ public class Inventory : MonoBehaviour {
             AddItem(item);
         }
     }
-    Item AddToTile()
+    public Item AddToTile()
     {
-		Item item = Item.items.Find ( x => x.word.text.ToLower() == Action.GetCurrent.contents[0].ToLower() );
+		Item item = Item.items.Find ( x => x.word.text.ToLower() == PlayerAction.GetCurrent.contents[0].ToLower() );
 
         if (item == null)
         {
-            Debug.LogError("couldn't find item " + Action.GetCurrent.contents[0] + " in item list");
+            Debug.LogError("couldn't find item " + PlayerAction.GetCurrent.contents[0] + " in item list");
             return null;
         }
 
         int amount = 1;
-        if (Action.GetCurrent.ints.Count > 0)
+        if (PlayerAction.GetCurrent.values.Count > 0)
         {
-            amount = Action.GetCurrent.ints[0];
+            amount = PlayerAction.GetCurrent.values[0];
         }
 
         for (int i = 0; i < amount; i++)
@@ -230,24 +277,17 @@ public class Inventory : MonoBehaviour {
 
     void CheckRequire ()
 	{
+        /*if (InputInfo.GetCurrent.items.Count > 1)
+
 		bool hasOnOfTheItems = false;
 
-        foreach (var content in Action.GetCurrent.contents) {
-
-            /*Item item = Item.GetInWord(content);
-
-			if ( item != null ){
-                Debug.Log("found required item : " + item.word.name);
-				hasOnOfTheItems = true;
-				break;
-			}*/
+        foreach (var content in PlayerAction.GetCurrent.contents) {
 
             if (InputInfo.GetCurrent.items.Count > 1)
             {
                 if (content.StartsWith(InputInfo.GetCurrent.items[1].word.text))
                 {
                     Debug.Log("found required item : " + InputInfo.GetCurrent.items[1].word.text);
-                    hasOnOfTheItems = true;
                     break;
                 }
             }
@@ -255,18 +295,10 @@ public class Inventory : MonoBehaviour {
 
 		if ( hasOnOfTheItems == false ) {
 
-			ActionManager.Instance.BreakAction ();
-
-            /*string phrase = "Peut pas : besoin de : ";
-
-			foreach (var content in Action.last.contents) {
-				phrase += content + ", ";
-			}*/
-
-            //DisplayFeedback.Instance.Display("Vous ne pouvez pas " + Action.last.verb.names[0] + " " + Action.last.primaryItem.word.GetDescription(Word.Def.Defined));
-            //DisplayFeedback.Instance.Display("Vous avez besoin : " + Action.last.contents[0]);
-        }
+			PlayerActionManager.Instance.BreakAction ();
+        }*/
     }
+
 
     #region open / close inventory
     public bool opened = false;
@@ -296,7 +328,7 @@ public class Inventory : MonoBehaviour {
     {
         opened = false;
 
-        Tile.Describe();
+        DisplayDescription.Instance.UpdateDescription();
     }
     #endregion
 
@@ -316,7 +348,7 @@ public class Inventory : MonoBehaviour {
 
         Container.opened = false;
 
-        Tile.Describe();
+        DisplayDescription.Instance.UpdateDescription();
     }
     #endregion
 }

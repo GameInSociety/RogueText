@@ -7,6 +7,7 @@ public class PositionsInItemLoader : TextParser
     public static PositionsInItemLoader Instance;
 
     public List<string> phrases = new List<string>();
+    List<Socket> tmpSockets = new List<Socket>();
 
     private void Awake()
     {
@@ -17,31 +18,38 @@ public class PositionsInItemLoader : TextParser
     {
         base.GetCell(rowIndex, cells);
 
+
         if ( rowIndex == 0)
         {
             for (int cellIndex = 1; cellIndex < cells.Count; cellIndex++)
             {
-                phrases.Add(cells[cellIndex]);
+                Socket newSocket = new Socket();
+                newSocket._text = cells[cellIndex];
+                tmpSockets.Add(newSocket);
             }
         }
         else
         {
             int itemIndex = rowIndex - 1;
 
-            int phraseIndex =0;
+            int socketIndex = 0;
 
             for (int cellIndex = 1; cellIndex < cells.Count; cellIndex++)
             {
                 if ( cells[cellIndex].Length != 0)
                 {
+                    if ( itemIndex >= Item.items.Count)
+                    {
+                        continue;
+                    }
+
                     Item item = Item.items[itemIndex];
+                    Socket socket = tmpSockets[socketIndex];
 
-                    item.positionInItems.Add(phrases[phraseIndex]);
-
-                    //Debug.Log("adding position in item phrase " + phrases[phraseIndex] + " to item : " +  item.word.text);
+                    item.sockets.Add(socket);
                 }
 
-                phraseIndex++;
+                socketIndex++;
             }
         }
     }

@@ -21,7 +21,19 @@ public class ItemPositionLoader : TextParser
         {
             for (int cellIndex = 1; cellIndex < cells.Count; cellIndex++)
             {
-                phrases.Add(cells[cellIndex]);
+                Socket newSocket = new Socket();
+                if (cells[cellIndex].StartsWith("relative"))
+                {
+                    newSocket.relative = true;
+                }
+                else
+                {
+                    newSocket._text = cells[cellIndex];
+                }
+
+                Socket.sockets.Add(newSocket);
+
+                //phrases.Add(cells[cellIndex]);
             }
         }
         else
@@ -33,22 +45,20 @@ public class ItemPositionLoader : TextParser
                 return;
             }
 
-            Item item = Item.items[itemIndex];
 
-            int phraseIndex = 0;
+            int socketIndex = 0;
 
             for (int cellIndex = 1; cellIndex < cells.Count; cellIndex++)
             {
                 if (cells[cellIndex].Length != 0)
                 {
-                    
+                    Item item = Item.items[itemIndex];
 
-                    item.itemPositions.Add(phrases[phraseIndex]);
-
-                    //Debug.Log("adding item position phrase " + phrases[phraseIndex] + " to item : " + item.word.text);
+                    Socket.sockets[socketIndex].itemIndexes.Add(item.index);
+                    //Debug.Log("adding item : " + item.word.text + " (index:"+item.index+") in socket " + Socket.sockets[socketIndex]._text);
                 }
 
-                phraseIndex++;
+                socketIndex++;
             }
         }
     }

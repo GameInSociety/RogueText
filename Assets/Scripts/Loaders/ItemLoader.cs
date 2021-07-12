@@ -7,6 +7,8 @@ public class ItemLoader : TextParser {
 
     public static ItemLoader Instance;
 
+    int itemIndex = 0;
+
     private void Awake()
     {
         Instance = this;
@@ -21,6 +23,11 @@ public class ItemLoader : TextParser {
             return;
         }
 
+        if (cells.Count > 0 && string.IsNullOrEmpty(cells[0]))
+        {
+            return;
+        }
+
         // create new item
         Item newItem = new Item();
 
@@ -31,60 +38,56 @@ public class ItemLoader : TextParser {
 
         // word
         newItem.word = itemWord;
-        newItem.index = rowIndex-1;
+        //newItem.index = rowIndex-1;
+        newItem.index = itemIndex;
         itemWord.UpdateGenre(cells[1]);
 
         // weight
         newItem.word.adjectiveType = cells[2].ToLower();
-        itemWord.SetRandomAdj();
-
-        /*if (cells[2].Length > 0)
-        {
-            int weight = 1;
-
-            if (int.TryParse(cells[2], out weight) == false)
-            {
-
-                //Debug.Log("item weight : " + cells[2] + " does not parse");
-            }
-            else
-            {
-            }
-
-            newItem.weight = weight;
-        }*/
 
         if ( cells[3].Length > 1)
         {
             newItem.word.SetLocationPrep(cells[3]);
         }
 
-        newItem.stackable = cells[4] == "stackable";
-        
-        if (cells[4] == "unique")
+        newItem.stackable = cells[4] == "TRUE";
+
+        // property 
+        string[] property_lines = cells[5].Split('\n');
+
+        if (string.IsNullOrEmpty(property_lines[0]))
         {
-            newItem.unique = true;
+
         }
         else
         {
-            newItem.unique = false;
-        }
-
-        // value 
-        int param = -1;
-
-        if (cells[5].Length > 0)
-        {
-            if (int.TryParse(cells[5], out param) == false)
+            foreach (var property_line in property_lines)
             {
-                Debug.Log("item parameter : " + cells[5] + " does not parse");
+
+                Item.Property newProperty = new Item.Property();
+
+                string[] propertyLine_parts = property_line.Split(':');
+
+                newProperty.name = propertyLine_parts[0];
+
+                newProperty.SetValue(propertyLine_parts[1]);
+                newProperty.item = newItem;
+
+                if (propertyLine_parts.Length > 2)
+                {
+                    string part = propertyLine_parts[2];
+                    newProperty.param = part;
+                }
+
+                newItem.AddProperty(newProperty);
+
+                //Debug.Log(newProperty.GetDebugText());
             }
         }
-        newItem.value = param;
+        //
 
+        // add to item list
         Item.items.Add(newItem);
-
-        //Debug.Log("loading item : " + newItem.GetWord());
 
         // actions
         int verbIndex = 0;
@@ -101,7 +104,7 @@ public class ItemLoader : TextParser {
 
             string cell = cells[cellIndex];
 
-            if (cell .Length >= 2)
+            if (cell.Length >= 2)
             {
                 // verb out of range
                 Combination newCombination = new Combination();
@@ -115,5 +118,7 @@ public class ItemLoader : TextParser {
             ++verbIndex;
 
         }
+
+        ++itemIndex;
     }
 }

@@ -9,9 +9,6 @@ public class DisplayInput : MonoBehaviour {
 
 	public InputField inputField;
 
-    public string text;
-    public List<string> inputParts;
-
     void Awake () {
 		Instance = this;
 	}
@@ -41,60 +38,8 @@ public class DisplayInput : MonoBehaviour {
 
     public void OnEndEdit () {
 
-        ParsePhrase(inputField.text);
-    }
-
-    public void ParsePhrase (string str)
-    {
-        text = str;
-
-        if (text.Length == 0)
-        {
-            return;
-        }
-
-        // separate text
-        inputParts = text.Split(new char[2] { ' ', '\'' }).ToList<string>();
-
-        // create action
-        InputInfo newInputInfo = new InputInfo();
-
-        InputInfo.SetCurrent(newInputInfo);
-
-        newInputInfo.FindVerb();
-
-        newInputInfo.FindOrientation();
-
-        newInputInfo.FindItems();
-
-        newInputInfo.FindCombination();
-
-        ActionManager.Instance.DisplayInputFeedback();
-
+        InputInfo.ParsePhrase(inputField.text);
         Clear();
-    }
-
-    public string[] SplitInWordGroups(string[] args)
-    {
-        string[] phraseParts = new string[args.Length];
-        for (int a = 0; a < args.Length; a++)
-        {
-            string s = "";
-
-            for (int i = a; i < args.Length; i++)
-            {
-                s += args[i];
-
-                if (i < args.Length - 1)
-                {
-                    s += " ";
-                }
-            }
-
-            phraseParts[a] = s;
-        }
-
-        return phraseParts;
     }
 
     public void EndInput()
