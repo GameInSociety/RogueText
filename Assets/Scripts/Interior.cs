@@ -201,11 +201,9 @@ public class Interior {
 
     void InitStoryTiles()
     {
-        Debug.Log("coords : " + coords);
-        Debug.Log("bunker coords : " + ClueManager.Instance.bunkerCoords);
         if (coords == ClueManager.Instance.bunkerCoords)
         {
-            Debug.Log("creating letter");
+            //Debug.Log("creating letter");
             int i = Random.Range(1, tileSet.tiles.Count);
             Item letter_item = Item.FindByName("lettre");
             tileSet.tiles.Values.ElementAt(i).items.Add(letter_item);
@@ -289,8 +287,10 @@ public class Interior {
                 adjectives.Remove(adjective);
 
                 // current tile door
-                if (tile.items.Find(x => x.word.text == "porte" && x.GetProperty("direction").GetValue() == currentDoorDirection) != null )
+                if (tile.items.Find(x => x.word.text == "porte" && x.GetProperty("direction").GetValue() == currentDoorDirection) == null )
                 {
+                    Debug.Log("PORTE : creating porte for " + currentDoorDirection.ToString());
+
                     Item doorItem = Item.CreateNewItem("porte");
                     doorItem.word.SetAdjective(adjective);
                     doorItem.AddProperty("direction" , currentDoorDirection);
@@ -298,11 +298,11 @@ public class Interior {
                 }
                 else
                 {
-                    Debug.LogError("current tile already has a door with direction : " + adjacentDoorDirection);
+                    Debug.LogError("PORTE : already a porte for " + currentDoorDirection.ToString());
                 }
 
                 // adjacent tile door
-                if (adjTile.items.Find(x => x.word.text == "porte" && x.GetProperty("direction").GetValue() == adjacentDoorDirection) != null )
+                if (adjTile.items.Find(x => x.word.text == "porte" && x.GetProperty("direction").GetValue() == adjacentDoorDirection) == null )
                 {
                     Item doorItem = Item.CreateNewItem("porte");
                     doorItem.word.SetAdjective(adjective);
@@ -311,7 +311,7 @@ public class Interior {
                 }
                 else
                 {
-                    Debug.LogError("adjacent tile already has a door with direction : " + adjacentDoorDirection);
+                    Debug.LogError("PORTE : already a porte for " + adjacentDoorDirection.ToString());
                 }
 
                

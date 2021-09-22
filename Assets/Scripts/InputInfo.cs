@@ -91,8 +91,9 @@ public class InputInfo
         actionOnAll = false;
         items.Clear();
 
-        if (InputInfo.text.Contains("tous"))
+        if (InputInfo.text.Contains(" tous ") || InputInfo.text.Contains(" toutes "))
         {
+            Debug.Log("actions on all !!!!");
             actionOnAll = true;
         }
 
@@ -110,11 +111,11 @@ public class InputInfo
 
             if  (item != null)
             {
-                Debug.Log("found : " + item.word.text);
+                //Debug.Log("found : " + item.word.text);
 
                 item.inputToFind = input_part;
 
-                Debug.Log("input to find : " + item.word.text + " is " + input_part);
+                //Debug.Log("input to find : " + item.word.text + " is " + input_part);
                 probableItems.Add(item);
             }
         }
@@ -138,10 +139,10 @@ public class InputInfo
 
         //items.Sort((a, b) => a.word.text.Length.CompareTo(b.word.text.Length));
 
-        foreach (var item in items)
+        /*foreach (var item in items)
         {
             Debug.Log("item in input : " + item.word.text);
-        }
+        }*/
 
         //items.Add(mostProbableItem);
     }

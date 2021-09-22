@@ -50,8 +50,15 @@ public class DisplayDescription : MonoBehaviour {
         string str = "";
 
         // display current tile
-        str += Tile.current.GetDescription();
-        str += "\n";
+        if (Tile.previous != null && Tile.current.type == Tile.previous.type)
+        {
+            
+        }
+        else
+        {
+            str += Tile.current.GetDescription();
+            str += "\n";
+        }
 
         // display surrounding tiles
         str += TileGroupDescription.GetSurroundingTileDescription();

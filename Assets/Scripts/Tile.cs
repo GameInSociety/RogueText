@@ -75,7 +75,6 @@ public class Tile
         // ici en fait, il faudrait aussi que les phrases d'accroches aient des paramètres dans une db
         // exemple : "vous êtes encore/DEFINED/LOC|PREP/Singular etc...
 
-
         Word word = tileItem.word;
 
         // tile is continued ( road, forest etc... )

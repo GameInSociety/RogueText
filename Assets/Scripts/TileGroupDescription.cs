@@ -57,9 +57,12 @@ public class TileGroupDescription {
         List<string> phrases = new List<string>();
 
         // get text
+        Debug.Log("number of tile group : " + tileGroups.Count);
+
 		foreach (var surroundingTile in tileGroups) {
             string newPhrase = GetSurroundingTileDescription(surroundingTile);
             phrases.Add ( newPhrase );
+            Debug.Log("new phrase : " + newPhrase);
         }
 
         // display text
@@ -98,15 +101,18 @@ public class TileGroupDescription {
 
             if (targetTile == null)
             {
+                Debug.Log("no tile : moving on");
                 continue;
             }
 
             if (targetTile.enclosed)
             {
+                Debug.Log("tile " + targetTile.GetName() + " is enclosed");
                 continue;
             }
 
             TileGroup newTileGroup = tileGroups.Find(x => x.tile.type == targetTile.type);
+
 
             if (newTileGroup == null)
             {
@@ -122,6 +128,9 @@ public class TileGroupDescription {
             {
                 newTileGroup.orientations.Add(orientation);
             }
+
+            Debug.Log("adding " + newTileGroup.tile.GetName() + " to tile group");
+
 
         }
     }

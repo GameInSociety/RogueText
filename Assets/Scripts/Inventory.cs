@@ -103,12 +103,11 @@ public class Inventory : MonoBehaviour {
 
     void PickUpCurrentItem()
     {
-        Item item = InputInfo.GetCurrent.MainItem;
-
         List<Item> targetItems = new List<Item>();
 
         if (InputInfo.GetCurrent.actionOnAll)
         {
+            Debug.Log("trying action on all items");
             targetItems = Tile.current.items.FindAll(x => x.word.text == InputInfo.GetCurrent.MainItem.word.text);
         }
         else
@@ -116,18 +115,10 @@ public class Inventory : MonoBehaviour {
             targetItems.Add(InputInfo.GetCurrent.MainItem);
         }
 
-        if (weight + item.weight > maxWeight)
+        foreach (var item in targetItems)
         {
-            DisplayFeedback.Instance.Display(InputInfo.GetCurrent.MainItem.word.GetContent("le chien") + " est trop lourd pour le sac, il ne rentre pas");
-            return;
+            item.PickUp();
         }
-
-        Item.Remove(item);
-
-        AddItem(item);
-
-        DisplayFeedback.Instance.Display("Vous avez pris : " + item.word.GetContent("le chien"));
-
     }
 
     void FillItem()

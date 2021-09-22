@@ -202,9 +202,14 @@ public class Item
             {
                 case "grow":
                     Debug.Log("item : " + item.word.text + " is growing...");
-                    Item newItem = Item.FindByName("carrote");
+                    Item newItem = Item.FindByName("carotte");
                     newItem = CreateNewItem(newItem);
-                    item = newItem;
+
+                    Item.Remove(this.item);
+
+                    Tile.current.AddItem(newItem);
+
+                    DisplayDescription.Instance.UpdateDescription();
                     break;
                 default:
                     Debug.LogError("timer property : " + name + " is dead end");
@@ -294,6 +299,21 @@ public class Item
         return newItem;
     }
     #endregion
+
+    public void PickUp()
+    {
+        if (Inventory.Instance.weight + weight> Inventory.Instance.maxWeight)
+        {
+            DisplayFeedback.Instance.Display(InputInfo.GetCurrent.MainItem.word.GetContent("le chien") + " est trop lourd pour le sac, il ne rentre pas");
+            return;
+        }
+
+        Item.Remove(this);
+
+        Inventory.Instance.AddItem(this);
+
+        DisplayFeedback.Instance.Display("Vous avez pris : " + word.GetContent("le chien"));
+    }
 
     #region remove
     public static void Remove(Item targetItem)
@@ -454,6 +474,7 @@ public class Item
 
             if (item != null)
             {
+                // found the plural
                 //Debug.Log("found plural");
                 InputInfo.GetCurrent.actionOnAll = true;
                 return item;
