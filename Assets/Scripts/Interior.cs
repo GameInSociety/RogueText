@@ -21,7 +21,7 @@ public class Interior {
     public static float chanceHallwayTurn = 0.5f;
 
     // tmp list for giving objets ( doors ... ) adjectives, because they_re not meant to repeat them selves
-    List<Adjective> adjectives;
+    //List<Adjective> adjectives;
 
     public static bool InsideInterior()
     {
@@ -150,9 +150,11 @@ public class Interior {
             if (a == 0)
             {
                 Item doorItem = Item.CreateNewItem("porte d’entrée");
+                // il n'y a plus réellement de porte dehors en fait non ?
+                //doorItem.word.SetAdjective(TileSet.map.GetTile(TileSet.map.playerCoords).items[0].word.GetAdjective);
+                doorItem.AddProperty("direction", "to south");
 
                 newHallwayTile.AddItem(doorItem);
-                newHallwayTile.items[0].word.SetAdjective(TileSet.map.GetTile(TileSet.map.playerCoords).items[0].word.GetAdjective);
             }
 
             // check if room appears
@@ -228,7 +230,6 @@ public class Interior {
     void AddDoors()
     {
         // reseting adjectives
-        adjectives = Adjective.GetAll("objet");
 
         foreach (var tile in tileSet.tiles.Values)
         {
@@ -241,12 +242,12 @@ public class Interior {
                         Direction.North, Direction.West, Direction.South, Direction.East
                     };
 
+        List<Adjective> adjectives = Adjective.GetAll("objet");
+
         foreach (var dir in surr)
         {
             Coords c = tile.coords + (Coords)dir;
             Tile adjTile = tileSet.GetTile(c);
-
-            
 
             string currentDoorDirection = "";
             string adjacentDoorDirection = "";
@@ -281,24 +282,17 @@ public class Interior {
                 if (adjectives.Count == 0)
                 {
                     adjectives = Adjective.GetAll("objet");
-                    Debug.Log("reseting adjectives for this interior : used all");
                 }
                 Adjective adjective = adjectives[Random.Range(0, adjectives.Count)];
                 adjectives.Remove(adjective);
 
                 // current tile door
-                if (tile.items.Find(x => x.word.text == "porte" && x.GetProperty("direction").GetValue() == currentDoorDirection) == null )
+                if (tile.items.Find(x => x.word.text == "porte" && x.GetProperty("direction").GetValue() == currentDoorDirection) == null)
                 {
-                    Debug.Log("PORTE : creating porte for " + currentDoorDirection.ToString());
-
                     Item doorItem = Item.CreateNewItem("porte");
                     doorItem.word.SetAdjective(adjective);
-                    doorItem.AddProperty("direction" , currentDoorDirection);
+                    doorItem.AddProperty("direction", currentDoorDirection);
                     tile.AddItem(doorItem);
-                }
-                else
-                {
-                    Debug.LogError("PORTE : already a porte for " + currentDoorDirection.ToString());
                 }
 
                 // adjacent tile door
@@ -309,16 +303,8 @@ public class Interior {
                     doorItem.AddProperty("direction", adjacentDoorDirection);
                     adjTile.AddItem(doorItem);
                 }
-                else
-                {
-                    Debug.LogError("PORTE : already a porte for " + adjacentDoorDirection.ToString());
-                }
-
-               
 
                 //Debug.Log("door name : " + currentTileDoorItemName + " adjacent door name : " + adjTileDoorItemName);
-
-
             }
 
         }

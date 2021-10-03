@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
+[System.Serializable]
 public class Tile
 {
     // location of tile in world
@@ -12,8 +12,6 @@ public class Tile
 
     public bool visited = false;
 
-    public static Tile current;
-    public static Tile previous;
     public bool enclosed = false;
 
     public static bool itemsChanged = false;
@@ -39,7 +37,7 @@ public class Tile
             Debug.LogError("couldn't find tile item of name : " + tileName);
         }
 
-        tileItem = Item.CreateNewItem(item);
+        tileItem = Item.CreateNew(item);
     }
 
     #region items
@@ -51,7 +49,8 @@ public class Tile
             {
                 if (Random.value * 100f < appearInfo.rate)
                 {
-                    AddItem(appearInfo.GetItem());
+                    Item newItem = Item.CreateNew(appearInfo.GetItem());
+                    AddItem(newItem);
                 }
             }
         }
@@ -64,8 +63,7 @@ public class Tile
     }
     public void AddItem(Item item)
     {
-        Item newItem = Item.CreateNewItem(item);
-        items.Add(newItem);
+        items.Add(item);
     }
     #endregion
 
@@ -118,7 +116,8 @@ public class Tile
     {
         if (items.Count == 0)
         {
-            return "Il n'y a pas grand choses à voir par ici";
+            return "";
+            //return "Il n'y a pas grand choses à voir par ici";
         }
 
         // item AND item counts
@@ -181,10 +180,10 @@ public class Tile
     public static bool SameAsPrevious()
     {
 
-        if (previous == null)
+        if (GetPrevious == null)
             return false;
 
-        return Tile.current.type == Tile.previous.type;
+        return Tile.GetCurrent.type == Tile.GetPrevious.type;
     }
     #endregion
 
@@ -316,4 +315,31 @@ public class Tile
         Cellar,
 
     }
+
+    private static Tile _previous;
+    public static Tile GetPrevious {
+        get
+        {
+            return _previous;
+        }
+    }
+    public static void SetPrevious(Tile tile)
+    {
+        _previous = tile;
+    }
+
+    private static Tile _current;
+    public static Tile GetCurrent {
+        get
+        {
+            return _current;
+        }
+    }
+
+    public static void SetCurrent(Tile tile)
+    {
+        DebugManager.Instance.tile = tile;
+        _current = tile;
+    }
+
 }

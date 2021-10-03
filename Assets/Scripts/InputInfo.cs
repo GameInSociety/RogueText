@@ -30,6 +30,8 @@ public class InputInfo
     public Combination combination;
     public Player.Orientation orientation;
     public Direction direction;
+    public bool containsNumericValue = false;
+    public int numericValue = 0;
 
     public bool actionOnAll = false;
 
@@ -71,7 +73,24 @@ public class InputInfo
 
         newInputInfo.FindCombination();
 
+        newInputInfo.FindNumber();
+
         PlayerActionManager.Instance.DisplayInputFeedback();
+    }
+
+    private void FindNumber()
+    {
+        containsNumericValue = false;
+
+        foreach (var item in InputInfo.parts)
+        {
+            if (item.All(char.IsDigit))
+            {
+                containsNumericValue = true;
+                numericValue = int.Parse(item);
+                break;
+            }
+        }
     }
 
     public void FindVerb()

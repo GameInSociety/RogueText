@@ -64,25 +64,24 @@ public class ItemGroup
         return itemGroups;
     }
 
-    public static string GetRelativeItemPositionPhrase(string itemName)
+    public static string GetRelativeItemPositionPhrase(Item item)
     {
         string itemPosition = "";
-        char dirChar = itemName[itemName.Length - 2];
 
         Player.Orientation fac = Player.Orientation.None;
 
-        switch (dirChar)
+        switch (item.GetProperty("direction").GetValue())
         {
-            case 'n':
+            case "to north":
                 fac = Player.Instance.GetFacing(Direction.North);
                 break;
-            case 'e':
-                fac = Player.Instance.GetFacing(Direction.East);
-                break;
-            case 's':
+            case "to south":
                 fac = Player.Instance.GetFacing(Direction.South);
                 break;
-            case 'w':
+            case "to east":
+                fac = Player.Instance.GetFacing(Direction.East);
+                break;
+            case "to west":
                 fac = Player.Instance.GetFacing(Direction.West);
                 break;
             default:

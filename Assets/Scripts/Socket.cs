@@ -26,9 +26,9 @@ public class Socket
         // item has no assigned sockets ?
         if ( possibleSockets.Count == 0)
         {
-            if (Tile.current.tileItem.sockets.Count > 0)
+            if (Tile.GetCurrent.tileItem.sockets.Count > 0)
             {
-                return Tile.current.tileItem.sockets[Random.Range(0, Tile.current.tileItem.sockets.Count)];
+                return Tile.GetCurrent.tileItem.sockets[Random.Range(0, Tile.GetCurrent.tileItem.sockets.Count)];
             }
             // current tile doesnt have sockets
             else
@@ -73,10 +73,7 @@ public class Socket
 
     public string GetRelativeText(Item item)
     {
-        Debug.Log("GETTING RELATIVE POSITION");
-        string text = ItemGroup.GetRelativeItemPositionPhrase(item.word.text);
-        Debug.LogError("text à probleme ? " + text );
-
+        string text = ItemGroup.GetRelativeItemPositionPhrase(item);
         return text;
     }
 

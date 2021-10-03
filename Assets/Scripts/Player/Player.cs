@@ -127,17 +127,19 @@ public class Player : MonoBehaviour {
         }
         else
         {
-            Debug.LogError("door doesn't have param direction");
+            if (Interior.GetCurrent == null)
+            {
+                Interior.Get(coords).Enter();
+            }
+            else
+            {
+                Interior.GetCurrent.ExitByDoor();
+            }
+
+            //Debug.LogError("door doesn't have param direction");
         }
 
-        if (Interior.GetCurrent == null)
-        {
-            Interior.Get(coords).Enter();
-        }
-        else
-        {
-            Interior.GetCurrent.ExitByDoor();
-        }
+        
 	}
 
     void GoOut()
@@ -182,6 +184,9 @@ public class Player : MonoBehaviour {
     }
     IEnumerator MoveCoroutine(Direction dir)
     {
+        // first of all, advance time ( and items states etc... )
+        TimeManager.GetInstance().AdvanceTime();
+
         // ?
         if (coords.x > 0)
         {
@@ -192,13 +197,13 @@ public class Player : MonoBehaviour {
         coords += (Coords)dir;
 
         // set preivous & current tile
-        Tile.previous = Tile.current;
-        Tile.current = TileSet.current.GetTile(coords);
+        Tile.SetPrevious (Tile.GetCurrent);
+        Tile.SetCurrent (TileSet.current.GetTile(coords));
 
         // generate tile items
-        if (Tile.current.visited == false)
+        if (Tile.GetCurrent.visited == false)
         {
-            Tile.current.GenerateItems();
+            Tile.GetCurrent.GenerateItems();
         }
 
         // because the game starts with no movement
@@ -208,13 +213,12 @@ public class Player : MonoBehaviour {
         // set new direction
         direction = dir;
 
-        TimeManager.GetInstance().AdvanceTime();
 
         DisplayDescription.Instance.UpdateDescription();
 
         MapTexture.Instance.UpdateFeedbackMap();
 
-        Tile.current.visited = true;
+        Tile.GetCurrent.visited = true;
 
         yield return new WaitForEndOfFrame();
 

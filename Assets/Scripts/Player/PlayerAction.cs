@@ -24,6 +24,7 @@ public class PlayerAction
         DrinkAndRemove,
         ChangeState,
         Sleep,
+        Wait,
         Take,
         Throw,
         AddToInventory,

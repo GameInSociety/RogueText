@@ -2,10 +2,44 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Word
 {
-    //
-    public string GetLocationPrep{
+    // data //
+    private string locationPrep = "";
+    public string text = "";
+    public Genre genre;
+    public Number defaultNumber = Number.Singular;
+
+    // ADJECTIVE
+    // more logic if word have adjectives, and not items or location or tiles. fuck s
+    public Adjective adjective;
+    public string adjectiveType;
+
+    public Info currentInfo;
+
+    public Word()
+    {
+
+    }
+
+    public Word (Word copy)
+    {
+        this.locationPrep = copy.locationPrep;
+        this.text = copy.text;
+        this.genre = copy.genre;
+        this.defaultNumber = copy.defaultNumber;
+        /*if (adjective != null)
+        {
+            this.adjective = new Adjective(copy.adjective);
+        }*/
+        this.adjectiveType = copy.adjectiveType;
+        this.currentInfo = copy.currentInfo;
+    }
+    
+    #region location prep
+    public string GetLocationPrep
+    {
 
         get
         {
@@ -25,64 +59,9 @@ public class Word
     {
         locationPrep = str;
     }
-
-    private string locationPrep = "";
-    //
-
-    public string text = "";
-    public string[] text_parts;
-
-    public bool hasBeenInteractedWith = false;
-
-    // GENRE
-    public Genre genre;
-    public Number defaultNumber = Number.Singular;
-
-    // ADJECTIVE
-    // more logic if word have adjectives, and not items or location or tiles. fuck s
-    private Adjective adjective;
-    public string adjectiveType;
-
-    public Info currentInfo;
-
-    public enum Number
-    {
-        None,
-
-        Singular,
-        Plural,
-    }
-
-    public enum ContentType
-    {
-        JustWord,
-        ArticleAndWord,
-        FullGroup,
-        ArticleOtherAndWord,
-    }
-
-    public enum Definition
-    {
-        Defined,
-        Undefined
-    }
-
-    public enum Preposition
-    {
-        None,
-        De,
-        A,
-    }
+    #endregion
 
     #region genre
-    public enum Genre
-    {
-        None,
-
-        Masculine,
-        Feminine,
-    }
-
     public void UpdateGenre(string str)
     {
         switch (str)
@@ -107,15 +86,16 @@ public class Word
         }
     }
     #endregion
-    
+
+    #region article
     public string GetArticle()
     {
         // l'espace est inclu dans l'article par qu'il 
-        if ( defaultNumber == Number.Plural)
+        if (defaultNumber == Number.Plural)
         {
             currentInfo.plural = true;
         }
-        
+
 
         // NUMBER
         if (currentInfo.plural)
@@ -268,6 +248,7 @@ public class Word
 
         return false;
     }
+    #endregion
 
     #region getter
     public struct Info
@@ -281,6 +262,11 @@ public class Word
         public Preposition preposition;
     }
 
+    /// <summary>
+    /// FORME : LE CHIEN SAGE
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
     public string GetContent(string str)
     {
 
@@ -349,7 +335,7 @@ public class Word
         // set current params
         currentInfo = info;
         //
-        
+
         /// WORD
         string str = text.ToLower();
 
@@ -365,7 +351,7 @@ public class Word
             str = str.Remove(str.IndexOf("(") - 1);
         }
 
-        if ( info.adjective)
+        if (info.adjective)
         {
             // adjectif
             string adjective_str = GetAdjective.GetContent(genre, currentInfo.plural);
@@ -380,7 +366,7 @@ public class Word
             }
         }
 
-        if ( info.other)
+        if (info.other)
         {
             str = "autre " + str;
         }
@@ -411,7 +397,6 @@ public class Word
     public void SetText(string _text)
     {
         text = _text;
-        text_parts = text.Split(' ');
     }
 
     public string GetPlural()
@@ -437,7 +422,7 @@ public class Word
         }
     }
 
-    public void SetAdjective ( Adjective adj)
+    public void SetAdjective(Adjective adj)
     {
         adjective = adj;
     }
@@ -450,4 +435,43 @@ public class Word
             ||
             (GetPlural().StartsWith(input_part));
     }
+
+    #region enums
+    public enum Number
+    {
+        None,
+
+        Singular,
+        Plural,
+    }
+
+    public enum ContentType
+    {
+        JustWord,
+        ArticleAndWord,
+        FullGroup,
+        ArticleOtherAndWord,
+    }
+
+    public enum Definition
+    {
+        Defined,
+        Undefined
+    }
+
+    public enum Preposition
+    {
+        None,
+        De,
+        A,
+    }
+
+    public enum Genre
+    {
+        None,
+
+        Masculine,
+        Feminine,
+    }
+    #endregion
 }

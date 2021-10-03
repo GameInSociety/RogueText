@@ -27,3 +27,7 @@ allumer,que,,On dirait que ITEM peut s'allumer
 avancer,où,vers,
 planter,que,dans,"Clairement, ITEM peut se planter quelque part"
 détérrer,que,dans,Vous pouvez détérer ITEM
+arroser,que,dans,Vous pouvez arroser ITEM
+creuser,où,dans,Vous pouvez creuser dans ITEM
+attendre,combien de temps,quand,Vous pouvez attendre
+dernier verbe,,,

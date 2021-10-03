@@ -10,7 +10,7 @@ public class TileGroupDescription {
 
     public static Player.Orientation GetFacingWithTile(string str)
     {
-        if (str == Tile.current.tileItem.word.text)
+        if (str == Tile.GetCurrent.tileItem.word.text)
         {
             return Player.Orientation.Current;
         }
@@ -30,7 +30,7 @@ public class TileGroupDescription {
     public static string GetSurroundingTileDescription()
     {
         // enclosed, so no description of hallway, other rooms etc...
-        if (Tile.current.enclosed)
+        if (Tile.GetCurrent.enclosed)
         {
             return "";
         }
@@ -57,12 +57,10 @@ public class TileGroupDescription {
         List<string> phrases = new List<string>();
 
         // get text
-        Debug.Log("number of tile group : " + tileGroups.Count);
 
 		foreach (var surroundingTile in tileGroups) {
             string newPhrase = GetSurroundingTileDescription(surroundingTile);
             phrases.Add ( newPhrase );
-            Debug.Log("new phrase : " + newPhrase);
         }
 
         // display text
@@ -101,13 +99,11 @@ public class TileGroupDescription {
 
             if (targetTile == null)
             {
-                Debug.Log("no tile : moving on");
                 continue;
             }
 
             if (targetTile.enclosed)
             {
-                Debug.Log("tile " + targetTile.GetName() + " is enclosed");
                 continue;
             }
 
@@ -129,8 +125,6 @@ public class TileGroupDescription {
                 newTileGroup.orientations.Add(orientation);
             }
 
-            Debug.Log("adding " + newTileGroup.tile.GetName() + " to tile group");
-
 
         }
     }
@@ -140,9 +134,9 @@ public class TileGroupDescription {
         Phrase.orientations = surroundingTile.orientations;
 
         // same tile
-        if ( Tile.current.tileItem.SameTypeAs(surroundingTile.tile.tileItem))
+        if ( Tile.GetCurrent.tileItem.SameTypeAs(surroundingTile.tile.tileItem))
         {
-            if (Tile.current.tileItem.stackable)
+            if (Tile.GetCurrent.tileItem.stackable)
             {
                 // tu es dans une forêt, la forêt continue
                 return Phrase.GetPhrase("surroundingTile_continue", surroundingTile.tile.tileItem);

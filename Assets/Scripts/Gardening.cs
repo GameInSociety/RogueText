@@ -29,7 +29,7 @@ public class Gardening : MonoBehaviour
     {
         Item.Remove(InputInfo.GetCurrent.MainItem);
         Item newItem = Item.CreateNewItem("pousse de carotte");
-        Tile.current.AddItem(newItem);
+        Tile.GetCurrent.AddItem(newItem);
 
         DisplayDescription.Instance.UpdateDescription();
     }

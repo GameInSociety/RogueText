@@ -9,9 +9,23 @@ public class ItemLoader : TextParser {
 
     int itemIndex = 0;
 
+    public Item[] items_debug;
+
     private void Awake()
     {
         Instance = this;
+    }
+
+    public override void FinishLoading()
+    {
+        base.FinishLoading();
+
+        items_debug = Item.items.ToArray();
+
+        foreach (var item in items_debug)
+        {
+            item.debug_name = item.word.text;
+        }
     }
 
     public override void GetCell(int rowIndex, List<string> cells)
@@ -63,7 +77,6 @@ public class ItemLoader : TextParser {
         {
             foreach (var property_line in property_lines)
             {
-
                 Item.Property newProperty = new Item.Property();
 
                 string[] propertyLine_parts = property_line.Split(':');
@@ -71,7 +84,6 @@ public class ItemLoader : TextParser {
                 newProperty.name = propertyLine_parts[0];
 
                 newProperty.SetValue(propertyLine_parts[1]);
-                newProperty.item = newItem;
 
                 if (propertyLine_parts.Length > 2)
                 {
@@ -79,9 +91,8 @@ public class ItemLoader : TextParser {
                     newProperty.param = part;
                 }
 
+                // !!! reel probleme ici, pourquoi mes trucs se mettent en copie ? !!!
                 newItem.AddProperty(newProperty);
-
-                //Debug.Log(newProperty.GetDebugText());
             }
         }
         //

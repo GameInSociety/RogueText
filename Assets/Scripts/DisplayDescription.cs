@@ -50,13 +50,13 @@ public class DisplayDescription : MonoBehaviour {
         string str = "";
 
         // display current tile
-        if (Tile.previous != null && Tile.current.type == Tile.previous.type)
+        if (Tile.GetPrevious != null && Tile.GetCurrent.type == Tile.GetPrevious.type)
         {
             
         }
         else
         {
-            str += Tile.current.GetDescription();
+            str += Tile.GetCurrent.GetDescription();
             str += "\n";
         }
 
@@ -65,10 +65,23 @@ public class DisplayDescription : MonoBehaviour {
         str += "\n";
 
         // display tile items
-        str += Tile.current.GetItemDescriptions();
+        str += Tile.GetCurrent.GetItemDescriptions();
 
         // pas sûr que les choses d'état de santé, de temps et autre trucs divers doivent être là, pense à changer
         str += StateManager.GetInstance().GetDescription();
+
+        // time of day
+        if (TimeManager.GetInstance().changedPartOfDay)
+        {
+            str += TimeManager.GetInstance().GetPartOfDayDescription();
+            str += "\n";
+        }
+
+        // weather
+        if (TimeManager.GetInstance().displayRainDescription)
+        {
+            str += TimeManager.GetInstance().GetWeatherDescription();
+        }
 
         // l'indication de la lettre
         if ( !Story.Instance.GetParam("retrieved_letter"))

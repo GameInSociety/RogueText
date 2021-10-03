@@ -99,7 +99,7 @@ public class Phrase
                 // check if word contains tile item
                 if (clean_word_code.Contains("bois"))
                 {
-                    targetItem = Tile.current.tileItem;
+                    targetItem = Tile.GetCurrent.tileItem;
 
                     clean_word_code = clean_word_code.Replace("bois", "chien");
                     clean_word_code = clean_word_code.Replace("calme", "sage");

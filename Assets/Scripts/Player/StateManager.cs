@@ -52,6 +52,9 @@ public class StateManager : MonoBehaviour
             case PlayerAction.Type.Sleep:
                 Sleep();
                 break;
+            case PlayerAction.Type.Wait:
+                Wait();
+                break;
             case PlayerAction.Type.ChangeState:
                 ChangeState();
                 break;
@@ -95,16 +98,32 @@ public class StateManager : MonoBehaviour
     #region sleep
     void Sleep()
     {
-        string str = "";
-
-        DisplayFeedback.Instance.Display(str);
-
         GetState(StateType.Sleep).Remove(PlayerAction.GetCurrent.values[0]);
 
         DisplayFeedback.Instance.Display("Vous vous réveillez et vous sentez reposé...");
 
         TimeManager.GetInstance().timeOfDay = 6;
         TimeManager.GetInstance().NextDay();
+
+        DisplayDescription.Instance.UpdateDescription();
+    }
+    #endregion
+
+    #region wait
+    public void Wait()
+    {
+        int hours;
+
+        if (InputInfo.GetCurrent.containsNumericValue)
+        {
+            hours = InputInfo.GetCurrent.numericValue;
+        }
+        else
+        {
+            hours = PlayerAction.GetCurrent.values[0];
+        }
+        
+        TimeManager.GetInstance().NextHour(hours);
 
         DisplayDescription.Instance.UpdateDescription();
     }

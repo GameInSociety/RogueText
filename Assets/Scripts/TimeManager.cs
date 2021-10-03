@@ -27,6 +27,7 @@ public class TimeManager : MonoBehaviour {
 	public int rainDuration_Max = 10;
 	public int rainDuration_Min = 1;
     public bool raining = false;
+    public bool displayRainDescription = false;
 
     /// <summary>
     /// HOURS
@@ -41,9 +42,7 @@ public class TimeManager : MonoBehaviour {
     public int movesToNextHour = 3;
     public int currentMove = 0;
 
-    public bool changedPartOfDay = false;
-
-	public int [] hoursToPartOfDay;
+    public bool changedPartOfDay = true;
 
     public delegate void OnNextDay();
     public OnNextDay onNextDay;
@@ -89,7 +88,7 @@ public class TimeManager : MonoBehaviour {
     private void Start()
     {
         ResetRain();
-        UpdateRain();
+        UpdateWeather();
     }
 
     public void AdvanceTime()
@@ -100,7 +99,7 @@ public class TimeManager : MonoBehaviour {
         {
             currentMove = 0;
 
-            NextHour();
+            NextHour(1);
         }
     }
 
@@ -110,56 +109,114 @@ public class TimeManager : MonoBehaviour {
 
         currentMove = 0;
 
-        NextHour();
+        NextHour(1);
     }
 
-    void NextHour()
+    public void NextHour(int hours)
     {
-        ++timeOfDay;
-
-        previousPartOfDay = currentPartOfDay;
-
-        currentPartOfDay = GetPartOfDay();
-
-        StateManager.GetInstance().AdvanceStates();
-
-        UpdateRain();
-
-        changedPartOfDay = false;
-        if (previousPartOfDay != currentPartOfDay)
-            changedPartOfDay = true;
-
-        if (timeOfDay == 24)
+        for (int i = 0; i < hours; i++)
         {
-            timeOfDay = 0;
-            NextDay();
-        }
+            ++timeOfDay;
 
-        if (onNextHour != null)
-        {
-            onNextHour();
+            // part of day
+            previousPartOfDay = currentPartOfDay;
+            currentPartOfDay = GetPartOfDay();
+
+            // states
+            StateManager.GetInstance().AdvanceStates();
+
+            // 
+            UpdateWeather();
+
+            changedPartOfDay = false;
+            if (previousPartOfDay != currentPartOfDay)
+                changedPartOfDay = true;
+
+            if (timeOfDay == 24)
+            {
+                timeOfDay = 0;
+                NextDay();
+            }
+
+            if (onNextHour != null)
+            {
+                onNextHour();
+            }
         }
 
     }
 
-    private void UpdateRain()
+    public void NextDay()
+    {
+        ++daysPasted;
+        if (onNextDay != null)
+        {
+            onNextDay();
+        }
+
+    }
+
+    #region part of day
+    public string GetPartOfDayDescription()
+    {
+        string str = "\n";
+
+        switch (currentPartOfDay)
+        {
+            case PartOfDay.Dawn:
+                str += "Le soleil ne fait que se lever...";
+                break;
+            case PartOfDay.Morning:
+                str += "Le matin s'est installé";
+                break;
+            case PartOfDay.Noon:
+                str += "Le matin se termine doucement et le jour commence";
+                break;
+            case PartOfDay.Afternoon:
+                str += "Il doit être l'après midi";
+                break;
+            case PartOfDay.Dusk:
+                str += "Le soleil se couche au loin";
+                break;
+            case PartOfDay.Night:
+                str += "La nuit est tombée, tout est sombre";
+                break;
+            default:
+                str += "pas de description de PART OF DAY?";
+                break;
+        }
+
+        str += "\n";
+
+        return str;
+    }
+    #endregion
+
+    #region weather
+    public string GetWeatherDescription()
+    {
+        displayRainDescription = false;
+
+        if (raining)
+        {
+            return "Il pleut très fort sur " + Tile.GetCurrent.tileItem.word.GetContent("le chien sage");
+        }
+        else
+        {
+            return "La pluie cesse doucement de tomber sur " + Tile.GetCurrent.tileItem.word.GetContent("le chien sage");
+        }
+    }
+    private void UpdateWeather()
     {
         --hoursLeftToRain;
 
         if ( hoursLeftToRain == 0) {
 
-            if (raining)
-            {
-                DisplayFeedback.Instance.Display("Il commence à pleuvoir...");
-                raining = false;
-                ResetRain();
-            }
-            else
-            {
-                DisplayFeedback.Instance.Display("Il s'est arrêté de pleuvoir");
-                raining = true;
-                ResetRain();
-            }
+            raining = !raining;
+
+            ResetRain();
+            displayRainDescription = true;
+
         }
     }
 
@@ -174,14 +231,5 @@ public class TimeManager : MonoBehaviour {
             hoursLeftToRain = Random.Range(rainRate_Min, rainRate_Max);
         }
     }
-
-    public void NextDay()
-    {
-        ++daysPasted;
-        if (onNextDay!=null)
-        {
-            onNextDay();
-        }
-
-    }
+    #endregion
 }

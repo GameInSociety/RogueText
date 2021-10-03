@@ -19,6 +19,13 @@ public class TextParser : MonoBehaviour
         //TextAsset textAsset = Resources.Load<TextAsset>("TextAssets/" + targetAsset.name);
         TextAsset textAsset = targetAsset as TextAsset;
         fgCSVReader.LoadFromString(textAsset.text, new fgCSVReader.ReadLineDelegate(GetCell));
+
+        FinishLoading();
+    }
+
+    public virtual void FinishLoading()
+    {
+
     }
 
     public virtual void GetCell(int rowIndex, List<string> cells)

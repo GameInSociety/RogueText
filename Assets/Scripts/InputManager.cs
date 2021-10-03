@@ -10,15 +10,22 @@ public class InputManager : MonoBehaviour
     public delegate void OnTouchDown();
     public static OnTouchDown onTouchDown;
 
-    public bool debugWrite = false;
-
     public GameObject audioGroup;
     public GameObject writeGroup;
 
     void Start()
     {
-        audioGroup.SetActive(!debugWrite);
-        writeGroup.SetActive(debugWrite);
+        if (Application.isMobilePlatform)
+        {
+            audioGroup.SetActive(true);
+            writeGroup.SetActive(false);
+        }
+        else
+        {
+            audioGroup.SetActive(false);
+            writeGroup.SetActive(true);
+        }
+        
     }
 
     private void Update()

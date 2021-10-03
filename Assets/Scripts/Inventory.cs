@@ -95,7 +95,7 @@ public class Inventory : MonoBehaviour {
 
         RemoveItem(item);
 
-        Tile.current.AddItem(InputInfo.GetCurrent.MainItem);
+        Tile.GetCurrent.AddItem(InputInfo.GetCurrent.MainItem);
 
         DisplayFeedback.Instance.Display("Vous posez " + InputInfo.GetCurrent.MainItem.word.GetContent("le chien") + " par terre");
 
@@ -108,7 +108,7 @@ public class Inventory : MonoBehaviour {
         if (InputInfo.GetCurrent.actionOnAll)
         {
             Debug.Log("trying action on all items");
-            targetItems = Tile.current.items.FindAll(x => x.word.text == InputInfo.GetCurrent.MainItem.word.text);
+            targetItems = Tile.GetCurrent.items.FindAll(x => x.word.text == InputInfo.GetCurrent.MainItem.word.text);
         }
         else
         {
@@ -147,7 +147,7 @@ public class Inventory : MonoBehaviour {
             DisplayFeedback.Instance.Display("Vous vous ne pouvez pas remplir &le chapeau chic& dans &le chapeau chic2&");
         }
 
-        if (!Tile.current.HasItem(itemNames.ToArray()))
+        if (!Tile.GetCurrent.HasItem(itemNames.ToArray()))
         {
             DisplayFeedback.Instance.Display("Vous n'avez nulle part ou remplir &le chapeau chic&");
             return;
@@ -193,7 +193,7 @@ public class Inventory : MonoBehaviour {
 	}
     void RemoveCurrentItemFromTile()
     {
-        Item item = Tile.current.items.Find(x => x.word.text.ToLower() == PlayerAction.GetCurrent.contents[0].ToLower());
+        Item item = Tile.GetCurrent.items.Find(x => x.word.text.ToLower() == PlayerAction.GetCurrent.contents[0].ToLower());
 
         if (item == null)
         {
@@ -201,7 +201,7 @@ public class Inventory : MonoBehaviour {
             return;
         }
 
-        Tile.current.RemoveItem(item);
+        Tile.GetCurrent.RemoveItem(item);
     }
 	#endregion
 
@@ -259,7 +259,7 @@ public class Inventory : MonoBehaviour {
 
         for (int i = 0; i < amount; i++)
         {
-            Tile.current.AddItem(item);
+            Tile.GetCurrent.AddItem(item);
         }
 
         return item;

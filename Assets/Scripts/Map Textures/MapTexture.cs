@@ -69,7 +69,7 @@ public class MapTexture : MonoBehaviour {
         }
 
         interiorMap_Texture.Apply();
-        interiorMap_Image.sprite = Sprite.Create(interiorMap_Texture, new Rect(0, 0, interiorMap_Texture.width, interiorMap_Texture.height), Vector2.one * 0.5f);
+        interiorMap_Image.sprite = Sprite.Create(interiorMap_Texture, new Rect(0, 0, mainMap_Texture.width, mainMap_Texture.height), Vector2.one * 0.5f);
     }
 
     #region read map from texture
@@ -133,75 +133,11 @@ public class MapTexture : MonoBehaviour {
 
                         switch (tileType)
                         {
-                            case Tile.Type.None:
-                                break;
-                            case Tile.Type.Plain:
-                                break;
-                            case Tile.Type.Field:
-                                break;
-                            case Tile.Type.Clearing:
-                                break;
-                            case Tile.Type.Hill:
-                                break;
-                            case Tile.Type.Mountain:
-                                break;
-                            case Tile.Type.Forest:
-                                break;
-                            case Tile.Type.Woods:
-                                break;
-                            case Tile.Type.Sea:
-                                break;
-                            case Tile.Type.Lake:
-                                break;
-                            case Tile.Type.River:
-                                break;
-                            case Tile.Type.Beach:
-                                break;
-                            case Tile.Type.Road:
-                                break;
-                            case Tile.Type.TownRoad:
-                                break;
-                            case Tile.Type.CoastalRoad:
-                                break;
-                            case Tile.Type.Path:
-                                break;
-                            case Tile.Type.Bridge:
-                                break;
                             case Tile.Type.TownHouse:
-                                Interior.NewInterior(newTile);
-                                break;
                             case Tile.Type.Farm:
-                                Interior.NewInterior(newTile);
-                                break;
                             case Tile.Type.ForestCabin:
-                                Interior.NewInterior(newTile);
-                                break;
                             case Tile.Type.CountryHouse:
                                 Interior.NewInterior(newTile);
-                                break;
-                            case Tile.Type.Hallway:
-                                break;
-                            case Tile.Type.Stairs:
-                                break;
-                            case Tile.Type.LivingRoom:
-                                break;
-                            case Tile.Type.Kitchen:
-                                break;
-                            case Tile.Type.DiningRoom:
-                                break;
-                            case Tile.Type.ChildBedroom:
-                                break;
-                            case Tile.Type.Bedroom:
-                                break;
-                            case Tile.Type.Bathroom:
-                                break;
-                            case Tile.Type.Toilet:
-                                break;
-                            case Tile.Type.Attic:
-                                break;
-                            case Tile.Type.Basement:
-                                break;
-                            case Tile.Type.Cellar:
                                 break;
                             default:
                                 break;
@@ -231,7 +167,7 @@ public class MapTexture : MonoBehaviour {
 	}
 	public void RefreshTexture() {
 		feedbackMap_Texture.Apply ();
-		feedbackMap_Image.sprite = Sprite.Create (feedbackMap_Texture, new Rect (0, 0, feedbackMap_Texture.width, feedbackMap_Texture.height) , Vector2.one * 0.5f );
+		feedbackMap_Image.sprite = Sprite.Create (feedbackMap_Texture, new Rect (0, 0, mainMap_Texture.width, mainMap_Texture.height) , Vector2.one * 0.5f );
 	}
 	public void Paint ( Coords coords , Color c ) {
 		feedbackMap_Texture.SetPixel (coords.x, coords.y, c);

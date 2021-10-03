@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Item
 {
+    public string debug_name = "debug name";
+
     public static List<Item> items = new List<Item>();
 
     /// <summary>
@@ -69,7 +72,7 @@ public class Item
             {
                 if (Random.value * 100f < appearInfo.rate)
                 {
-                    Item newItem = Item.CreateNewItem(appearInfo.GetItem());
+                    Item newItem = Item.CreateNew(appearInfo.GetItem());
 
                     Debug.Log("new item hash code : " + newItem.GetHashCode());
 
@@ -159,12 +162,34 @@ public class Item
 
     }
 
+    [System.Serializable]
     public class Property
     {
         public string name;
         private string value;
         public string param;
         public Item item;
+
+        public void Init(Item _item)
+        {
+            item = _item;
+
+            if (!string.IsNullOrEmpty(param))
+            {
+                if (param == "timed")
+                {
+                    Debug.Log("timing item : " + item.word.text);
+
+                    TimeManager.GetInstance().onNextHour += HandleOnNextHour;
+                }
+                else
+                {
+                    // quand la case est juste un nombre
+                    int chance = int.Parse(param);
+                    SetValue(Random.value * 100 < chance ? "true" : "false");
+                }
+            }
+        }
 
         public void SetValue(string _value)
         {
@@ -201,15 +226,19 @@ public class Item
             switch (name)
             {
                 case "grow":
+                    Debug.Log("has code before grow : " + item.GetHashCode());
                     Debug.Log("item : " + item.word.text + " is growing...");
                     Item newItem = Item.FindByName("carotte");
-                    newItem = CreateNewItem(newItem);
+                    newItem = CreateNew(newItem);
 
                     Item.Remove(this.item);
 
-                    Tile.current.AddItem(newItem);
+                    Tile.GetCurrent.AddItem(newItem);
 
                     DisplayDescription.Instance.UpdateDescription();
+
+                    Debug.Log("hash code after grow : " + this.GetHashCode());
+
                     break;
                 default:
                     Debug.LogError("timer property : " + name + " is dead end");
@@ -258,13 +287,15 @@ public class Item
     public static Item CreateNewItem(string name)
     {
         Item item = FindByName(name);
-        return CreateNewItem(item);
+        return CreateNew(item);
     }
 
-    public static Item CreateNewItem(Item copy)
+    public static Item CreateNew(Item copy)
     {
+        // common to all
         Item newItem = new Item();
 
+        newItem.debug_name = copy.debug_name;
         newItem.index = copy.index;
         newItem.weight = copy.weight;
         newItem.value = copy.value;
@@ -272,28 +303,15 @@ public class Item
         newItem.appearInfos = copy.appearInfos;
         newItem.socket = copy.socket;
         newItem.sockets = copy.sockets;
-        newItem.word = copy.word;
+        newItem.word = new Word(copy.word);
         newItem.stackable = copy.stackable;
-        newItem.properties = copy.properties;
+
+        // unique
+        newItem.properties = new List<Property>(copy.properties);
 
         foreach (var _property in newItem.properties)
         {
-            if (!string.IsNullOrEmpty(_property.param))
-            {
-                if (_property.param == "timed")
-                {
-                    Debug.LogError("timing item : " + newItem.word.text);
-
-                    TimeManager.GetInstance().onNextHour += _property.HandleOnNextHour;
-                }
-                else
-                {
-                    // quand la case est juste un nombre
-
-                    int chance = int.Parse(_property.param);
-                    _property.SetValue(Random.value * 100 < chance ? "true" : "false");
-                }
-            }
+            _property.Init(newItem);
         }
 
         return newItem;
@@ -330,12 +348,25 @@ public class Item
             return;
         }
 
-        if (Tile.current.items.Contains(targetItem))
+        if (Tile.GetCurrent.items.Contains(targetItem))
         {
-            Tile.current.RemoveItem(targetItem);
+            Tile.GetCurrent.RemoveItem(targetItem);
+
+            Debug.Log("removing " + targetItem.debug_name + " from tile : " + Tile.GetCurrent.GetName());
 
             DisplayDescription.Instance.UpdateDescription();
             return;
+        }
+        else
+        {
+            Debug.LogError("tile " + Tile.GetCurrent.GetName() + " doesn't contain item " + targetItem.debug_name);
+
+            Debug.Log("target item : " + targetItem.word.text + " ID : " + targetItem.GetHashCode());
+                Debug.Log("in tile :");
+            foreach (var item in Tile.GetCurrent.items)
+            {
+                Debug.Log(item.word.text + " ID : " + item.GetHashCode());
+            }
         }
 
         if (Inventory.Instance.items.Contains(targetItem))
@@ -377,15 +408,15 @@ public class Item
             item = FindInTile(str);
         }
 
-        if (item == null)
-        {
-            item = FindUsableAnytime(str);
-        }
-
         // et en dernier s'il est fermé
         if (item == null)
         {
             item = FindInInventory(str);
+        }
+
+        if (item == null)
+        {
+            item = FindUsableAnytime(str);
         }
 
         if (item == null)
@@ -399,9 +430,9 @@ public class Item
     public static Item FindInTile(string str)
     {
         // is the item the exact same tile as the one we're in ?
-        if (Tile.current.tileItem.word.Compare(str))
+        if (Tile.GetCurrent.tileItem.word.Compare(str))
         {
-            return Tile.current.tileItem;
+            return Tile.GetCurrent.tileItem;
         }
 
         // is the item one of the surrounding tiles ?
@@ -413,11 +444,11 @@ public class Item
             }
         }
 
-        List<Item> items = Tile.current.items.FindAll(x => x.word.Compare(str));
+        List<Item> items = Tile.GetCurrent.items.FindAll(x => x.word.Compare(str));
 
         if (items.Count == 0)
         {
-            items = Tile.current.items.FindAll(x => x.word.Compare(str));
+            items = Tile.GetCurrent.items.FindAll(x => x.word.Compare(str));
         }
 
         /// ADJECTIVES ///
@@ -448,7 +479,8 @@ public class Item
 
     public static Item FindUsableAnytime(string str)
     {
-        return items.Find(x => x.word.Compare(str) && x.usableAnytime);
+        //return items.Find(x => x.word.Compare(str) && x.usableAnytime);
+        return items.Find(x => x.word.Compare(str) );
     }
 
     public static Item FindInInventory(string str)

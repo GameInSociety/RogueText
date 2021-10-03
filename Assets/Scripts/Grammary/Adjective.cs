@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Adjective {
 
     public static List<AdjectiveGroup> adjectiveGroups = new List<AdjectiveGroup>();
@@ -9,6 +10,17 @@ public class Adjective {
 
     public bool beforeWord = false;
     public string _text;
+
+    public Adjective()
+    {
+
+    }
+
+    public Adjective (Adjective copy)
+    {
+        this.beforeWord = copy.beforeWord;
+        this._text = copy._text;
+    }
 
     public enum Type
 	{
@@ -23,6 +35,11 @@ public class Adjective {
 
 		string adj = _text;
 
+        if ( Tile.GetCurrent != null)
+        {
+
+        }
+
 		if (genre == Word.Genre.Feminine) {
 
             int a = 0;
@@ -31,7 +48,8 @@ public class Adjective {
             {
                 if (adj.EndsWith(ending))
                 {
-                    adj = adj.Replace(ending, AdjectiveLoader.Instance.femaleTerminaisons[a]);
+                    adj = adj.Remove(adj.Length - ending.Length);
+                    adj += AdjectiveLoader.Instance.femaleTerminaisons[a];
                     foundEnding = true;
                     break;
                 }
