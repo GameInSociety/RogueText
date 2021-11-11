@@ -7,7 +7,7 @@ public class Item
 {
     public string debug_name = "debug name";
 
-    public static List<Item> items = new List<Item>();
+    public static List<Item> dataItems = new List<Item>();
 
     /// <summary>
     /// declaration
@@ -63,7 +63,6 @@ public class Item
             return;
         }
 
-        Debug.Log("first time open");
         containedItems = new List<Item>();
 
         foreach (var appearInfo in appearInfos)
@@ -100,19 +99,16 @@ public class Item
         // toujours dans la classe inventory.cs pour l'intsant
     }
 
-    public string GetContainedItemsDescription()
+    public void WriteContainedDescription()
     {
-        string word_str = word.GetContent("le chien");
-
         if (containedItems.Count == 0)
         {
-            return "Il n'y a rien dans " + word_str;
+            Phrase.Write("Il n'y a rien dans &le chien (main item)&");
+            return;
         }
 
-        string str = "Dans " + word_str + " : vous voyez : \n" +
-            "" + Item.ItemListString(containedItems, true, true);
-
-        return str;
+        Phrase.Write("Dans &le chien (main item)& : vous voyez : \n" +
+            "" + Item.ItemListString(containedItems, true, true));
     }
 
     public void RemoveItem(Item item)
@@ -129,125 +125,6 @@ public class Item
     }
     #endregion
 
-    #region properties
-    public void AddProperty(string name, string value)
-    {
-        Property newProperty = new Property();
-        newProperty.name = name;
-        newProperty.SetValue(value);
-        AddProperty(newProperty);
-    }
-
-    public void AddProperty(Property property)
-    {
-        properties.Add(property);
-    }
-
-    public bool HasProperty(string name)
-    {
-        return properties.Find(x => x.name == name) != null;
-    }
-
-    public Property GetProperty(string name)
-    {
-        Property property = properties.Find(x => x.name == name);
-
-        if (property == null)
-        {
-            Debug.LogError("property : " + name + " doesn't exist in item " + word.text);
-            return null;
-        }
-
-        return property;
-
-    }
-
-    [System.Serializable]
-    public class Property
-    {
-        public string name;
-        private string value;
-        public string param;
-        public Item item;
-
-        public void Init(Item _item)
-        {
-            item = _item;
-
-            if (!string.IsNullOrEmpty(param))
-            {
-                if (param == "timed")
-                {
-                    Debug.Log("timing item : " + item.word.text);
-
-                    TimeManager.GetInstance().onNextHour += HandleOnNextHour;
-                }
-                else
-                {
-                    // quand la case est juste un nombre
-                    int chance = int.Parse(param);
-                    SetValue(Random.value * 100 < chance ? "true" : "false");
-                }
-            }
-        }
-
-        public void SetValue(string _value)
-        {
-            value = _value;
-        }
-
-        public int GetNumericValue()
-        {
-            int i = 0;
-
-            if (int.TryParse(value, out i))
-            {
-                return i;
-            }
-            else
-            {
-                Debug.LogError("couldn't parse : " + value + " in property : " + name);
-                return i;
-            }
-        }
-
-        public string GetValue()
-        {
-            return value;
-        }
-
-        public string GetDebugText()
-        {
-            return "property of : " + item.word.text + " / " + name + " : " + value;
-        }
-
-        public void HandleOnNextHour()
-        {
-            switch (name)
-            {
-                case "grow":
-                    Debug.Log("has code before grow : " + item.GetHashCode());
-                    Debug.Log("item : " + item.word.text + " is growing...");
-                    Item newItem = Item.FindByName("carotte");
-                    newItem = CreateNew(newItem);
-
-                    Item.Remove(this.item);
-
-                    Tile.GetCurrent.AddItem(newItem);
-
-                    DisplayDescription.Instance.UpdateDescription();
-
-                    Debug.Log("hash code after grow : " + this.GetHashCode());
-
-                    break;
-                default:
-                    Debug.LogError("timer property : " + name + " is dead end");
-                    break;
-            }
-        }
-    }
-    #endregion
-
     #region appear info
     public class AppearInfo
     {
@@ -257,7 +134,7 @@ public class Item
 
         public Item GetItem()
         {
-            return Item.items[itemIndex];
+            return Item.dataItems[itemIndex];
         }
 
         public bool CanAppear()
@@ -286,7 +163,7 @@ public class Item
     #region tools
     public static Item CreateNewItem(string name)
     {
-        Item item = FindByName(name);
+        Item item = GetDataItem(name);
         return CreateNew(item);
     }
 
@@ -320,9 +197,10 @@ public class Item
 
     public void PickUp()
     {
-        if (Inventory.Instance.weight + weight> Inventory.Instance.maxWeight)
+        if (Inventory.Instance.weight + weight > Inventory.Instance.maxWeight)
         {
-            DisplayFeedback.Instance.Display(InputInfo.GetCurrent.MainItem.word.GetContent("le chien") + " est trop lourd pour le sac, il ne rentre pas");
+            string str = "&le chien (main item)& est trop lourd pour le sac, il ne rentre pas";
+            Phrase.Write(str);
             return;
         }
 
@@ -330,12 +208,13 @@ public class Item
 
         Inventory.Instance.AddItem(this);
 
-        DisplayFeedback.Instance.Display("Vous avez pris : " + word.GetContent("le chien"));
+        Phrase.Write("Vous avez pris : &le chien (main item)&");
     }
 
     #region remove
     public static void Remove(Item targetItem)
     {
+        // first search thing in opened container
         if (Container.opened)
         {
             if (Container.CurrentItem.containedItems.Contains(targetItem))
@@ -348,34 +227,25 @@ public class Item
             return;
         }
 
+        // then in tile
         if (Tile.GetCurrent.items.Contains(targetItem))
         {
             Tile.GetCurrent.RemoveItem(targetItem);
 
-            Debug.Log("removing " + targetItem.debug_name + " from tile : " + Tile.GetCurrent.GetName());
-
-            DisplayDescription.Instance.UpdateDescription();
+            //DisplayDescription.Instance.UpdateDescription();
             return;
         }
-        else
-        {
-            Debug.LogError("tile " + Tile.GetCurrent.GetName() + " doesn't contain item " + targetItem.debug_name);
 
-            Debug.Log("target item : " + targetItem.word.text + " ID : " + targetItem.GetHashCode());
-                Debug.Log("in tile :");
-            foreach (var item in Tile.GetCurrent.items)
-            {
-                Debug.Log(item.word.text + " ID : " + item.GetHashCode());
-            }
-        }
-
+        // then in inventory
         if (Inventory.Instance.items.Contains(targetItem))
         {
             Inventory.Instance.RemoveItem(targetItem);
 
-            Inventory.Instance.Describe();
+            Inventory.Instance.WriteDescription();
             return;
         }
+
+        Debug.LogError("removing item : " + targetItem.word.text + " failed : not in container, tile or inventory");
     }
     #endregion
 
@@ -387,8 +257,6 @@ public class Item
         // dans un container
         if (Container.opened)
         {
-            Debug.Log("looking in container");
-
             item = Container.CurrentItem.containedItems.Find(x => x.word.Compare(str));
         }
 
@@ -421,13 +289,13 @@ public class Item
 
         if (item == null)
         {
-
+            //
         }
 
         return item;
     }
 
-    public static Item FindInTile(string str)
+    private static Item FindInTile(string str)
     {
         // is the item the exact same tile as the one we're in ?
         if (Tile.GetCurrent.tileItem.word.Compare(str))
@@ -446,21 +314,20 @@ public class Item
 
         List<Item> items = Tile.GetCurrent.items.FindAll(x => x.word.Compare(str));
 
-        if (items.Count == 0)
-        {
-            items = Tile.GetCurrent.items.FindAll(x => x.word.Compare(str));
-        }
-
         /// ADJECTIVES ///
 
         /// chercher les adjectifs pour différencier les objets ( porte bleu, porte rouge )
         if (items.Count > 0)
         {
-
             foreach (var inputPart in InputInfo.parts)
             {
                 foreach (var item in items)
                 {
+                    if (!item.word.HasAdjective())
+                    {
+                        continue;
+                    }
+
                     string adjSTR = item.word.GetAdjective.GetContent(item.word.genre, false);
 
                     if (adjSTR == inputPart)
@@ -477,13 +344,13 @@ public class Item
         return null;
     }
 
-    public static Item FindUsableAnytime(string str)
+    private static Item FindUsableAnytime(string str)
     {
-        //return items.Find(x => x.word.Compare(str) && x.usableAnytime);
-        return items.Find(x => x.word.Compare(str) );
+        return dataItems.Find(x => x.word.Compare(str) && x.usableAnytime);
+        //return items.Find(x => x.word.Compare(str) );
     }
 
-    public static Item FindInInventory(string str)
+    private static Item FindInInventory(string str)
     {
         Item item = Inventory.Instance.items.Find(x => x.word.Compare(str));
 
@@ -493,16 +360,32 @@ public class Item
         return item;
     }
 
-    public static Item FindByName(string _name)
+    public static Item GetDataItem(string _name)
+    {
+        Item item = TryGetItem(_name);
+
+        if ( item == null)
+        {
+            Debug.LogError("couldn't find item : " + _name);
+        }
+
+        return item;
+        
+    }
+    public bool IsAnItem(string item_name)
+    {
+        return TryGetItem(item_name) != null;
+    }
+    static Item TryGetItem(string _name)
     {
         _name = _name.ToLower();
 
-        Item item = items.Find(x => x.word.text.ToLower() == _name);
+        Item item = dataItems.Find(x => x.word.text.ToLower() == _name);
 
         if (item == null)
         {
             // find plural
-            item = items.Find(x => x.word.GetPlural() == _name);
+            item = dataItems.Find(x => x.word.GetPlural() == _name);
 
             if (item != null)
             {
@@ -513,18 +396,13 @@ public class Item
             }
         }
 
-        if (item == null)
-        {
-            Debug.LogError("couldn't find item : " + _name);
-        }
-
         return item;
     }
     public static List<Item> FindAllByName(string str)
     {
         str = str.ToLower();
 
-        return items.FindAll(x => x.word.text.StartsWith(str));
+        return dataItems.FindAll(x => x.word.text.StartsWith(str));
     }
     #endregion
 
@@ -622,6 +500,344 @@ public class Item
         }
 
         return text;
+    }
+    #endregion
+
+    #region actions
+    public static void Describe (Item item)
+    {
+        string str = "";
+
+        int count = 0;
+
+        if (item.HasProperties())
+        {
+            foreach (var property in item.properties)
+            {
+                str += property.GetPhrase() + "\n";
+            }
+
+            ++count;
+        }
+
+        str += "\nVous pouvez ";
+
+        foreach (var verb in Verb.GetVerbs)
+            {
+                foreach (var combination in verb.combinations)
+                {
+                    if (combination.itemIndex == item.index)
+                    {
+                        str += verb.names[0] + ", ";
+                        ++count;
+                    }
+
+                }
+
+            }
+
+        if (count == 0)
+        {
+            str = "Vous ne vous pouvez pas faire grand chose avec &le chien (main item)&";
+        }
+        else
+        {
+            str += " &le chien (main item)&";
+        }
+
+        Phrase.Write(str);
+    }
+    #endregion
+
+    /// properties ///
+    
+    #region properties
+    /// <summary>
+    /// static functions
+    /// </summary>
+    /// <param name="propName"></param>
+    /// <param name="newValue"></param>
+    public static void ChangeProperty()
+    {
+        ChangeProperty( PlayerAction.GetCurrent.GetContent(0) , PlayerAction.GetCurrent.GetContent(0));
+    }
+    public static void ChangeProperty(string propName, string newValue)
+    {
+        Item targetItem = InputInfo.GetCurrent.MainItem;
+
+        if (!targetItem.HasProperty(propName))
+        {
+            Debug.LogError(targetItem.debug_name + " doesn't have the property " + newValue);
+            return;
+        }
+
+        if (targetItem.GetProperty(propName).GetContent() == newValue)
+        {
+            Phrase.Write("&le chien (main item)& est déjà " + targetItem.GetProperty(propName).GetText());
+            return;
+        }
+
+        targetItem.GetProperty(propName).SetContent(newValue);
+
+        string str = targetItem.GetProperty(propName).GetPhrase();
+
+        Phrase.Write( str );
+    }
+
+    public void AddProperty(string name, string value)
+    {
+        Property newProperty = new Property();
+        newProperty.name = name;
+        newProperty.SetContent(value);
+        AddProperty(newProperty);
+    }
+
+    public void AddProperty(Property property)
+    {
+        properties.Add(property);
+    }
+
+    public void RemoveProperty(string name)
+    {
+        Property prop = properties.Find(x => x.name == name);
+
+        if (prop == null)
+        {
+            Debug.LogError("property : " + name + " hasn't been found");
+        }
+    }
+
+    public bool HasProperties()
+    {
+        return properties.Count > 0;
+    }
+
+    public bool HasProperty(string name)
+    {
+        return properties.Find(x => x.name == name) != null;
+    }
+
+    public Property GetProperty(string name)
+    {
+        Property property = properties.Find(x => x.name == name);
+
+        if (property == null)
+        {
+            Debug.LogError("property : " + name + " doesn't exist in item " + word.text);
+            return null;
+        }
+
+        return property;
+
+    }
+    #endregion
+
+    /// <summary>
+    /// PROPERTY
+    /// </summary>
+    [System.Serializable]
+    public class Property
+    {
+        public enum Type
+        {
+            boolean,
+            delay,
+            value
+        }
+        public Type type;
+        public string name;
+        private string content;
+        public string param;
+
+        public Item item;
+
+        // initialisation
+        public void Init(Item _item)
+        {
+            item = _item;
+
+            switch (type)
+            {
+                case Type.boolean:
+
+                    // si la valeur n'est pas assignée ça doit être un pourçentage, donc assigner au hasard
+                    if (content.Contains("%"))
+                    {
+                        string percentSTR = content.Remove(content.Length - 1);
+
+                        int percent = int.Parse(percentSTR);
+
+                        content = Random.value * 100 < percent ? "true" : "false";
+                    }
+
+                    if (content != "true" && content != "false")
+                    {
+                        Debug.LogError("content for boolean invalid : " + content + " l("+content.Length+")");
+                    }
+
+                    break;
+                case Type.delay:
+
+                    // si la propriété est un delai, s'abonner au temps
+                    TimeManager.GetInstance().onNextHour += HandleOnNextHour;
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // setters
+        public void SetContent(string _content)
+        {
+            content = _content;
+        }
+
+        public void SetValue(int _value)
+        {
+            content = _value.ToString();
+        }
+
+        #region numeric
+        public int GetValue()
+        {
+            int i = 0;
+
+            if (int.TryParse(content, out i))
+            {
+                return i;
+            }
+            else
+            {
+                Debug.LogError("couldn't parse : " + content + " in property : " + name);
+                return i;
+            }
+        }
+        public void Add(int i)
+        {
+            SetValue(GetValue() + i);
+        }
+        public void Remove(int i)
+        {
+            SetValue(GetValue() - i);
+        }
+        #endregion
+
+        #region property text
+        public string GetContent()
+        {
+            return content;
+        }
+
+        /// <summary>
+        /// text
+        /// </summary>
+        /// <returns></returns>
+        public string GetPhrase()
+        {
+            string str = "";
+
+            switch (type)
+            {
+                case Type.boolean:
+                    str += Phrase.Replace("&le chien (main item)& est " + GetText());
+                    break;
+                case Type.delay:
+
+                    string text;
+                    Item paramItem = Item.TryGetItem(param);
+                    if ( paramItem == null)
+                    {
+                        text = "Il reste " + GetText() + " heures avant que &le chien (main item)& devienne "+param;
+                        text = Phrase.Replace(text);
+                    }
+                    else
+                    {
+                        Phrase.SetOverrideItem(paramItem);
+                        text = "Il reste " + GetText() + " avant que &le chien (main item)& devienne &un chien (override item)&";
+                        text = Phrase.Replace(text);
+                    }
+
+                    
+                    str += text;
+
+                    break;
+                case Type.value:
+                    str += Phrase.Replace("&le chien (main item)& contient " + GetText() + " eau");
+                    break;
+                default:
+                    str = "<color=red>no type error</color>";
+                    break;
+            }
+
+            return str;
+        }
+
+
+        public string GetDebugText()
+        {
+            return "property of : " + item.word.text + " / " + name + " : " + content;
+        }
+
+        public string GetText()
+        {
+            switch (type)
+            {
+                case Type.boolean:
+
+                    string[] parts = param.Split('?');
+                    return content == "true" ? parts[0] : parts[1];
+
+                case Type.delay:
+
+                    return content + " heures";
+
+                case Type.value:
+
+                    return content;
+
+                default:
+                    return "<color=red>no type error</color>";
+            }
+            
+        }
+
+        /// <summary>
+        /// ça a pas grand chose à foutre là quand on y pense
+        /// </summary>
+        public void HandleOnNextHour()
+        {
+            // en soit à terme, il faudrait que la fonction soit dans la case elle même
+            // delay/grow/10/BecomeItem(carotte)
+            // pas si compliqué que ça quand on y pense
+
+            // decrease time
+            int timeLeft = GetValue();
+            --timeLeft;
+            SetContent(timeLeft.ToString());
+
+            // don't do anything if the time left is above 0
+            if (timeLeft > 0)
+            {
+                return;
+            }
+            TimeManager.GetInstance().onNextHour -= HandleOnNextHour;
+
+
+            // ici devraient être les actions
+            switch (name)
+            {
+                case "dry":
+                    Gardening.Dry(this);
+                    break;
+                case "grow":
+                    Gardening.Grow(this);
+                    break;
+                default:
+                    //Debug.LogError("timer property : " + name + " is dead end");
+                    break;
+            }
+        }
     }
     #endregion
 

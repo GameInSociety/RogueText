@@ -31,8 +31,8 @@ public class Container
 
     public static void Describe()
     {
-        string str = CurrentItem.GetContainedItemsDescription();
-        DisplayDescription.Instance.AddToDescription(str);
+        Phrase.Renew();
+        CurrentItem.WriteContainedDescription();
     }
 }
          

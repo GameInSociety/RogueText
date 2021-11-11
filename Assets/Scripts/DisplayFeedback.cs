@@ -17,55 +17,29 @@ public class DisplayFeedback : DisplayText{
 		base.Start ();
 
         uiText.text = "";
-
-		PlayerActionManager.onPlayerAction += HandleOnAction;
     }
 
     public override void Display(string str)
     {
-        Tween.Bounce(transform);
+        /*Tween.Bounce(transform);
 
         str = Phrase.ReplaceItemInString(str);
 
         AudioInteraction.Instance.StartSpeaking(str);
 
-        base.Display(str);
+        base.Display(str);*/
+
+        Phrase.Write(str);
     }
 
-    void HandleOnAction (PlayerAction action)
-	{
-		switch (action.type) {
-		case PlayerAction.Type.Display:
-			    Display (action.contents [0]);
-			    break;
-            case PlayerAction.Type.DescribeExterior:
-                DescribeExterior();
-                break;
-            case PlayerAction.Type.DisplayTimeOfDay:
-                DisplayTimeOfDay();
-                break;
-            case PlayerAction.Type.DescribeItem:
-                DescribeItem();
-                break;
-            case PlayerAction.Type.PointNorth:
-                PointNorth();
-                break;
-            case PlayerAction.Type.DisplayHelp:
-                DisplayHelp();
-                break;
-            default:
-			break;
-		}
-	}
-
-    private void DisplayHelp()
+    public void DisplayHelp()
     {
         string str = "";
 
         Display(str);
     }
 
-    private void DisplayTimeOfDay()
+    public void DisplayTimeOfDay()
     {
         string str = "";
 
@@ -90,7 +64,7 @@ public class DisplayFeedback : DisplayText{
     }
 
 
-    private void PointNorth()
+    public void PointNorth()
     {
         string facing = Coords.GetOrientationText(Coords.GetFacing(Player.Instance.direction));
         string str = "Le nord est " + facing;
@@ -100,55 +74,10 @@ public class DisplayFeedback : DisplayText{
 
     private void DescribeItem()
     {
-        Item item = InputInfo.GetCurrent.MainItem;
-
-        string str = "";
-        int count = 0;
-
-        foreach (var verb in Verb.GetVerbs)
-        {
-            foreach (var combination in verb.combinations)
-            {
-                if ( combination.itemIndex == item.index)
-                {
-                    if (verb.helpPhrase.Length > 2)
-                    {
-                        if (count == 0)
-                        {
-                            str += verb.helpPhrase.Replace("ITEM", item.word.GetContent("le chien"));
-                        }
-                        else
-                        {
-                            if (item.word.genre == Word.Genre.Masculine)
-                            {
-                                str += "\n" + verb.helpPhrase.Replace("ITEM", "il");
-                            }
-                            else
-                            {
-                                str += "\n" + verb.helpPhrase.Replace("ITEM", "elle");
-                            }
-                        }
-
-                        ++count;
-                    }
-                }
-                
-            }
-            
-        }
-
-        if ( count == 0)
-        {
-            Display("Vous ne vous pouvez pas faire grand chose avec " + item.word.GetContent("le chien"));
-        }
-        else
-        {
-            Display(str);
-        }
-
+        
     }
 
-    private void DescribeExterior()
+    public void DescribeExterior()
     {
         Direction dir = Direction.East;
 
@@ -161,7 +90,7 @@ public class DisplayFeedback : DisplayText{
 
         Tile tile = TileSet.map.GetTile(tCoords);
 
-        string str = "Par la fenêtre, vous apercevez " + tile.GetDescription();
+        string str = "Par la fenêtre, vous apercevez " + tile.WriteDescription();
 
         if ( tile == null)
         {

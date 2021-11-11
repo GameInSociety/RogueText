@@ -40,7 +40,7 @@ public class ItemPositionLoader : TextParser
         {
             int itemIndex = rowIndex - 1;
 
-            if (itemIndex >= Item.items.Count)
+            if (itemIndex >= Item.dataItems.Count)
             {
                 return;
             }
@@ -52,7 +52,7 @@ public class ItemPositionLoader : TextParser
             {
                 if (cells[cellIndex].Length != 0)
                 {
-                    Item item = Item.items[itemIndex];
+                    Item item = Item.dataItems[itemIndex];
 
                     Socket.sockets[socketIndex].itemIndexes.Add(item.index);
                     //Debug.Log("adding item : " + item.word.text + " (index:"+item.index+") in socket " + Socket.sockets[socketIndex]._text);

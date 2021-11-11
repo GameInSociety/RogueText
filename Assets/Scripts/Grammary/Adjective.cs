@@ -46,6 +46,9 @@ public class Adjective {
             bool foundEnding = false;
             foreach (var ending in AdjectiveLoader.Instance.maleTerminaisons)
             {
+                /*Debug.Log("adjective : " + adj);
+                Debug.Log("ending : " + ending);*/
+
                 if (adj.EndsWith(ending))
                 {
                     adj = adj.Remove(adj.Length - ending.Length);

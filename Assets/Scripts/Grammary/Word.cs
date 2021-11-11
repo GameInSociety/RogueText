@@ -13,7 +13,7 @@ public class Word
 
     // ADJECTIVE
     // more logic if word have adjectives, and not items or location or tiles. fuck s
-    public Adjective adjective;
+    private Adjective adjective;
     public string adjectiveType;
 
     public Info currentInfo;
@@ -96,14 +96,23 @@ public class Word
             currentInfo.plural = true;
         }
 
-
         // NUMBER
         if (currentInfo.plural)
         {
             switch (currentInfo.preposition)
             {
                 case Preposition.None:
-                    return "des ";
+
+                    if (currentInfo.defined)
+                    {
+                        return "les ";
+                    }
+                    else
+                    {
+                        return "des ";
+                    }
+                        
+
                 case Preposition.De:
                     if (StartsWithVowel())
                     {
@@ -390,7 +399,15 @@ public class Word
             str = article + str;
         }
 
-        return str;
+        if (DebugManager.Instance.colorWords)
+        {
+            return "<color=green>" + str + "</color>";
+        }
+        else
+        {
+            return str;
+        }
+        //return str;
     }
     #endregion
 
@@ -403,12 +420,17 @@ public class Word
     {
         string plural = text.ToLower();
 
-        plural += "s";
+        if (!text.EndsWith("s"))
+            plural += "s";
 
         return plural;
     }
 
     #region adjective
+    public bool HasAdjective()
+    {
+        return adjective != null;
+    }
     public Adjective GetAdjective
     {
         get

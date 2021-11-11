@@ -57,6 +57,8 @@ public class TimeManager : MonoBehaviour {
 		Afternoon,
 		Dusk,
 		Night,
+
+        None,
 	}
 
 	public PartOfDay currentPartOfDay;
@@ -88,7 +90,7 @@ public class TimeManager : MonoBehaviour {
     private void Start()
     {
         ResetRain();
-        UpdateWeather();
+        UpdateStates();
     }
 
     public void AdvanceTime()
@@ -118,19 +120,14 @@ public class TimeManager : MonoBehaviour {
         {
             ++timeOfDay;
 
-            // part of day
-            previousPartOfDay = currentPartOfDay;
-            currentPartOfDay = GetPartOfDay();
-
+            
             // states
             StateManager.GetInstance().AdvanceStates();
 
             // 
-            UpdateWeather();
+            UpdateStates();
 
-            changedPartOfDay = false;
-            if (previousPartOfDay != currentPartOfDay)
-                changedPartOfDay = true;
+            
 
             if (timeOfDay == 24)
             {
@@ -157,14 +154,14 @@ public class TimeManager : MonoBehaviour {
     }
 
     #region part of day
-    public string GetPartOfDayDescription()
+    public void WriteDescription()
     {
-        string str = "\n";
+        string str = "";
 
         switch (currentPartOfDay)
         {
             case PartOfDay.Dawn:
-                str += "Le soleil ne fait que se lever...";
+                str += "Le soleil se lève à peine...";
                 break;
             case PartOfDay.Morning:
                 str += "Le matin s'est installé";
@@ -186,28 +183,39 @@ public class TimeManager : MonoBehaviour {
                 break;
         }
 
-        str += "\n";
-
-        return str;
+        Phrase.Write(str);
     }
     #endregion
 
     #region weather
-    public string GetWeatherDescription()
+    public void WriteWeatherDescription()
     {
         displayRainDescription = false;
 
+        string str;
+
         if (raining)
         {
-            return "Il pleut très fort sur " + Tile.GetCurrent.tileItem.word.GetContent("le chien sage");
+            str = "Il pleut très fort sur &le chien (tile item)&";
         }
         else
         {
-            return "La pluie cesse doucement de tomber sur " + Tile.GetCurrent.tileItem.word.GetContent("le chien sage");
+            str = "La pluie cesse doucement de tomber sur &le chien sage (tile item)&";
         }
+
+        Phrase.Write(str);
     }
-    private void UpdateWeather()
+    private void UpdateStates()
     {
+        // part of day
+        previousPartOfDay = currentPartOfDay;
+        currentPartOfDay = GetPartOfDay();
+
+        if (currentPartOfDay != previousPartOfDay)
+        {
+            changedPartOfDay = true;
+        }
+
         --hoursLeftToRain;
 
         if ( hoursLeftToRain == 0) {

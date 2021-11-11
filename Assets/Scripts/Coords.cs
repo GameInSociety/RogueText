@@ -88,7 +88,14 @@ public struct Coords
             i++;
         }
 
-        return str;
+        if (DebugManager.Instance.colorWords)
+        {
+            return "<color=yellow>" + str + "</color>";
+        }
+        else
+        {
+            return str;
+        }
     }
 
     public static string GetOrientationText(Player.Orientation orientation)
@@ -247,7 +254,11 @@ public struct Coords
 
     public static Word GetWordsDirection(Direction direction)
     {
-        return Item.items[(int)direction + 1].word;
+        return Item.dataItems[(int)direction + 1].word;
+    }
+    public static Item GetDirectionItem(Direction direction)
+    {
+        return Item.dataItems[(int)direction + 1];
     }
 
     // string

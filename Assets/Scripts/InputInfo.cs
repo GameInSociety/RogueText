@@ -26,7 +26,7 @@ public class InputInfo
 
     //local 
     public Verb verb;
-    public List<Item> items = new List<Item>();
+    private List<Item> items = new List<Item>();
     public Combination combination;
     public Player.Orientation orientation;
     public Direction direction;
@@ -48,6 +48,30 @@ public class InputInfo
         }
     }
 
+    public bool HasSecondItem()
+    {
+        return items.Count > 1;
+    }
+
+    public Item GetSecondItem
+    {
+        get
+        {
+            if ( items.Count < 1)
+            {
+                Debug.LogError("no second item");
+                return MainItem;
+            }
+
+            return items[1];
+        }
+    }
+
+    public void GetItemCount()
+    {
+
+    }
+
     public static void ParsePhrase(string str)
     {
         text = str;
@@ -56,6 +80,8 @@ public class InputInfo
         {
             return;
         }
+
+        text = text.TrimEnd(' ');
 
         // separate text
         parts = text.Split(new char[3] { ' ', '\'' , '\''}).ToList<string>();
@@ -164,6 +190,11 @@ public class InputInfo
         }*/
 
         //items.Add(mostProbableItem);
+    }
+
+    public void AddItem( Item item)
+    {
+        items.Add(item);
     }
 
     public void FindOrientation()

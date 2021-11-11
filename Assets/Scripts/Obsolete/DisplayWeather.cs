@@ -13,11 +13,6 @@ public class DisplayWeather : MonoBehaviour {
 
     public void UpdateDescription()
     {
-		if (TimeManager.GetInstance().changedPartOfDay == false)
-        {
-            return;
-        }
-
         DisplayCurrentWeather();
 		
 	}

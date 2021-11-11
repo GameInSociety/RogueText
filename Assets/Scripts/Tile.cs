@@ -30,7 +30,7 @@ public class Tile
         this.type = type;
 
         string tileName = GetName();
-        Item item = Item.FindByName(tileName);
+        Item item = Item.GetDataItem(tileName);
 
         if ( item == null)
         {
@@ -68,26 +68,32 @@ public class Tile
     #endregion
 
     #region tile description
-    public string GetDescription()
+    public string WriteDescription()
     {
         // ici en fait, il faudrait aussi que les phrases d'accroches aient des paramètres dans une db
         // exemple : "vous êtes encore/DEFINED/LOC|PREP/Singular etc...
 
         Word word = tileItem.word;
 
+        string str = "";
+
         // tile is continued ( road, forest etc... )
-        if (SameAsPrevious() && tileItem.stackable )
+        if (SameAsPrevious() && tileItem.stackable)
         {
-            return Phrase.GetPhrase("tile_continue");
+            str = Phrase.GetPhrase("tile_continue");
         }
         else if (visited == false)
         {
-            return Phrase.GetPhrase("tile_discover");
+            str = Phrase.GetPhrase("tile_discover");
         }
         else
         {
-            return Phrase.GetPhrase("tile_goback");
+            str = Phrase.GetPhrase("tile_goback");
         }
+
+        Phrase.Write(str);
+
+        return str;
 
     }
     #endregion
@@ -112,12 +118,11 @@ public class Tile
     {
         return items.Find(x => x.word.text == item_name) != null;
     }
-    public string GetItemDescriptions()
+    public void WriteItemDescription()
     {
         if (items.Count == 0)
         {
-            return "";
-            //return "Il n'y a pas grand choses à voir par ici";
+            return;
         }
 
         // item AND item counts
@@ -152,27 +157,8 @@ public class Tile
             newPhrase.itemGroups.Add(itemGroup);
             newPhrase.socket = socket;
 
-            phrases.Add(newPhrase);
-
+            Phrase.Write(newPhrase.GetText());
         }
-
-        string text = "";
-
-        // afficher toutes les phrases
-        int a = 0;
-        foreach (var phrase in phrases)
-        {
-            text += phrase.GetText();
-
-            if (a < itemGroups.Count - 1)
-            {
-                text += "\n";
-            }
-
-            ++a;
-        }
-
-        return text;
     }
     #endregion
 

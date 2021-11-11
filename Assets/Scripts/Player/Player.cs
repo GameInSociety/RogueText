@@ -60,16 +60,19 @@ public class Player : MonoBehaviour {
 	{
 		switch (action.type) {
 		case PlayerAction.Type.Move:
-			Move ((Direction)PlayerAction.GetCurrent.values[0]);
+			Move ((Direction)PlayerAction.GetCurrent.GetValue(0));
 			break;
 		case PlayerAction.Type.MoveRel:
-			Move (GetDirection((Orientation)PlayerAction.GetCurrent.values[0]));
+			Move (GetDirection((Orientation)PlayerAction.GetCurrent.GetValue(0)));
 			break;
             case PlayerAction.Type.MoveToTargetItem:
                 MoveToTargetItem();
                 break;
             case PlayerAction.Type.Look:
 			break;
+            case PlayerAction.Type.UseDoor:
+                UseDoor();
+                break;
 		case PlayerAction.Type.Enter:
 			EnterCurrentInterior ();
 			break;
@@ -79,22 +82,19 @@ public class Player : MonoBehaviour {
         case PlayerAction.Type.GoOut:
                 GoOut();
 			break;
-        case PlayerAction.Type.CheckStat:
-            CheckStat();
-            break;
 		default:
 			break;
 		}
 	}
 
-    void EnterCurrentInterior ()
-	{
+    void UseDoor()
+    {
         Item targetItem = InputInfo.GetCurrent.MainItem;
 
         // check if locked
         if (targetItem.HasProperty("locked"))
         {
-            if (targetItem.GetProperty("locked").GetValue() == "true")
+            if (targetItem.GetProperty("locked").GetContent() == "true")
             {
                 DisplayFeedback.Instance.Display("La porte est vérouillée... Il vous faut une clef");
                 return;
@@ -102,9 +102,9 @@ public class Player : MonoBehaviour {
         }
 
         // check if has direction ( for interiors )
-        if (targetItem.HasProperty("direction"))
+        if (!targetItem.HasProperty("entrance"))
         {
-            switch (targetItem.GetProperty("direction").GetValue())
+            switch (targetItem.GetProperty("direction").GetContent())
             {
                 case "to north":
                     Move(Direction.North);
@@ -127,20 +127,23 @@ public class Player : MonoBehaviour {
         }
         else
         {
-            if (Interior.GetCurrent == null)
-            {
-                Interior.Get(coords).Enter();
-            }
-            else
-            {
-                Interior.GetCurrent.ExitByDoor();
-            }
+            EnterCurrentInterior();
 
             //Debug.LogError("door doesn't have param direction");
         }
+    }
 
-        
-	}
+    void EnterCurrentInterior ()
+	{
+        if (Interior.GetCurrent == null)
+        {
+            Interior.Get(coords).Enter();
+        }
+        else
+        {
+            Interior.GetCurrent.ExitByDoor();
+        }
+    }
 
     void GoOut()
     {
@@ -336,40 +339,6 @@ public class Player : MonoBehaviour {
 
         Current,
     }
-
-    #region stats
-    void CheckStat()
-    {
-        string str = PlayerAction.GetCurrent.contents[0];
-
-        Stats.Type statType = Stats.Type.Strengh;
-
-        switch (str)
-        {
-            case "STR":
-                statType = Stats.Type.Strengh;
-                break;
-            case "DEX":
-                statType = Stats.Type.Dexterity;
-                break;
-            case "CHA":
-                statType = Stats.Type.Charisma;
-                break;
-            case "CON":
-                statType = Stats.Type.Constitution;
-                break;
-            default:
-                break;
-        }
-
-        if ( stats.GetStat(statType) < PlayerAction.GetCurrent.values[0])
-        {
-			PlayerActionManager.Instance.BreakAction ();
-            DisplayFeedback.Instance.Display("Vous n'avez pas assez de : " + statType);
-        }
-    }
-    #endregion
-
     public void Save()
     {
         

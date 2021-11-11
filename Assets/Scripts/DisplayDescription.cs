@@ -56,57 +56,57 @@ public class DisplayDescription : MonoBehaviour {
         }
         else
         {
-            str += Tile.GetCurrent.GetDescription();
-            str += "\n";
+            Tile.GetCurrent.WriteDescription();
         }
 
         // display surrounding tiles
-        str += TileGroupDescription.GetSurroundingTileDescription();
-        str += "\n";
+        TileGroupDescription.WriteSurroundingTileDescription();
 
         // display tile items
-        str += Tile.GetCurrent.GetItemDescriptions();
+        Tile.GetCurrent.WriteItemDescription();
 
         // pas sûr que les choses d'état de santé, de temps et autre trucs divers doivent être là, pense à changer
-        str += StateManager.GetInstance().GetDescription();
+        StateManager.GetInstance().WriteDescription();
 
         // time of day
         if (TimeManager.GetInstance().changedPartOfDay)
         {
-            str += TimeManager.GetInstance().GetPartOfDayDescription();
-            str += "\n";
+            TimeManager.GetInstance().changedPartOfDay = false;
+            TimeManager.GetInstance().WriteDescription();
         }
 
         // weather
         if (TimeManager.GetInstance().displayRainDescription)
         {
-            str += TimeManager.GetInstance().GetWeatherDescription();
+            TimeManager.GetInstance().WriteWeatherDescription();
         }
 
         // l'indication de la lettre
-        if ( !Story.Instance.GetParam("retrieved_letter"))
+        /*if ( !Story.Instance.GetParam("retrieved_letter"))
         {
             str += "\n\nJ'ai laissé la lettre quelque part dans cette maison, mais je ne sais plus où...";
-        }
+        }*/
+    }
 
-        DisplayDescription.Instance.AddToDescription(str);
+    public void Renew()
+    {
+        uiText_Old.text += uiText.text;
+        uiText.text = "";
+        uiText.text += "\n";
+        uiText.text += "----------------";
+        uiText.text += "\n";
     }
 
     public void AddToDescription(string str)
     {
-        str = Phrase.ReplaceItemInString(str);
+        // replace keywords
+        str = Phrase.Replace(str);
 
-        // archive
-        uiText_Old.text += uiText.text;
-
-        // clear
-        uiText.text = "";
+        // majuscule
+        str = TextUtils.FirstLetterCap(str);
 
         // add
-        uiText.text += "\n";
-        uiText.text += "----------------";
-        uiText.text += "\n";
-        uiText.text += str;
+        uiText.text += "\n" + str;
 
         AudioInteraction.Instance.StartSpeaking(str);
 

@@ -32,6 +32,11 @@ public class AdjectiveLoader : TextParser {
         {
             for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
             {
+                if ( string.IsNullOrEmpty(cells[cellIndex]) )
+                {
+                    continue;
+                }
+
                 Adjective newAdjective = new Adjective();
 
                 newAdjective._text = cells[cellIndex];

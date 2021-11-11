@@ -2,10 +2,14 @@
 using System.IO;
 using UnityEditor;
 using UnityEditor.Callbacks;
+#if UNITY_IOS
 using UnityEditor.iOS.Xcode;
+#endif
 
 public class BuildPostProcessor
 {
+#if UNITY_IOS
+
     [PostProcessBuildAttribute(1)]
     public static void OnPostProcessBuild(BuildTarget target, string path)
     {
@@ -42,4 +46,6 @@ public class BuildPostProcessor
         // Add `-ObjC` to "Other Linker Flags".
         project.AddBuildProperty(targetGUID, "OTHER_LDFLAGS", "-ObjC");
     }
+#endif
+
 }

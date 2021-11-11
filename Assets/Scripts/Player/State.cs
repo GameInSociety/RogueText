@@ -69,7 +69,7 @@ public class State
 
         if (progress != Progress.Normal)
         {
-            string phrase = "\n" + phrases[(int)progress - 1];
+            string phrase = phrases[(int)progress - 1];
 
             str += phrase;
         }

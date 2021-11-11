@@ -40,8 +40,8 @@ public class Story : MonoBehaviour
 
     void HandleSetParam()
     {
-        bool b = PlayerAction.GetCurrent.contents[1] == "true";
-        SetParam(PlayerAction.GetCurrent.contents[0], b);
+        bool b = PlayerAction.GetCurrent.GetContent(0) == "true";
+        SetParam(PlayerAction.GetCurrent.GetContent(0), b);
     }
 
     public bool GetParam(string key)

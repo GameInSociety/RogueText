@@ -70,6 +70,54 @@ public class TextParser : MonoBehaviour
         }
 
     }
+
+    private static string GetCollumnName(int columnNumber)
+    {
+
+        // To store result (Excel column name)
+        string columnName = "";
+
+        while (columnNumber > 0)
+        {
+
+            // Find remainder
+            int rem = columnNumber % 26;
+
+            // If remainder is 0, then a
+            // 'Z' must be there in output
+            if (rem == 0)
+            {
+                columnName += "Z";
+                columnNumber = (columnNumber / 26) - 1;
+            }
+
+            // If remainder is non-zero
+            else
+            {
+                columnName += (char)((rem - 1) + 'A');
+                columnNumber = columnNumber / 26;
+            }
+        }
+
+        // Reverse the string
+        columnName = Reverse(columnName);
+
+        // Print result
+        return columnName;
+    }
+
+    public static string Reverse(string s)
+    {
+        char[] charArray = s.ToCharArray();
+        System.Array.Reverse(charArray);
+        return new string(charArray);
+    }
+
+    string alphabet = "abcdefghijklmnolqrsyuvwxyz";
+    public string GetCellName (int row, int cell)
+    {
+        return GetCollumnName(cell) + (row+1);
+    }
 #endif
 
 }

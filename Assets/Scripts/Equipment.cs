@@ -58,7 +58,7 @@ public class Equipment {
 
     void Action_Equip()
     {
-        Part part = GetPartFromString(PlayerAction.GetCurrent.contents[0]);
+        Part part = GetPartFromString(PlayerAction.GetCurrent.GetContent(0));
 
         if ( GetEquipement(part) != null)
         {
@@ -70,23 +70,28 @@ public class Equipment {
         Item.Remove(InputInfo.GetCurrent.MainItem);
 
 
-        DisplayFeedback.Instance.Display("Vous avez équipé " + InputInfo.GetCurrent.MainItem.word.GetContent("un chien") + " à " + part.ToString());
+        string str = "Vous avez équipé &le chien (main item)& à " + part.ToString();
+        Phrase.Write(str);
 
     }
 
     void Action_Unequip()
     {
-        Part part = GetPartFromString(PlayerAction.GetCurrent.contents[0]);
+        Part part = GetPartFromString(PlayerAction.GetCurrent.GetContent(0));
+
+        string str = "";
 
         if ( GetEquipement(part) != InputInfo.GetCurrent.MainItem)
         {
-            DisplayFeedback.Instance.Display("Vous n'avez pas " + InputInfo.GetCurrent.MainItem.word.GetContent("de chien") + " sur vous");
+            str = "Vous n'avez pas &de chien (main item)& sur vous";
+            Phrase.Write(str);
             return;
         }
 
         Inventory.Instance.AddItem(InputInfo.GetCurrent.MainItem);
 
-        DisplayFeedback.Instance.Display("Vous enlevez " + InputInfo.GetCurrent.MainItem.word.GetContent("le chien") );
+        str = "Vous enlevez &le chien (main item)&";
+        Phrase.Write(str);
 
         SetEquipment(part, null);
     }

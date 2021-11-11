@@ -52,7 +52,7 @@ public class CraftManager : MonoBehaviour {
         {
             if (craftInfo.requiredToolItemRows != null)
             {
-                Debug.Log("craft info : " + Item.items[craftInfo.itemRow].word.text + " is not empty");
+                Debug.Log("craft info : " + Item.dataItems[craftInfo.itemRow].word.text + " is not empty");
                 itemRows.Add(craftInfo.itemRow);
             }
         }
@@ -69,7 +69,7 @@ public class CraftManager : MonoBehaviour {
 
             InputInfo.GetCurrent.MainItem.value = i;
 
-                Debug.Log("craft info : " + Item.items[i].word.text + " choisi");
+                Debug.Log("craft info : " + Item.dataItems[i].word.text + " choisi");
 
         }
         else
@@ -80,14 +80,14 @@ public class CraftManager : MonoBehaviour {
         List<Item> requiredItems = new List<Item>();
 
         foreach (var requiredToolrow in targetCraftInfo.requiredToolItemRows)
-            requiredItems.Add(Item.items[requiredToolrow]);
+            requiredItems.Add(Item.dataItems[requiredToolrow]);
 
         foreach (var requiredItemRow in targetCraftInfo.requiredItemRows)
-            requiredItems.Add(Item.items[requiredItemRow]);
+            requiredItems.Add(Item.dataItems[requiredItemRow]);
 
         string text = Item.ItemListString(requiredItems, false, false);
         DisplayFeedback.Instance.Display("" +
-            "Pour fabriquer " + Item.items[targetCraftInfo.itemRow].word.GetContent("un chien") + "\n" +
+            "Pour fabriquer " + Item.dataItems[targetCraftInfo.itemRow].word.GetContent("un chien") + "\n" +
         "Il vous faut " + text);
     }
 
@@ -106,19 +106,19 @@ public class CraftManager : MonoBehaviour {
 
             foreach (var requiredToolrow in craftInfo.requiredToolItemRows)
             {
-                if (Inventory.Instance.GetItem(Item.items[requiredToolrow].word.text) == null)
+                if (Inventory.Instance.GetItem(Item.dataItems[requiredToolrow].word.text) == null)
                 {
                     hasAllItems = false;
-                    missingItems.Add(Item.items[requiredToolrow]);
+                    missingItems.Add(Item.dataItems[requiredToolrow]);
                 }
             }
 
             foreach (var requiredItemRow in craftInfo.requiredItemRows)
             {
-                if (Inventory.Instance.GetItem(Item.items[requiredItemRow].word.text) == null)
+                if (Inventory.Instance.GetItem(Item.dataItems[requiredItemRow].word.text) == null)
                 {
                     hasAllItems = false;
-                    missingItems.Add(Item.items[requiredItemRow]);
+                    missingItems.Add(Item.dataItems[requiredItemRow]);
                 }
             }
 
@@ -134,12 +134,14 @@ public class CraftManager : MonoBehaviour {
 
                 Inventory.Instance.AddItem(InputInfo.GetCurrent.MainItem);
 
-                DisplayFeedback.Instance.Display("Vous avez fabriqué " + InputInfo.GetCurrent.MainItem.word.GetContent("un chien"));
+                string str = "Vous avez fabriqué &un chien (main item)&";
+                Phrase.Write(str);
 
             }
             else
             {
-                DisplayFeedback.Instance.Display("Vous n'avez pas de quoi fabriquer de " + InputInfo.GetCurrent.MainItem.word.text);
+                string str = "Vous n'avez pas les matériaux nécessaires pour fabriquer &un chien (main item)&";
+                Phrase.Write(str);
             }
         }
         
@@ -153,7 +155,7 @@ public class CraftManager : MonoBehaviour {
 
         int itemIndex = 0;
 
-        craftInfos = new CraftInfo[Item.items.Count];
+        craftInfos = new CraftInfo[Item.dataItems.Count];
 
         for (int rowIndex = 1; rowIndex < rows.Length - 1; rowIndex++)
         {
@@ -161,7 +163,7 @@ public class CraftManager : MonoBehaviour {
 
             CraftInfo newCraftInfo = new CraftInfo();
 
-            newCraftInfo.itemRow = Item.items[itemIndex].index;
+            newCraftInfo.itemRow = Item.dataItems[itemIndex].index;
 
             if (cells[1].Length > 1)
             {
@@ -173,11 +175,11 @@ public class CraftManager : MonoBehaviour {
                 {
                     string itemName = cellPart.Trim('"');
 
-                    Item requiredToolItem = Item.items.Find(x => x.word.text == itemName);
+                    Item requiredToolItem = Item.dataItems.Find(x => x.word.text == itemName);
 
                     if (requiredToolItem == null)
                     {
-                        Debug.LogError("couldn't find tool for item " + Item.items[itemIndex].word.text + " / content : " + itemName);
+                        Debug.LogError("couldn't find tool for item " + Item.dataItems[itemIndex].word.text + " / content : " + itemName);
                         break;
                     }
 
@@ -207,11 +209,11 @@ public class CraftManager : MonoBehaviour {
                         itemAmount = int.Parse(str[1].Remove(0, 1));
                     }
 
-                    Item requiredItem = Item.items.Find(x => x.word.text == itemName);
+                    Item requiredItem = Item.dataItems.Find(x => x.word.text == itemName);
 
                     if (requiredItem == null)
                     {
-                        Debug.LogError("couldn't find required item for item " + Item.items[itemIndex].word.text + " / content : " + itemName);
+                        Debug.LogError("couldn't find required item for item " + Item.dataItems[itemIndex].word.text + " / content : " + itemName);
                         break;
                     }
 

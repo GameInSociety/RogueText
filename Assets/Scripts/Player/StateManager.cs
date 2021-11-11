@@ -40,74 +40,55 @@ public class StateManager : MonoBehaviour
     {
         switch (action.type)
         {
-            case PlayerAction.Type.Eat:
-                Eat();
-                break;
-            case PlayerAction.Type.DrinkAndRemove:
-                DrinkAndRemove();
-                break;
-            case PlayerAction.Type.Drink:
-                Drink();
-                break;
-            case PlayerAction.Type.Sleep:
-                Sleep();
+            case PlayerAction.Type.SetState:
+                SetState();
                 break;
             case PlayerAction.Type.Wait:
                 Wait();
-                break;
-            case PlayerAction.Type.ChangeState:
-                ChangeState();
                 break;
             default:
                 break;
         }
     }
 
-    void ChangeState()
+    void SetState()
     {
-        StateType stateType =  (StateType)System.Enum.Parse(typeof(StateType), PlayerAction.GetCurrent.contents[0], true);
+        StateType stateType =  (StateType)System.Enum.Parse(typeof(StateType), PlayerAction.GetCurrent.GetContent(0), true);
 
-        GetState(stateType).Change(PlayerAction.GetCurrent.values[0]);
+        string str = PlayerAction.GetCurrent.GetContent(1);
 
-        DisplayDescription.Instance.UpdateDescription();
-    }
-
-    #region eat
-    void Eat ()
-	{
-        string name = "" + InputInfo.GetCurrent.MainItem.word.GetContent("le chien");
-        string str = "Vous mangez " + name + " et avez moins faim";
-
-        // add health
-        if (PlayerAction.GetCurrent.values.Count > 1)
+        if (str.Contains("+"))
         {
-            GetState(StateType.Health).Remove(PlayerAction.GetCurrent.values[1]);
-            str += "\nVous vous sentez aussi au meilleure santé";
+            // add
+            str = str.Remove(0,1);
+            int value = 0;
+            value = int.Parse(str);
+
+            GetState(stateType).Change((int)GetState(stateType).progress+ value);
+        }
+        else if (str.Contains("-"))
+        {
+            // substract
+            str = str.Remove(0, 1);
+
+            int value = 0;
+            value = int.Parse(str);
+
+            GetState(stateType).Change((int)GetState(stateType).progress- value);
+
+        }
+        else
+        {
+            int value = 0;
+            value = int.Parse(str);
+
+            GetState(stateType).Change(value);
         }
 
-        DisplayFeedback.Instance.Display(str);
+        WriteText();
 
         Item.Remove(InputInfo.GetCurrent.MainItem);
-
-        GetState(StateType.Hunger).Remove(PlayerAction.GetCurrent.values[0]);
-
-        DisplayDescription.Instance.UpdateDescription();
     }
-    #endregion
-
-    #region sleep
-    void Sleep()
-    {
-        GetState(StateType.Sleep).Remove(PlayerAction.GetCurrent.values[0]);
-
-        DisplayFeedback.Instance.Display("Vous vous réveillez et vous sentez reposé...");
-
-        TimeManager.GetInstance().timeOfDay = 6;
-        TimeManager.GetInstance().NextDay();
-
-        DisplayDescription.Instance.UpdateDescription();
-    }
-    #endregion
 
     #region wait
     public void Wait()
@@ -120,54 +101,13 @@ public class StateManager : MonoBehaviour
         }
         else
         {
-            hours = PlayerAction.GetCurrent.values[0];
+            hours = PlayerAction.GetCurrent.GetValue(0);
         }
         
         TimeManager.GetInstance().NextHour(hours);
 
+        // pour l'instant un peu obligé à cause des objets etc...
         DisplayDescription.Instance.UpdateDescription();
-    }
-    #endregion
-
-    #region thirst
-    void DrinkAndRemove()
-    {
-        Drink();
-
-        Item.Remove(InputInfo.GetCurrent.MainItem);
-
-        DisplayDescription.Instance.UpdateDescription();
-
-    }
-    void Drink()
-    {
-        Item item = InputInfo.GetCurrent.MainItem;
-
-        string str = "";
-
-        if (item.HasProperty("full") )
-        {
-            if (item.GetProperty("full").GetValue() == "true")
-            {
-                str += "ITEM est maintenant vide\n";
-                item.GetProperty("full").SetValue("false");
-            }
-            else
-            {
-                DisplayFeedback.Instance.Display("La gourde est vide...");
-                return;
-            }
-
-        }
-
-        GetState(StateType.Thirst).Remove(PlayerAction.GetCurrent.values[0]);
-
-        str += "Vous vous désaltérez et vous avez moins soif...";
-
-        DisplayFeedback.Instance.Display(str);
-        DisplayDescription.Instance.UpdateDescription();
-
-
     }
     #endregion
 
@@ -178,16 +118,21 @@ public class StateManager : MonoBehaviour
         GetState(StateType.Sleep).Advance();
     }
 
-    public string GetDescription()
+    public void WriteDescription()
     {
-        string str = "";
-
         foreach (var state in states)
         {
-            str += state.GetDescription();
+            if (state.progress != State.Progress.Normal)
+            {
+                string phrase = state.phrases[(int)state.progress - 1];
+                Phrase.Write(state.GetDescription());
+            }
         }
+    }
 
-        return str;
+    public void WriteText()
+    {
+        WriteDescription();
     }
 
     public State GetState(StateType stateType)

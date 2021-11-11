@@ -1,22 +1,22 @@
-tile_continue,Vous continuez &sur le bois&
-,Vous êtes encore &sur le bois&
-tile_discover,Vous découvrez &un bois calme&
-,Vous vous trouvez &sur un bois calme&
-,Vous êtes &sur un bois calme&
-tile_goback,Vous vous retrouvez &sur le bois calme&
-,Vous revoilà &sur le bois calme&
-surroundingTile_continue,"ORIENTATIONS, &le bois& continue"
-,&le bois& continue ORIENTATIONS
-surroundingTile_discover,Vous apercevez &un bois& ORIENTATIONS
-,&un bois& se trouve ORIENTATIONS
-,"ORIENTATIONS, vous voyez &un bois&"
-,"Vous voyez, ORIENTATIONS, &un bois&"
-,&un bois& se tient ORIENTATIONS
-surroundingTile_visited,Vous apercevez &le bois& ORIENTATIONS
-,&un bois& se trouve ORIENTATIONS
-,"ORIENTATIONS, vous voyez &le bois&"
-,"Vous voyez, ORIENTATIONS, &le bois&"
-,&le bois& se tient ORIENTATIONS
-movement_feedback,Vous marchez vers &le bois& de ORIENTATION
-movement_blocked,Il n'y a pas &de bois& ORIENTATION
+tile_continue,Vous continuez &sur le chien (tile item)&
+,Vous êtes encore &sur le chien (tile item)&
+tile_discover,Vous découvrez &un chien sage (tile item)&
+,Vous vous trouvez &sur un chien sage (tile item)&
+,Vous êtes &sur un chien sage (tile item)&
+tile_goback,Vous vous retrouvez &sur le chien sage (tile item)&
+,Vous revoilà &sur le chien sage (tile item)&
+surroundingTile_continue,"ORIENTATIONS, &le chien (override item)& continue"
+,&le chien (override item)& continue ORIENTATIONS
+surroundingTile_discover,Vous apercevez &un chien (override item)& ORIENTATIONS
+,&un chien (override item)& se trouve ORIENTATIONS
+,"ORIENTATIONS, vous voyez &un chien (override item)&"
+,"Vous voyez, ORIENTATIONS, &un chien (override item)&"
+,&un chien (override item)& se tient ORIENTATIONS
+surroundingTile_visited,Vous apercevez &le chien (override item)& ORIENTATIONS
+,&un chien (override item)& se trouve ORIENTATIONS
+,"ORIENTATIONS, vous voyez &le chien (override item)&"
+,"Vous voyez, ORIENTATIONS, &le chien (override item)&"
+,&le chien (override item)& se tient ORIENTATIONS
+movement_feedback,Vous marchez vers &le chien (tile item)& de ORIENTATION
+movement_blocked,Il n'y a pas &de chien (tile item)& ORIENTATION
 ,-

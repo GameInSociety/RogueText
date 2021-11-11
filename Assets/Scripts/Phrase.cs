@@ -16,10 +16,16 @@ public class Phrase
 
     public static List<Phrase> phrases = new List<Phrase>();
 
+    // override c'est vraiment pas bien, il faut trouver une façon de faire ("&le chien sage (surrounding tile)&")
     public static string GetPhrase(string key, Item _overrideItem)
     {
         overrideItem = _overrideItem;
         return GetPhrase(key);
+    }
+
+    public static void SetOverrideItem(Item item)
+    {
+        overrideItem = item;
     }
 
     public static string GetPhrase(string key)
@@ -36,7 +42,7 @@ public class Phrase
         string str = phrase.values[Random.Range(0, phrase.values.Count)];
 
         // ITEM ( il faut le faire ici AUSSI, pour la compil du display description
-        str = ReplaceItemInString(str);
+        str = Replace(str);
 
         // ORIENTATIONS
         str = str.Replace("ORIENTATIONS", Coords.GetOrientationText(orientations));
@@ -49,74 +55,34 @@ public class Phrase
         return str;
     }
 
-    public static string ReplaceItemInString(string str)
+    public static string Replace(string text)
     {
-        int a = 0;
+        int safetyBreak = 0;
 
-        while (str.Contains("&"))
+        // each "&le chien sage (itemcode)& iteration
+        while (text.Contains("&"))
         {
-            int startIndex = str.IndexOf('&');
+            // bonjour je suis &le chien sage (main item)& => &le chien sage (main item)&
+            string targetPart = IsolatePart(text);
 
-            string word_code = str.Remove(0, startIndex);
-            int endIndex = word_code.Remove(0, 1).IndexOf('&') + 2;
+            // "&le chien sage (main item)& => le chien sage (main item)
+            string wordCode = TrimPart(targetPart);
 
-            if (endIndex < word_code.Length)
-            {
-                word_code = word_code.Remove(endIndex);
-            }
+            // get target item
+            string itemCode = "";
+            wordCode = GetItemCode(wordCode, out itemCode);
+            Item targetItem = GetItemFromCode(itemCode);
 
-            // "&le chien sage& => le chien sage
-            string clean_word_code = word_code.Remove(0, 1);
-            clean_word_code = clean_word_code.Remove(clean_word_code.Length - 1);
+            // get word from item
+            string word = targetItem.word.GetContent(wordCode);
 
-            // get item & word
-            Item targetItem = null;
-
-            if (overrideItem != null)
-            {
-                targetItem = overrideItem;
-                overrideItem = null;
-
-            }
-            else
-            {
-                // check if word contains item
-                if (clean_word_code.Contains("chapeau"))
-                {
-                    targetItem = InputInfo.GetCurrent.items[0];
-
-                    if (clean_word_code.Contains("2"))
-                    {
-                        clean_word_code = clean_word_code.Remove(word_code.Length - 1);
-                        targetItem = InputInfo.GetCurrent.items[1];
-                        Debug.Log("second item : " + word_code);
-                    }
-
-                    clean_word_code = word_code.Replace("chapeau", "chien");
-                    clean_word_code = word_code.Replace("chic", "sage");
-                }
-
-                // check if word contains tile item
-                if (clean_word_code.Contains("bois"))
-                {
-                    targetItem = Tile.GetCurrent.tileItem;
-
-                    clean_word_code = clean_word_code.Replace("bois", "chien");
-                    clean_word_code = clean_word_code.Replace("calme", "sage");
-                }
-
-                
-            }
-
-            string word = targetItem.word.GetContent(clean_word_code);
-
-            //
-            str = str.Replace(word_code, word);
+            // replace target part with word, and continu
+            text = text.Replace(targetPart, word);
             
             // safety break
-            ++a;
+            ++safetyBreak;
 
-            if ( a >= 10)
+            if ( safetyBreak >= 10)
             {
                 Debug.LogError("item word detection reached safety break");
                 break;
@@ -124,8 +90,92 @@ public class Phrase
 
         }
 
-        return str;
+        return text;
         //
+    }
+
+    private static string GetItemCode(string wordCode, out string itemCode)
+    {
+        // word code = le chien sage (main item)
+
+        // check if there tags
+        if (!wordCode.Contains("("))
+        {
+            Debug.LogError("word code : " + wordCode + " doesn't contain item code");
+            itemCode = "main item";
+            return wordCode;
+        }
+
+        int startIndex = wordCode.IndexOf('(');
+
+        string tmpItemCode = wordCode.Remove(0, startIndex+1);
+        tmpItemCode = tmpItemCode.Remove(tmpItemCode.Length - 1);
+
+        wordCode = wordCode.Remove(startIndex - 1);
+
+        // assign
+        itemCode = tmpItemCode;
+        return wordCode;
+    }
+
+    // isolate "&" du texte
+    static string IsolatePart(string str)
+    {
+        // remove &s
+        int startIndex = str.IndexOf('&');
+
+        string targetPart = str.Remove(0, startIndex);
+        int endIndex = targetPart.Remove(0, 1).IndexOf('&') + 2;
+
+        if (endIndex < targetPart.Length)
+        {
+            targetPart = targetPart.Remove(endIndex);
+        }
+
+        return targetPart;
+    }
+
+    static string TrimPart( string str)
+    {
+        string wordCode = str.Remove(0, 1);
+        wordCode = wordCode.Remove(wordCode.Length - 1);
+
+        return wordCode;
+    }
+
+    static Item GetItemFromCode (string itemCode)
+    {
+        switch (itemCode)
+        {
+            case "main item":
+                return InputInfo.GetCurrent.MainItem;
+            case "second item":
+                return InputInfo.GetCurrent.GetSecondItem;
+            case "tile item":
+                return Tile.GetCurrent.tileItem;
+            case "override item":
+                return overrideItem;
+            default:
+                Debug.LogError(itemCode + " doesnt go in any item category, returning input main item");
+                return InputInfo.GetCurrent.MainItem;
+        }
+    }
+
+
+
+    public static void Write( string str)
+    {
+        DisplayDescription.Instance.AddToDescription(str);
+    }
+
+    public static void Space()
+    {
+        Phrase.Write("\n__________\n");
+    }
+
+    public static void Renew()
+    {
+        DisplayDescription.Instance.Renew();
     }
 
 }

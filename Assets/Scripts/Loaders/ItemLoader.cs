@@ -20,7 +20,7 @@ public class ItemLoader : TextParser {
     {
         base.FinishLoading();
 
-        items_debug = Item.items.ToArray();
+        items_debug = Item.dataItems.ToArray();
 
         foreach (var item in items_debug)
         {
@@ -79,26 +79,35 @@ public class ItemLoader : TextParser {
             {
                 Item.Property newProperty = new Item.Property();
 
-                string[] propertyLine_parts = property_line.Split(':');
+                string[] propertyLine_parts = property_line.Split('/');
 
-                newProperty.name = propertyLine_parts[0];
 
-                newProperty.SetValue(propertyLine_parts[1]);
+                Item.Property.Type type = (Item.Property.Type)System.Enum.Parse(typeof(Item.Property.Type), propertyLine_parts[0]);
+                newProperty.type = type;
 
-                if (propertyLine_parts.Length > 2)
+                newProperty.name = propertyLine_parts[1];
+
+                newProperty.SetContent(propertyLine_parts[2]);
+
+                newProperty.param = propertyLine_parts[3];
+
+                /// s'il y avait plusieurs parametres ///
+                /*for (int i = 2; i < propertyLine_parts.Length; i++)
                 {
-                    string part = propertyLine_parts[2];
-                    newProperty.param = part;
-                }
+                    string param = propertyLine_parts[i];
+                    Debug.Log("adding param : " + param + " to item " + newItem.word.text);
+                    newProperty.parameters.Add(param);
+                }*/
 
                 // !!! reel probleme ici, pourquoi mes trucs se mettent en copie ? !!!
+                // pas sûr que ce soit d'actualité à vérifier
                 newItem.AddProperty(newProperty);
             }
         }
         //
 
         // add to item list
-        Item.items.Add(newItem);
+        Item.dataItems.Add(newItem);
 
         // actions
         int verbIndex = 0;

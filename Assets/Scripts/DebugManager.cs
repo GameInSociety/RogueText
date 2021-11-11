@@ -6,6 +6,8 @@ public class DebugManager : MonoBehaviour
 {
     public Tile tile;
 
+    public bool colorWords = true;
+
     private static DebugManager _instance;
     public static DebugManager Instance
     {

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,6 +17,43 @@ public class PlayerActionManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+    }
+
+    private void Start()
+    {
+        onPlayerAction += HandleOnPlayerAction;
+    }
+
+    private void HandleOnPlayerAction(PlayerAction action)
+    {
+        switch (action.type)
+        {
+            case PlayerAction.Type.Display:
+			    DisplayFeedback.Instance.Display(action.GetContent(0));
+                break;
+            case PlayerAction.Type.DescribeExterior:
+                DisplayFeedback.Instance.DescribeExterior();
+                break;
+            case PlayerAction.Type.DisplayTimeOfDay:
+                DisplayFeedback.Instance.DisplayTimeOfDay();
+                break;
+            case PlayerAction.Type.ExitByWindow:
+                break;
+            case PlayerAction.Type.DescribeItem:
+                Item.Describe(InputInfo.GetCurrent.MainItem);
+                break;
+            case PlayerAction.Type.PointNorth:
+                DisplayFeedback.Instance.PointNorth();
+                break;
+            case PlayerAction.Type.DisplayHelp:
+                DisplayFeedback.Instance.DisplayHelp();
+                break;
+            case PlayerAction.Type.ChangeProp:
+                Item.ChangeProperty();
+                break;
+            default:
+                break;
+        }
     }
 
     public void DisplayInputFeedback()
@@ -41,8 +79,8 @@ public class PlayerActionManager : MonoBehaviour
             {
                 Debug.LogError("no verb");
             }
-
-            DisplayFeedback.Instance.Display("Que faire avec " + inputInfo.MainItem.word.GetContent("le chien"));
+            string str = "Que faire avec &le chien (main item)&";
+            Phrase.Write(str);
             return;
         }
 
@@ -55,8 +93,8 @@ public class PlayerActionManager : MonoBehaviour
             }
 
             // get verb only action
-            Item verbItem = Item.FindByName("verbe seul");
-            inputInfo.items.Add(verbItem);
+            Item verbItem = Item.GetDataItem("verbe seul");
+            inputInfo.AddItem(verbItem);
             inputInfo.FindCombination();
 
             // no verb, displaying thing
@@ -77,14 +115,18 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("Fail : no combination between verb : " + inputInfo.verb.names[0] + " and item : " + inputInfo.MainItem.word.text);
             }
 
+            string str;
+
             if (inputInfo.verb.preposition.Length != 0)
             {
-                DisplayFeedback.Instance.Display("Vous ne pouvez pas " + inputInfo.verb.names[0] + " " + inputInfo.verb.preposition + " " + inputInfo.MainItem.word.GetContent("le chien"));
+                str = "Vous ne pouvez pas " + inputInfo.verb.names[0] + " " + inputInfo.verb.preposition + " &le chien (main item)&";
             }
             else
             {
-                DisplayFeedback.Instance.Display("Vous ne pouvez pas " + inputInfo.verb.names[0] + " " + inputInfo.MainItem.word.GetContent("le chien"));
+                str = "Vous ne pouvez pas " + inputInfo.verb.names[0] + " &le chien (main item)&";
             }
+
+            Phrase.Write(str);
             return;
         }
 
@@ -151,26 +193,30 @@ public class PlayerActionManager : MonoBehaviour
             parameters_str = parameters_str.Remove(0, 1);
             parameters_str = parameters_str.Remove(parameters_str.Length - 1);
 
-            string[] args = parameters_str.Split(',');
+            string[] stringSeparators = new string[] { ", " };
+            string[] args = parameters_str.Split(stringSeparators, StringSplitOptions.None);
 
             foreach (var arg in args)
             {
                 int i = 0;
 
-                if (int.TryParse(arg, out i))
+                newAction.AddContent(arg);
+
+                /*if (int.TryParse(arg, out i))
                 {
                     newAction.values.Add(i);
                 }
                 else
                 {
                     newAction.contents.Add(arg);
-                }
+                }*/
 
             }
         }
 
         return newAction;
     }
+
 
     #region action breaking
     bool breakActions = false;
@@ -180,5 +226,6 @@ public class PlayerActionManager : MonoBehaviour
         breakActions = true;
     }
     #endregion
+
 
 }

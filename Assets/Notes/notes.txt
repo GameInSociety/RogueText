@@ -1,0 +1,9 @@
+- Phrase.Write();
+problème : les phrases au milieu du texte ont du mal à se remplacer
+si construis un texte avec str+= puis il ne sait plus quoi changer
+Description.Write() ou Description.Add()... une seule fonction qui a toutes les utilités de texte, pas une fonction  qui écrit tout d'un seul coup.
+
+- RequireItem() // RequireParam()
+on peut faire en sorte qu'on ait besoin de quelque chose avec un certain PARAMETRE
+RequireParam(canCharge) // Require(waterSource) pour les seaux, arrosoir, gourde etc.. 
+là c'est dans une fonction alors que ça pourrait être dans la case !!!!!!

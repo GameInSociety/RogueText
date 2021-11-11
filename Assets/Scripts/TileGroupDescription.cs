@@ -27,27 +27,25 @@ public class TileGroupDescription {
         }
     }
 
-    public static string GetSurroundingTileDescription()
+    public static void WriteSurroundingTileDescription()
     {
         // enclosed, so no description of hallway, other rooms etc...
         if (Tile.GetCurrent.enclosed)
         {
-            return "";
+            return;
         }
-
-        string str = "";
 
         /// light / night
         if ( TimeManager.GetInstance().currentPartOfDay == TimeManager.PartOfDay.Night)
         {
             if ( Inventory.Instance.GetItem("lampe torche (a)") != null)
             {
-                str += "La lampe torche vous éclaire" + "\n";
+                Phrase.Write("La lampe torche vous éclaire...");
             }
             else
             {
-                str += "Il fait trop sombre, vous ne voyez rien autour de vous";
-                return str;
+                Phrase.Write("Il fait trop sombre, vous ne voyez rien autour de vous");
+                return;
             }
         }
 
@@ -60,22 +58,8 @@ public class TileGroupDescription {
 
 		foreach (var surroundingTile in tileGroups) {
             string newPhrase = GetSurroundingTileDescription(surroundingTile);
-            phrases.Add ( newPhrase );
+            Phrase.Write(newPhrase);
         }
-
-        // display text
-        foreach (var phrase in phrases)
-        {
-            str += TextUtils.FirstLetterCap(phrase);
-
-            if (surroundTileIndex < tileGroups.Count - 1)
-            {
-                str += "\n";
-            }
-        }
-
-        return str;
-
 	}
 
     public static void GetSurroundingTiles()
@@ -133,6 +117,7 @@ public class TileGroupDescription {
     {
         Phrase.orientations = surroundingTile.orientations;
 
+
         // same tile
         if ( Tile.GetCurrent.tileItem.SameTypeAs(surroundingTile.tile.tileItem))
         {
@@ -176,6 +161,7 @@ public class TileGroupDescription {
                 return Phrase.GetPhrase("surroundingTile_discover", surroundingTile.tile.tileItem);
             }
         }
+
 
     }
 }

@@ -32,13 +32,15 @@ public class ItemAppearInfoLoader : TextParser
 
         int itemToAddIndex = rowIndex - 1;
 
-        if ( itemToAddIndex >= Item.items.Count)
+        if ( itemToAddIndex >= Item.dataItems.Count)
         {
-            Debug.LogError("fuck");
+            Debug.LogError("fuck :" +
+                "bug de quand la longeur de la liste d'objets et des autres listes ne sont pas les memes" +
+                "il y a peut être un trou dans une des listes ( un trou est considéré comme une case vide /nulle donc raccourci la liste )");
             return;
         }
 
-        Item itemToAdd = Item.items[itemToAddIndex];
+        Item itemToAdd = Item.dataItems[itemToAddIndex];
 
         if ( cells[1] == "TRUE")
         {
@@ -53,7 +55,7 @@ public class ItemAppearInfoLoader : TextParser
 
             string amount_str = "";
 
-            if ( cell.Length == 0)
+            if ( string.IsNullOrEmpty(cell))
             {
                 continue;
             }
@@ -67,7 +69,8 @@ public class ItemAppearInfoLoader : TextParser
             int appearRate = 0;
             if (!int.TryParse(cell, out appearRate))
             {
-                Debug.LogError("Appear Rates : la cellule : " + cell + " ne peut pas être parsée");
+                Debug.LogError("Appear Rates : la cellule (" + cell + ") ne peut pas être parsée");
+                Debug.LogError("cell : " + GetCellName(rowIndex, cellIndex));
             }
 
             Item.AppearInfo newAppearInfo = new Item.AppearInfo();
@@ -91,9 +94,9 @@ public class ItemAppearInfoLoader : TextParser
             }
 
             int itemIndex = cellIndex - 2;
-            if ( itemIndex < Item.items.Count)
+            if ( itemIndex < Item.dataItems.Count)
             {
-                Item targetItem = Item.items[itemIndex];
+                Item targetItem = Item.dataItems[itemIndex];
 
                 targetItem.appearInfos.Add(newAppearInfo);
             }

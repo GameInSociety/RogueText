@@ -70,7 +70,7 @@ public class ItemGroup
 
         Player.Orientation fac = Player.Orientation.None;
 
-        switch (item.GetProperty("direction").GetValue())
+        switch (item.GetProperty("direction").GetContent())
         {
             case "to north":
                 fac = Player.Instance.GetFacing(Direction.North);

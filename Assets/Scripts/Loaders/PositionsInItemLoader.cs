@@ -38,12 +38,12 @@ public class PositionsInItemLoader : TextParser
             {
                 if ( cells[cellIndex].Length != 0)
                 {
-                    if ( itemIndex >= Item.items.Count)
+                    if ( itemIndex >= Item.dataItems.Count)
                     {
                         continue;
                     }
 
-                    Item item = Item.items[itemIndex];
+                    Item item = Item.dataItems[itemIndex];
                     Socket socket = tmpSockets[socketIndex];
 
                     item.sockets.Add(socket);
