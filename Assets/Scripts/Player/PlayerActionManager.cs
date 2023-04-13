@@ -29,32 +29,32 @@ public class PlayerActionManager : MonoBehaviour
         switch (action.type)
         {
             case PlayerAction.Type.Display:
-			    DisplayFeedback.Instance.Display(action.GetContent(0));
+			    Phrase.Write(action.GetContent(0));
                 break;
             case PlayerAction.Type.DescribeExterior:
-                DisplayFeedback.Instance.DescribeExterior();
+                Interior.DescribeExterior();
                 break;
             case PlayerAction.Type.DisplayTimeOfDay:
-                DisplayFeedback.Instance.DisplayTimeOfDay();
-                break;
-            case PlayerAction.Type.ExitByWindow:
+                TimeManager.GetInstance().WriteTimeOfDay();
                 break;
             case PlayerAction.Type.DescribeItem:
                 Item.Describe(InputInfo.GetCurrent.MainItem);
                 break;
             case PlayerAction.Type.PointNorth:
-                DisplayFeedback.Instance.PointNorth();
-                break;
-            case PlayerAction.Type.DisplayHelp:
-                DisplayFeedback.Instance.DisplayHelp();
+                Coords.WriteDirectionToNorth();
                 break;
             case PlayerAction.Type.ChangeProp:
-                Item.ChangeProperty();
+                Property.ChangeProperty();
+                break;
+            case PlayerAction.Type.AddProp:
+                Property.AddProperty();
                 break;
             default:
                 break;
         }
     }
+
+
 
     public void DisplayInputFeedback()
     {
@@ -68,7 +68,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("no verb, no items");
             }
 
-            DisplayFeedback.Instance.Display("Quoi ?");
+            Phrase.Write("Quoi ?");
             return;
         }
 
@@ -102,7 +102,7 @@ public class PlayerActionManager : MonoBehaviour
             {
                 string str = inputInfo.verb.question + " voulez vous " + inputInfo.verb.names[0];
                 str = TextManager.WithCaps(str);
-                DisplayFeedback.Instance.Display(str);
+                Phrase.Write(str);
                 return;
             }
         }

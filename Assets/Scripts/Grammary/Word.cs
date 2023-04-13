@@ -47,7 +47,7 @@ public class Word
 
             if (str.Contains("/DE"))
             {
-                currentInfo.preposition = Preposition.De;
+                currentInfo.preposition = Preposition.Of;
                 str = str.Replace("/DE", "");
             }
 
@@ -113,7 +113,7 @@ public class Word
                     }
                         
 
-                case Preposition.De:
+                case Preposition.Of:
                     if (StartsWithVowel())
                     {
                         return "d'";
@@ -125,7 +125,7 @@ public class Word
                         else
                             return "de ";
                     }
-                case Preposition.A:
+                case Preposition.To:
                     return "aux ";
                 default:
                     break;
@@ -141,9 +141,9 @@ public class Word
                 {
                     case Preposition.None:
                         return "l'";
-                    case Preposition.De:
+                    case Preposition.Of:
                         return "de l'";
-                    case Preposition.A:
+                    case Preposition.To:
                         return "à l'";
                     default:
                         break;
@@ -160,9 +160,9 @@ public class Word
                         {
                             case Preposition.None:
                                 return "le ";
-                            case Preposition.De:
+                            case Preposition.Of:
                                 return "du ";
-                            case Preposition.A:
+                            case Preposition.To:
                                 return "au ";
                             default:
                                 break;
@@ -175,9 +175,9 @@ public class Word
                         {
                             case Preposition.None:
                                 return "la ";
-                            case Preposition.De:
+                            case Preposition.Of:
                                 return "de la ";
-                            case Preposition.A:
+                            case Preposition.To:
                                 return "à la ";
                             default:
                                 break;
@@ -201,12 +201,12 @@ public class Word
                     {
                         case Preposition.None:
                             return "un ";
-                        case Preposition.De:
+                        case Preposition.Of:
                             if (StartsWithVowel())
                                 return "de l'";
                             else
                                 return "du ";
-                        case Preposition.A:
+                        case Preposition.To:
                             return "à un ";
                         default:
                             break;
@@ -219,9 +219,9 @@ public class Word
                     {
                         case Preposition.None:
                             return "une ";
-                        case Preposition.De:
+                        case Preposition.Of:
                             return "d'une ";
-                        case Preposition.A:
+                        case Preposition.To:
                             return "à une ";
                         default:
                             break;
@@ -272,7 +272,7 @@ public class Word
     }
 
     /// <summary>
-    /// FORME : LE CHIEN SAGE
+    /// FORME : THE GOOD DOG
     /// </summary>
     /// <param name="str"></param>
     /// <returns></returns>
@@ -282,54 +282,54 @@ public class Word
         Info info = new Info();
 
         // article
-        if (str.Contains("le") || str.Contains("les"))
+        if (str.Contains("the"))
         {
             info.article = true;
             info.defined = true;
         }
 
-        if (str.Contains("un") || str.Contains("des"))
+        if (str.Contains("a") || str.Contains("some"))
         {
             info.article = true;
             info.defined = false;
         }
 
-        if (str.Contains("chiens"))
+        if (str.Contains("dogs"))
         {
             info.plural = true;
         }
 
-        if (str.Contains("au") || str.Contains("aux"))
+        if (str.Contains("to"))
         {
             info.article = true;
-            info.preposition = Preposition.A;
+            info.preposition = Preposition.To;
         }
 
-        if (str.Contains("du") || str.Contains("des"))
+        if (str.Contains("of"))
         {
             info.article = true;
-            info.preposition = Preposition.De;
+            info.preposition = Preposition.Of;
             info.defined = true;
         }
 
-        if (str.Contains("de") || str.Contains("des"))
+        /*if (str.Contains("de") || str.Contains("des"))
         {
             info.article = true;
-            info.preposition = Preposition.De;
+            info.preposition = Preposition.Of;
             info.defined = false;
-        }
+        }*/
 
-        if (str.Contains("autre"))
+        if (str.Contains("other"))
         {
             info.other = true;
         }
 
-        if (str.Contains("sage"))
+        if (str.Contains("good"))
         {
             info.adjective = true;
         }
 
-        if (str.Contains("sur"))
+        if (str.Contains("on"))
         {
             info.article = true;
             info.location = true;
@@ -484,8 +484,8 @@ public class Word
     public enum Preposition
     {
         None,
-        De,
-        A,
+        Of,
+        To,
     }
 
     public enum Genre
@@ -497,3 +497,70 @@ public class Word
     }
     #endregion
 }
+
+
+
+// OLD FRENCH PART
+/*
+ * public string GetContent(string str)
+    {
+
+        Info info = new Info();
+
+        // article
+        if (str.Contains("le") || str.Contains("les"))
+        {
+            info.article = true;
+            info.defined = true;
+        }
+
+        if (str.Contains("un") || str.Contains("des"))
+        {
+            info.article = true;
+            info.defined = false;
+        }
+
+        if (str.Contains("chiens"))
+        {
+            info.plural = true;
+        }
+
+        if (str.Contains("au") || str.Contains("aux"))
+        {
+            info.article = true;
+            info.preposition = Preposition.A;
+        }
+
+        if (str.Contains("du") || str.Contains("des"))
+        {
+            info.article = true;
+            info.preposition = Preposition.De;
+            info.defined = true;
+        }
+
+        if (str.Contains("de") || str.Contains("des"))
+        {
+            info.article = true;
+            info.preposition = Preposition.De;
+            info.defined = false;
+        }
+
+        if (str.Contains("autre"))
+        {
+            info.other = true;
+        }
+
+        if (str.Contains("sage"))
+        {
+            info.adjective = true;
+        }
+
+        if (str.Contains("sur"))
+        {
+            info.article = true;
+            info.location = true;
+        }
+
+        return GetContent(info);
+    }
+*/

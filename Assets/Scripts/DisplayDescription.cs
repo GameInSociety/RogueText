@@ -26,8 +26,7 @@ public class DisplayDescription : MonoBehaviour {
 
     void Start()
     {
-        uiText_Old.text = "";
-        uiText.text = "";
+        ClearDescription();
 
         PlayerActionManager.onPlayerAction += HandleOnAction;
     }
@@ -42,22 +41,16 @@ public class DisplayDescription : MonoBehaviour {
 
     public void ClearDescription()
     {
+        uiText_Old.text = "";
         uiText.text = "";
     }
 
     public void UpdateDescription()
     {
-        string str = "";
+        Phrase.Renew();
 
         // display current tile
-        if (Tile.GetPrevious != null && Tile.GetCurrent.type == Tile.GetPrevious.type)
-        {
-            
-        }
-        else
-        {
-            Tile.GetCurrent.WriteDescription();
-        }
+        Tile.GetCurrent.WriteDescription();
 
         // display surrounding tiles
         TileGroupDescription.WriteSurroundingTileDescription();
@@ -69,17 +62,10 @@ public class DisplayDescription : MonoBehaviour {
         StateManager.GetInstance().WriteDescription();
 
         // time of day
-        if (TimeManager.GetInstance().changedPartOfDay)
-        {
-            TimeManager.GetInstance().changedPartOfDay = false;
-            TimeManager.GetInstance().WriteDescription();
-        }
+        TimeManager.GetInstance().WriteDescription();
 
         // weather
-        if (TimeManager.GetInstance().displayRainDescription)
-        {
-            TimeManager.GetInstance().WriteWeatherDescription();
-        }
+        TimeManager.GetInstance().WriteWeatherDescription();
 
         // l'indication de la lettre
         /*if ( !Story.Instance.GetParam("retrieved_letter"))
@@ -93,7 +79,8 @@ public class DisplayDescription : MonoBehaviour {
         uiText_Old.text += uiText.text;
         uiText.text = "";
         uiText.text += "\n";
-        uiText.text += "----------------";
+        uiText.text += "_____________________________";
+        uiText.text += "\n";
         uiText.text += "\n";
     }
 
@@ -110,13 +97,14 @@ public class DisplayDescription : MonoBehaviour {
 
         AudioInteraction.Instance.StartSpeaking(str);
 
+        CancelInvoke("AddToDescriptionDelay");
         Invoke("AddToDescriptionDelay", 0.001f);
     }
 
     void AddToDescriptionDelay()
     {
+        uiText.text += "\n____________________\n";
         scrollRect.verticalNormalizedPosition = 0f;
-
     }
 
 }

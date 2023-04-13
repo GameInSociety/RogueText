@@ -5,50 +5,61 @@ using UnityEngine;
 
 public class Gardening
 {
-    public static void Grow(Item.Property prop)
+    public static void Grow(Property grow_property)
     {
         // also remove dry property
-        if (prop.item.HasProperty("dry"))
+        if (grow_property.item.HasProperty("dry"))
         {
-            Item.Property growProp = prop.item.GetProperty("dry");
+            Property growProp = grow_property.item.GetProperty("dry");
             TimeManager.GetInstance().onNextHour -= growProp.HandleOnNextHour;
         }
-        
 
-        Item.Remove(prop.item);
+        // get the name of the vegetanble ( complètement con mais on verra plus tard )
+        // c'est pas si mal en fait
+        if ( grow_property.param == "?")
+        {
+            grow_property.param = grow_property.item.GetProperty("type").GetContent();
+        }
 
-        string targetItemName = prop.param;
+        string targetItemName = grow_property.param;
+
+        Item.Remove(grow_property.item);
 
         Item newItem = Item.GetDataItem(targetItemName);
         newItem = Item.CreateNew(newItem);
 
+        if (grow_property.item.HasProperty("type"))
+        {
+            newItem.AddProperty(grow_property.item.GetProperty("type"));
+        }
+
         Tile.GetCurrent.AddItem(newItem);
 
         Phrase.SetOverrideItem(newItem);
-        string str = "&un chien (override item)& apparait à la place &du chien (main item)&";
-        Phrase.Write(str);
+        Phrase.Write("gardening_grew");
     }
 
-    public static void Dry(Item.Property prop)
+    public static void Dry(Property prop)
     {
         // remove grow event also
-        Item.Property growProp = prop.item.GetProperty("grow");
+        Property growProp = prop.item.GetProperty("grow");
         TimeManager.GetInstance().onNextHour -= growProp.HandleOnNextHour;
 
         Item.Remove(prop.item);
 
-        Item newItem = Item.GetDataItem("pousse morte");
+        Debug.LogError("dry problem, it add the item on the curent tile");
+        Item newItem = Item.GetDataItem("dead sprout");
         newItem = Item.CreateNew(newItem);
         Tile.GetCurrent.AddItem(newItem);
 
-        Phrase.SetOverrideItem(newItem);
-        Phrase.Write("&le chien (override item)& a sêché et laisse place à une pousse morte");
+        /*Phrase.SetOverrideItem(newItem);
+        Phrase.Write("&le chien (override item)& a sêché et laisse place à une pousse morte");*/
     }
 
     public static void Water()
     {
         InputInfo.GetCurrent.MainItem.GetProperty("dry").SetValue(2);
 
-        DisplayFeedback.Instance.Display("Vous arrosez &le chien&");
+        Phrase.Write("gardening_water");
     }
 }

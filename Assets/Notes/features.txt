@@ -1,0 +1,24 @@
+à faire
+
+- fouiller
+des objets sont invisibles dans la tile, une compétence permet de les faire découvrir
+
+- skills
+des compétences
+=> search
+=> fish
+=> gardening
+=> fight
+
+- distance
+=> regarder au loin
+=> jumelles
+
+- combat
+
+- sauvegarde
+
+- bateau
+
+- voiture ?
+=> listes de balises

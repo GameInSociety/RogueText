@@ -29,7 +29,7 @@ public class PlayerAction
         PickUp,
         Throw,
         AddToTile,
-        Remove,
+        RemoveItem,
         RequireItem,
         RequireProp,
         Display,
@@ -46,7 +46,8 @@ public class PlayerAction
         ReadRecipe,
         DisplayHelp,
         SetParam,
-        ChangeProp
+        ChangeProp,
+        AddProp
     }
 
     private static PlayerAction current;
@@ -95,10 +96,15 @@ public class PlayerAction
         return contents.Count > 0;
     }
 
+    public int GetContentCount()
+    {
+        return contents.Count;
+    }
+
     public bool HasValue(int i)
     {
         int value = 0;
-        return i >= contents.Count && int.TryParse(contents[i],out value);
+        return i < contents.Count && int.TryParse(contents[i],out value);
     }
 
     public int GetValue(int i)

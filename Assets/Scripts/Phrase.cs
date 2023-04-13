@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class Phrase
@@ -101,7 +102,7 @@ public class Phrase
         // check if there tags
         if (!wordCode.Contains("("))
         {
-            Debug.LogError("word code : " + wordCode + " doesn't contain item code");
+            //Debug.LogError("word code : " + wordCode + " doesn't contain item code");
             itemCode = "main item";
             return wordCode;
         }
@@ -154,6 +155,10 @@ public class Phrase
             case "tile item":
                 return Tile.GetCurrent.tileItem;
             case "override item":
+                if ( overrideItem == null)
+                {
+                    Debug.LogError("trying override item, but null");
+                }
                 return overrideItem;
             default:
                 Debug.LogError(itemCode + " doesnt go in any item category, returning input main item");
@@ -161,16 +166,23 @@ public class Phrase
         }
     }
 
-
-
     public static void Write( string str)
     {
+        if (str.Contains('/'))
+        {
+            int startIndex = str.IndexOf("/");
+            int endIndex = str.IndexOf("/", startIndex + 1);
+            string phraseKey = str.Remove(endIndex).Remove(0, 1);
+            Debug.Log("phrase code : " + phraseKey);
+            str = str.Replace("/" + phraseKey + "/", Phrase.GetPhrase(phraseKey));
+        }
+
         DisplayDescription.Instance.AddToDescription(str);
     }
 
     public static void Space()
     {
-        Phrase.Write("\n__________\n");
+        Phrase.Write("\n");
     }
 
     public static void Renew()

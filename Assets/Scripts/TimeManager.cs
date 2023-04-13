@@ -119,15 +119,12 @@ public class TimeManager : MonoBehaviour {
         for (int i = 0; i < hours; i++)
         {
             ++timeOfDay;
-
             
             // states
             StateManager.GetInstance().AdvanceStates();
 
             // 
             UpdateStates();
-
-            
 
             if (timeOfDay == 24)
             {
@@ -143,6 +140,30 @@ public class TimeManager : MonoBehaviour {
 
     }
 
+    public void WriteTimeOfDay()
+    {
+        string str = "";
+
+        if (TimeManager.GetInstance().timeOfDay == 12)
+        {
+            str = "Il est midi";
+        }
+        else if (TimeManager.GetInstance().timeOfDay == 0)
+        {
+            str = "Il est minuit";
+        }
+        else if (TimeManager.GetInstance().timeOfDay < 12)
+        {
+            str = "Il est " + TimeManager.GetInstance().timeOfDay + "h du matin";
+        }
+        else
+        {
+            str = "Il est " + (TimeManager.GetInstance().timeOfDay - 12) + "h du soir";
+        }
+
+        Phrase.Write(str);
+    }
+
     public void NextDay()
     {
         ++daysPasted;
@@ -156,6 +177,13 @@ public class TimeManager : MonoBehaviour {
     #region part of day
     public void WriteDescription()
     {
+        if (!changedPartOfDay)
+        {
+            return;
+        }
+
+        changedPartOfDay = false;
+
         string str = "";
 
         switch (currentPartOfDay)
@@ -184,12 +212,18 @@ public class TimeManager : MonoBehaviour {
         }
 
         Phrase.Write(str);
+        Phrase.Space();
     }
     #endregion
 
     #region weather
     public void WriteWeatherDescription()
     {
+        if (!displayRainDescription)
+        {
+            return;
+        }
+
         displayRainDescription = false;
 
         string str;
@@ -204,6 +238,7 @@ public class TimeManager : MonoBehaviour {
         }
 
         Phrase.Write(str);
+        Phrase.Space();
     }
     private void UpdateStates()
     {

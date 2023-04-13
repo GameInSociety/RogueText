@@ -56,6 +56,12 @@ public class Item
     }
 
     #region container
+    public bool ContainsItems()
+    {
+        GenerateItems();
+
+        return containedItems != null && containedItems.Count > 0;
+    }
     public void GenerateItems()
     {
         if (containedItems != null)
@@ -63,18 +69,18 @@ public class Item
             return;
         }
 
-        containedItems = new List<Item>();
-
         foreach (var appearInfo in appearInfos)
         {
             for (int i = 0; i < appearInfo.amount; i++)
             {
                 if (Random.value * 100f < appearInfo.rate)
                 {
+                    if ( containedItems == null)
+                    {
+                        containedItems = new List<Item>();
+                    }
+
                     Item newItem = Item.CreateNew(appearInfo.GetItem());
-
-                    Debug.Log("new item hash code : " + newItem.GetHashCode());
-
                     containedItems.Add(newItem);
                 }
             }
@@ -82,33 +88,41 @@ public class Item
 
     }
 
-
     public void Open()
     {
         Item item = InputInfo.GetCurrent.MainItem;
         item.GenerateItems();
 
         Container.opened = true;
-        Container.CurrentItem = item;
-
-        Container.Describe();
+        Container.Describe(item);
     }
 
     public void Close()
     {
         // toujours dans la classe inventory.cs pour l'intsant
+        if (!Container.opened)
+        {
+            Phrase.Write("&le chien (main item)& est déjà fermé");
+            return;
+        }
+
+        Container.opened = false;
+        Phrase.SetOverrideItem(Container.CurrentItem);
+        Phrase.Write("Vous fermez &le chien (override item)&");
     }
 
     public void WriteContainedDescription()
     {
-        if (containedItems.Count == 0)
+        if (!ContainsItems())
         {
             Phrase.Write("Il n'y a rien dans &le chien (main item)&");
             return;
         }
 
-        Phrase.Write("Dans &le chien (main item)& : vous voyez : \n" +
-            "" + Item.ItemListString(containedItems, true, true));
+        string str = "Dans &le chien (main item)& : vous voyez : ";
+        str += Item.ItemListString(containedItems, ListSeparator.Commas, true);
+
+        Phrase.Write(str);
     }
 
     public void RemoveItem(Item item)
@@ -126,11 +140,12 @@ public class Item
     #endregion
 
     #region appear info
+    [System.Serializable]
     public class AppearInfo
     {
         public int itemIndex = 0;
         public int rate = 0;
-        public int amount = 0;
+        public int amount = 1;
 
         public Item GetItem()
         {
@@ -161,12 +176,15 @@ public class Item
     ///
 
     #region tools
-    public static Item CreateNewItem(string name)
+    
+    /// create a new item by name
+    public static Item CreateNew(string name)
     {
         Item item = GetDataItem(name);
         return CreateNew(item);
     }
 
+    // create  new item with a copy
     public static Item CreateNew(Item copy)
     {
         // common to all
@@ -221,9 +239,6 @@ public class Item
             {
                 Container.CurrentItem.RemoveItem(targetItem);
             }
-
-            Container.Describe();
-
             return;
         }
 
@@ -240,8 +255,6 @@ public class Item
         if (Inventory.Instance.items.Contains(targetItem))
         {
             Inventory.Instance.RemoveItem(targetItem);
-
-            Inventory.Instance.WriteDescription();
             return;
         }
 
@@ -254,10 +267,16 @@ public class Item
     {
         Item item = null;
 
+        bool foundInContainer = false;
+
         // dans un container
         if (Container.opened)
         {
             item = Container.CurrentItem.containedItems.Find(x => x.word.Compare(str));
+            if ( item != null)
+            {
+                foundInContainer = true;
+            }
         }
 
         // chercher une premiere fois dans l'inventaire s'il est ouvert
@@ -290,6 +309,12 @@ public class Item
         if (item == null)
         {
             //
+        }
+
+        // pour éviter que le container reste ouvert si on fait une autre action
+        if ( item != null && Container.opened && !foundInContainer)
+        {
+            Container.CurrentItem.Close();
         }
 
         return item;
@@ -376,7 +401,7 @@ public class Item
     {
         return TryGetItem(item_name) != null;
     }
-    static Item TryGetItem(string _name)
+    public static Item TryGetItem(string _name)
     {
         _name = _name.ToLower();
 
@@ -407,7 +432,12 @@ public class Item
     #endregion
 
     #region list
-    public static string ItemListString(List<Item> _items, bool separate, bool displayWeight)
+    public enum ListSeparator
+    {
+        Return,
+        Commas,
+    }
+    public static string ItemListString(List<Item> _items, ListSeparator listSeparator, bool displayWeight)
     {
         string text = "";
 
@@ -415,16 +445,17 @@ public class Item
 
         foreach (var item in _items)
         {
-            text += item.word.GetContent("chien");
+            text += item.word.GetContent("un chien");
 
-            if (displayWeight)
+            // pour l'instant en pause parce que pas forcément besoin, et systeme de poids un peu laissé de côté
+            /*if (displayWeight)
             {
                 text += " (w:" + (item.weight) + ")";
-            }
+            }*/
 
             if (_items.Count > 1 && i < _items.Count - 1)
             {
-                if (separate)
+                if (listSeparator == ListSeparator.Return)
                 {
                     text += "\n";
                 }
@@ -510,17 +541,22 @@ public class Item
 
         int count = 0;
 
+        /*if (item.ContainsItems())
+        {
+            Container.Describe(item);
+        }*/
+
         if (item.HasProperties())
         {
             foreach (var property in item.properties)
             {
-                str += property.GetPhrase() + "\n";
+                property.Write();
             }
 
             ++count;
         }
 
-        str += "\nVous pouvez ";
+        str += "Vous pouvez ";
 
         foreach (var verb in Verb.GetVerbs)
             {
@@ -542,7 +578,7 @@ public class Item
         }
         else
         {
-            str += " &le chien (main item)&";
+            str += "&le chien (main item)&";
         }
 
         Phrase.Write(str);
@@ -557,32 +593,7 @@ public class Item
     /// </summary>
     /// <param name="propName"></param>
     /// <param name="newValue"></param>
-    public static void ChangeProperty()
-    {
-        ChangeProperty( PlayerAction.GetCurrent.GetContent(0) , PlayerAction.GetCurrent.GetContent(0));
-    }
-    public static void ChangeProperty(string propName, string newValue)
-    {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
-
-        if (!targetItem.HasProperty(propName))
-        {
-            Debug.LogError(targetItem.debug_name + " doesn't have the property " + newValue);
-            return;
-        }
-
-        if (targetItem.GetProperty(propName).GetContent() == newValue)
-        {
-            Phrase.Write("&le chien (main item)& est déjà " + targetItem.GetProperty(propName).GetText());
-            return;
-        }
-
-        targetItem.GetProperty(propName).SetContent(newValue);
-
-        string str = targetItem.GetProperty(propName).GetPhrase();
-
-        Phrase.Write( str );
-    }
+    
 
     public void AddProperty(string name, string value)
     {
@@ -632,213 +643,13 @@ public class Item
     }
     #endregion
 
-    /// <summary>
-    /// PROPERTY
-    /// </summary>
-    [System.Serializable]
-    public class Property
+    public static Item GetItemOfType(string type)
     {
-        public enum Type
-        {
-            boolean,
-            delay,
-            value
-        }
-        public Type type;
-        public string name;
-        private string content;
-        public string param;
+        Item[] items = Item.dataItems.FindAll(x => x.HasProperty(type)).ToArray();
 
-        public Item item;
+        Item item = items[Random.Range(0, items.Length)];
 
-        // initialisation
-        public void Init(Item _item)
-        {
-            item = _item;
-
-            switch (type)
-            {
-                case Type.boolean:
-
-                    // si la valeur n'est pas assignée ça doit être un pourçentage, donc assigner au hasard
-                    if (content.Contains("%"))
-                    {
-                        string percentSTR = content.Remove(content.Length - 1);
-
-                        int percent = int.Parse(percentSTR);
-
-                        content = Random.value * 100 < percent ? "true" : "false";
-                    }
-
-                    if (content != "true" && content != "false")
-                    {
-                        Debug.LogError("content for boolean invalid : " + content + " l("+content.Length+")");
-                    }
-
-                    break;
-                case Type.delay:
-
-                    // si la propriété est un delai, s'abonner au temps
-                    TimeManager.GetInstance().onNextHour += HandleOnNextHour;
-
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        // setters
-        public void SetContent(string _content)
-        {
-            content = _content;
-        }
-
-        public void SetValue(int _value)
-        {
-            content = _value.ToString();
-        }
-
-        #region numeric
-        public int GetValue()
-        {
-            int i = 0;
-
-            if (int.TryParse(content, out i))
-            {
-                return i;
-            }
-            else
-            {
-                Debug.LogError("couldn't parse : " + content + " in property : " + name);
-                return i;
-            }
-        }
-        public void Add(int i)
-        {
-            SetValue(GetValue() + i);
-        }
-        public void Remove(int i)
-        {
-            SetValue(GetValue() - i);
-        }
-        #endregion
-
-        #region property text
-        public string GetContent()
-        {
-            return content;
-        }
-
-        /// <summary>
-        /// text
-        /// </summary>
-        /// <returns></returns>
-        public string GetPhrase()
-        {
-            string str = "";
-
-            switch (type)
-            {
-                case Type.boolean:
-                    str += Phrase.Replace("&le chien (main item)& est " + GetText());
-                    break;
-                case Type.delay:
-
-                    string text;
-                    Item paramItem = Item.TryGetItem(param);
-                    if ( paramItem == null)
-                    {
-                        text = "Il reste " + GetText() + " heures avant que &le chien (main item)& devienne "+param;
-                        text = Phrase.Replace(text);
-                    }
-                    else
-                    {
-                        Phrase.SetOverrideItem(paramItem);
-                        text = "Il reste " + GetText() + " avant que &le chien (main item)& devienne &un chien (override item)&";
-                        text = Phrase.Replace(text);
-                    }
-
-                    
-                    str += text;
-
-                    break;
-                case Type.value:
-                    str += Phrase.Replace("&le chien (main item)& contient " + GetText() + " eau");
-                    break;
-                default:
-                    str = "<color=red>no type error</color>";
-                    break;
-            }
-
-            return str;
-        }
-
-
-        public string GetDebugText()
-        {
-            return "property of : " + item.word.text + " / " + name + " : " + content;
-        }
-
-        public string GetText()
-        {
-            switch (type)
-            {
-                case Type.boolean:
-
-                    string[] parts = param.Split('?');
-                    return content == "true" ? parts[0] : parts[1];
-
-                case Type.delay:
-
-                    return content + " heures";
-
-                case Type.value:
-
-                    return content;
-
-                default:
-                    return "<color=red>no type error</color>";
-            }
-            
-        }
-
-        /// <summary>
-        /// ça a pas grand chose à foutre là quand on y pense
-        /// </summary>
-        public void HandleOnNextHour()
-        {
-            // en soit à terme, il faudrait que la fonction soit dans la case elle même
-            // delay/grow/10/BecomeItem(carotte)
-            // pas si compliqué que ça quand on y pense
-
-            // decrease time
-            int timeLeft = GetValue();
-            --timeLeft;
-            SetContent(timeLeft.ToString());
-
-            // don't do anything if the time left is above 0
-            if (timeLeft > 0)
-            {
-                return;
-            }
-            TimeManager.GetInstance().onNextHour -= HandleOnNextHour;
-
-
-            // ici devraient être les actions
-            switch (name)
-            {
-                case "dry":
-                    Gardening.Dry(this);
-                    break;
-                case "grow":
-                    Gardening.Grow(this);
-                    break;
-                default:
-                    //Debug.LogError("timer property : " + name + " is dead end");
-                    break;
-            }
-        }
+        return item;
     }
-    #endregion
 
 }

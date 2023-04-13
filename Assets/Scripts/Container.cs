@@ -7,8 +7,6 @@ public class Container
     public static bool opened = false;
     public static Item CurrentItem;
 
-    bool emptied = false;
-
     public List<Item> items = new List<Item>();
 
     public int id = 0;
@@ -21,17 +19,13 @@ public class Container
     {
         items.Remove(item);
 
-        if ( items.Count == 0)
-        {
-            emptied = true;
-        }
-
         Debug.Log("removing container");
     }
 
-    public static void Describe()
+    public static void Describe(Item item)
     {
         Phrase.Renew();
+        CurrentItem = item;
         CurrentItem.WriteContainedDescription();
     }
 }

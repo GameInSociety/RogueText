@@ -1,35 +1,35 @@
-help,que,,
-aller,ou,vers,
-ouvrir,que,,ITEM contient peut être des choses utiles.
-fermer,que,,
-manger,que,,ITEM à l’air comestible
-dormir,ou,sur,ITEM sera bien pour prendre un peu de repos
-regarder / observer,que,,
-prendre / ramasser / saisir,que,,on dirait que ITEM peut rentrer dans votre sac
-remplir,que,,ITEM peut peut être remplir quelque chose d’eau
-boire,que,,ITEM peut être bon pour se déshydrater un peu…
-déplacer,que,,ITEM peut être déplacé ailleurs
-lire,que,,ITEM pourra vous enseigner une chose ou deux.
-couper,que,,Vous pouvez couper ITEM en morceaux
-entrer,ou,dans,Vous pouvez entrer dans ITEM
-jeter / bazarder,que,,
-équiper / mettre,que,,Vous pouvez porter ITEM
-déséquiper / enlever,que,,
-écouter,que,,Ça vaut peut être le coup d'écouter ITEM
-continuer,ou,vers,
-sortir,par ou,par,
-retourner,ou,vers,
-casser,ou,,Vous pouvez casser ITEM
-déchirer,ou,,Vous pouvez déchirer ITEM
-(fabriquer,que,,
-allumer,que,,On dirait que ITEM peut s'allumer
-éteindre,que,,On dirait que ITEM peut s'éteindre
-avancer,où,vers,
-planter,que,dans,"Clairement, ITEM peut se planter quelque part"
-détérrer,que,dans,Vous pouvez détérer ITEM
-arroser,que,dans,Vous pouvez arroser ITEM
-creuser,où,dans,Vous pouvez creuser dans ITEM
-attendre,combien de temps,quand,Vous pouvez attendre
-vider,où,où,Il est possible de vider cet objet
-charger,que,que,
-oui,,,
+help,how,,
+go,where,towards,
+open,what,,ITEM may contain things
+close,what,,
+eat,what,,ITEM looks edible
+sleep,where,on,ITEM would be good for a little rest
+look / observe,what,,
+take / pick up,what,,It can go in your bag
+fill,what,,ITEM peut peut être remplir quelque chose d’eau
+drink,what,,It's drinkable
+move,what,,ITEM can be moved
+read,what,,ITEM pourra vous enseigner une chose ou deux.
+cut,what,,Vous pouvez couper ITEM en morceaux
+go in,where,in,Vous pouvez entrer dans ITEM
+throw,what,,
+equip / put on,what,,Vous pouvez porter ITEM
+unequip / take off,what,,
+listen,what,,Ça vaut peut être le coup d'écouter ITEM
+continue / keep going,where,towards,
+leave,from where,from,
+go back,where,towards,
+break,where,,Vous pouvez casser ITEM
+tear,where,,Vous pouvez déchirer ITEM
+(make / craft,what,,
+light,what,,On dirait que ITEM peut s'allumer
+put out / turn off,what,,On dirait que ITEM peut s'éteindre
+advance,where,towards,
+plant,what,in,"Clairement, ITEM peut se planter quelque part"
+unearth,what,in,Vous pouvez détérer ITEM
+water,what,in,Vous pouvez arroser ITEM
+dig,where,in,Vous pouvez creuser dans ITEM
+wait,how long,when,Vous pouvez attendre
+empty,where,where,Il est possible de vider cet objet
+charge,what,what,
+yes,,,

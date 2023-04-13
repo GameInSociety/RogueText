@@ -68,11 +68,21 @@ public class Tile
     #endregion
 
     #region tile description
-    public string WriteDescription()
+    public void WriteDescription()
+    {
+        if (Tile.GetPrevious != null && Tile.GetCurrent.type == Tile.GetPrevious.type)
+        {
+            return;
+        }
+
+        string str = GetDescription();
+        Phrase.Write(str);
+
+    }
+    public string GetDescription()
     {
         // ici en fait, il faudrait aussi que les phrases d'accroches aient des paramètres dans une db
         // exemple : "vous êtes encore/DEFINED/LOC|PREP/Singular etc...
-
         Word word = tileItem.word;
 
         string str = "";
@@ -91,10 +101,7 @@ public class Tile
             str = Phrase.GetPhrase("tile_goback");
         }
 
-        Phrase.Write(str);
-
         return str;
-
     }
     #endregion
 
@@ -159,6 +166,9 @@ public class Tile
 
             Phrase.Write(newPhrase.GetText());
         }
+
+        Phrase.Space();
+
     }
     #endregion
 
@@ -177,72 +187,73 @@ public class Tile
     {
         switch (type)
         {
+            // à mettre dans les objets, considerer les tiles comme des objets dès le debut comme un type
             case Type.None:
                 return "";
             case Type.Plain:
-                return "plaine";
+                return "plain";
             case Type.Field:
-                return "champ";
+                return "field";
             case Type.Clearing:
-                return "clairière";
+                return "clearing";
             case Type.Hill:
-                return "colline";
+                return "hill";
             case Type.Mountain:
-                return "montagne";
+                return "mountain";
             case Type.Forest:
-                return "forêt";
+                return "forest";
             case Type.Woods:
-                return "bois";
+                return "wood";
             case Type.Sea:
-                return "mer";
+                return "sea";
             case Type.Lake:
-                return "lac";
+                return "lake";
             case Type.River:
-                return "rivière";
+                return "river";
             case Type.Beach:
-                return "plage";
+                return "beach";
             case Type.Road:
-                return "route";
+                return "road";
             case Type.TownRoad:
-                return "route de ville";
+                return "village road";
             case Type.CoastalRoad:
-                return "route cotière";
+                return "coastal road";
             case Type.Path:
-                return "chemin";
+                return "path";
             case Type.Bridge:
-                return "pont";
+                return "bridge";
             case Type.TownHouse:
-                return "maison";
+                return "house";
             case Type.Farm:
-                return "ferme";
+                return "farm";
             case Type.ForestCabin:
-                return "cabane";
+                return "cabin";
             case Type.CountryHouse:
-                return "villa";
+                return "mansion";
             case Type.Hallway:
-                return "couloir";
+                return "hallway";
             case Type.Stairs:
-                return "escaliers";
+                return "stairs";
             case Type.LivingRoom:
-                return "salon";
+                return "living room";
             case Type.Kitchen:
-                return "cuisine";
+                return "kitchen";
             case Type.DiningRoom:
-                return "salle à manger";
+                return "dining room";
             case Type.ChildBedroom:
-                return "chambre d'enfant";
+                return "children's bed room";
             case Type.Bedroom:
-                return "chambre à coucher";
+                return "bedroom";
             case Type.Bathroom:
-                return "salle de bain";
+                return "bathroom";
             case Type.Toilet:
-                return "toilettes";
+                return "toilets";
             case Type.Attic:
-                return "grenier";
+                return "attic";
             case Type.Basement:
-                return "cave";
+                return "basement";
             case Type.Cellar:
-                return "cellier";
+                return "cellar";
             default:
                 return "did not found name for type : " + type;
         }

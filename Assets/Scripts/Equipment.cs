@@ -7,6 +7,7 @@ public class Equipment {
 
     public static Equipment Instance;
 
+    // MAKE PARTS ITEMS
 	public enum Part
     {
         Weapon,
@@ -69,9 +70,7 @@ public class Equipment {
 
         Item.Remove(InputInfo.GetCurrent.MainItem);
 
-
-        string str = "Vous avez équipé &le chien (main item)& à " + part.ToString();
-        Phrase.Write(str);
+        Phrase.Write("/_bag_equip/" + part.ToString());
 
     }
 
@@ -79,19 +78,15 @@ public class Equipment {
     {
         Part part = GetPartFromString(PlayerAction.GetCurrent.GetContent(0));
 
-        string str = "";
-
         if ( GetEquipement(part) != InputInfo.GetCurrent.MainItem)
         {
-            str = "Vous n'avez pas &de chien (main item)& sur vous";
-            Phrase.Write(str);
+            Phrase.Write("bag_nothingToEquip");
             return;
         }
 
         Inventory.Instance.AddItem(InputInfo.GetCurrent.MainItem);
 
-        str = "Vous enlevez &le chien (main item)&";
-        Phrase.Write(str);
+        Phrase.Write("bag_unequip");
 
         SetEquipment(part, null);
     }

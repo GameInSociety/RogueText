@@ -120,13 +120,21 @@ public class StateManager : MonoBehaviour
 
     public void WriteDescription()
     {
+        bool b = false;
         foreach (var state in states)
         {
             if (state.progress != State.Progress.Normal)
             {
                 string phrase = state.phrases[(int)state.progress - 1];
                 Phrase.Write(state.GetDescription());
+
+                b = true;
             }
+        }
+
+        if (b)
+        {
+            Phrase.Space();
         }
     }
 

@@ -96,7 +96,7 @@ public class Player : MonoBehaviour {
         {
             if (targetItem.GetProperty("locked").GetContent() == "true")
             {
-                DisplayFeedback.Instance.Display("La porte est vérouillée... Il vous faut une clef");
+                Phrase.Write("La porte est vérouillée... Il vous faut une clef");
                 return;
             }
         }
@@ -156,7 +156,7 @@ public class Player : MonoBehaviour {
             else
             {
                 Move(Player.Orientation.Back);
-                //DisplayFeedback.Instance.Display("Vous n'êtes pas près de l'entrée");
+                //Phrase.Write("Vous n'êtes pas près de l'entrée");
             }
         }
         else
@@ -253,7 +253,7 @@ public class Player : MonoBehaviour {
                     else
                     {
                         string str = Phrase.GetPhrase("movement_blocked");
-                        DisplayFeedback.Instance.Display(str);
+                        Phrase.Write(str);
                     }
                     return;
                 }
@@ -276,25 +276,25 @@ public class Player : MonoBehaviour {
 		Tile targetTile = TileSet.current.GetTile (c);
 
 		if ( targetTile == null ) {
-			DisplayFeedback.Instance.Display ("Vous ne pouvez pas aller par là");
+			Phrase.Write ("Vous ne pouvez pas aller par là");
 			return false;
 		}
 
 		switch (targetTile.type) {
 		case Tile.Type.Hill:
-			DisplayFeedback.Instance.Display ("La coline est trop haute, impossible de passer");
+			Phrase.Write ("La coline est trop haute, impossible de passer");
 			return false;
 		case Tile.Type.Mountain:
-			DisplayFeedback.Instance.Display ("La pente est trop raide, il faut faire demi tour");
+			Phrase.Write ("La pente est trop raide, il faut faire demi tour");
 			return false;
 		case Tile.Type.Sea:
-			DisplayFeedback.Instance.Display ("Le niveau de la mer est trop haut, impossible d'avancer");
+			Phrase.Write ("Le niveau de la mer est trop haut, impossible d'avancer");
 			return false;
 		case Tile.Type.Lake:
-			DisplayFeedback.Instance.Display ("Le lac est trop profond, impossible d'avancer sans bateau");
+			Phrase.Write ("Le lac est trop profond, impossible d'avancer sans bateau");
 			return false;
 		case Tile.Type.River:
-			DisplayFeedback.Instance.Display ("Le courant de la rivère est trop fort, impossible d'avancer");
+			Phrase.Write ("Le courant de la rivère est trop fort, impossible d'avancer");
 			return false;
 		default:
 			break;

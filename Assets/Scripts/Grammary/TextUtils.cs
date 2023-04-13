@@ -10,6 +10,36 @@ public class TextUtils
         {
             return str;
         }
-        return str[0].ToString().ToUpper() + str.Remove(0, 1).ToLower();
+
+        bool code = false;
+
+        for (int i = 0; i < str.Length; i++)
+        {
+            char c = str[i];
+
+            if ( c == '<')
+            {
+                code = true;
+                continue;
+            }
+
+            if (code)
+            {
+                if ( c == '>')
+                {
+                    code = false;
+                }
+                continue;
+            }
+
+            if (char.IsLetter(c))
+            {
+                str = str.Insert(i, str[i].ToString().ToUpper());
+                str = str.Remove(i + 1, 1);
+                return str;
+            }
+        }
+
+        return str;
     }
 }

@@ -1,0 +1,12 @@
+- pourquoi les intérieurs sont des lieux ? ils pourraient être des objets... : vous êtes sur une plaine, une cabane se trouve à gauche ( la direction c'est cool )
+- flaques : apparaissent après la pluie ?
+- des tiles plus précises : "bord du lac", "bord de rivière" etc...
+- prendre "arrosoir" dans "sac" ( pour la nuance )
+- créer un chemin avec plein de lettres pour aller à l'ile à l'est
+- verbe "latent" => prendre arrIIIIsoir => QUOI? QUE VOULEZ VOUS PRENDRE ? => "l'arrosoir" prendre + arrosoir meme s''il a mit juste le mot pas le verbe
+- le sac/inventaire pourrait être un objet
+"vous mettez bidule dans votre sac..." et il fonctionne partout comme il se doit
+ce serait particulièrement cool pour que le systeme inventory et container soit le meme en fait
+- RequireItem et RequireProp avec plusieurs parametres (RequireProp(water, salt water)) en check plusieurs à la fois ( au lieu de se couper au milieu )
+- gros soucis de sérialization : properties infinite loop avec le lien vers l'objet
+- la liste des objets de la tile et celle des l'item de la tile devraient être le meme

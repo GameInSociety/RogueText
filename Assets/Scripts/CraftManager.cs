@@ -68,9 +68,6 @@ public class CraftManager : MonoBehaviour {
             targetCraftInfo = craftInfos[i];
 
             InputInfo.GetCurrent.MainItem.value = i;
-
-                Debug.Log("craft info : " + Item.dataItems[i].word.text + " choisi");
-
         }
         else
         {
@@ -85,10 +82,10 @@ public class CraftManager : MonoBehaviour {
         foreach (var requiredItemRow in targetCraftInfo.requiredItemRows)
             requiredItems.Add(Item.dataItems[requiredItemRow]);
 
-        string text = Item.ItemListString(requiredItems, false, false);
-        DisplayFeedback.Instance.Display("" +
-            "Pour fabriquer " + Item.dataItems[targetCraftInfo.itemRow].word.GetContent("un chien") + "\n" +
-        "Il vous faut " + text);
+        string list_str = Item.ItemListString(requiredItems, Item.ListSeparator.Commas, false);
+        Item targetItem = Item.dataItems[targetCraftInfo.itemRow];
+        Phrase.SetOverrideItem(targetItem);
+        Phrase.Write("/craft_list/ " + list_str);
     }
 
     private void Craft()
@@ -96,8 +93,8 @@ public class CraftManager : MonoBehaviour {
         CraftInfo craftInfo = craftInfos[InputInfo.GetCurrent.MainItem.index];
         if ( craftInfo.requiredToolItemRows == null)
         {
-            //DisplayFeedback.Instance.Display("vous ne pouvez pas fabriquer de " + Action.last.primaryItem.word.GetDescription(Word.Def.Undefined,Word.Preposition.De));
-            DisplayFeedback.Instance.Display("vous ne pouvez pas fabriquer de " + InputInfo.GetCurrent.MainItem.word.text);
+            //Phrase.Write("vous ne pouvez pas fabriquer de " + Action.last.primaryItem.word.GetDescription(Word.Def.Undefined,Word.Preposition.De));
+            //Phrase.Write("");
         }
         else
         {
@@ -134,14 +131,12 @@ public class CraftManager : MonoBehaviour {
 
                 Inventory.Instance.AddItem(InputInfo.GetCurrent.MainItem);
 
-                string str = "Vous avez fabriqué &un chien (main item)&";
-                Phrase.Write(str);
+                Phrase.Write("craft_sucess");
 
             }
             else
             {
-                string str = "Vous n'avez pas les matériaux nécessaires pour fabriquer &un chien (main item)&";
-                Phrase.Write(str);
+                Phrase.Write("craft_unable");
             }
         }
         

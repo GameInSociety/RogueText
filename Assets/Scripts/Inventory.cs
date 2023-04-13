@@ -25,7 +25,7 @@ public class Inventory : MonoBehaviour {
 	void Start () {
         PlayerActionManager.onPlayerAction += HandleOnAction;
 
-        items.Add( Item.GetDataItem("boussole") );
+        items.Add( Item.GetDataItem("compas") );
     }
 
 	void HandleOnAction (PlayerAction action)
@@ -43,7 +43,7 @@ public class Inventory : MonoBehaviour {
         case PlayerAction.Type.AddToTile:
             AddToTile();
             break;
-        case PlayerAction.Type.Remove:
+        case PlayerAction.Type.RemoveItem:
             RemoveItem();
             break;
         case PlayerAction.Type.RequireItem:
@@ -53,12 +53,11 @@ public class Inventory : MonoBehaviour {
             ThrowCurrentItem();
             break;
         case PlayerAction.Type.OpenContainer:
-            OpenContainer();
+            InputInfo.GetCurrent.MainItem.Open();
             break;
         case PlayerAction.Type.CloseContainer:
-            CloseContainer();
+            InputInfo.GetCurrent.MainItem.Close();
             break;
-			break;
 		}
 	}
 
@@ -67,13 +66,18 @@ public class Inventory : MonoBehaviour {
         return items.Find(x => x.word.text == itemName);
     }
 
+    public bool HasItem (string item_name)
+    {
+        return GetItem(item_name) != null;
+    }
+
     private void ThrowCurrentItem()
     {
         Item item = GetItem(InputInfo.GetCurrent.MainItem.word.text);
 
         if (item == null)
         {
-            Phrase.Write("Vous n'avez pas &de chien (main item)&");
+            Phrase.Write("inventory_throw_nothing");
             return;
         }
 
@@ -81,8 +85,7 @@ public class Inventory : MonoBehaviour {
 
         Tile.GetCurrent.AddItem(InputInfo.GetCurrent.MainItem);
 
-        string str = "Vous posez &le chien (main item)& par terre";
-        Phrase.Write(str);
+        Phrase.Write("inventory_throw_sucess");
     }
 
     void PickUp()
@@ -101,40 +104,16 @@ public class Inventory : MonoBehaviour {
 
         foreach (var item in targetItems)
         {
-            item.PickUp();
-        }
-    }
+            if (items.Contains(item))
+            {
+                Phrase.Write("inventory_pickUp_already");
+            }
+            else
+            {
+                item.PickUp();
+            }
 
-    // fill item with water 
-    void FillItem()
-    {
-        if (!InputInfo.GetCurrent.HasSecondItem())
-        {
-            DisplayFeedback.Instance.Display("Ou voulez vous remplir &le chien (main item)&");
-            return;
         }
-
-        if (!InputInfo.GetCurrent.GetSecondItem.HasProperty("water"))
-        {
-            DisplayFeedback.Instance.Display("Vous vous ne pouvez pas remplir &le chien (main item)& dans &le chien (second item)&");
-            return;
-        }
-
-        if (InputInfo.GetCurrent.GetSecondItem.GetProperty( "water" ).GetValue() == 0)
-        {
-            DisplayFeedback.Instance.Display("il n'y a plus d'eau dans &le chien (main item)&");
-            return;
-        }
-
-        if (InputInfo.GetCurrent.MainItem.GetProperty("full").GetContent() == "true")
-        {
-            DisplayFeedback.Instance.Display("&le chien (main item)& est déjà plein");
-            return;
-        }
-
-        DisplayFeedback.Instance.Display("&le chien (main item)& est maintenant rempli");
-        InputInfo.GetCurrent.MainItem.GetProperty("full").SetContent("true");
-        InputInfo.GetCurrent.GetSecondItem.GetProperty("water").Remove(1);
     }
 
     #region remove item
@@ -198,14 +177,14 @@ public class Inventory : MonoBehaviour {
             AddItem(item);
         }
     }*/
-    public Item AddToTile()
+    public void AddToTile()
     {
-        Item item = Item.GetDataItem(PlayerAction.GetCurrent.GetContent(0));
+        string item_name = PlayerAction.GetCurrent.GetContent(0);
+        Item item = Item.CreateNew(item_name);
 
         if (item == null)
         {
             Debug.LogError("couldn't find item " + PlayerAction.GetCurrent.GetContent(0) + " in item list");
-            return null;
         }
 
         int amount = 1;
@@ -219,9 +198,23 @@ public class Inventory : MonoBehaviour {
             Tile.GetCurrent.AddItem(item);
         }
 
-        return item;
+        Phrase.SetOverrideItem(item);
+        Phrase.Write("tile_addItem");
     }
     #endregion
+
+    public bool CanSee()
+    {
+        bool hasLamp = Inventory.Instance.HasItem("lampe torche");
+        if (hasLamp)
+        {
+            bool lampTurnedOn = Inventory.Instance.GetItem("lampe torche").GetProperty("turnedOn").GetContent() == "true";
+
+            bool lampCharged = Inventory.Instance.GetItem("lampe torche").GetProperty("charge").GetValue() > 0;
+        }
+
+        return false;
+    }
 
     #region item requirements
     void RequireItem()
@@ -254,15 +247,18 @@ public class Inventory : MonoBehaviour {
     {
         if (!InputInfo.GetCurrent.HasSecondItem())
         {
-            DisplayFeedback.Instance.Display(InputInfo.GetCurrent.verb.question + " voulez vous " + InputInfo.GetCurrent.verb.names[0] + "&le chien (main item)&");
+            Debug.LogError("no second item");
+            Phrase.Write(InputInfo.GetCurrent.verb.question + " voulez vous " + InputInfo.GetCurrent.verb.names[0] + "&le chien (main item)&");
             return;
         }
+
+        Debug.LogError("he has a second item ? what ?");
 
         string prop_name = PlayerAction.GetCurrent.GetContent(0);
 
         if (!InputInfo.GetCurrent.GetSecondItem.HasProperty(prop_name))
         {
-            DisplayFeedback.Instance.Display("Vous ne pouvez pas " + InputInfo.GetCurrent.verb.names[0] + "&le chien (second item)&");
+            Phrase.Write("Vous ne pouvez pas " + InputInfo.GetCurrent.verb.names[0] + " &le chien (second item)&");
             return;
         }
 
@@ -273,20 +269,11 @@ public class Inventory : MonoBehaviour {
             // est-ce que c'est le meme texte qui apparait partout ?
             // une nouvelle fonction ? CheckIfThereStillSomethingLeft()
             Debug.LogError("ici y'a un truc à changer ça veut rien dire");
-            DisplayFeedback.Instance.Display("il n'y a plus d'eau dans &le chien (main item)&");
+            Phrase.Write("il n'y a plus d'eau dans &le chien (main item)&");
             return;
         }
 
-        // ici, une autre fonction
-        if (InputInfo.GetCurrent.MainItem.GetProperty("full").GetContent() == "true")
-        {
-            DisplayFeedback.Instance.Display("&le chien (main item)& est déjà plein");
-            return;
-        }
-
-        DisplayFeedback.Instance.Display("&le chien (main item)& est maintenant rempli");
-        InputInfo.GetCurrent.MainItem.GetProperty("full").SetContent("true");
-        InputInfo.GetCurrent.GetSecondItem.GetProperty("water").Remove(1);
+        Debug.Log("prop : " + prop_name + " bien présent, on passe à la suite");
     }
     #endregion
 
@@ -306,12 +293,9 @@ public class Inventory : MonoBehaviour {
             return "Vous n'avez rien dans votre sac";
         }
 
-        string str = "Dans votre sac :\n\n";
+        string str = "Votre sac contient ";
 
-        str += Item.ItemListString(items, true, true);
-
-        str += "\n\nFermer le sac ?";
-
+        str += Item.ItemListString(items, Item.ListSeparator.Commas, true);
         return str;
     }
     void CloseInventory()
@@ -323,26 +307,4 @@ public class Inventory : MonoBehaviour {
     }
     #endregion
 
-    #region container
-    private void OpenContainer()
-    {
-        InputInfo.GetCurrent.MainItem.Open();
-    }
-
-    private void CloseContainer()
-    {
-        if (opened)
-        {
-            CloseInventory();
-            return;
-        }
-
-        Container.opened = false;
-
-        // de retour dans la tile, est-ce qu'on a vraiment besoin d'une description totale ?*
-        //DisplayDescription.Instance.UpdateDescription();
-
-        Phrase.Write("Vous fermez &le chien (main item)&");
-    }
-    #endregion
 }

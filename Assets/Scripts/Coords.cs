@@ -130,6 +130,12 @@ public struct Coords
 
     }
 
+    public static void WriteDirectionToNorth()
+    {
+        string facing = Coords.GetOrientationText(Coords.GetFacing(Player.Instance.direction));
+        Phrase.Write("/compas_giveNorth/" + facing);
+    }
+
     public bool OutOfMap()
     {
         return

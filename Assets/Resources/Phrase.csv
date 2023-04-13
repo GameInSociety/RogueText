@@ -1,22 +1,27 @@
-tile_continue,Vous continuez &sur le chien (tile item)&
-,Vous êtes encore &sur le chien (tile item)&
-tile_discover,Vous découvrez &un chien sage (tile item)&
-,Vous vous trouvez &sur un chien sage (tile item)&
-,Vous êtes &sur un chien sage (tile item)&
-tile_goback,Vous vous retrouvez &sur le chien sage (tile item)&
-,Vous revoilà &sur le chien sage (tile item)&
-surroundingTile_continue,"ORIENTATIONS, &le chien (override item)& continue"
-,&le chien (override item)& continue ORIENTATIONS
-surroundingTile_discover,Vous apercevez &un chien (override item)& ORIENTATIONS
-,&un chien (override item)& se trouve ORIENTATIONS
-,"ORIENTATIONS, vous voyez &un chien (override item)&"
-,"Vous voyez, ORIENTATIONS, &un chien (override item)&"
-,&un chien (override item)& se tient ORIENTATIONS
-surroundingTile_visited,Vous apercevez &le chien (override item)& ORIENTATIONS
-,&un chien (override item)& se trouve ORIENTATIONS
-,"ORIENTATIONS, vous voyez &le chien (override item)&"
-,"Vous voyez, ORIENTATIONS, &le chien (override item)&"
-,&le chien (override item)& se tient ORIENTATIONS
-movement_feedback,Vous marchez vers &le chien (tile item)& de ORIENTATION
-movement_blocked,Il n'y a pas &de chien (tile item)& ORIENTATION
-,-
+tile_continue,you continue &on the dog (tile item)&
+,you're still &on the dog (tile item)&
+tile_discover,you discover &a good dog (tile item)&
+,you find youself &on a good dog (tile item)&
+,you are &on a good dog (tile item)&
+tile_goback,here you are &on the good dog (tile item)& again
+,you're back &on the good dog (tile item)&
+surroundingTile_continue,"ORIENTATIONS, &the dog (override item)& continue"
+,&the dog (override item)& continue ORIENTATIONS
+surroundingTile_discover,you see &a dog (override item)& ORIENTATIONS
+,&a dog (override item)& is at ORIENTATIONS
+,"ORIENTATIONS, you see &a dog (override item)&"
+,"you see, ORIENTATIONS, &a dog (override item)&"
+,&a dog (override item)& can be seen at ORIENTATIONS
+surroundingTile_visited,You see &the dog (override item)& ORIENTATIONS
+,&a dog (override item)& is at ORIENTATIONS
+,"ORIENTATIONS, you see &the dog (override item)&"
+,"you see, ORIENTATIONS, &the dog (override item)&"
+,&the dog (override item)& can be seen ORIENTATIONS
+movement_feedback,you walk towards &the dog (tile item)& de ORIENTATION
+movement_blocked,there is no &dog (tile item)& ORIENTATION
+craft_unable,you don't have enough material to craft &a dog&
+bag_equip,you equiped &the dog(main item)& to 
+bag_nothingToEquip,Vous n'avez pas &de chien (main item)& sur vous
+bag_unequip,Vous enlevez &le chien (main item)&
+compas_giveNorth,the north is 
+compas_giveNorth,

@@ -38,7 +38,7 @@ public class TileGroupDescription {
         /// light / night
         if ( TimeManager.GetInstance().currentPartOfDay == TimeManager.PartOfDay.Night)
         {
-            if ( Inventory.Instance.GetItem("lampe torche (a)") != null)
+            if (Inventory.Instance.HasItem("lampe"))
             {
                 Phrase.Write("La lampe torche vous éclaire...");
             }
@@ -60,6 +60,8 @@ public class TileGroupDescription {
             string newPhrase = GetSurroundingTileDescription(surroundingTile);
             Phrase.Write(newPhrase);
         }
+
+        Phrase.Space();
 	}
 
     public static void GetSurroundingTiles()
@@ -71,7 +73,8 @@ public class TileGroupDescription {
         orientations.Add(Player.Orientation.Front);
         orientations.Add(Player.Orientation.Right);
         orientations.Add(Player.Orientation.Left);
-        orientations.Add(Player.Orientation.Back);
+        // le gros dilemme : on met derrière ou pas ?
+        //orientations.Add(Player.Orientation.Back);
 
         foreach (var orientation in orientations)
         {

@@ -50,49 +50,58 @@ public class ItemAppearInfoLoader : TextParser
 
         for (int cellIndex = 2; cellIndex < cells.Count; cellIndex++)
         {
-            string cell = cells[cellIndex];
+            string cell_str = cells[cellIndex];
+            string rate_str;
 
-
-            string amount_str = "";
-
-            if ( string.IsNullOrEmpty(cell))
+            if ( string.IsNullOrEmpty(cell_str))
             {
                 continue;
             }
 
-            if (cell.Contains("*"))
-            {
-                amount_str = cell.Split('*')[0];
-                cell = cell.Split('*')[1];
-            }
-
-            int appearRate = 0;
-            if (!int.TryParse(cell, out appearRate))
-            {
-                Debug.LogError("Appear Rates : la cellule (" + cell + ") ne peut pas être parsée");
-                Debug.LogError("cell : " + GetCellName(rowIndex, cellIndex));
-            }
+            string amount_str = string.Empty;
 
             Item.AppearInfo newAppearInfo = new Item.AppearInfo();
-
-            // rate
-            newAppearInfo.rate = appearRate;
 
             // id 
             newAppearInfo.itemIndex = itemToAddIndex;
 
-            // amount
-            if (amount_str.Length > 0)
-            {
-                int a = int.Parse(amount_str);
 
-                newAppearInfo.amount = a;
+            // amount
+            newAppearInfo.amount = 1; // default appear amount
+            if (cell_str.Contains("*"))
+            {
+                rate_str = cell_str.Split('*')[0];
+                amount_str = cell_str.Split('*')[1];
+
+                if (string.IsNullOrEmpty(amount_str))
+                {
+                    int amount = 0;
+                    if (!int.TryParse(amount_str, out amount))
+                    {
+                        Debug.LogError("couldn't parse amount (" + amount_str + ") in cell " + GetCellName(rowIndex, cellIndex));
+                    }
+                    else
+                    {
+                        newAppearInfo.amount = amount;
+                    }
+                }
             }
             else
             {
-                newAppearInfo.amount = 1;
+                rate_str = cell_str;
             }
 
+            // rate
+            int appearRate = 0;
+            if (!int.TryParse(rate_str, out appearRate))
+            {
+                Debug.LogError("Appear Rates : la cellule (" + rate_str + ") ne peut pas être parsée");
+                Debug.LogError("cell : " + GetCellName(rowIndex, cellIndex));
+            }
+
+            newAppearInfo.rate = appearRate;
+
+            // add to item 
             int itemIndex = cellIndex - 2;
             if ( itemIndex < Item.dataItems.Count)
             {

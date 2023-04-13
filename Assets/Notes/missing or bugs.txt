@@ -1,0 +1,3 @@
+- regarder DIRECTION
+- objets invisible : arbres, porte, etc...
+- "périmé" devrait être un paramètre, qui s'active avec le temps
