@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 [System.Serializable]
-public class State
+public class Condition
 {
     public enum Progress
     {
@@ -12,19 +13,26 @@ public class State
         Problematic,
         Critical
     }
+    public enum Type
+    {
+        Health,
+        Thirst,
+        Hunger,
+        Sleep,
+    }
 
-    public string name;
+    public Type type;
+
     public int hour;
     public int rate;
     public Progress progress;
-    public string[] phrases;
     public Color color = Color.white;
 
     public void Advance()
     {
         if (progress == Progress.Critical)
         {
-            StateManager.GetInstance().GetState(StateManager.StateType.Health).Advance();
+            ConditionManager.GetInstance().GetCondition(Type.Health).Advance();
             return;
         }
 
@@ -45,15 +53,9 @@ public class State
     {
         GetProgress -= i;
     }
-
-    public string GetFeedbackText()
-    {
-        return phrases[(int)progress];
-    }
-
     public string GetDebugText()
     {
-        string str = name + " : " + progress.ToString() + " (" + hour + " / " + rate + ")";
+        string str = type.ToString() + " : " + progress.ToString() + " (" + hour + " / " + rate + ")";
 
         Color c = Color.Lerp(color, Color.white, 0.5f);
 
@@ -63,18 +65,12 @@ public class State
         return str;
     }
 
-    public string GetDescription()
+    public void WriteDescripiton()
     {
-        string str = "";
+        string keyWord = type.ToString().ToLower() + "_" + progress.ToString().ToLower();
+        Debug.Log("getting condition keyword ; " + keyWord);
 
-        if (progress != Progress.Normal)
-        {
-            string phrase = phrases[(int)progress - 1];
-
-            str += phrase;
-        }
-
-        return str;
+        Phrase.Write(keyWord);
     }
 
     public Progress GetProgress

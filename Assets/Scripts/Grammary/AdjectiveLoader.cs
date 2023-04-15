@@ -40,11 +40,6 @@ public class AdjectiveLoader : TextParser {
                 Adjective newAdjective = new Adjective();
 
                 newAdjective._text = cells[cellIndex];
-                if (newAdjective._text.Contains("("))
-                {
-                    newAdjective.beforeWord = true;
-                    newAdjective._text = newAdjective._text.Replace("(", "");
-                }
 
                 Adjective.adjectiveGroups[cellIndex].adjectives.Add(newAdjective);
             }

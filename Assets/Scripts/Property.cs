@@ -150,28 +150,24 @@ public class Property
         return content;
     }
 
-    public void Write()
+    public string GetDescription()
     {
         switch (type)
         {
             case Type.boolean:
-                Phrase.Write("&le chien (main item)& est " + GetText());
-                break;
+                return "&le chien (main item)& est " + GetText();
             case Type.delay:
 
                 Item paramItem = Item.TryGetItem(param);
                 if (paramItem == null)
                 {
-                    string text = "Il reste " + GetText() + " heures avant que &le chien (main item)& devienne " + param;
-                    Phrase.Write(text);
+                    return "Il reste " + GetText() + " heures avant que &le chien (main item)& devienne " + param;
                 }
                 else
                 {
                     Phrase.SetOverrideItem(paramItem);
-                    string text = "Il reste " + GetText() + " avant que &le chien (main item)& devienne &un chien (override item)&";
-                    Phrase.Write(text);
+                    return "Il reste " + GetText() + " avant que &le chien (main item)& devienne &un chien (override item)&";
                 }
-                break;
             case Type.value:
 
                 string[] phrases = new string[7]
@@ -188,22 +184,21 @@ public class Property
                 float lerp = (float)GetValue() / GetMax();
                 int index = (int)(lerp * phrases.Length);
                 string phrase = phrases[index];
-                
-                Phrase.Write("&le chien (main item)& est " + phrase);
 
-                break;
+                return "&le chien (main item)& est " + phrase;
             case Type.type:
-                Phrase.Write("c'est &un chien (main item)& de type " + content);
-                break;
+                return "c'est &un chien (main item)& de type " + content;
             case Type.var:
                 Item item = Item.GetDataItem(content);
                 Phrase.SetOverrideItem(item);
-                Phrase.Write("c'est &un chien (override item)&");
-                break;
+                return "c'est &un chien (override item)&";
             default:
-                Phrase.Write("<color=red>no type error</color>");
-                break;
+                return "<color=red>no type error</color>";
         }
+    }
+    public void Write()
+    {
+        
     }
 
 

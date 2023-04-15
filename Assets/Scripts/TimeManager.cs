@@ -121,7 +121,7 @@ public class TimeManager : MonoBehaviour {
             ++timeOfDay;
             
             // states
-            StateManager.GetInstance().AdvanceStates();
+            ConditionManager.GetInstance().AdvanceCondition();
 
             // 
             UpdateStates();
@@ -142,26 +142,27 @@ public class TimeManager : MonoBehaviour {
 
     public void WriteTimeOfDay()
     {
-        string str = "";
+        Phrase.Write("time_Hours");
+    }
 
+    public string GetTimeOfDayDescription()
+    {
         if (TimeManager.GetInstance().timeOfDay == 12)
         {
-            str = "Il est midi";
+            return "noon";
         }
         else if (TimeManager.GetInstance().timeOfDay == 0)
         {
-            str = "Il est minuit";
+            return "midnight";
         }
         else if (TimeManager.GetInstance().timeOfDay < 12)
         {
-            str = "Il est " + TimeManager.GetInstance().timeOfDay + "h du matin";
+            return TimeManager.GetInstance().timeOfDay + " in the morning";
         }
         else
         {
-            str = "Il est " + (TimeManager.GetInstance().timeOfDay - 12) + "h du soir";
+            return TimeManager.GetInstance().timeOfDay + " at night";
         }
-
-        Phrase.Write(str);
     }
 
     public void NextDay()
@@ -184,35 +185,31 @@ public class TimeManager : MonoBehaviour {
 
         changedPartOfDay = false;
 
-        string str = "";
-
         switch (currentPartOfDay)
         {
             case PartOfDay.Dawn:
-                str += "Le soleil se lève à peine...";
+                Phrase.Write("weather_dawn");
                 break;
             case PartOfDay.Morning:
-                str += "Le matin s'est installé";
+                Phrase.Write("weather_morning");
                 break;
             case PartOfDay.Noon:
-                str += "Le matin se termine doucement et le jour commence";
+                Phrase.Write("weather_noon");
                 break;
             case PartOfDay.Afternoon:
-                str += "Il doit être l'après midi";
+                Phrase.Write("weather_afternoon");
                 break;
             case PartOfDay.Dusk:
-                str += "Le soleil se couche au loin";
+                Phrase.Write("weather_dusk");
                 break;
             case PartOfDay.Night:
-                str += "La nuit est tombée, tout est sombre";
+                Phrase.Write("weather_night");
                 break;
             default:
-                str += "pas de description de PART OF DAY?";
                 break;
         }
 
-        Phrase.Write(str);
-        Phrase.Space();
+        
     }
     #endregion
 
@@ -226,19 +223,16 @@ public class TimeManager : MonoBehaviour {
 
         displayRainDescription = false;
 
-        string str;
-
         if (raining)
         {
-            str = "Il pleut très fort sur &le chien (tile item)&";
+            Phrase.Write("weather_RainStarts");
         }
         else
         {
-            str = "La pluie cesse doucement de tomber sur &le chien sage (tile item)&";
+            Phrase.Write("weather_RainStops");
         }
 
-        Phrase.Write(str);
-        Phrase.Space();
+        
     }
     private void UpdateStates()
     {

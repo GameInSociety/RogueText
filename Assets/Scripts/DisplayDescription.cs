@@ -49,17 +49,24 @@ public class DisplayDescription : MonoBehaviour {
     {
         Phrase.Renew();
 
-        // display current tile
-        Tile.GetCurrent.WriteDescription();
+        // CURRENT TILE
+        if (Tile.GetPrevious != null && Tile.GetCurrent.type == Tile.GetPrevious.type)
+        {
 
-        // display surrounding tiles
+        }
+        else
+        {
+            Phrase.Write("tile_current_description");
+        }
+
+        // SURROUNDING TILES
         TileGroupDescription.WriteSurroundingTileDescription();
 
         // display tile items
         Tile.GetCurrent.WriteItemDescription();
 
         // pas sûr que les choses d'état de santé, de temps et autre trucs divers doivent être là, pense à changer
-        StateManager.GetInstance().WriteDescription();
+        ConditionManager.GetInstance().WriteDescription();
 
         // time of day
         TimeManager.GetInstance().WriteDescription();
@@ -87,7 +94,7 @@ public class DisplayDescription : MonoBehaviour {
     public void AddToDescription(string str)
     {
         // replace keywords
-        str = Phrase.Replace(str);
+        str = Phrase.ExtractItemWords(str);
 
         // majuscule
         str = TextUtils.FirstLetterCap(str);
@@ -105,6 +112,11 @@ public class DisplayDescription : MonoBehaviour {
     {
         uiText.text += "\n____________________\n";
         scrollRect.verticalNormalizedPosition = 0f;
+    }
+
+    public void Return()
+    {
+        uiText.text += "\n";
     }
 
 }

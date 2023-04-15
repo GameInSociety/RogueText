@@ -18,7 +18,6 @@ public class Adjective {
 
     public Adjective (Adjective copy)
     {
-        this.beforeWord = copy.beforeWord;
         this._text = copy._text;
     }
 
@@ -31,46 +30,9 @@ public class Adjective {
 		Any,
 	}
 
-	public string GetContent ( Word.Genre genre , bool plural) {
+	public string GetContent (bool plural) {
 
 		string adj = _text;
-
-        if ( Tile.GetCurrent != null)
-        {
-
-        }
-
-		if (genre == Word.Genre.Feminine) {
-
-            int a = 0;
-            bool foundEnding = false;
-            foreach (var ending in AdjectiveLoader.Instance.maleTerminaisons)
-            {
-                /*Debug.Log("adjective : " + adj);
-                Debug.Log("ending : " + ending);*/
-
-                if (adj.EndsWith(ending))
-                {
-                    adj = adj.Remove(adj.Length - ending.Length);
-                    adj += AdjectiveLoader.Instance.femaleTerminaisons[a];
-                    foundEnding = true;
-                    break;
-                }
-
-                ++a;
-            }
-
-            if (adj.Length > 1 && !foundEnding && adj[adj.Length-1] != 'e')
-            {
-                adj += "e";
-            }
-
-		}
-
-		if (plural) {
-			adj += "s";
-		}
-
 		return adj;
 
 	}
@@ -108,3 +70,51 @@ public class AdjectiveGroup
     public string name;
     public List<Adjective> adjectives = new List<Adjective>();
 }
+
+
+/// FRENCH TERMINAISONS
+
+/*public string GetContent ( Word.Genre genre , bool plural) {
+
+		string adj = _text;
+
+        if ( Tile.GetCurrent != null)
+        {
+
+        }
+
+		if (genre == Word.Genre.Feminine) {
+
+            int a = 0;
+            bool foundEnding = false;
+            foreach (var ending in AdjectiveLoader.Instance.maleTerminaisons)
+            {
+                Debug.Log("adjective : " + adj);
+                Debug.Log("ending : " + ending);
+
+if (adj.EndsWith(ending))
+{
+    adj = adj.Remove(adj.Length - ending.Length);
+    adj += AdjectiveLoader.Instance.femaleTerminaisons[a];
+    foundEnding = true;
+    break;
+}
+
+++a;
+            }
+
+            if (adj.Length > 1 && !foundEnding && adj[adj.Length - 1] != 'e')
+{
+    adj += "e";
+}
+
+		}
+
+		if (plural)
+{
+    adj += "s";
+}
+
+return adj;
+
+	}*/

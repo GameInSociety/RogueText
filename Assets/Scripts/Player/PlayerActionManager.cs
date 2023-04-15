@@ -28,9 +28,6 @@ public class PlayerActionManager : MonoBehaviour
     {
         switch (action.type)
         {
-            case PlayerAction.Type.Display:
-			    Phrase.Write(action.GetContent(0));
-                break;
             case PlayerAction.Type.DescribeExterior:
                 Interior.DescribeExterior();
                 break;
@@ -38,7 +35,7 @@ public class PlayerActionManager : MonoBehaviour
                 TimeManager.GetInstance().WriteTimeOfDay();
                 break;
             case PlayerAction.Type.DescribeItem:
-                Item.Describe(InputInfo.GetCurrent.MainItem);
+                InputInfo.GetCurrent.MainItem.Describe();
                 break;
             case PlayerAction.Type.PointNorth:
                 Coords.WriteDirectionToNorth();
@@ -68,7 +65,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("no verb, no items");
             }
 
-            Phrase.Write("Quoi ?");
+            Phrase.Write("input_nothingRecognized");
             return;
         }
 
@@ -79,8 +76,8 @@ public class PlayerActionManager : MonoBehaviour
             {
                 Debug.LogError("no verb");
             }
-            string str = "Que faire avec &le chien (main item)&";
-            Phrase.Write(str);
+
+            Phrase.Write("input_noVerb");
             return;
         }
 
@@ -100,9 +97,7 @@ public class PlayerActionManager : MonoBehaviour
             // no verb, displaying thing
             if (inputInfo.combination == null)
             {
-                string str = inputInfo.verb.question + " voulez vous " + inputInfo.verb.names[0];
-                str = TextManager.WithCaps(str);
-                Phrase.Write(str);
+                Phrase.Write("input_noItem");
                 return;
             }
         }
@@ -115,18 +110,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("Fail : no combination between verb : " + inputInfo.verb.names[0] + " and item : " + inputInfo.MainItem.word.text);
             }
 
-            string str;
-
-            if (inputInfo.verb.preposition.Length != 0)
-            {
-                str = "Vous ne pouvez pas " + inputInfo.verb.names[0] + " " + inputInfo.verb.preposition + " &le chien (main item)&";
-            }
-            else
-            {
-                str = "Vous ne pouvez pas " + inputInfo.verb.names[0] + " &le chien (main item)&";
-            }
-
-            Phrase.Write(str);
+            Phrase.Write("input_noCombination");
             return;
         }
 

@@ -12,17 +12,6 @@ public class DebugManager : MonoBehaviour
 
     private void Start()
     {
-        string str = "/compas_giveNorth/" + " facing";
-
-        
-
-        Debug.Log("phrase");
-        Debug.Log(str);
-        Debug.Log("phrase");
-
-
-
-
         foreach (var itemName in itemsOnStart)
         {
             Item item = Item.CreateNew(itemName);

@@ -13,9 +13,9 @@ public class ItemPhrase
         string itemText = Item.ItemListString(itemGroups, false, false);
 
         // phrases de vision ( vous voyez, remarquez etc... )
-        string visionPhrase = PhraseManager.Instance.visionPhrases[Random.Range(0, PhraseManager.Instance.visionPhrases.Length)];
+        string visionPhrase = Phrase.GetPhrase("tile_visionPhrases");
         // phrases de location ( se trouve, se tient etc ... )
-        string locationVerb = PhraseManager.Instance.locationPhrases[Random.Range(0, PhraseManager.Instance.locationPhrases.Length)];
+        string locationVerb = Phrase.GetPhrase("tile_locationPhrases");
 
         // PHRASE ORDER 
 

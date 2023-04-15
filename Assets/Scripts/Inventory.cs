@@ -11,6 +11,8 @@ public class Inventory : MonoBehaviour {
 
     public int weight = 0;
 
+    //private Item inventoryItem;
+
     public List<Item> items = new List<Item>();
 
     /// <summary>
@@ -157,26 +159,6 @@ public class Inventory : MonoBehaviour {
         items.Add(item);
     }
 
-    /*void AddToInventoryFromString ()
-	{
-		Item item = Item.dataItems.Find ( x => x.word.text.ToLower() == PlayerAction.GetCurrent.contents[0].ToLower() );
-
-		if (item == null) {
-			Debug.LogError ("couldn't find item " + PlayerAction.GetCurrent.contents[0] + " in item list");
-			return;
-		}
-
-        int amount = 1;
-        if (PlayerAction.GetCurrent.values.Count > 0)
-        {
-            amount = PlayerAction.GetCurrent.values[0];
-        }
-
-        for (int i = 0; i < amount; i++)
-        {
-            AddItem(item);
-        }
-    }*/
     public void AddToTile()
     {
         string item_name = PlayerAction.GetCurrent.GetContent(0);
@@ -233,13 +215,13 @@ public class Inventory : MonoBehaviour {
             // break flow of actions
             targetItem = Item.GetDataItem(item_name);
             Phrase.SetOverrideItem(targetItem);
-            Phrase.Write("Vous n'avez pas &de chien(override item)&");
+            Phrase.Write("item_require");
             PlayerActionManager.Instance.BreakAction();
             return;
         }
 
         Phrase.SetOverrideItem(targetItem);
-        Phrase.Write("Vous utilisez &le chien(override item)&");
+        Phrase.Write("item_use");
 
         // s'il a l'objet en question, ne rien faire, juste continuer les actions
     }
@@ -248,7 +230,7 @@ public class Inventory : MonoBehaviour {
         if (!InputInfo.GetCurrent.HasSecondItem())
         {
             Debug.LogError("no second item");
-            Phrase.Write(InputInfo.GetCurrent.verb.question + " voulez vous " + InputInfo.GetCurrent.verb.names[0] + "&le chien (main item)&");
+            Phrase.Write("item_noSecondItem");
             return;
         }
 
@@ -258,7 +240,7 @@ public class Inventory : MonoBehaviour {
 
         if (!InputInfo.GetCurrent.GetSecondItem.HasProperty(prop_name))
         {
-            Phrase.Write("Vous ne pouvez pas " + InputInfo.GetCurrent.verb.names[0] + " &le chien (second item)&");
+            Phrase.Write("item_noProperty");
             return;
         }
 
@@ -269,7 +251,7 @@ public class Inventory : MonoBehaviour {
             // est-ce que c'est le meme texte qui apparait partout ?
             // une nouvelle fonction ? CheckIfThereStillSomethingLeft()
             Debug.LogError("ici y'a un truc à changer ça veut rien dire");
-            Phrase.Write("il n'y a plus d'eau dans &le chien (main item)&");
+            Phrase.Write("item_NoMoreValue");
             return;
         }
 
@@ -281,9 +263,11 @@ public class Inventory : MonoBehaviour {
     public bool opened = false;
     public void WriteDescription ()
 	{
+        // à changer parce que sûrement bien que INVENTORY devienne un ITEM
+
         opened = true;
         Phrase.Renew();
-        Phrase.Write(GetDescription());
+        Phrase.Write("@" + GetDescription());
     }
 
     public string GetDescription()
@@ -302,7 +286,7 @@ public class Inventory : MonoBehaviour {
     {
         opened = false;
 
-        Phrase.Write("Vous fermez votre sac...");
+        Phrase.Write("inventory_close");
         //DisplayDescription.Instance.UpdateDescription();
     }
     #endregion

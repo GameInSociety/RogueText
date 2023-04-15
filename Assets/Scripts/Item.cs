@@ -102,27 +102,24 @@ public class Item
         // toujours dans la classe inventory.cs pour l'intsant
         if (!Container.opened)
         {
-            Phrase.Write("&le chien (main item)& est déjà fermé");
+            Phrase.Write("container_alreadyClosed");
             return;
         }
 
         Container.opened = false;
         Phrase.SetOverrideItem(Container.CurrentItem);
-        Phrase.Write("Vous fermez &le chien (override item)&");
+        Phrase.Write("container_clsose");
     }
 
     public void WriteContainedDescription()
     {
         if (!ContainsItems())
         {
-            Phrase.Write("Il n'y a rien dans &le chien (main item)&");
+            Phrase.Write("container_empty");
             return;
         }
 
-        string str = "Dans &le chien (main item)& : vous voyez : ";
-        str += Item.ItemListString(containedItems, ListSeparator.Commas, true);
-
-        Phrase.Write(str);
+        Phrase.Write("container_describe");
     }
 
     public void RemoveItem(Item item)
@@ -217,8 +214,7 @@ public class Item
     {
         if (Inventory.Instance.weight + weight > Inventory.Instance.maxWeight)
         {
-            string str = "&le chien (main item)& est trop lourd pour le sac, il ne rentre pas";
-            Phrase.Write(str);
+            Phrase.Write("inventory_TooHeavy");
             return;
         }
 
@@ -226,7 +222,7 @@ public class Item
 
         Inventory.Instance.AddItem(this);
 
-        Phrase.Write("Vous avez pris : &le chien (main item)&");
+        Phrase.Write("inventory_PickUp");
     }
 
     #region remove
@@ -353,7 +349,7 @@ public class Item
                         continue;
                     }
 
-                    string adjSTR = item.word.GetAdjective.GetContent(item.word.genre, false);
+                    string adjSTR = item.word.GetAdjective.GetContent(false);
 
                     if (adjSTR == inputPart)
                     {
@@ -537,51 +533,75 @@ public class Item
     #region actions
     public static void Describe (Item item)
     {
-        string str = "";
+        
+    }
 
-        int count = 0;
-
-        /*if (item.ContainsItems())
+    public void Describe()
+    {
+        if (CanBeDescribed())
         {
-            Container.Describe(item);
-        }*/
-
-        if (item.HasProperties())
-        {
-            foreach (var property in item.properties)
-            {
-                property.Write();
-            }
-
-            ++count;
-        }
-
-        str += "Vous pouvez ";
-
-        foreach (var verb in Verb.GetVerbs)
-            {
-                foreach (var combination in verb.combinations)
-                {
-                    if (combination.itemIndex == item.index)
-                    {
-                        str += verb.names[0] + ", ";
-                        ++count;
-                    }
-
-                }
-
-            }
-
-        if (count == 0)
-        {
-            str = "Vous ne vous pouvez pas faire grand chose avec &le chien (main item)&";
+            Phrase.Write("item_description");
         }
         else
         {
-            str += "&le chien (main item)&";
+            Phrase.Write("item_noDescription");
+        }
+    }
+
+    public bool CanBeDescribed()
+    {
+        int count = 0;
+
+        if (HasProperties())
+        {
+            ++count;
         }
 
-        Phrase.Write(str);
+        foreach (var verb in Verb.GetVerbs)
+        {
+            foreach (var combination in verb.combinations)
+            {
+                if (combination.itemIndex == index)
+                    ++count;
+
+            }
+
+        }
+        return count != 0;
+    }
+
+    public string GetVerbsDescription()
+    {
+        string str = "";
+
+        foreach (var verb in Verb.GetVerbs)
+        {
+            foreach (var combination in verb.combinations)
+            {
+                if (combination.itemIndex == index)
+                {
+                    str += verb.names[0] + ", ";
+                }
+
+            }
+        }
+
+        return str;
+       
+    }
+    public string GetPropertiesDescription()
+    {
+        string str = "";
+
+        if (HasProperties())
+        {
+            foreach (var property in properties)
+            {
+                str += property.GetDescription();
+            }
+        }
+
+        return str;
     }
     #endregion
 
@@ -593,8 +613,6 @@ public class Item
     /// </summary>
     /// <param name="propName"></param>
     /// <param name="newValue"></param>
-    
-
     public void AddProperty(string name, string value)
     {
         Property newProperty = new Property();

@@ -32,7 +32,6 @@ public class PlayerAction
         RemoveItem,
         RequireItem,
         RequireProp,
-        Display,
         OpenContainer,
         CloseContainer,
         Equip,

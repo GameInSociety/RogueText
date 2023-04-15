@@ -12,7 +12,4 @@ public class PhraseManager : MonoBehaviour
     }
 
     public Socket[] genericSockets;
-    public string[] positionPhrases;
-    public string[] visionPhrases;
-    public string[] locationPhrases;
 }

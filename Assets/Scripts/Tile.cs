@@ -68,17 +68,6 @@ public class Tile
     #endregion
 
     #region tile description
-    public void WriteDescription()
-    {
-        if (Tile.GetPrevious != null && Tile.GetCurrent.type == Tile.GetPrevious.type)
-        {
-            return;
-        }
-
-        string str = GetDescription();
-        Phrase.Write(str);
-
-    }
     public string GetDescription()
     {
         // ici en fait, il faudrait aussi que les phrases d'accroches aient des paramètres dans une db
@@ -132,6 +121,11 @@ public class Tile
             return;
         }
 
+        Phrase.Write("tile_item_descriptions");
+
+    }
+    public string GetItemDescriptions()
+    {
         // item AND item counts
         List<ItemGroup> itemGroups = ItemGroup.GetItemGroups(items);
 
@@ -140,6 +134,8 @@ public class Tile
 
         // note : en quoi ItemGroup & ItemPhrase ne peuvent pas être les memes classes ?
         // bonne question
+
+        string str = "";
 
         for (int item_group_index = 0; item_group_index < itemGroups.Count; item_group_index++)
         {
@@ -164,11 +160,10 @@ public class Tile
             newPhrase.itemGroups.Add(itemGroup);
             newPhrase.socket = socket;
 
-            Phrase.Write(newPhrase.GetText());
+            str += newPhrase.GetText();
         }
 
-        Phrase.Space();
-
+        return str;
     }
     #endregion
 

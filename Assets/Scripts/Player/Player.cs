@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 [System.Serializable]
@@ -9,6 +10,8 @@ public class Player : MonoBehaviour {
 	public static Player Instance;
 
 	public Direction direction;
+    public Orientation currentOrientation;
+    public List<Orientation> currentOrientations;
 
     // STATES
 	public int health = 0;
@@ -96,7 +99,7 @@ public class Player : MonoBehaviour {
         {
             if (targetItem.GetProperty("locked").GetContent() == "true")
             {
-                Phrase.Write("La porte est vérouillée... Il vous faut une clef");
+                Phrase.Write("door_locked");
                 return;
             }
         }
@@ -242,26 +245,23 @@ public class Player : MonoBehaviour {
             {
                 if ( InputInfo.GetCurrent.orientation != Orientation.None)
                 {
-                    Orientation orientation = InputInfo.GetCurrent.orientation;
-                    Phrase.orientation = orientation;
+                    currentOrientation = InputInfo.GetCurrent.orientation;
 
-                    if (tileGroup.orientations.Contains(orientation))
+                    if (tileGroup.orientations.Contains(currentOrientation))
                     {
-                        Direction dir = GetDirection(orientation);
+                        Direction dir = GetDirection(currentOrientation);
                         Move(dir);
                     }
                     else
                     {
-                        string str = Phrase.GetPhrase("movement_blocked");
-                        Phrase.Write(str);
+                        Phrase.Write("movement_blocked");
                     }
                     return;
                 }
                 else
                 {
-                    Orientation orientation = tileGroup.orientations[0];
-                    Phrase.orientation = orientation;
-                    Direction dir = GetDirection(orientation);
+                    currentOrientation = tileGroup.orientations[0];
+                    Direction dir = GetDirection(currentOrientation);
                     Move(dir);
                     return;
                 }
@@ -276,25 +276,25 @@ public class Player : MonoBehaviour {
 		Tile targetTile = TileSet.current.GetTile (c);
 
 		if ( targetTile == null ) {
-			Phrase.Write ("Vous ne pouvez pas aller par là");
+			Phrase.Write ("blocked_void");
 			return false;
 		}
 
 		switch (targetTile.type) {
 		case Tile.Type.Hill:
-			Phrase.Write ("La coline est trop haute, impossible de passer");
+			Phrase.Write ("blocked_hill");
 			return false;
 		case Tile.Type.Mountain:
-			Phrase.Write ("La pente est trop raide, il faut faire demi tour");
+			Phrase.Write ("blocked_mountain");
 			return false;
 		case Tile.Type.Sea:
-			Phrase.Write ("Le niveau de la mer est trop haut, impossible d'avancer");
+			Phrase.Write ("blocked_sea");
 			return false;
 		case Tile.Type.Lake:
-			Phrase.Write ("Le lac est trop profond, impossible d'avancer sans bateau");
+			Phrase.Write ("blocked_lake");
 			return false;
 		case Tile.Type.River:
-			Phrase.Write ("Le courant de la rivère est trop fort, impossible d'avancer");
+			Phrase.Write ("blocked_river");
 			return false;
 		default:
 			break;

@@ -91,17 +91,13 @@ public class ItemGroup
         switch (fac)
         {
             case Player.Orientation.Front:
-                itemPosition = "devant vous";
-                break;
+                return Phrase.GetPhrase("position_front");
             case Player.Orientation.Right:
-                itemPosition = "à droite";
-                break;
+                return Phrase.GetPhrase("position_right");
             case Player.Orientation.Back:
-                itemPosition = "derrière vous";
-                break;
+                return Phrase.GetPhrase("position_back");
             case Player.Orientation.Left:
-                itemPosition = "à gauche";
-                break;
+                return Phrase.GetPhrase("position_left");
             default:
                 break;
         }

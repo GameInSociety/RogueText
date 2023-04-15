@@ -72,7 +72,7 @@ public class EditorTools : EditorWindow
         GUIStyle gUIStyle = new GUIStyle();
         gUIStyle.richText = true;
 
-        foreach (var state in StateManager.GetInstance().states)
+        foreach (var state in ConditionManager.GetInstance().conditions)
         {
             GUILayout.Label(state.GetDebugText(), gUIStyle);
         }

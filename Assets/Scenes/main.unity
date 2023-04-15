@@ -448,7 +448,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.713008
+  m_Size: 0.72529423
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -640,7 +640,7 @@ GameObject:
   - component: {fileID: 255872040}
   - component: {fileID: 255872041}
   m_Layer: 0
-  m_Name: State
+  m_Name: Condition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -670,47 +670,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 255872039}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d637eacc55e7de24e9057635fa4856bb, type: 3}
+  m_Script: {fileID: 11500000, guid: d22347a8c9fa90646aa1ea06e531538d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  states:
-  - name: Health
+  conditions:
+  - type: 0
     hour: 0
-    rate: 7
+    rate: 6
     progress: 0
-    phrases:
-    - "Vous vous sentez l\xE9g\xE8rement faiblir."
-    - "Votre \xE9tat se d\xE9t\xE9riore. Trouvez vite de quoi vous soigner."
-    - "Votre \xE9tat est critique. Vous fr\xF4lez la mort."
-    color: {r: 1, g: 0, b: 0.024096489, a: 1}
-  - name: Thirst
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - type: 1
     hour: 0
-    rate: 8
+    rate: 12
     progress: 0
-    phrases:
-    - "Votre gorge est l\xE9g\xE8rement s\xEAche."
-    - Vous avez soif.
-    - Vous mourrez de soif. Buvez vite.
-    color: {r: 0, g: 0.8396716, b: 1, a: 1}
-  - name: Hunger
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - type: 2
     hour: 0
-    rate: 9
+    rate: 12
     progress: 0
-    phrases:
-    - "Vous ressentez une l\xE9g\xE8re faim."
-    - Votre estomac gargouille. Vous avez faim.
-    - "Vous mourrez de faim. Trouver vite quelque chose \xE0 manger."
-    color: {r: 1, g: 0.34424332, b: 0, a: 1}
-  - name: Sleep
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - type: 3
     hour: 0
-    rate: 14
+    rate: 18
     progress: 0
-    phrases:
-    - "Vous ressentez une l\xE9g\xE8re fatigue."
-    - "Vos paupi\xE8res sont lourdes et vous baillez. Vous devez songer \xE0 vous
-      reposer."
-    - "Vous allez vous \xE9crouler de sommeil. Trouvez vite un endroit ou dormir."
-    color: {r: 1, g: 0, b: 0.64280605, a: 1}
+    color: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &263378798
 GameObject:
   m_ObjectHideFlags: 0
@@ -1749,6 +1732,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   direction: 0
+  currentOrientation: 0
+  currentOrientations: 
   health: 0
   maxHealth: 20
   prevCoords:

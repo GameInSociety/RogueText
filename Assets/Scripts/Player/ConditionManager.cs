@@ -3,28 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StateManager : MonoBehaviour
+public class ConditionManager : MonoBehaviour
 {
-    public enum StateType
-    {
-        Health,
-        Thirst,
-        Hunger,
-        Sleep,
-    }
+    
 
-    private static StateManager _instance;
-    public static StateManager GetInstance()
+    private static ConditionManager _instance;
+    public static ConditionManager GetInstance()
     {
         if (_instance == null)
         {
-            _instance = GameObject.FindObjectOfType<StateManager>();
+            _instance = GameObject.FindObjectOfType<ConditionManager>();
         }
 
         return _instance;
     }
 
-    public State[] states;
+    public Condition[] conditions;
 
     private void Awake()
     {
@@ -41,7 +35,7 @@ public class StateManager : MonoBehaviour
         switch (action.type)
         {
             case PlayerAction.Type.SetState:
-                SetState();
+                SetCondition();
                 break;
             case PlayerAction.Type.Wait:
                 Wait();
@@ -51,9 +45,9 @@ public class StateManager : MonoBehaviour
         }
     }
 
-    void SetState()
+    void SetCondition()
     {
-        StateType stateType =  (StateType)System.Enum.Parse(typeof(StateType), PlayerAction.GetCurrent.GetContent(0), true);
+        Condition.Type conditionType =  (Condition.Type)System.Enum.Parse(typeof(Condition.Type), PlayerAction.GetCurrent.GetContent(0), true);
 
         string str = PlayerAction.GetCurrent.GetContent(1);
 
@@ -64,7 +58,7 @@ public class StateManager : MonoBehaviour
             int value = 0;
             value = int.Parse(str);
 
-            GetState(stateType).Change((int)GetState(stateType).progress+ value);
+            GetCondition(conditionType).Change((int)GetCondition(conditionType).progress+ value);
         }
         else if (str.Contains("-"))
         {
@@ -74,7 +68,7 @@ public class StateManager : MonoBehaviour
             int value = 0;
             value = int.Parse(str);
 
-            GetState(stateType).Change((int)GetState(stateType).progress- value);
+            GetCondition(conditionType).Change((int)GetCondition(conditionType).progress- value);
 
         }
         else
@@ -82,10 +76,10 @@ public class StateManager : MonoBehaviour
             int value = 0;
             value = int.Parse(str);
 
-            GetState(stateType).Change(value);
+            GetCondition(conditionType).Change(value);
         }
 
-        WriteText();
+        WriteDescription();
 
         Item.Remove(InputInfo.GetCurrent.MainItem);
     }
@@ -111,40 +105,26 @@ public class StateManager : MonoBehaviour
     }
     #endregion
 
-    public void AdvanceStates()
+    public void AdvanceCondition()
     {
-        GetState(StateType.Thirst).Advance();
-        GetState(StateType.Hunger).Advance();
-        GetState(StateType.Sleep).Advance();
+        GetCondition(Condition.Type.Thirst).Advance();
+        GetCondition(Condition.Type.Hunger).Advance();
+        GetCondition(Condition.Type.Sleep).Advance();
     }
 
     public void WriteDescription()
     {
-        bool b = false;
-        foreach (var state in states)
+        foreach (var Condition in conditions)
         {
-            if (state.progress != State.Progress.Normal)
+            if (Condition.progress != Condition.Progress.Normal)
             {
-                string phrase = state.phrases[(int)state.progress - 1];
-                Phrase.Write(state.GetDescription());
-
-                b = true;
+                Condition.WriteDescripiton();
             }
         }
-
-        if (b)
-        {
-            Phrase.Space();
-        }
     }
 
-    public void WriteText()
+    public Condition GetCondition(Condition.Type conditionType)
     {
-        WriteDescription();
-    }
-
-    public State GetState(StateType stateType)
-    {
-        return states[(int)stateType];
+        return conditions[(int)conditionType];
     }
 }

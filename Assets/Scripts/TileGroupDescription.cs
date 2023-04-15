@@ -36,33 +36,40 @@ public class TileGroupDescription {
         }
 
         /// light / night
-        if ( TimeManager.GetInstance().currentPartOfDay == TimeManager.PartOfDay.Night)
+        if (TimeManager.GetInstance().currentPartOfDay == TimeManager.PartOfDay.Night)
         {
             if (Inventory.Instance.HasItem("lampe"))
             {
-                Phrase.Write("La lampe torche vous éclaire...");
+                Phrase.Write("lamp_on");
             }
             else
             {
-                Phrase.Write("Il fait trop sombre, vous ne voyez rien autour de vous");
+                Phrase.Write("lamp_off");
                 return;
             }
         }
 
+        Phrase.Write("tile_surrounding_description");
+    }
+
+    public static string GetSurroundingTileDescription()
+    {
         // get tiles
         GetSurroundingTiles();
 
         List<string> phrases = new List<string>();
 
         // get text
+        string str = "";
 
-		foreach (var surroundingTile in tileGroups) {
+        foreach (var surroundingTile in tileGroups)
+        {
             string newPhrase = GetSurroundingTileDescription(surroundingTile);
-            Phrase.Write(newPhrase);
+            str += newPhrase;
         }
 
-        Phrase.Space();
-	}
+        return str;
+    }
 
     public static void GetSurroundingTiles()
     {
@@ -73,6 +80,7 @@ public class TileGroupDescription {
         orientations.Add(Player.Orientation.Front);
         orientations.Add(Player.Orientation.Right);
         orientations.Add(Player.Orientation.Left);
+
         // le gros dilemme : on met derrière ou pas ?
         //orientations.Add(Player.Orientation.Back);
 
@@ -111,15 +119,12 @@ public class TileGroupDescription {
             {
                 newTileGroup.orientations.Add(orientation);
             }
-
-
         }
     }
 
     public static string GetSurroundingTileDescription(TileGroup surroundingTile)
     {
-        Phrase.orientations = surroundingTile.orientations;
-
+        Player.Instance.currentOrientations = surroundingTile.orientations;
 
         // same tile
         if ( Tile.GetCurrent.tileItem.SameTypeAs(surroundingTile.tile.tileItem))

@@ -8,7 +8,6 @@ public class Word
     // data //
     private string locationPrep = "";
     public string text = "";
-    public Genre genre;
     public Number defaultNumber = Number.Singular;
 
     // ADJECTIVE
@@ -27,7 +26,6 @@ public class Word
     {
         this.locationPrep = copy.locationPrep;
         this.text = copy.text;
-        this.genre = copy.genre;
         this.defaultNumber = copy.defaultNumber;
         /*if (adjective != null)
         {
@@ -62,26 +60,18 @@ public class Word
     #endregion
 
     #region genre
-    public void UpdateGenre(string str)
+    public void UpdateNumber(string str)
     {
         switch (str)
         {
-            case "ms":
-                genre = Genre.Masculine;
+            case "s":
+                defaultNumber = Number.Singular;
                 break;
-            case "fs":
-                genre = Genre.Feminine;
-                break;
-            case "mp":
-                genre = Genre.Masculine;
-                defaultNumber = Number.Plural;
-                break;
-            case "fp":
-                genre = Genre.Feminine;
+            case "p":
                 defaultNumber = Number.Plural;
                 break;
             default:
-                Debug.LogError("pas trouvé de genre pour l'item : " + text + " ( content : " + str + ")");
+                Debug.LogError("pas trouvé de nombre pour l'item : " + text + " ( content : " + str + ")");
                 break;
         }
     }
@@ -105,28 +95,22 @@ public class Word
 
                     if (currentInfo.defined)
                     {
-                        return "les ";
+                        return "the ";
                     }
                     else
                     {
-                        return "des ";
+                        return "some ";
                     }
                         
 
                 case Preposition.Of:
-                    if (StartsWithVowel())
-                    {
-                        return "d'";
-                    }
+                    // there's no water
+                    if (currentInfo.defined)
+                        return "";
                     else
-                    {
-                        if (currentInfo.defined)
-                            return "des ";
-                        else
-                            return "de ";
-                    }
+                        return "";
                 case Preposition.To:
-                    return "aux ";
+                    return "to ";
                 default:
                     break;
             }
@@ -140,11 +124,11 @@ public class Word
                 switch (currentInfo.preposition)
                 {
                     case Preposition.None:
-                        return "l'";
+                        return "the";
                     case Preposition.Of:
-                        return "de l'";
+                        return "of the";
                     case Preposition.To:
-                        return "à l'";
+                        return "to the";
                     default:
                         break;
                 }
@@ -152,38 +136,14 @@ public class Word
             }
             else
             {
-                switch (genre)
+                switch (currentInfo.preposition)
                 {
-                    case Genre.Masculine:
-
-                        switch (currentInfo.preposition)
-                        {
-                            case Preposition.None:
-                                return "le ";
-                            case Preposition.Of:
-                                return "du ";
-                            case Preposition.To:
-                                return "au ";
-                            default:
-                                break;
-                        }
-                        break;
-
-                    case Genre.Feminine:
-
-                        switch (currentInfo.preposition)
-                        {
-                            case Preposition.None:
-                                return "la ";
-                            case Preposition.Of:
-                                return "de la ";
-                            case Preposition.To:
-                                return "à la ";
-                            default:
-                                break;
-                        }
-                        break;
-
+                    case Preposition.None:
+                        return "a";
+                    case Preposition.Of:
+                        return "of";
+                    case Preposition.To:
+                        return "to";
                     default:
                         break;
                 }
@@ -193,41 +153,14 @@ public class Word
         else
         {
 
-            switch (genre)
+            switch (currentInfo.preposition)
             {
-                case Genre.Masculine:
-
-                    switch (currentInfo.preposition)
-                    {
-                        case Preposition.None:
-                            return "un ";
-                        case Preposition.Of:
-                            if (StartsWithVowel())
-                                return "de l'";
-                            else
-                                return "du ";
-                        case Preposition.To:
-                            return "à un ";
-                        default:
-                            break;
-                    }
-
-                    break;
-                case Genre.Feminine:
-
-                    switch (currentInfo.preposition)
-                    {
-                        case Preposition.None:
-                            return "une ";
-                        case Preposition.Of:
-                            return "d'une ";
-                        case Preposition.To:
-                            return "à une ";
-                        default:
-                            break;
-                    }
-
-                    break;
+                case Preposition.None:
+                    return "a ";
+                case Preposition.Of:
+                    return "of the'";
+                case Preposition.To:
+                    return "to a";
                 default:
                     break;
             }
@@ -248,9 +181,7 @@ public class Word
             ||
             text[0] == 'o'
             ||
-            text[0] == 'u'
-            ||
-            text[0] == 'é')
+            text[0] == 'u')
         {
             return true;
         }
@@ -278,7 +209,6 @@ public class Word
     /// <returns></returns>
     public string GetContent(string str)
     {
-
         Info info = new Info();
 
         // article
@@ -354,30 +284,16 @@ public class Word
             str = GetPlural();
         }
 
-        // ?
-        if (str.Contains("("))
-        {
-            str = str.Remove(str.IndexOf("(") - 1);
-        }
-
         if (info.adjective)
         {
-            // adjectif
-            string adjective_str = GetAdjective.GetContent(genre, currentInfo.plural);
-
-            if (GetAdjective.beforeWord)
-            {
-                str = adjective_str + " " + str;
-            }
-            else
-            {
-                str = str + " " + adjective_str;
-            }
+            // adjective
+            string adjective_str = GetAdjective.GetContent(currentInfo.plural);
+            str = adjective_str + " " + str;
         }
 
         if (info.other)
         {
-            str = "autre " + str;
+            str = "other " + str;
         }
 
         /// ARTICLE
@@ -486,14 +402,6 @@ public class Word
         None,
         Of,
         To,
-    }
-
-    public enum Genre
-    {
-        None,
-
-        Masculine,
-        Feminine,
     }
     #endregion
 }

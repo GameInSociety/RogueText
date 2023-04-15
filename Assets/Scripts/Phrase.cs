@@ -8,9 +8,6 @@ public class Phrase
     public string key = "";
     public List<string> values = new List<string>();
 
-    public static Player.Orientation orientation;
-    public static List<Player.Orientation> orientations = new List<Player.Orientation>();
-
     static Item overrideItem = null;
 
     // PARAMS
@@ -43,20 +40,14 @@ public class Phrase
         string str = phrase.values[Random.Range(0, phrase.values.Count)];
 
         // ITEM ( il faut le faire ici AUSSI, pour la compil du display description
-        str = Replace(str);
+        str = ExtractItemWords(str);
 
-        // ORIENTATIONS
-        str = str.Replace("ORIENTATIONS", Coords.GetOrientationText(orientations));
-        // 
-
-        // ORIENTATION
-        str = str.Replace("ORIENTATION", Coords.GetOrientationText(orientation));
-        //
+        str = KeyWords.ReplaceKeyWords(str);
 
         return str;
     }
 
-    public static string Replace(string text)
+    public static string ExtractItemWords(string text)
     {
         int safetyBreak = 0;
 
@@ -77,7 +68,7 @@ public class Phrase
             // get word from item
             string word = targetItem.word.GetContent(wordCode);
 
-            // replace target part with word, and continu
+            // replace target part with word, and continue
             text = text.Replace(targetPart, word);
             
             // safety break
@@ -174,15 +165,21 @@ public class Phrase
             int endIndex = str.IndexOf("/", startIndex + 1);
             string phraseKey = str.Remove(endIndex).Remove(0, 1);
             Debug.Log("phrase code : " + phraseKey);
-            str = str.Replace("/" + phraseKey + "/", Phrase.GetPhrase(phraseKey));
+            str = str.Replace("/" + phraseKey + "/", GetPhrase(phraseKey));
         }
-
-        DisplayDescription.Instance.AddToDescription(str);
+        else if (str.StartsWith('@'))
+        {
+            DisplayDescription.Instance.AddToDescription(str.Remove(0,1));
+        }
+        else
+        {
+            DisplayDescription.Instance.AddToDescription(GetPhrase(str));
+        }
     }
 
     public static void Space()
     {
-        Phrase.Write("\n");
+        DisplayDescription.Instance.Return();
     }
 
     public static void Renew()

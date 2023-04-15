@@ -8,7 +8,6 @@ public class ItemLoader : TextParser {
     // singleton
     public static ItemLoader Instance;
 
-
     int itemIndex = 0;
 
     public Item[] items_debug;
@@ -71,7 +70,7 @@ public class ItemLoader : TextParser {
             newItem.word = itemWord;
             //newItem.index = rowIndex-1;
             newItem.index = itemIndex;
-            itemWord.UpdateGenre(cells[1]);
+            itemWord.UpdateNumber(cells[1]);
 
             // weight
             newItem.word.adjectiveType = cells[2].ToLower();
