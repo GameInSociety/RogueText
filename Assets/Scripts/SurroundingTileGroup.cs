@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileGroup
-{
+public class SurroundingTileGroup {
     /// <summary>
     /// DECLARATION
     /// </summary>
     public Tile tile;
 
     public List<Player.Orientation> orientations;
-    
 }

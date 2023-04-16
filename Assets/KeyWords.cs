@@ -6,8 +6,7 @@ using UnityEngine;
 public static class KeyWords
 {
     public enum KeyWord {
-        ORIENTATIONS,
-        ORIENTATION,
+        SURROURING_TILE_ORIENTATION,
         CONTAINER_LIST,
         ITEM_PROPERTIES,
         VERB_NAME,
@@ -17,6 +16,7 @@ public static class KeyWords
         TILE_SURROUNDING_DESCRIPTION,
         TILE_ITEM_DESCRIPTION,
         TIME_OF_DAY,
+        PLAYER_ORIENTATION_FROM_NORTH,
     }
 
     public static string ReplaceKeyWords(string str)
@@ -36,10 +36,8 @@ public static class KeyWords
     {
         switch (keyWord)
         {
-            case KeyWord.ORIENTATIONS:
-                return Coords.GetOrientationText(Player.Instance.currentOrientations);
-            case KeyWord.ORIENTATION:
-                return Coords.GetOrientationText(Player.Instance.currentOrientation);
+            case KeyWord.SURROURING_TILE_ORIENTATION:
+                return Coords.GetOrientationText(SurroundingTileManager.currentSurroundingTile.orientations);
             case KeyWord.CONTAINER_LIST:
                 return Item.ItemListString(Container.CurrentItem.containedItems, Item.ListSeparator.Commas, true);
             case KeyWord.ITEM_PROPERTIES:
@@ -53,16 +51,17 @@ public static class KeyWords
             case KeyWord.TILE_CURRENT_DESCRIPTION:
                 return Tile.GetCurrent.GetDescription();
             case KeyWord.TILE_SURROUNDING_DESCRIPTION:
-                return TileGroupDescription.GetSurroundingTileDescription();
+                return SurroundingTileManager.GetSurroundingTilesDescription();
             case KeyWord.TILE_ITEM_DESCRIPTION:
                 return Tile.GetCurrent.GetItemDescriptions();
             case KeyWord.TIME_OF_DAY:
                 return TimeManager.GetInstance().GetTimeOfDayDescription();
+            case KeyWord.PLAYER_ORIENTATION_FROM_NORTH:
+                return Coords.GetOrientationText(Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal));
+
             default:
                 Debug.LogError("no text for KEY WORD " + keyWord.ToString());
                 return keyWord.ToString();
         }
-
-        return keyWord.ToString();
-    } 
+    }
 }

@@ -13,9 +13,9 @@ public class ItemPhrase
         string itemText = Item.ItemListString(itemGroups, false, false);
 
         // phrases de vision ( vous voyez, remarquez etc... )
-        string visionPhrase = Phrase.GetPhrase("tile_visionPhrases");
+        string visionPhrase = PhraseKey.GetPhrase("tile_visionPhrases");
         // phrases de location ( se trouve, se tient etc ... )
-        string locationVerb = Phrase.GetPhrase("tile_locationPhrases");
+        string locationVerb = PhraseKey.GetPhrase("tile_locationPhrases");
 
         // PHRASE ORDER 
 
@@ -49,6 +49,8 @@ public class ItemPhrase
             default:
                 break;
         }
+
+        Debug.Log("direction phrase : " + text);
 
         // mettre la phrase en majuscule
         return TextManager.WithCaps(text);

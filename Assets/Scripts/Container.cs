@@ -14,19 +14,5 @@ public class Container
     public Item item;
 
     public bool hasBeenUsed = true;
-
-    public void RemoveItem ( Item item)
-    {
-        items.Remove(item);
-
-        Debug.Log("removing container");
-    }
-
-    public static void Describe(Item item)
-    {
-        Phrase.Renew();
-        CurrentItem = item;
-        CurrentItem.WriteContainedDescription();
-    }
 }
          

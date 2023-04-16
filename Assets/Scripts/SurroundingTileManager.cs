@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileGroupDescription {
+public class SurroundingTileManager {
 
     public static int surroundTileIndex;
 
-    public static List<TileGroup> tileGroups = new List<TileGroup> ();
+    public static List<SurroundingTileGroup> tileGroups = new List<SurroundingTileGroup> ();
+    public static SurroundingTileGroup currentSurroundingTile;
 
-    public static Player.Orientation GetFacingWithTile(string str)
+    public static Player.Orientation GetOrientationWithTile(string str)
     {
-        if (str == Tile.GetCurrent.tileItem.word.text)
+        if (str == Tile.GetCurrent.tileItem.word.text) 
         {
             return Player.Orientation.Current;
         }
 
-        TileGroup surr = tileGroups.Find( x => x.tile.tileItem.word.text.StartsWith(str) );
+        SurroundingTileGroup surr = tileGroups.Find( x => x.tile.tileItem.word.text.StartsWith(str) );
 
         if (surr.tile == null)
         {
@@ -40,19 +41,19 @@ public class TileGroupDescription {
         {
             if (Inventory.Instance.HasItem("lampe"))
             {
-                Phrase.Write("lamp_on");
+                PhraseKey.Write("lamp_on");
             }
             else
             {
-                Phrase.Write("lamp_off");
+                PhraseKey.Write("lamp_off");
                 return;
             }
         }
 
-        Phrase.Write("tile_surrounding_description");
+        PhraseKey.Write("tile_surrounding_description");
     }
 
-    public static string GetSurroundingTileDescription()
+    public static string GetSurroundingTilesDescription()
     {
         // get tiles
         GetSurroundingTiles();
@@ -62,9 +63,28 @@ public class TileGroupDescription {
         // get text
         string str = "";
 
-        foreach (var surroundingTile in tileGroups)
+        for (int i = 0; i < tileGroups.Count; i++)
         {
+            SurroundingTileGroup surroundingTile = tileGroups[i];
+
             string newPhrase = GetSurroundingTileDescription(surroundingTile);
+            Debug.Log(newPhrase);
+
+            if (i == tileGroups.Count - 2)
+            {
+                str += " and ";
+            }
+            // dernier
+            else if (i == tileGroups.Count - 1)
+            {
+                str += ", ";
+            }
+            // courrant de la phrase
+            else
+            {
+                str += ", ";
+            }
+
             str += newPhrase;
         }
 
@@ -86,7 +106,7 @@ public class TileGroupDescription {
 
         foreach (var orientation in orientations)
         {
-            Direction dir = Player.Instance.GetDirection(orientation);
+            Cardinal dir = Player.Instance.GetCardinal(orientation);
 
             Coords targetCoords = Player.Instance.coords + (Coords)dir;
 
@@ -102,29 +122,28 @@ public class TileGroupDescription {
                 continue;
             }
 
-            TileGroup newTileGroup = tileGroups.Find(x => x.tile.type == targetTile.type);
+            SurroundingTileGroup newSurroundingTiles = tileGroups.Find(x => x.tile.type == targetTile.type);
 
-
-            if (newTileGroup == null)
+            if (newSurroundingTiles == null)
             {
-                newTileGroup = new TileGroup();
-                newTileGroup.tile = targetTile;
+                newSurroundingTiles = new SurroundingTileGroup();
+                newSurroundingTiles.tile = targetTile;
 
-                newTileGroup.orientations = new List<Player.Orientation>();
-                newTileGroup.orientations.Add(orientation);
+                newSurroundingTiles.orientations = new List<Player.Orientation>();
+                newSurroundingTiles.orientations.Add(orientation);
 
-                tileGroups.Add(newTileGroup);
+                tileGroups.Add(newSurroundingTiles);
             }
             else
             {
-                newTileGroup.orientations.Add(orientation);
+                newSurroundingTiles.orientations.Add(orientation);
             }
         }
     }
-
-    public static string GetSurroundingTileDescription(TileGroup surroundingTile)
+    
+    public static string GetSurroundingTileDescription(SurroundingTileGroup surroundingTile)
     {
-        Player.Instance.currentOrientations = surroundingTile.orientations;
+        currentSurroundingTile = surroundingTile;
 
         // same tile
         if ( Tile.GetCurrent.tileItem.SameTypeAs(surroundingTile.tile.tileItem))
@@ -132,12 +151,12 @@ public class TileGroupDescription {
             if (Tile.GetCurrent.tileItem.stackable)
             {
                 // tu es dans une forêt, la forêt continue
-                return Phrase.GetPhrase("surroundingTile_continue", surroundingTile.tile.tileItem);
+                return PhraseKey.GetPhrase("surroundingTile_continue", surroundingTile.tile.tileItem);
             }
             else
             {
                 // tu es près d'une maison, tu vois une maison que tu connais pas
-                return Phrase.GetPhrase("surroundingTile_discover", surroundingTile.tile.tileItem);
+                return PhraseKey.GetPhrase("surroundingTile_discover", surroundingTile.tile.tileItem);
             }
         }
 
@@ -148,12 +167,12 @@ public class TileGroupDescription {
             if (surroundingTile.tile.tileItem.stackable)
             {
                 // tu es dans une forêt, la forêt continue
-                return Phrase.GetPhrase("surroundingTile_continue", surroundingTile.tile.tileItem);
+                return PhraseKey.GetPhrase("surroundingTile_continue", surroundingTile.tile.tileItem);
             }
             else
             {
                 // tu es près d'une maison, tu vois une maison que tu connais pas
-                return Phrase.GetPhrase("surroundingTile_visited", surroundingTile.tile.tileItem);
+                return PhraseKey.GetPhrase("surroundingTile_visited", surroundingTile.tile.tileItem);
             }
         }
         else
@@ -162,11 +181,11 @@ public class TileGroupDescription {
             if ( surroundingTile.tile.visited)
             {
                 // tu vois es près d'une maison
-                return Phrase.GetPhrase("surroundingTile_visited", surroundingTile.tile.tileItem);
+                return PhraseKey.GetPhrase("surroundingTile_visited", surroundingTile.tile.tileItem);
             }
             else
             {
-                return Phrase.GetPhrase("surroundingTile_discover", surroundingTile.tile.tileItem);
+                return PhraseKey.GetPhrase("surroundingTile_discover", surroundingTile.tile.tileItem);
             }
         }
 

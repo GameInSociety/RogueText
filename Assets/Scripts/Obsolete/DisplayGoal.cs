@@ -30,7 +30,7 @@ public class DisplayGoal : DisplayText {
             return;
         }
 
-        Direction dir = Coords.GetDirectionFromCoords(Player.Instance.coords , ClueManager.Instance.clueCoords);
+        Cardinal dir = Coords.GetDirectionFromCoords(Player.Instance.coords , ClueManager.Instance.clueCoords);
         string direction_str = Coords.GetWordsDirection(dir).GetContent("au chien");
 
         goal = goal.Replace("CLUEPOSITION",direction_str);

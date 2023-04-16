@@ -73,16 +73,16 @@ public class ItemGroup
         switch (item.GetProperty("direction").GetContent())
         {
             case "to north":
-                fac = Player.Instance.GetFacing(Direction.North);
+                fac = Player.Instance.GetOrientation(Cardinal.North);
                 break;
             case "to south":
-                fac = Player.Instance.GetFacing(Direction.South);
+                fac = Player.Instance.GetOrientation(Cardinal.South);
                 break;
             case "to east":
-                fac = Player.Instance.GetFacing(Direction.East);
+                fac = Player.Instance.GetOrientation(Cardinal.East);
                 break;
             case "to west":
-                fac = Player.Instance.GetFacing(Direction.West);
+                fac = Player.Instance.GetOrientation(Cardinal.West);
                 break;
             default:
                 break;
@@ -91,13 +91,13 @@ public class ItemGroup
         switch (fac)
         {
             case Player.Orientation.Front:
-                return Phrase.GetPhrase("position_front");
+                return PhraseKey.GetPhrase("position_front");
             case Player.Orientation.Right:
-                return Phrase.GetPhrase("position_right");
+                return PhraseKey.GetPhrase("position_right");
             case Player.Orientation.Back:
-                return Phrase.GetPhrase("position_back");
+                return PhraseKey.GetPhrase("position_back");
             case Player.Orientation.Left:
-                return Phrase.GetPhrase("position_left");
+                return PhraseKey.GetPhrase("position_left");
             default:
                 break;
         }

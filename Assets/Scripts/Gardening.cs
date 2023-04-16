@@ -35,8 +35,8 @@ public class Gardening
 
         Tile.GetCurrent.AddItem(newItem);
 
-        Phrase.SetOverrideItem(newItem);
-        Phrase.Write("gardening_grew");
+        PhraseKey.SetOverrideItem(newItem);
+        PhraseKey.Write("gardening_grew");
     }
 
     public static void Dry(Property prop)
@@ -60,6 +60,6 @@ public class Gardening
     {
         InputInfo.GetCurrent.MainItem.GetProperty("dry").SetValue(2);
 
-        Phrase.Write("gardening_water");
+        PhraseKey.Write("gardening_water");
     }
 }

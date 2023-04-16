@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,11 +10,9 @@ public class Inventory : MonoBehaviour {
 
     public int maxWeight = 15;
 
-    public int weight = 0;
+    public Item bag_Item;
 
-    //private Item inventoryItem;
-
-    public List<Item> items = new List<Item>();
+    //public List<Item> items = new List<Item>();
 
     /// <summary>
     /// container
@@ -27,7 +26,7 @@ public class Inventory : MonoBehaviour {
 	void Start () {
         PlayerActionManager.onPlayerAction += HandleOnAction;
 
-        items.Add( Item.GetDataItem("compas") );
+        bag_Item.AddItem(Item.GetDataItem("compas"));
     }
 
 	void HandleOnAction (PlayerAction action)
@@ -36,12 +35,6 @@ public class Inventory : MonoBehaviour {
 		case PlayerAction.Type.PickUp:
 			PickUp ();
 			break;
-            case PlayerAction.Type.DisplayInventory:
-			WriteDescription ();
-			break;
-        case PlayerAction.Type.CloseInventory:
-            CloseInventory();
-            break;
         case PlayerAction.Type.AddToTile:
             AddToTile();
             break;
@@ -65,7 +58,7 @@ public class Inventory : MonoBehaviour {
 
     public Item GetItem (string itemName)
     {
-        return items.Find(x => x.word.text == itemName);
+        return bag_Item.GetItem(itemName);
     }
 
     public bool HasItem (string item_name)
@@ -79,7 +72,7 @@ public class Inventory : MonoBehaviour {
 
         if (item == null)
         {
-            Phrase.Write("inventory_throw_nothing");
+            PhraseKey.Write("inventory_throw_nothing");
             return;
         }
 
@@ -87,7 +80,7 @@ public class Inventory : MonoBehaviour {
 
         Tile.GetCurrent.AddItem(InputInfo.GetCurrent.MainItem);
 
-        Phrase.Write("inventory_throw_sucess");
+        PhraseKey.Write("inventory_throw_sucess");
     }
 
     void PickUp()
@@ -106,9 +99,9 @@ public class Inventory : MonoBehaviour {
 
         foreach (var item in targetItems)
         {
-            if (items.Contains(item))
+            if (bag_Item.ContainsItem(item))
             {
-                Phrase.Write("inventory_pickUp_already");
+                PhraseKey.Write("inventory_pickUp_already");
             }
             else
             {
@@ -119,14 +112,14 @@ public class Inventory : MonoBehaviour {
     }
 
     #region remove item
+    // no sense : crafting system is weird
     public void RemoveItem(int itemRow)
     {
-        RemoveItem(items.Find(x => x.index == itemRow));
+        bag_Item.RemoveItem(itemRow);
     }
     public void RemoveItem ( Item item ) {
 
-        weight -= item.weight;
-        items.Remove(item);
+        bag_Item.RemoveItem(item);
 	}
     void RemoveItem()
     {
@@ -155,8 +148,12 @@ public class Inventory : MonoBehaviour {
 
 	#region add
 	public void AddItem ( Item item ) {
-        weight += item.weight;
-        items.Add(item);
+        bag_Item.AddItem(item);
+    }
+
+    public Item FindItem(string str)
+    {
+        return bag_Item.FindItem(str);
     }
 
     public void AddToTile()
@@ -180,8 +177,8 @@ public class Inventory : MonoBehaviour {
             Tile.GetCurrent.AddItem(item);
         }
 
-        Phrase.SetOverrideItem(item);
-        Phrase.Write("tile_addItem");
+        PhraseKey.SetOverrideItem(item);
+        PhraseKey.Write("tile_addItem");
     }
     #endregion
 
@@ -214,14 +211,14 @@ public class Inventory : MonoBehaviour {
             // found no item in container, inventory or tile
             // break flow of actions
             targetItem = Item.GetDataItem(item_name);
-            Phrase.SetOverrideItem(targetItem);
-            Phrase.Write("item_require");
+            PhraseKey.SetOverrideItem(targetItem);
+            PhraseKey.Write("item_require");
             PlayerActionManager.Instance.BreakAction();
             return;
         }
 
-        Phrase.SetOverrideItem(targetItem);
-        Phrase.Write("item_use");
+        PhraseKey.SetOverrideItem(targetItem);
+        PhraseKey.Write("item_use");
 
         // s'il a l'objet en question, ne rien faire, juste continuer les actions
     }
@@ -230,7 +227,7 @@ public class Inventory : MonoBehaviour {
         if (!InputInfo.GetCurrent.HasSecondItem())
         {
             Debug.LogError("no second item");
-            Phrase.Write("item_noSecondItem");
+            PhraseKey.Write("item_noSecondItem");
             return;
         }
 
@@ -240,7 +237,7 @@ public class Inventory : MonoBehaviour {
 
         if (!InputInfo.GetCurrent.GetSecondItem.HasProperty(prop_name))
         {
-            Phrase.Write("item_noProperty");
+            PhraseKey.Write("item_noProperty");
             return;
         }
 
@@ -251,7 +248,7 @@ public class Inventory : MonoBehaviour {
             // est-ce que c'est le meme texte qui apparait partout ?
             // une nouvelle fonction ? CheckIfThereStillSomethingLeft()
             Debug.LogError("ici y'a un truc à changer ça veut rien dire");
-            Phrase.Write("item_NoMoreValue");
+            PhraseKey.Write("item_NoMoreValue");
             return;
         }
 
@@ -260,34 +257,12 @@ public class Inventory : MonoBehaviour {
     #endregion
 
     #region open / close inventory
-    public bool opened = false;
-    public void WriteDescription ()
-	{
-        // à changer parce que sûrement bien que INVENTORY devienne un ITEM
-
-        opened = true;
-        Phrase.Renew();
-        Phrase.Write("@" + GetDescription());
-    }
-
-    public string GetDescription()
+    public bool IsOpened
     {
-        if (items.Count == 0)
+        get
         {
-            return "Vous n'avez rien dans votre sac";
+            return bag_Item.opened;
         }
-
-        string str = "Votre sac contient ";
-
-        str += Item.ItemListString(items, Item.ListSeparator.Commas, true);
-        return str;
-    }
-    void CloseInventory()
-    {
-        opened = false;
-
-        Phrase.Write("inventory_close");
-        //DisplayDescription.Instance.UpdateDescription();
     }
     #endregion
 

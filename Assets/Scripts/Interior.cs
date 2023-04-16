@@ -47,11 +47,11 @@ public class Interior {
 
     public static void DescribeExterior()
     {
-        Direction dir = Direction.East;
+        Cardinal dir = Cardinal.East;
 
         if (Player.Instance.coords.x < 0)
         {
-            dir = Direction.West;
+            dir = Cardinal.West;
         }
 
         Coords tCoords = TileSet.map.playerCoords + (Coords)dir;
@@ -60,11 +60,11 @@ public class Interior {
 
         if (tile == null)
         {
-            Phrase.Write("interior_exteriorDescription_blocked");
+            PhraseKey.Write("interior_exteriorDescription_blocked");
         }
         else
         {
-            Phrase.Write("/interior_exteriorDescription_visible/" + tile.GetDescription());
+            PhraseKey.Write("/interior_exteriorDescription_visible/" + tile.GetDescription());
         }
 
     }
@@ -86,7 +86,7 @@ public class Interior {
         MapTexture.Instance.UpdateInteriorMap();
 
         Player.Instance.coords = tileSet.Center;
-        Player.Instance.Move(Direction.None);
+        Player.Instance.Move(Cardinal.None);
         //DisplayDescription.Instance.UpdateDescription();
 
         TimeManager.GetInstance().ChangeMovesPerHour(4);
@@ -107,7 +107,7 @@ public class Interior {
         }
         else
         {
-            Phrase.Write("interior_getout_blocked");
+            PhraseKey.Write("interior_getout_blocked");
         }
         
     }
@@ -125,7 +125,7 @@ public class Interior {
 
         TileSet.SetCurrent(TileSet.map);
 
-        Player.Instance.Move(Direction.None);
+        Player.Instance.Move(Cardinal.None);
 
         TimeManager.GetInstance().ChangeMovesPerHour(10);
 
@@ -263,8 +263,8 @@ public class Interior {
     }
     void AddDoors(Tile tile)
     {
-        Direction[] surr = new Direction[4] {
-                        Direction.North, Direction.West, Direction.South, Direction.East
+        Cardinal[] surr = new Cardinal[4] {
+                        Cardinal.North, Cardinal.West, Cardinal.South, Cardinal.East
                     };
 
         List<Adjective> adjectives = Adjective.GetAll("objet");
@@ -281,23 +281,23 @@ public class Interior {
             {
                 switch (dir)
                 {
-                    case Direction.North:
+                    case Cardinal.North:
                         currentDoorDirection = "to north";
                         adjacentDoorDirection = "to south";
                         break;
-                    case Direction.East:
+                    case Cardinal.East:
                         currentDoorDirection = "to east";
                         adjacentDoorDirection = "to west";
                         break;
-                    case Direction.South:
+                    case Cardinal.South:
                         currentDoorDirection = "to south";
                         adjacentDoorDirection = "to north";
                         break;
-                    case Direction.West:
+                    case Cardinal.West:
                         currentDoorDirection = "to west";
                         adjacentDoorDirection = "to east";
                         break;
-                    case Direction.None:
+                    case Cardinal.None:
                         break;
                     default:
                         break;

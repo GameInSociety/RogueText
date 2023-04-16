@@ -65,7 +65,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("no verb, no items");
             }
 
-            Phrase.Write("input_nothingRecognized");
+            PhraseKey.Write("input_nothingRecognized");
             return;
         }
 
@@ -77,7 +77,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("no verb");
             }
 
-            Phrase.Write("input_noVerb");
+            PhraseKey.Write("input_noVerb");
             return;
         }
 
@@ -97,7 +97,7 @@ public class PlayerActionManager : MonoBehaviour
             // no verb, displaying thing
             if (inputInfo.combination == null)
             {
-                Phrase.Write("input_noItem");
+                PhraseKey.Write("input_noItem");
                 return;
             }
         }
@@ -110,7 +110,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("Fail : no combination between verb : " + inputInfo.verb.names[0] + " and item : " + inputInfo.MainItem.word.text);
             }
 
-            Phrase.Write("input_noCombination");
+            PhraseKey.Write("input_noCombination");
             return;
         }
 

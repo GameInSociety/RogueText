@@ -79,15 +79,15 @@ public class Tile
         // tile is continued ( road, forest etc... )
         if (SameAsPrevious() && tileItem.stackable)
         {
-            str = Phrase.GetPhrase("tile_continue");
+            str = PhraseKey.GetPhrase("tile_continue");
         }
         else if (visited == false)
         {
-            str = Phrase.GetPhrase("tile_discover");
+            str = PhraseKey.GetPhrase("tile_discover");
         }
         else
         {
-            str = Phrase.GetPhrase("tile_goback");
+            str = PhraseKey.GetPhrase("tile_goback");
         }
 
         return str;
@@ -121,7 +121,7 @@ public class Tile
             return;
         }
 
-        Phrase.Write("tile_item_descriptions");
+        PhraseKey.Write("tile_item_descriptions");
 
     }
     public string GetItemDescriptions()

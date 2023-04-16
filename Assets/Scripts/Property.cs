@@ -165,7 +165,7 @@ public class Property
                 }
                 else
                 {
-                    Phrase.SetOverrideItem(paramItem);
+                    PhraseKey.SetOverrideItem(paramItem);
                     return "Il reste " + GetText() + " avant que &le chien (main item)& devienne &un chien (override item)&";
                 }
             case Type.value:
@@ -190,7 +190,7 @@ public class Property
                 return "c'est &un chien (main item)& de type " + content;
             case Type.var:
                 Item item = Item.GetDataItem(content);
-                Phrase.SetOverrideItem(item);
+                PhraseKey.SetOverrideItem(item);
                 return "c'est &un chien (override item)&";
             default:
                 return "<color=red>no type error</color>";
@@ -292,7 +292,7 @@ public class Property
 
         if (currentContent == newContent)
         {
-            Phrase.Write("&le chien (main item)& est déjà " + targetItem.GetProperty(propName).GetText());
+            PhraseKey.Write("&le chien (main item)& est déjà " + targetItem.GetProperty(propName).GetText());
             return;
         }
 
@@ -325,7 +325,7 @@ public class Property
             if (currentValue>= property.GetMax()||result >= property.GetMax())
             {
                 result = Mathf.Clamp(result, 0, property.GetMax());
-                Phrase.Write("&le chien (main item)& est plein");
+                PhraseKey.Write("&le chien (main item)& est plein");
             }
 
             // change target content

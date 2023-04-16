@@ -47,7 +47,7 @@ public class DisplayDescription : MonoBehaviour {
 
     public void UpdateDescription()
     {
-        Phrase.Renew();
+        PhraseKey.Renew();
 
         // CURRENT TILE
         if (Tile.GetPrevious != null && Tile.GetCurrent.type == Tile.GetPrevious.type)
@@ -56,11 +56,11 @@ public class DisplayDescription : MonoBehaviour {
         }
         else
         {
-            Phrase.Write("tile_current_description");
+            PhraseKey.Write("tile_current_description");
         }
 
         // SURROUNDING TILES
-        TileGroupDescription.WriteSurroundingTileDescription();
+        SurroundingTileManager.WriteSurroundingTileDescription();
 
         // display tile items
         Tile.GetCurrent.WriteItemDescription();
@@ -94,7 +94,7 @@ public class DisplayDescription : MonoBehaviour {
     public void AddToDescription(string str)
     {
         // replace keywords
-        str = Phrase.ExtractItemWords(str);
+        str = PhraseKey.ExtractItemWords(str);
 
         // majuscule
         str = TextUtils.FirstLetterCap(str);

@@ -29,7 +29,7 @@ public class InputInfo
     private List<Item> items = new List<Item>();
     public Combination combination;
     public Player.Orientation orientation;
-    public Direction direction;
+    public Cardinal direction;
     public bool containsNumericValue = false;
     public int numericValue = 0;
 
@@ -127,7 +127,8 @@ public class InputInfo
 
         if (verb == null)
         {
-            Debug.LogError("couldn't find verb : " + str);
+            // c'est pas grave de pas avoir de verbe
+            //Debug.LogError("couldn't find verb : " + str);
         }
     }
 

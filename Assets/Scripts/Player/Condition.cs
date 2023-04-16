@@ -70,7 +70,7 @@ public class Condition
         string keyWord = type.ToString().ToLower() + "_" + progress.ToString().ToLower();
         Debug.Log("getting condition keyword ; " + keyWord);
 
-        Phrase.Write(keyWord);
+        PhraseKey.Write(keyWord);
     }
 
     public Progress GetProgress

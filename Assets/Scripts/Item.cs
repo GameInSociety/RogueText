@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
+using static UnityEditor.Progress;
 
 [System.Serializable]
 public class Item
@@ -37,12 +39,16 @@ public class Item
 
     public List<Item> containedItems;
 
+    /// <summary>
+    /// WORD
+    /// </summary>
     public Word word;
     public bool stackable = false;
 
     /// <summary>
     /// container
     /// </summary>
+    public bool opened = false;
     public bool emptied = false;
 
     /// <summary>
@@ -58,13 +64,13 @@ public class Item
     #region container
     public bool ContainsItems()
     {
-        GenerateItems();
+        //GenerateItems();
 
         return containedItems != null && containedItems.Count > 0;
     }
     public void GenerateItems()
     {
-        if (containedItems != null)
+        if (ContainsItems())
         {
             return;
         }
@@ -80,21 +86,80 @@ public class Item
                         containedItems = new List<Item>();
                     }
 
-                    Item newItem = Item.CreateNew(appearInfo.GetItem());
-                    containedItems.Add(newItem);
+                    AddItem(appearInfo.GetItem());
                 }
             }
         }
 
     }
 
+    public void AddItem(Item item)
+    {
+        if (containedItems == null)
+        {
+            containedItems = new List<Item>();
+        }
+
+        Item newItem = Item.CreateNew(item);
+        containedItems.Add(newItem);
+    }
+
+    // remove item
+    public void RemoveItem(Item item)
+    {
+        containedItems.Remove(item);
+    }
+    // item row : wtf ? le craft system est pas ouf
+    public void RemoveItem(int itemRow)
+    {
+        RemoveItem(containedItems.Find(x => x.index == itemRow));
+    }
+    //
+
+    public Item FindItem(string str)
+    {
+        Item item = containedItems.Find(x => x.word.Compare(str));
+
+        if (item == null)
+            return null;
+
+        return item;
+    }
+
+    public Item GetItem(string itemName)
+    {
+        return containedItems.Find(x => x.word.text == itemName);
+    }
+
+    public bool ContainsItem( Item item)
+    {
+        return containedItems.Contains(item);
+    }
+
+    /// <summary>
+    ///  WEIGHT
+    /// </summary>
+    public int GetContainedItemWeight()
+    {
+        int w = 0;
+        foreach (var item in containedItems)
+        {
+            w += item.weight;
+        }
+        return w;
+    }
+    ///
+
+    /// <summary>
+    /// OPEN / CLOSE
+    /// </summary>
     public void Open()
     {
         Item item = InputInfo.GetCurrent.MainItem;
         item.GenerateItems();
 
         Container.opened = true;
-        Container.Describe(item);
+        WriteContainedDescription();
     }
 
     public void Close()
@@ -102,30 +167,31 @@ public class Item
         // toujours dans la classe inventory.cs pour l'intsant
         if (!Container.opened)
         {
-            Phrase.Write("container_alreadyClosed");
+            PhraseKey.Write("container_alreadyClosed");
             return;
         }
 
         Container.opened = false;
-        Phrase.SetOverrideItem(Container.CurrentItem);
-        Phrase.Write("container_clsose");
+        PhraseKey.SetOverrideItem(Container.CurrentItem);
+        PhraseKey.Write("container_clsose");
     }
+    ///
 
+    /// <summary>
+    /// DESCRIPTION
+    /// </summary>
     public void WriteContainedDescription()
     {
         if (!ContainsItems())
         {
-            Phrase.Write("container_empty");
+            PhraseKey.Write("container_empty");
             return;
         }
 
-        Phrase.Write("container_describe");
+        PhraseKey.Renew();
+        PhraseKey.Write("container_describe");
     }
 
-    public void RemoveItem(Item item)
-    {
-        containedItems.Remove(item);
-    }
     public bool SameTypeAs(Item otherItem)
     {
         return otherItem.index == index;
@@ -212,9 +278,9 @@ public class Item
 
     public void PickUp()
     {
-        if (Inventory.Instance.weight + weight > Inventory.Instance.maxWeight)
+        if (Inventory.Instance.bag_Item.GetContainedItemWeight() + weight > Inventory.Instance.maxWeight)
         {
-            Phrase.Write("inventory_TooHeavy");
+            PhraseKey.Write("inventory_TooHeavy");
             return;
         }
 
@@ -222,7 +288,7 @@ public class Item
 
         Inventory.Instance.AddItem(this);
 
-        Phrase.Write("inventory_PickUp");
+        PhraseKey.Write("inventory_PickUp");
     }
 
     #region remove
@@ -248,7 +314,7 @@ public class Item
         }
 
         // then in inventory
-        if (Inventory.Instance.items.Contains(targetItem))
+        if (Inventory.Instance.bag_Item.ContainsItem(targetItem))
         {
             Inventory.Instance.RemoveItem(targetItem);
             return;
@@ -276,9 +342,9 @@ public class Item
         }
 
         // chercher une premiere fois dans l'inventaire s'il est ouvert
-        if (Inventory.Instance.opened)
+        if (Inventory.Instance.IsOpened)
         {
-            item = FindInInventory(str);
+            item = Inventory.Instance.FindItem(str);
             if (item != null)
             {
                 return item;
@@ -294,7 +360,7 @@ public class Item
         // et en dernier s'il est fermé
         if (item == null)
         {
-            item = FindInInventory(str);
+            item = Inventory.Instance.FindItem(str);
         }
 
         if (item == null)
@@ -325,7 +391,7 @@ public class Item
         }
 
         // is the item one of the surrounding tiles ?
-        foreach (var tileGroup in TileGroupDescription.tileGroups)
+        foreach (var tileGroup in SurroundingTileManager.tileGroups)
         {
             if (tileGroup.tile.tileItem.word.Compare(str))
             {
@@ -369,16 +435,6 @@ public class Item
     {
         return dataItems.Find(x => x.word.Compare(str) && x.usableAnytime);
         //return items.Find(x => x.word.Compare(str) );
-    }
-
-    private static Item FindInInventory(string str)
-    {
-        Item item = Inventory.Instance.items.Find(x => x.word.Compare(str));
-
-        if (item == null)
-            return null;
-
-        return item;
     }
 
     public static Item GetDataItem(string _name)
@@ -540,11 +596,11 @@ public class Item
     {
         if (CanBeDescribed())
         {
-            Phrase.Write("item_description");
+            PhraseKey.Write("item_description");
         }
         else
         {
-            Phrase.Write("item_noDescription");
+            PhraseKey.Write("item_noDescription");
         }
     }
 

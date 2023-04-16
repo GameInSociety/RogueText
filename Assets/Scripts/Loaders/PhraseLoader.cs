@@ -17,14 +17,14 @@ public class PhraseLoader : TextParser
 
         if ( cells[0].Length > 0)
         {
-            Phrase newPhrase = new Phrase();
+            PhraseKey newPhrase = new PhraseKey();
             newPhrase.key = cells[0];
 
 
-            Phrase.phrases.Add(newPhrase);
+            PhraseKey.phraseKeys.Add(newPhrase);
         }
 
-        Phrase.phrases[Phrase.phrases.Count-1].values.Add(cells[1]);
+        PhraseKey.phraseKeys[PhraseKey.phraseKeys.Count-1].values.Add(cells[1]);
 
     }
 }

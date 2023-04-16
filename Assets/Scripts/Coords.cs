@@ -13,17 +13,17 @@ public struct Coords
     public int x;
     public int y;
 
-    public static Direction GetDirectionFromCoords(Coords c1, Coords c2)
+    public static Cardinal GetDirectionFromCoords(Coords c1, Coords c2)
     {
         Coords c = c2 - c1;
 
         Vector2 v = (Vector2)c;
 
-        Direction direction = Direction.North;
+        Cardinal direction = Cardinal.North;
 
-        Direction closestDirection = Direction.North;
+        Cardinal closestDirection = Cardinal.North;
 
-        while (direction != Direction.None)
+        while (direction != Cardinal.None)
         {
             Coords ce = (Coords)direction;
 
@@ -72,7 +72,7 @@ public struct Coords
             // avant dernier
             if (i == orientations.Count - 2)
             {
-                str += " et ";
+                str += " and ";
             }
             // dernier
             else if (i == orientations.Count - 1)
@@ -100,40 +100,31 @@ public struct Coords
 
     public static string GetOrientationText(Player.Orientation orientation)
     {
-        string[] directionPhrases = new string[8] {
-        "devant vous",
-        "quelques pas devant vous, vers la droite",
-        Random.value < 0.5f ? "à votre droite" : "sur votre droite",
-        "derrière vous, à droite",
-        "derrière vous",
-        "derrière vous, à gauche",
-        Random.value < 0.5f ? "à votre gauche" : "sur votre gauche",
-        "quelques pas devant vous, à votre gauche"
-    };
+        string key = orientation.ToString().Remove(1).ToLower() + orientation.ToString().Remove(0, 1);
+        key = "position_" + key;
 
-        return directionPhrases[(int)orientation];
+        return PhraseKey.GetPhrase(key);
     }
 
-    public static Direction GetDirectionFromString(string str)
+    public static Cardinal GetDirectionFromString(string str)
     {
 
-        foreach (var item in System.Enum.GetValues(typeof(Direction)))
+        foreach (var item in System.Enum.GetValues(typeof(Cardinal)))
         {
             if (item.ToString() == str)
             {
                 //				Debug.Log ("found direction : " + item);
-                return (Direction)item;
+                return (Cardinal)item;
             }
         }
 
-        return Direction.None;
+        return Cardinal.None;
 
     }
 
     public static void WriteDirectionToNorth()
     {
-        string facing = Coords.GetOrientationText(Coords.GetFacing(Player.Instance.direction));
-        Phrase.Write("/compas_giveNorth/" + facing);
+        PhraseKey.Write("compas_giveNorth");
     }
 
     public bool OutOfMap()
@@ -231,38 +222,38 @@ public struct Coords
     //	{
     //		return new Direction (c.x, c.y);
     //	}
-    public static explicit operator Coords(Direction dir)  // explicit byte to digit conversion operator
+    public static explicit operator Coords(Cardinal dir)  // explicit byte to digit conversion operator
     {
         switch (dir)
         {
-            case Direction.North:
+            case Cardinal.North:
                 return new Coords(0, 1);
-            case Direction.NorthEast:
+            case Cardinal.NorthEast:
                 return new Coords(1, 1);
-            case Direction.East:
+            case Cardinal.East:
                 return new Coords(1, 0);
-            case Direction.SouthEast:
+            case Cardinal.SouthEast:
                 return new Coords(1, -1);
-            case Direction.South:
+            case Cardinal.South:
                 return new Coords(0, -1);
-            case Direction.SouthWest:
+            case Cardinal.SouthWest:
                 return new Coords(-1, -1);
-            case Direction.West:
+            case Cardinal.West:
                 return new Coords(-1, 0);
-            case Direction.NorthWest:
+            case Cardinal.NorthWest:
                 return new Coords(-1, 1);
-            case Direction.None:
+            case Cardinal.None:
                 return new Coords(0, 0);
         }
 
         return new Coords();
     }
 
-    public static Word GetWordsDirection(Direction direction)
+    public static Word GetWordsDirection(Cardinal direction)
     {
         return Item.dataItems[(int)direction + 1].word;
     }
-    public static Item GetDirectionItem(Direction direction)
+    public static Item GetDirectionItem(Cardinal direction)
     {
         return Item.dataItems[(int)direction + 1];
     }
@@ -273,27 +264,27 @@ public struct Coords
         return "X : " + x + " / Y : " + y;
     }
 
-    public static Player.Orientation GetFacing(Direction direction)
+    public static Player.Orientation GetOrientationFromNorth(Cardinal direction)
     {
         switch (direction)
         {
-            case Direction.North:
+            case Cardinal.North:
                 return Player.Orientation.Front;
-            case Direction.NorthEast:
+            case Cardinal.NorthEast:
                 break;
-            case Direction.East:
+            case Cardinal.East:
                 return Player.Orientation.Left;
-            case Direction.SouthEast:
+            case Cardinal.SouthEast:
                 break;
-            case Direction.South:
+            case Cardinal.South:
                 return Player.Orientation.Back;
-            case Direction.SouthWest:
+            case Cardinal.SouthWest:
                 break;
-            case Direction.West:
+            case Cardinal.West:
                 return Player.Orientation.Right;
-            case Direction.NorthWest:
+            case Cardinal.NorthWest:
                 break;
-            case Direction.None:
+            case Cardinal.None:
                 break;
         }
 
@@ -357,7 +348,7 @@ public struct Coords
 
     }
 
-    public static Direction GetRelativeDirection(Direction direction, Player.Orientation facing)
+    public static Cardinal GetRelativeDirection(Cardinal direction, Player.Orientation facing)
     {
         int a = (int)direction + (int)facing;
         if (a >= 8)
@@ -367,7 +358,7 @@ public struct Coords
 
         //		Debug.Log ( "player is turned " + direction + ", so the returned dir is " + (Direction)a );
 
-        return (Direction)a;
+        return (Cardinal)a;
     }
 }
 

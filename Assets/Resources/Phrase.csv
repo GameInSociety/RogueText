@@ -5,24 +5,24 @@ tile_discover,you discover &a good dog (tile item)&
 ,you are &on a good dog (tile item)&
 tile_goback,here you are &on the good dog (tile item)& again
 ,you're back &on the good dog (tile item)&
-surroundingTile_continue,"ORIENTATIONS, &the dog (override item)& continue"
-,&the dog (override item)& continue ORIENTATIONS
-surroundingTile_discover,you see &a dog (override item)& ORIENTATIONS
-,&a dog (override item)& is at ORIENTATIONS
-,"ORIENTATIONS, you see &a dog (override item)&"
-,"you see, ORIENTATIONS, &a dog (override item)&"
-,&a dog (override item)& can be seen at ORIENTATIONS
-surroundingTile_visited,you see &the dog (override item)& ORIENTATIONS
-,&a dog (override item)& is at ORIENTATIONS
-,"ORIENTATIONS, you see &the dog (override item)&"
-,"you see, ORIENTATIONS, &the dog (override item)&"
-,&the dog (override item)& can be seen ORIENTATIONS
-movement_feedback,you walk towards &the dog (tile item)& de ORIENTATION
-movement_blocked,there is no &dog (tile item)& ORIENTATION
+surroundingTile_continue,"SURROURING_TILE_ORIENTATION, &the dog (override item)& continue"
+,&the dog (override item)& continue SURROURING_TILE_ORIENTATION
+surroundingTile_discover,you see &a dog (override item)& SURROURING_TILE_ORIENTATION
+,&a dog (override item)& is SURROURING_TILE_ORIENTATION
+,"SURROURING_TILE_ORIENTATION, you see &a dog (override item)&"
+,"you see, SURROURING_TILE_ORIENTATION, &a dog (override item)&"
+,&a dog (override item)& can be seen at SURROURING_TILE_ORIENTATION
+surroundingTile_visited,you see &the dog (override item)& SURROURING_TILE_ORIENTATION
+,&a dog (override item)& is at SURROURING_TILE_ORIENTATION
+,"SURROURING_TILE_ORIENTATION, you see &the dog (override item)&"
+,"you see, SURROURING_TILE_ORIENTATION, &the dog (override item)&"
+,&the dog (override item)& can be seen SURROURING_TILE_ORIENTATION
+movement_feedback,you walk towards &the dog (tile item)& de TARGET_TILE_ORIENTATION
+movement_blocked,there is no &dog (tile item)& TARGET_TILE_ORIENTATION
 bag_equip,you equiped &the dog(main item)& to 
 bag_nothingToEquip,you don't have any &dog& equiped
 bag_unequip,you take off &the dog&
-compas_giveNorth,the north is PLAYER_FACING
+compas_giveNorth,the north is PLAYER_ORIENTATION_FROM_NORTH
 craft_list,"to craft &a dog (override item)&, you need "
 craft_sucess,you crafted &a dog&
 craft_unable,you don't have the necessary meterials to craft &a dog&
@@ -105,3 +105,5 @@ tile_positionPhrases,you perceive
 ,you see
 ,you notice
 tile_locationsPhrases,stands
+position_orientPlayer,you now face TARGET_ORIENTATION
+fin,fsdfsd

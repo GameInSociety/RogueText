@@ -119,40 +119,21 @@ public class Word
 
         if (currentInfo.defined)
         {
-            if (StartsWithVowel())
+            switch (currentInfo.preposition)
             {
-                switch (currentInfo.preposition)
-                {
-                    case Preposition.None:
-                        return "the";
-                    case Preposition.Of:
-                        return "of the";
-                    case Preposition.To:
-                        return "to the";
-                    default:
-                        break;
-                }
-
-            }
-            else
-            {
-                switch (currentInfo.preposition)
-                {
-                    case Preposition.None:
-                        return "a";
-                    case Preposition.Of:
-                        return "of";
-                    case Preposition.To:
-                        return "to";
-                    default:
-                        break;
-                }
+                case Preposition.None:
+                    return "the ";
+                case Preposition.Of:
+                    return "of ";
+                case Preposition.To:
+                    return "to ";
+                default:
+                    break;
             }
 
         }
         else
         {
-
             switch (currentInfo.preposition)
             {
                 case Preposition.None:
@@ -212,13 +193,13 @@ public class Word
         Info info = new Info();
 
         // article
-        if (str.Contains("the"))
+        if (str.Contains("the "))
         {
             info.article = true;
             info.defined = true;
         }
 
-        if (str.Contains("a") || str.Contains("some"))
+        if (str.Contains("a ") || str.Contains("some "))
         {
             info.article = true;
             info.defined = false;
@@ -229,13 +210,13 @@ public class Word
             info.plural = true;
         }
 
-        if (str.Contains("to"))
+        if (str.Contains("to "))
         {
             info.article = true;
             info.preposition = Preposition.To;
         }
 
-        if (str.Contains("of"))
+        if (str.Contains("of "))
         {
             info.article = true;
             info.preposition = Preposition.Of;
@@ -249,21 +230,29 @@ public class Word
             info.defined = false;
         }*/
 
-        if (str.Contains("other"))
+        if (str.Contains("other "))
         {
             info.other = true;
         }
 
-        if (str.Contains("good"))
+        if (str.Contains("good "))
         {
             info.adjective = true;
         }
 
-        if (str.Contains("on"))
+        if (str.Contains("on "))
         {
             info.article = true;
             info.location = true;
         }
+
+        /*Debug.Log("info input :");
+        Debug.Log("article " + info.article);
+        Debug.Log("location " + info.location);
+        Debug.Log("other " + info.other);
+        Debug.Log("defined " + info.defined);
+        
+        Debug.Log("result : " + GetContent(info));*/
 
         return GetContent(info);
     }

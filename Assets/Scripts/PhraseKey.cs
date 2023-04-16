@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class Phrase
+public class PhraseKey
 {
     public string key = "";
     public List<string> values = new List<string>();
@@ -12,7 +12,7 @@ public class Phrase
 
     // PARAMS
 
-    public static List<Phrase> phrases = new List<Phrase>();
+    public static List<PhraseKey> phraseKeys = new List<PhraseKey>();
 
     // override c'est vraiment pas bien, il faut trouver une façon de faire ("&le chien sage (surrounding tile)&")
     public static string GetPhrase(string key, Item _overrideItem)
@@ -26,18 +26,23 @@ public class Phrase
         overrideItem = item;
     }
 
-    public static string GetPhrase(string key)
+    public static string GetPhraseKey(string key)
     {
-        Phrase phrase = phrases.Find(x => x.key == key);
+        PhraseKey phraseKey = phraseKeys.Find(x => x.key == key);
 
-        if (phrase == null)
+        if (phraseKey == null)
         {
             Debug.LogError("phrase <color=red>" + key + "</color> does not exist");
             return null;
         }
 
+        return phraseKey.values[Random.Range(0, phraseKey.values.Count)];
+    }
+
+    public static string GetPhrase(string key)
+    {
         // get random
-        string str = phrase.values[Random.Range(0, phrase.values.Count)];
+        string str = GetPhraseKey(key);
 
         // ITEM ( il faut le faire ici AUSSI, pour la compil du display description
         str = ExtractItemWords(str);
@@ -50,6 +55,11 @@ public class Phrase
     public static string ExtractItemWords(string text)
     {
         int safetyBreak = 0;
+
+        if ( text == null)
+        {
+            Debug.LogError("extract item words : le text est null ?");
+        }
 
         // each "&le chien sage (itemcode)& iteration
         while (text.Contains("&"))
@@ -166,10 +176,6 @@ public class Phrase
             string phraseKey = str.Remove(endIndex).Remove(0, 1);
             Debug.Log("phrase code : " + phraseKey);
             str = str.Replace("/" + phraseKey + "/", GetPhrase(phraseKey));
-        }
-        else if (str.StartsWith('@'))
-        {
-            DisplayDescription.Instance.AddToDescription(str.Remove(0,1));
         }
         else
         {
