@@ -156,6 +156,7 @@ public class Item
     public void Open()
     {
         Item item = InputInfo.GetCurrent.MainItem;
+        Debug.Log("opening : " + item.debug_name);
         item.GenerateItems();
 
         Container.opened = true;
@@ -184,6 +185,7 @@ public class Item
     {
         if (!ContainsItems())
         {
+            Debug.Log(debug_name + " is empty");
             PhraseKey.Write("container_empty");
             return;
         }

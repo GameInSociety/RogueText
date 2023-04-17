@@ -68,7 +68,6 @@ public class SurroundingTileManager {
             SurroundingTileGroup surroundingTile = tileGroups[i];
 
             string newPhrase = GetSurroundingTileDescription(surroundingTile);
-            Debug.Log(newPhrase);
 
             if (i == tileGroups.Count - 2)
             {

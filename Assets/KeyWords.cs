@@ -17,6 +17,8 @@ public static class KeyWords
         TILE_ITEM_DESCRIPTION,
         TIME_OF_DAY,
         PLAYER_ORIENTATION_FROM_NORTH,
+
+        TARGET_ORIENTATION
     }
 
     public static string ReplaceKeyWords(string str)
@@ -58,7 +60,8 @@ public static class KeyWords
                 return TimeManager.GetInstance().GetTimeOfDayDescription();
             case KeyWord.PLAYER_ORIENTATION_FROM_NORTH:
                 return Coords.GetOrientationText(Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal));
-
+            case KeyWord.TARGET_ORIENTATION:
+                return Coords.GetOrientationText(PhraseKey.GetOverrideOrientation());
             default:
                 Debug.LogError("no text for KEY WORD " + keyWord.ToString());
                 return keyWord.ToString();

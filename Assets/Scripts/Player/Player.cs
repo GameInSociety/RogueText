@@ -268,6 +268,7 @@ public class Player : MonoBehaviour {
 
     public void Orient(Orientation orientation)
     {
+        PhraseKey.SetOverrideOrientation(orientation);
         PhraseKey.Write("position_orientPlayer");
         SetDirection(GetCardinal(orientation));
     }

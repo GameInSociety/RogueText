@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -9,6 +9,7 @@ public class PhraseKey
     public List<string> values = new List<string>();
 
     static Item overrideItem = null;
+    static Player.Orientation overrideOrientation;
 
     // PARAMS
 
@@ -18,12 +19,17 @@ public class PhraseKey
     public static string GetPhrase(string key, Item _overrideItem)
     {
         overrideItem = _overrideItem;
+    
         return GetPhrase(key);
     }
 
     public static void SetOverrideItem(Item item)
     {
         overrideItem = item;
+    }
+
+    public static void SetOverrideOrientation(Player.Orientation orientation){
+        overrideOrientation = orientation;
     }
 
     public static string GetPhraseKey(string key)
@@ -165,6 +171,10 @@ public class PhraseKey
                 Debug.LogError(itemCode + " doesnt go in any item category, returning input main item");
                 return InputInfo.GetCurrent.MainItem;
         }
+    }
+
+    public static Player.Orientation GetOverrideOrientation(){
+        return overrideOrientation;
     }
 
     public static void Write( string str)
