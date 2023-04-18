@@ -38,8 +38,8 @@ public class PhraseKey
 
         if (phraseKey == null)
         {
-            Debug.LogError("phrase <color=red>" + key + "</color> does not exist");
-            return null;
+            Debug.LogError("phrase <color=red>" + key + "</color> does not exist, returning key");
+            return key;
         }
 
         return phraseKey.values[Random.Range(0, phraseKey.values.Count)];

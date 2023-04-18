@@ -1,237 +1,190 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Android;
 
 [System.Serializable]
 public class Property
 {
+    // les parties
+    // et si, par soucis de sauvegarde, de serialisation, etc les parts étaient tout le temps un string
+    // qu'on split à chaque fois qu'on y accede 
+    private string[] _parts;
 
-    public enum Type
-    {
-        boolean,
-        delay,
-        value,
-        type,
-        var
-    }
-    public Type type;
-    public string name;
-    private string content;
-    public string param;
+    // l'objet à laquelle la propriété est attachée,
+    // trouver un autre moyen parce que niveau mémoire et serialization c'est pas ouf
+    private Item linkedItem;
 
-    public Item item;
-
+    /// <summary>
+    /// CONSTRUCTOR
+    /// </summary>
     public Property()
     {
 
     }
     public Property(string line)
     {
-        string[] propertyLine_parts = line.Split('/');
+        _parts = line.Split('/');
+    }
+    ///
 
-        // type
-        Property.Type _type = (Property.Type)System.Enum.Parse(typeof(Property.Type), propertyLine_parts[0]);
-        type = _type;
+    /// GET THE PARTS
+    public string GetPart(int i)
+    {
+        if ( i >= _parts.Length)
+        {
+            if ( _parts.Length == 0)
+            {
+                Debug.LogError("error property : parts length 0");
+                return "error property parts";
+            }
+            Debug.LogError("error property : try get part " + i + " but out of range");
 
-        name = propertyLine_parts[1];
+            return _parts[0];
+        }
 
-        SetContent(propertyLine_parts[2]);
+        return _parts[i];
+    }
 
-        param = propertyLine_parts[3];
+    public void SetPart(int i, string str)
+    {
+        _parts[i] = str;
+    }
+
+    public bool HasPart(int i)
+    {
+        if ( i < _parts.Length)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     // initialisation
     public void Init(Item _item)
     {
-        item = _item;
+        linkedItem = _item;
 
-        switch (type)
+        // if contains a number, its a content ( ex : water/5 )
+        // if contains "=" (0=10) its a range
+
+        // if contains "delay", it's a delay
+        // consider puttin days, hours, minutes etc...
+
+        // if contains ?, show between X values ( opened?closed?half opened )
+        // if contains %, only a chance of having the property ( ex : dirty/50% )
+
+        // EXEMPLE CONTEXTUEL
+        // flashlight
+        // battery/0=5
+        // TURN OFF
+        // off : stop delay
+        // on : start delay
+
+
+        /// NEW
+        for (int i = 0; i < _parts.Length; i++)
         {
-            case Type.boolean:
+            string part = _parts[i];
 
-                // si la valeur n'est pas assignée ça doit être un pourçentage, donc assigner au hasard
-                if (content.Contains("%"))
-                {
-                    string percentSTR = content.Remove(content.Length - 1);
+            // value range
+            // fetch range ("=")
+            // gives random number between X=X
+            if (part.Contains('='))
+            {
+                int min = int.Parse(part.Split('=')[0]);
+                int max = int.Parse(part.Split('=')[1]);
+                _parts[i] = Random.Range(min, max).ToString();
+            }
 
-                    int percent = int.Parse(percentSTR);
-
-                    content = Random.value * 100 < percent ? "true" : "false";
-                }
-
-                if (content != "true" && content != "false")
-                {
-                    Debug.LogError("content for boolean invalid : " + content + " l(" + content.Length + ")");
-                }
-
-                break;
-            case Type.delay:
-
-                // si la propriété est un delai, s'abonner au temps
+            // delay
+            // the valueSSS goes down every hour
+            if (part.Contains("delay"))
+            {
                 TimeManager.GetInstance().onNextHour += HandleOnNextHour;
+            }
 
-                break;
-            case Type.var:
-
-                if ( name == "type")
-                {
-                    if( content == "?")
-                    {
-                        content = Item.GetItemOfType(param).debug_name;
-                    }
-                }
-                break;
-            default:
-                break;
+            // random state
+            // ex : opened?closed?haldopened
+            if(part.Contains("?"))
+            {
+                string[] strs = part.Split('?');
+                _parts[i] = strs[Random.Range(0, strs.Length)];
+            }
         }
-    }
-
-    // setters
-    public void SetContent(string _content)
-    {
-        content = _content;
-    }
-
-    public void SetValue(int _value)
-    {
-        content = _value.ToString();
     }
 
     public int GetValue()
     {
-        int i = 0;
+        int i = -1;
 
-        // ça n'a aucun sens, ça marche pas avec les nombre de plus de 9 trou du cul de merde
-        int maxIndex = content.IndexOf('m');
-        string value_str;
-        if (maxIndex > 0)
+        foreach (var part in _parts)
         {
-            value_str = content.Remove(maxIndex);
-        }
-        else
-        {
-            value_str = content;
+            int.TryParse(part, out i);
         }
 
-        if (int.TryParse(value_str, out i))
+        if ( i == -1)
         {
-            return i;
+            Debug.LogError("couldn't parse");
         }
 
-        if ( value_str == "?")
-        {
-            int a = Random.Range(0, GetMax());
-            content = content.Replace("?", a.ToString());
-            return a;
-        }
-
-        Debug.LogError("couldn't parse : " + value_str + " in property : " + name);
         return i;
     }
+    public void SetValue(int newValue)
+    {
+        int tmpValue = -1;
 
-    #region max
-    public bool HasMax()
-    {
-        return content.Length == 3 && content[1] == 'm';
-    }
-    public int GetMax()
-    {
-        if (!HasMax())
+        for (int i = 0; i < _parts.Length; i++)
         {
-            return 100;
+            if (int.TryParse(_parts[i], out tmpValue))
+            {
+                _parts[i] = newValue.ToString();
+                return;
+            }
         }
 
-        return int.Parse(content[2].ToString());
-    }
-    #endregion
-
-    public string GetContent()
-    {
-        return content;
+        Debug.LogError("couldn't change value because no value parsed");
     }
 
     public string GetDescription()
     {
-        switch (type)
+        if ( _parts.Length == 1)
         {
-            case Type.boolean:
-                return "&le chien (main item)& est " + GetText();
-            case Type.delay:
+            return "it's a " + GetPart(0);
+        }
 
-                Item paramItem = Item.TryGetItem(param);
-                if (paramItem == null)
+        foreach (var part in _parts)
+        {
+            if ( part == "delay")
+            {
+                /*string[] phrases = new string[5]
                 {
-                    return "Il reste " + GetText() + " heures avant que &le chien (main item)& devienne " + param;
-                }
-                else
-                {
-                    PhraseKey.SetOverrideItem(paramItem);
-                    return "Il reste " + GetText() + " avant que &le chien (main item)& devienne &un chien (override item)&";
-                }
-            case Type.value:
-
-                string[] phrases = new string[7]
-                {
-                    "vide",
-                    "presque vide",
-                    "commence à se vider",
-                    "à moitié rempli",
-                    "commence à se remplir",
-                    "presque plein",
-                    "plein",
+                    "empty",
+                    "almost empty",
+                    Random.value < 0.5f ? "half full" : "half empty",
+                    "almost full",
+                    "full",
                 };
 
                 float lerp = (float)GetValue() / GetMax();
                 int index = (int)(lerp * phrases.Length);
-                string phrase = phrases[index];
+                string text = phrases[index];*/
 
-                return "&le chien (main item)& est " + phrase;
-            case Type.type:
-                return "c'est &un chien (main item)& de type " + content;
-            case Type.var:
-                Item item = Item.GetDataItem(content);
-                PhraseKey.SetOverrideItem(item);
-                return "c'est &un chien (override item)&";
-            default:
-                return "<color=red>no type error</color>";
+                return "only " + GetValue() + GetPart(0) + " left";
+            }
         }
+
+        Debug.Log("default property description");
+        return GetPart(0);
+
     }
     public void Write()
     {
-        
-    }
-
-
-    public string GetDebugText()
-    {
-        return "property of : " + item.word.text + " / " + name + " : " + content;
-    }
-
-    public string GetText()
-    {
-        switch (type)
-        {
-            case Type.boolean:
-
-                string[] parts = param.Split('?');
-                return content == "true" ? parts[0] : parts[1];
-
-            case Type.delay:
-
-                return content + " heures";
-
-            case Type.value:
-
-                return content;
-
-            case Type.var:
-
-                return content;
-
-            default:
-                return "<color=red>no type error</color>";
-        }
-
+        Debug.Log("debug stuff");
+        //PhraseKey.Write("item_description");
     }
 
     /// <summary>
@@ -239,25 +192,26 @@ public class Property
     /// </summary>
     public void HandleOnNextHour()
     {
-        // en soit à terme, il faudrait que la fonction soit dans la case elle même
-        // delay/grow/10/BecomeItem(carotte)
-        // pas si compliqué que ça quand on y pense
-
         // decrease time
         int timeLeft = GetValue();
         --timeLeft;
-        SetContent(timeLeft.ToString());
+        SetValue(timeLeft);
 
         // don't do anything if the time left is above 0
         if (timeLeft > 0)
         {
             return;
         }
+
         TimeManager.GetInstance().onNextHour -= HandleOnNextHour;
 
 
         // ici devraient être les actions
-        switch (name)
+        // maintenant c'est juste un état
+        // battery = 0 ? s'allume pas
+        // dry = ?
+        // grow = ?
+        /*switch (name)
         {
             case "dry":
                 Gardening.Dry(this);
@@ -268,33 +222,26 @@ public class Property
             default:
                 //Debug.LogError("timer property : " + name + " is dead end");
                 break;
-        }
+        }*/
     }
 
     #region actions
     public static void ChangeProperty()
     {
-        ChangeProperty(PlayerAction.GetCurrent.GetContent(0), PlayerAction.GetCurrent.GetContent(1));
+        ChangeProperty(PlayerAction.GetCurrent.GetContent(0));
     }
-    public static void ChangeProperty(string propName, string newContent)
+    public static void ChangeProperty(string _property)
     {
         Item targetItem = InputInfo.GetCurrent.MainItem;
 
-        if (!targetItem.HasProperty(propName))
+        if (!targetItem.HasProperty(_property))
         {
-            Debug.LogError(targetItem.debug_name + " doesn't have the property " + newContent);
+            // peut être la rajouter ? si elle n'existe pas, pour être sur ça peut être interessant
+            Debug.LogError(targetItem.debug_name + " doesn't have the property " + _property);
             return;
         }
 
-        Property property = targetItem.GetProperty(propName);
-
-        string currentContent = targetItem.GetProperty(propName).GetContent();
-
-        if (currentContent == newContent)
-        {
-            PhraseKey.Write("&le chien (main item)& est déjà " + targetItem.GetProperty(propName).GetText());
-            return;
-        }
+        Property property = targetItem.GetProperty(_property);
 
         // check if value is +1 or -5
         if (newContent.Contains("+") || newContent.Contains("-"))

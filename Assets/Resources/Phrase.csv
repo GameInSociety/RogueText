@@ -1,109 +1,109 @@
-tile_continue,you continue &on the dog (tile item)&
-,you're still &on the dog (tile item)&
-tile_discover,you discover &a good dog (tile item)&
-,you find youself &on a good dog (tile item)&
-,you are &on a good dog (tile item)&
-tile_goback,here you are &on the good dog (tile item)& again
-,you're back &on the good dog (tile item)&
-surroundingTile_continue,"SURROURING_TILE_ORIENTATION, &the dog (override item)& continue"
-,&the dog (override item)& continue SURROURING_TILE_ORIENTATION
-surroundingTile_discover,you see &a dog (override item)& SURROURING_TILE_ORIENTATION
-,&a dog (override item)& is SURROURING_TILE_ORIENTATION
-,"SURROURING_TILE_ORIENTATION, you see &a dog (override item)&"
-,"you see, SURROURING_TILE_ORIENTATION, &a dog (override item)&"
-,&a dog (override item)& can be seen at SURROURING_TILE_ORIENTATION
-surroundingTile_visited,you see &the dog (override item)& SURROURING_TILE_ORIENTATION
-,&a dog (override item)& is at SURROURING_TILE_ORIENTATION
-,"SURROURING_TILE_ORIENTATION, you see &the dog (override item)&"
-,"you see, SURROURING_TILE_ORIENTATION, &the dog (override item)&"
-,&the dog (override item)& can be seen SURROURING_TILE_ORIENTATION
-movement_feedback,you walk towards &the dog (tile item)& de TARGET_TILE_ORIENTATION
-movement_blocked,there is no &dog (tile item)& TARGET_TILE_ORIENTATION
 bag_equip,you equiped &the dog(main item)& to 
 bag_nothingToEquip,you don't have any &dog& equiped
 bag_unequip,you take off &the dog&
+blocked_hill,"the hill is too steep, can't climb"
+blocked_lake,"the lake is too deep, can't go without a boat"
+blocked_mountain,"you've reached a mountain, go back"
+blocked_river,the current is too strong
+blocked_sea,"you've reach the sea, impossible to advance"
+blocked_void,there's nothing ahead
 compas_giveNorth,the north is PLAYER_ORIENTATION_FROM_NORTH
+container_alreadyClosed,&the dog& is already closed
+container_close,you close &the dog (override item)&
+container_describe,"in &the dog&, you see : CONTAINER_LIST"
+container_empty,there is nothing in &the dog&
 craft_list,"to craft &a dog (override item)&, you need "
 craft_sucess,you crafted &a dog&
 craft_unable,you don't have the necessary meterials to craft &a dog&
+door_locked,"the door is locked, you need a key"
 gardening_grew,&a dog (override item)& appeared in place &of the dog&
 gardening_water,you water &the dog&
-inventory_throw_nothing,you don't have &a dog&
-inventory_throw_sucess,you throw away &the dog&
-container_close,you close &the dog (override item)&
-tile_addItem,&a dog (override item)& appears
-interior_exteriorDescription_visible,"by the window, you see "
-interior_exteriorDescription_blocked,"the window leads some bushed, you don't see anything"
-interior_getout_blocked,the window is blocked by wirings
-inventory_pickUp_already,you already have &the dog&
-item_require,you don't have any &dog (override item)&
-item_use,you use &the dog (override item)&
-item_noSecondItem,VERB_QUESTION do you want to VERB_NAME &the dog&
-item_noProperty,you can't VERB_NAME &the dog (second item)&
-item_NoMoreValue,no more VALUE in  &the dog&
-inventory_close,you close your bag
-container_alreadyClosed,&the dog& is already closed
-container_empty,there is nothing in &the dog&
-container_describe,"in &the dog&, you see : CONTAINER_LIST"
-inventory_TooHeavy,&the dog& is too heavy for the bag
-inventory_PickUp,you took &the dog&
-item_description,you can ITEM_VERBS &the dog& ITEM_PROPERTIES
-item_noDescription,can't do much with &the dog&
-door_locked,"the door is locked, you need a key"
-blocked_hill,"the hill is too steep, can't climb"
-blocked_mountain,"you've reached a mountain, go back"
-blocked_sea,"you've reach the sea, impossible to advance"
-blocked_lake,"the lake is too deep, can't go without a boat"
-blocked_river,the current is too strong
-blocked_void,there's nothing ahead
+health_concerning,you starting to feel bad
+health_critical,you're on the verge of dying
+health_normal,you feel healthy
+health_problematic,you feel very poorly
+hunger_concerning,your belly starts grumbling
+hunger_critical,"you're starving, eat something fast"
+hunger_normal,you ate and feel full
+hunger_problematic,you feel hungry
+input_noCombination,you can't VERB_NAME &the dog&
+input_noItem,VERB_QUESTION do you want to VERB_NAME
 input_nothingRecognized,what do you mean
 input_noVerb,what do you want to do with &the dog&
-input_noItem,VERB_QUESTION do you want to VERB_NAME
-input_noCombination,you can't VERB_NAME &the dog&
-tile_current_description,TILE_CURRENT_DESCRIPTION
-tile_surrounding_description,TILE_SURROUNDING_DESCRIPTION
-lamp_on,you torchlight show you arround
+interior_exteriorDescription_blocked,"the window leads some bushed, you don't see anything"
+interior_exteriorDescription_visible,"by the window, you see "
+interior_getout_blocked,the window is blocked by wirings
+inventory_close,you close your bag
+inventory_PickUp,you took &the dog&
+inventory_pickUp_already,you already have &the dog&
+inventory_throw_nothing,you don't have &a dog&
+inventory_throw_sucess,you throw away &the dog&
+inventory_TooHeavy,&the dog& is too heavy for the bag
+item_description,you can ITEM_VERBS &the dog& ITEM_PROPERTIES
+item_noDescription,can't do much with &the dog&
+item_NoMoreValue,no more VALUE in  &the dog&
+item_noProperty,you can't VERB_NAME &the dog (second item)&
+item_noSecondItem,VERB_QUESTION do you want to VERB_NAME &the dog&
+item_require,you don't have any &dog (override item)&
+item_use,you use &the dog (override item)&
 lamp_off,"it's too dark, you can't see anything"
-weather_dawn,the sun is just rising
-weather_morning,morning is here
-weather_noon,it's now noon
-weather_afternoon,the afternoon is starting
-weather_dusk,the sun is staring to set
-weather_night,the night is here
-tile_item_descriptions,TILE_ITEM_DESCRIPTION
-time_Hour,It's TIMEOFDAY
-weather_RainStarts,a heavy rain sets on &the dog (tile item)&
-weather_RainStops,the rains slowly stop on &the dog (tile item)&
-health_normal,you feel healthy
-health_concerning,you starting to feel bad
-health_problematic,you feel very poorly
-health_critical,you're on the verge of dying
-thirst_normal,you don't feel thirsty
-thirst_concerning,your throat is slighty dry
-thirst_problematic,you're starting to be thirsty
-thirst_critical,"you're completly dry and feel awful, drink something"
-hunger_normal,you ate and feel full
-hunger_concerning,your belly starts grumbling
-hunger_problematic,you feel hungry
-hunger_critical,"you're starving, eat something fast"
-sleep_normal,you feel well rested
-sleep_concerning,you feel slightly tired
-sleep_problematic,you feel tired
-sleep_critical,"you're exhausted, find somewhere to rest"
-position_front,in front of you
-position_frontRight,"in front of you, on the right"
-position_right,on your right
-position_backRight,"behind you, on the right"
+lamp_on,you torchlight show you arround
+movement_blocked,there is no &dog (tile item)& to go to
+movement_feedback,you walk towards &the dog (tile item)&
 position_back,behind you
 position_backLeft,"behind you, on the left"
-position_left,on your left
+position_backRight,"behind you, on the right"
+position_front,in front of you
 position_frontLeft,"in front of you, on the left"
-tile_visionPhrases,next to you
-,not far from reach
-,at walking distance
-tile_positionPhrases,you perceive
-,you see
-,you notice
-tile_locationsPhrases,stands
+position_frontRight,"in front of you, on the right"
+position_left,on your left
 position_orientPlayer,you now face TARGET_ORIENTATION
-fin,fsdfsd
+position_right,on your right
+sleep_concerning,you feel slightly tired
+sleep_critical,"you're exhausted, find somewhere to rest"
+sleep_normal,you feel well rested
+sleep_problematic,you feel tired
+surroundingTile_continue,"SURROURING_TILE_ORIENTATION, &the dog (override item)& continue
+&the dog (override item)& continue SURROURING_TILE_ORIENTATION"
+surroundingTile_discover,"you see &a dog (override item)& SURROURING_TILE_ORIENTATION
+&a dog (override item)& is SURROURING_TILE_ORIENTATION
+SURROURING_TILE_ORIENTATION, you see &a dog (override item)&
+you see, SURROURING_TILE_ORIENTATION, &a dog (override item)&
+&a dog (override item)& can be seen at SURROURING_TILE_ORIENTATION"
+surroundingTile_visited,"you see &the dog (override item)& SURROURING_TILE_ORIENTATION
+&a dog (override item)& is at SURROURING_TILE_ORIENTATION
+SURROURING_TILE_ORIENTATION, you see &the dog (override item)&
+you see, SURROURING_TILE_ORIENTATION, &the dog (override item)&
+&the dog (override item)& can be seen SURROURING_TILE_ORIENTATION"
+thirst_concerning,your throat is slighty dry
+thirst_critical,"you're completly dry and feel awful, drink something"
+thirst_normal,you don't feel thirsty
+thirst_problematic,you're starting to be thirsty
+tile_addItem,&a dog (override item)& appears
+tile_continue,"you continue &on the dog (tile item)&
+you're still &on the dog (tile item)&"
+tile_current_description,TILE_CURRENT_DESCRIPTION
+tile_discover,"you discover &a good dog (tile item)&
+you find youself &on a good dog (tile item)&
+you are &on a good dog (tile item)&"
+tile_goback,"here you are &on the good dog (tile item)& again
+you're back &on the good dog (tile item)&"
+tile_item_descriptions,TILE_ITEM_DESCRIPTION
+tile_locationPhrases,stands
+tile_positionPhrases,"you perceive
+you see
+you notice"
+tile_surrounding_description,TILE_SURROUNDING_DESCRIPTION
+tile_visionPhrases,"next to you
+not far from reach
+at walking distance"
+time_Hour,It's TIMEOFDAY
+weather_afternoon,the afternoon is starting
+weather_dawn,the sun is just rising
+weather_dusk,the sun is staring to set
+weather_morning,morning is here
+weather_night,the night is here
+weather_noon,it's now noon
+weather_RainStarts,a heavy rain sets on &the dog (tile item)&
+weather_RainStops,the rains slowly stop on &the dog (tile item)&
+213,

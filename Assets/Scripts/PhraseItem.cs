@@ -50,6 +50,7 @@ public class ItemPhrase
                 break;
         }
 
+        Debug.Log("phrase type : " + phraseType);
         Debug.Log("direction phrase : " + text);
 
         // mettre la phrase en majuscule

@@ -448,7 +448,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.89506996
+  m_Size: 0.72529423
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1511,7 +1511,7 @@ MonoBehaviour:
   url: https://docs.google.com/spreadsheets/d/1iyVD7GpuSjc9tocA5sPprHDpO1drN16kmCp5GBOD9Oc/edit
   targetAsset: {fileID: 4900000, guid: a62de3ed09f9f094d86b5f0b5e659f87, type: 3}
   phrases:
-  - /Quelque part/
+  - /somewhere/
 --- !u!1 &431890882
 GameObject:
   m_ObjectHideFlags: 0
@@ -3081,7 +3081,7 @@ MonoBehaviour:
   url: https://docs.google.com/spreadsheets/d/1-FG6lFNHvpvVmejBV1lj_FtTtG3J4x7Qm1jHyQioqDk/edit#gid=0
   targetAsset: {fileID: 4900000, guid: 2764b8db5aae63d48b8d8f25c739e51c, type: 3}
   phrases:
-  - /Quelque part/
+  - /somewhere/
 --- !u!1 &1529932468
 GameObject:
   m_ObjectHideFlags: 0
@@ -3281,7 +3281,7 @@ MonoBehaviour:
   genericSockets:
   - itemIndexes: 
     relative: 0
-    _text: par terre
+    _text: on the floor
 --- !u!4 &1578065325
 Transform:
   m_ObjectHideFlags: 0

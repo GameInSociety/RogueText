@@ -12,25 +12,25 @@ public class ItemGroup
     {
         if (count > 5)
         {
-            return "beaucoup " + item.word.GetContent("de chiens");
+            return "a lot " + item.word.GetContent("of dogs");
         }
         else if (count > 3)
         {
-            return "quelques " + item.word.GetContent("chiens");
+            return "a few " + item.word.GetContent("dogs");
         }
         else if (count > 1)
         {
-            return count + " " + item.word.GetContent("chiens");
+            return count + " " + item.word.GetContent("dogs");
         }
         else
         {
             if (!item.stackable)
             {
-                return item.word.GetContent("un chien sage");
+                return item.word.GetContent("a good dog");
             }
             else
             {
-                return item.word.GetContent("un chien");
+                return item.word.GetContent("a dog");
             }
         }
     }

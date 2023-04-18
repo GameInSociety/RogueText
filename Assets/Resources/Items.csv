@@ -19,15 +19,15 @@ around,s,Objet,,FALSE,,,,,,,,LookAround,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 NEW ITEM ,s,Objet,,FALSE,,,,,,,,LookAround,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 door,s,Objet,,FALSE,,,,UseDoor,,,,DescribeItem,UseDoor,,,,,,UseDoor,,,,,,UseDoor,,,,,,,,,,,,,,,
 mushroom,s,Objet,,TRUE,,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-puddle,s,Objet,,TRUE,value/water/10/contient de l'eau sale,,,,,,,DescribeItem,,,"SetState(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
+puddle,s,Objet,,TRUE,value/water/10/contains dirty water,,,,,,,DescribeItem,,,"SetState(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
 bed,s,Objet,,FALSE,,,,,,,"SetState(sleep, +1)",DescribeItem,,,,,,,,,,,,,,,,,Craft,,,,,,,,,,,
 "bottle
 water bottle
-flask",s,Objet,,TRUE,value/water/?m4/contient de l'eau,,,,,,,DescribeItem,PickUp,"RequireProp(water)
+flask",s,Objet,,TRUE,value/water/?m4/contains water,,,,,,,DescribeItem,PickUp,"RequireProp(water)
 ChangeProp(water, +2)","SetState(thirst, -1)
 ChangeProp(water, -1)",,,,,Throw,,,,,,,,,,,,,,,,,,"ChangeProp(water, 0)",,
-sink,s,Objet,,FALSE,value/water/100/contient de l'eau,,,,,,,DescribeItem,,,"SetState(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
-shower,s,Objet,,FALSE,value/water/100/contient de l'eau,,,,,,,DescribeItem,,,"SetState(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
+sink,s,Objet,,FALSE,value/water/100/contains water,,,,,,,DescribeItem,,,"SetState(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
+shower,s,Objet,,FALSE,value/water/100/contains water,,,,,,,DescribeItem,,,"SetState(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
 *remplir*,s,Objet,,FALSE,,,,,,,,DescribeItem,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 letter,s,Objet,,TRUE,,,,,,,,"GiveClue
 SetParam(retrieved_letter, true)","Take
@@ -41,10 +41,10 @@ AddToTile(petit bois, 10)",,,,,,,,,,,,,,,,,,,,,,
 log,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,"WritePhrase(Vous découpez la bûche en plusieurs morceaux)
 AddToTile(petit bois, 3)",,Throw,,,,,,,,,,,,,,,,,,,,
 branch,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-tomato,s,Objet,,TRUE,type/veggie/veggie/légume,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-brocoli,s,Objet,,TRUE,type/veggie/veggie/légume,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-apple,s,Objet,,TRUE,type/veggie/veggie/légume,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-banana,s,Objet,,TRUE,type/veggie/veggie/légume,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+tomato,s,Objet,,TRUE,type/vegetable,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+brocoli,s,Objet,,TRUE,type/vegetable,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+apple,s,Objet,,TRUE,type/vegetable,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+banana,s,Objet,,TRUE,type/vegetable,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 milk bottle,s,Objet,,TRUE,"boolean/turnedOn/50%/spoiled?good
 delay/spoiling/10/spoiled",,,,,,,DescribeItem,PickUp,,"SetState(thirst, +3)
 RemoveItem",,,,,Throw,,,,,,,,,,,,,,,,,,,,
@@ -55,7 +55,7 @@ delay/spoiling/10/spoiled",,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Th
 NEW ITEM ,s,Objet,,TRUE,,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 NEW ITEM ,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,"SetState(thirst+1)
 RemoveItem",,,,,Throw,,,,,,,,,,,,,,,,,,,,
-carrot,s,Objet,,TRUE,"type/veggie/veggie/légume
+carrot,s,Objet,,TRUE,"type/vegetable
 boolean/turnedOn/50%/spoiled?good
 delay/spoiling/10/spoiled",,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 NEW ITEM ,s,Objet,,TRUE,,,,,,"SetState(eat, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
@@ -122,8 +122,10 @@ watch,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,Equip(head),UnEquip(h
 NEW ITEM ,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,Equip(head),UnEquip(head),,,,,,,,,,,,,,,,,,
 washing machine,s,Objet,,FALSE,,,,,,,,DescribeItem,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 candle,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-flashlight,s,Objet,,TRUE,"boolean/turnedOn/50%/allumée?éteinte
-delay/charge/10/déchargée",,,,,,,DescribeItem,PickUp,,,,,,,Throw,Equip(misc),UnEquip(misc),,,,,,,Craft,"ChangeProp(turnedOn, true)","ChangeProp(turnedOn, false)",,,,,,,,"RequireItem(pile)
+flashlight,s,Objet,,TRUE,"boolean/turnedOn/50%/on?off
+delay/charge/10/no battery
+value/water/100/contient de l'eau
+var/type/?/electronics",,,,,,,DescribeItem,PickUp,,,,,,,Throw,Equip(misc),UnEquip(misc),,,,,,,Craft,"ChangeProp(turnedOn, true)","ChangeProp(turnedOn, false)",,,,,,,,"RequireItem(pile)
 ChangeProp(charge, 10)
 RemoveItem(pile)",
 screw,s,Objet,,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -131,7 +133,7 @@ scothtape,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,
 nail,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 paper,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 berry,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-NEW ITEM ,s,Objet,,FALSE,value/water/100/contient de l'eau,,,,,,,DescribeItem,,,"SetState(thirst, +1)",,,,,,,,,,,,,,,,,,,,,,,,,
+NEW ITEM ,s,Objet,,FALSE,,,,,,,,DescribeItem,,,"SetState(thirst, +1)",,,,,,,,,,,,,,,,,,,,,,,,,
 compas,s,Objet,,TRUE,,,,,,,,PointNorth,PickUp,,,,,,,Throw,,,,,,,,,Craft,,,,,,,,,,,
 plank,s,Objet,,TRUE,,,,,,,,DescribeItem,,,,,,,,Throw,,,,,,,,,Craft,,,,,,,,,,,
 piece of cloth,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,WritePhrase(Le morceau de tissu est déjà assez petit…),,,,,,,,,,,,
@@ -161,8 +163,8 @@ hill,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTarget
 mountain,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 forest,s,Rural,in,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 wood,s,Rural,in,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-sea,s,Rural,near,TRUE,value/salt water/1000/contient de l'eau salée,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-lake,s,Rural,near,TRUE,value/water/1000/contient de l'eau,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
+sea,s,Rural,near,TRUE,value/salt water/1000/contains water,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
+lake,s,Rural,near,TRUE,value/water/1000/contains water,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 river,s,Rural,along,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 beach,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 road,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
@@ -182,13 +184,13 @@ dining room,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTa
 children's room,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 bedroom,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 bathromo,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-toilets,p,Urbain,in,FALSE,value/water/2/contient de l'eau,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
+toilets,p,Urbain,in,FALSE,value/water/2/contains water,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 attic,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 basement,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 cellar,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 office,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
 NEW ITEM ,s,Urbain,in,FALSE,,,,,,,,DescribeItem,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-watering can,s,Objet,,TRUE,value/water/?m6/contient de l'eau,,,,,,,DescribeItem,PickUp,"RequireProp(water)
+watering can,s,Objet,,TRUE,value/water/?m6/contains water,,,,,,,DescribeItem,PickUp,"RequireProp(water)
 ChangeProp(water, +1)","SetState(thirst, -1)
 ChangeProp(water, -1)",,,,,,,,,,,,,,,,,,,,,,,"ChangeProp(water, 0)",,
 floor,s,Objet,on,FALSE,,,,,,,,DescribeItem,,,,,,,,,,,,,,,,,,,,,,,,AddToTile(trou),,,,

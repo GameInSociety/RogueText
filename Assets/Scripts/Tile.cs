@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 
 [System.Serializable]
@@ -54,6 +55,9 @@ public class Tile
                 }
             }
         }
+
+        AddItem(Item.CreateNew(Item.GetDataItem("watering can")));
+        AddItem(Item.CreateNew(Item.GetDataItem("flashlight")));
     }
 
     public void RemoveItem(Item item)
@@ -118,6 +122,7 @@ public class Tile
     {
         if (items.Count == 0)
         {
+            Debug.Log("no items on tile");
             return;
         }
 

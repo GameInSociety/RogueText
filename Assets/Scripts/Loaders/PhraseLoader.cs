@@ -15,16 +15,22 @@ public class PhraseLoader : TextParser
     {
         base.GetCell(rowIndex, cells);
 
-        if ( cells[0].Length > 0)
-        {
-            PhraseKey newPhrase = new PhraseKey();
-            newPhrase.key = cells[0];
-
-
-            PhraseKey.phraseKeys.Add(newPhrase);
+        if (cells.Count < 2) {
+            return;
         }
 
-        PhraseKey.phraseKeys[PhraseKey.phraseKeys.Count-1].values.Add(cells[1]);
+        PhraseKey newPhrase = new PhraseKey();
+        newPhrase.key = cells[0];
+
+        string[] parts = cells[1].Split('\n');
+
+        PhraseKey.phraseKeys.Add(newPhrase);
+
+        foreach (var part in parts)
+        {
+            PhraseKey.phraseKeys[PhraseKey.phraseKeys.Count - 1].values.Add(part);
+        }
+
 
     }
 }

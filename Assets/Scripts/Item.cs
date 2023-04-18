@@ -263,6 +263,8 @@ public class Item
         newItem.appearInfos = copy.appearInfos;
         newItem.socket = copy.socket;
         newItem.sockets = copy.sockets;
+
+        // the word never changes, non ? pourquoi en copy
         newItem.word = new Word(copy.word);
         newItem.stackable = copy.stackable;
 
@@ -519,7 +521,7 @@ public class Item
                     {
                         if (i == _items.Count - 2)
                         {
-                            text += " et ";
+                            text += " and ";
                         }
                         else
                         {
@@ -528,7 +530,7 @@ public class Item
                     }
                     else
                     {
-                        text += " et ";
+                        text += " and ";
                     }
                 }
 
@@ -566,7 +568,7 @@ public class Item
                     {
                         if (i == _itemSockets.Count - 2)
                         {
-                            text += " et ";
+                            text += " and ";
                         }
                         else
                         {
@@ -575,7 +577,7 @@ public class Item
                     }
                     else
                     {
-                        text += " et ";
+                        text += " and ";
                     }
                 }
 
@@ -589,11 +591,6 @@ public class Item
     #endregion
 
     #region actions
-    public static void Describe (Item item)
-    {
-        
-    }
-
     public void Describe()
     {
         if (CanBeDescribed())
@@ -701,12 +698,12 @@ public class Item
 
     public bool HasProperty(string name)
     {
-        return properties.Find(x => x.name == name) != null;
+        return properties.Find(x => x.GetPart(0) == name) != null;
     }
 
     public Property GetProperty(string name)
     {
-        Property property = properties.Find(x => x.name == name);
+        Property property = properties.Find(x => x.GetPart(0) == name);
 
         if (property == null)
         {
