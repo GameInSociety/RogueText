@@ -56,7 +56,7 @@ public class DisplayDescription : MonoBehaviour {
         }
         else
         {
-            PhraseKey.Write("tile_current_description");
+            PhraseKey.WritePhrase("tile_current_description");
         }
 
         // SURROUNDING TILES

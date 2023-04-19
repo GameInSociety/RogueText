@@ -84,8 +84,7 @@ public class CraftManager : MonoBehaviour {
 
         string list_str = Item.ItemListString(requiredItems, Item.ListSeparator.Commas, false);
         Item targetItem = Item.dataItems[targetCraftInfo.itemRow];
-        PhraseKey.SetOverrideItem(targetItem);
-        PhraseKey.Write("/craft_list/ " + list_str);
+        PhraseKey.WritePhrase("/craft_list/ " + list_str, targetItem);
     }
 
     private void Craft()
@@ -131,12 +130,12 @@ public class CraftManager : MonoBehaviour {
 
                 Inventory.Instance.AddItem(InputInfo.GetCurrent.MainItem);
 
-                PhraseKey.Write("craft_sucess");
+                PhraseKey.WritePhrase("craft_sucess");
 
             }
             else
             {
-                PhraseKey.Write("craft_unable");
+                PhraseKey.WritePhrase("craft_unable");
             }
         }
         

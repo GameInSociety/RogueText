@@ -126,7 +126,7 @@ public class Tile
             return;
         }
 
-        PhraseKey.Write("tile_item_descriptions");
+        PhraseKey.WritePhrase("tile_item_descriptions");
 
     }
     public string GetItemDescriptions()

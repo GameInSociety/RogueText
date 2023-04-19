@@ -124,7 +124,7 @@ public struct Coords
 
     public static void WriteDirectionToNorth()
     {
-        PhraseKey.Write("compas_giveNorth");
+        PhraseKey.WritePhrase("compas_giveNorth");
     }
 
     public bool OutOfMap()

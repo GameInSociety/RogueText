@@ -168,13 +168,12 @@ public class Item
         // toujours dans la classe inventory.cs pour l'intsant
         if (!Container.opened)
         {
-            PhraseKey.Write("container_alreadyClosed");
+            PhraseKey.WritePhrase("container_alreadyClosed");
             return;
         }
 
         Container.opened = false;
-        PhraseKey.SetOverrideItem(Container.CurrentItem);
-        PhraseKey.Write("container_clsose");
+        PhraseKey.WritePhrase("container_clsose", Container.CurrentItem);
     }
     ///
 
@@ -186,12 +185,12 @@ public class Item
         if (!ContainsItems())
         {
             Debug.Log(debug_name + " is empty");
-            PhraseKey.Write("container_empty");
+            PhraseKey.WritePhrase("container_empty");
             return;
         }
 
         PhraseKey.Renew();
-        PhraseKey.Write("container_describe");
+        PhraseKey.WritePhrase("container_describe");
     }
 
     public bool SameTypeAs(Item otherItem)
@@ -269,11 +268,12 @@ public class Item
         newItem.stackable = copy.stackable;
 
         // unique
-        newItem.properties = new List<Property>(copy.properties);
+        newItem.properties = new List<Property>();
 
-        foreach (var _property in newItem.properties)
+        foreach (var _property in copy.properties)
         {
-            _property.Init(newItem);
+            Property newProperty = new Property(_property.GetLine(), newItem);
+            newItem.properties.Add(newProperty);
         }
 
         return newItem;
@@ -284,7 +284,7 @@ public class Item
     {
         if (Inventory.Instance.bag_Item.GetContainedItemWeight() + weight > Inventory.Instance.maxWeight)
         {
-            PhraseKey.Write("inventory_TooHeavy");
+            PhraseKey.WritePhrase("inventory_TooHeavy");
             return;
         }
 
@@ -292,10 +292,18 @@ public class Item
 
         Inventory.Instance.AddItem(this);
 
-        PhraseKey.Write("inventory_PickUp");
+        PhraseKey.WritePhrase("inventory_PickUp");
     }
 
-    #region remove
+    #region remove & destroy
+    public static void Destroy(Item item){
+        
+        Remove(item);
+
+        Destroy(item);
+
+
+    }
     public static void Remove(Item targetItem)
     {
         // first search thing in opened container
@@ -485,6 +493,11 @@ public class Item
 
         return dataItems.FindAll(x => x.word.text.StartsWith(str));
     }
+    public static Item FindByName(string str){
+        str = str.ToLower();
+        return dataItems.Find(x => x.word.text.StartsWith(str));
+
+    }
     #endregion
 
     #region list
@@ -595,11 +608,11 @@ public class Item
     {
         if (CanBeDescribed())
         {
-            PhraseKey.Write("item_description");
+            PhraseKey.WritePhrase("item_description");
         }
         else
         {
-            PhraseKey.Write("item_noDescription");
+            PhraseKey.WritePhrase("item_noDescription");
         }
     }
 
@@ -666,29 +679,19 @@ public class Item
     /// <summary>
     /// static functions
     /// </summary>
-    /// <param name="propName"></param>
-    /// <param name="newValue"></param>
-    public void AddProperty(string name, string value)
-    {
-        Property newProperty = new Property();
-        newProperty.name = name;
-        newProperty.SetContent(value);
-        AddProperty(newProperty);
+    
+    // adds whole new property
+    public Property AddProperty(string line){
+        Property newProperty = new Property(line, this);
+        properties.Add(newProperty);
+
+        return newProperty;
     }
 
+    // add existing property, not sure where it's use
     public void AddProperty(Property property)
     {
         properties.Add(property);
-    }
-
-    public void RemoveProperty(string name)
-    {
-        Property prop = properties.Find(x => x.name == name);
-
-        if (prop == null)
-        {
-            Debug.LogError("property : " + name + " hasn't been found");
-        }
     }
 
     public bool HasProperties()

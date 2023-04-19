@@ -177,21 +177,24 @@ public class PhraseKey
         return overrideOrientation;
     }
 
-    public static void Write( string str)
+    #region write phrase
+    public static void WritePhrase( string str, Item overrideItem)
     {
-        if (str.Contains('/'))
-        {
-            int startIndex = str.IndexOf("/");
-            int endIndex = str.IndexOf("/", startIndex + 1);
-            string phraseKey = str.Remove(endIndex).Remove(0, 1);
-            Debug.Log("phrase code : " + phraseKey);
-            str = str.Replace("/" + phraseKey + "/", GetPhrase(phraseKey));
-        }
-        else
-        {
-            DisplayDescription.Instance.AddToDescription(GetPhrase(str));
-        }
+        SetOverrideItem(overrideItem);
+        WritePhrase(str);
     }
+    public static void WritePhrase( string str)
+    {
+        string text = GetPhrase(str);
+
+        DisplayDescription.Instance.AddToDescription(text);
+    }
+
+    public static void WriteHard (string str){
+        DisplayDescription.Instance.AddToDescription(str);
+
+    }
+    #endregion
 
     public static void Space()
     {

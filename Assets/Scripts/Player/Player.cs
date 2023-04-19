@@ -101,17 +101,14 @@ public class Player : MonoBehaviour {
         // check if locked
         if (targetItem.HasProperty("locked"))
         {
-            if (targetItem.GetProperty("locked").GetContent() == "true")
-            {
-                PhraseKey.Write("door_locked");
-                return;
-            }
+            PhraseKey.WritePhrase("door_locked");
+            return;
         }
 
         // check if has direction ( for interiors )
         if (!targetItem.HasProperty("entrance"))
         {
-            switch (targetItem.GetProperty("direction").GetContent())
+            switch (targetItem.GetProperty("direction").GetPart(1))
             {
                 case "to north":
                     Move(Cardinal.North);
@@ -251,7 +248,7 @@ public class Player : MonoBehaviour {
                     }
                     else
                     {
-                        PhraseKey.Write("movement_blocked");
+                        PhraseKey.WritePhrase("movement_blocked");
                     }
                     return;
                 }
@@ -269,7 +266,7 @@ public class Player : MonoBehaviour {
     public void Orient(Orientation orientation)
     {
         PhraseKey.SetOverrideOrientation(orientation);
-        PhraseKey.Write("position_orientPlayer");
+        PhraseKey.WritePhrase("position_orientPlayer");
         SetDirection(GetCardinal(orientation));
     }
     public void SetDirection(Cardinal cardinal)
@@ -284,25 +281,25 @@ public class Player : MonoBehaviour {
 		Tile targetTile = TileSet.current.GetTile (c);
 
 		if ( targetTile == null ) {
-			PhraseKey.Write ("blocked_void");
+			PhraseKey.WritePhrase ("blocked_void");
 			return false;
 		}
 
 		switch (targetTile.type) {
 		case Tile.Type.Hill:
-			PhraseKey.Write ("blocked_hill");
+			PhraseKey.WritePhrase ("blocked_hill");
 			return false;
 		case Tile.Type.Mountain:
-			PhraseKey.Write ("blocked_mountain");
+			PhraseKey.WritePhrase ("blocked_mountain");
 			return false;
 		case Tile.Type.Sea:
-			PhraseKey.Write ("blocked_sea");
+			PhraseKey.WritePhrase ("blocked_sea");
 			return false;
 		case Tile.Type.Lake:
-			PhraseKey.Write ("blocked_lake");
+			PhraseKey.WritePhrase ("blocked_lake");
 			return false;
 		case Tile.Type.River:
-			PhraseKey.Write ("blocked_river");
+			PhraseKey.WritePhrase ("blocked_river");
 			return false;
 		default:
 			break;

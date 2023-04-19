@@ -41,10 +41,10 @@ public class PlayerActionManager : MonoBehaviour
                 Coords.WriteDirectionToNorth();
                 break;
             case PlayerAction.Type.ChangeProp:
-                Property.ChangeProperty();
+                PropertyManager.Instance.ChangeProperty();
                 break;
             case PlayerAction.Type.AddProp:
-                Property.AddProperty();
+                PropertyManager.Instance.AddProperty();
                 break;
             default:
                 break;
@@ -65,7 +65,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("no verb, no items");
             }
 
-            PhraseKey.Write("input_nothingRecognized");
+            PhraseKey.WritePhrase("input_nothingRecognized");
             return;
         }
 
@@ -77,7 +77,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("no verb");
             }
 
-            PhraseKey.Write("input_noVerb");
+            PhraseKey.WritePhrase("input_noVerb");
             return;
         }
 
@@ -97,7 +97,7 @@ public class PlayerActionManager : MonoBehaviour
             // no verb, displaying thing
             if (inputInfo.combination == null)
             {
-                PhraseKey.Write("input_noItem");
+                PhraseKey.WritePhrase("input_noItem");
                 return;
             }
         }
@@ -110,7 +110,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("Fail : no combination between verb : " + inputInfo.verb.names[0] + " and item : " + inputInfo.MainItem.word.text);
             }
 
-            PhraseKey.Write("input_noCombination");
+            PhraseKey.WritePhrase("input_noCombination");
             return;
         }
 
@@ -182,19 +182,7 @@ public class PlayerActionManager : MonoBehaviour
 
             foreach (var arg in args)
             {
-                int i = 0;
-
                 newAction.AddContent(arg);
-
-                /*if (int.TryParse(arg, out i))
-                {
-                    newAction.values.Add(i);
-                }
-                else
-                {
-                    newAction.contents.Add(arg);
-                }*/
-
             }
         }
 

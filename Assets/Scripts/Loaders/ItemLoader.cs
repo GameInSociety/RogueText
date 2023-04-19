@@ -93,12 +93,7 @@ public class ItemLoader : TextParser {
             {
                 foreach (var property_line in property_lines)
                 {
-                    Property newProperty = new Property(property_line);
-
-                    // !!! reel probleme ici, pourquoi mes trucs se mettent en copie ? !!!
-                    // pas sûr que ce soit d'actualité à vérifier
-                    // 3 ans après, théo à côté, toujours aucune idée de ce que ça veut dire
-                    newItem.AddProperty(newProperty);
+                    newItem.AddProperty(property_line);
                 }
             }
             //

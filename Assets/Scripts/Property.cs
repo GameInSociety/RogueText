@@ -7,13 +7,18 @@ using UnityEngine.Android;
 public class Property
 {
     // les parties
-    // et si, par soucis de sauvegarde, de serialisation, etc les parts étaient tout le temps un string
-    // qu'on split à chaque fois qu'on y accede 
+    // et si, par soucis de sauvegarde, de serialisation, etc les parts ï¿½taient tout le temps un string
+    // qu'on split ï¿½ chaque fois qu'on y accede 
     private string[] _parts;
 
-    // l'objet à laquelle la propriété est attachée,
-    // trouver un autre moyen parce que niveau mémoire et serialization c'est pas ouf
+    // l'objet ï¿½ laquelle la propriï¿½tï¿½ est attachï¿½e,
+    // trouver un autre moyen parce que niveau mï¿½moire et serialization c'est pas ouf
+    // bien dit, le moyen se serait de regarder si on peut pas gÃ©rer certaine chose dans l'objet pour avoir le lien
+    // ( et pour Ã§a regarder "growing" de Gardening )
     private Item linkedItem;
+
+    //  the max of the potential value, set when  (0=10) 10 = max
+    public int value_max;
 
     /// <summary>
     /// CONSTRUCTOR
@@ -22,13 +27,28 @@ public class Property
     {
 
     }
-    public Property(string line)
+    public Property(string line, Item item)
     {
+        UpdateParts(_parts);
+        linkedItem = item;
         _parts = line.Split('/');
     }
     ///
 
     /// GET THE PARTS
+    public string GetLine(){
+        string line = "";
+        for (int i = 0; i < _parts.Length; ++i){
+
+            line += _parts[i];
+
+            if (i < _parts.Length-1){
+                line += "/";
+            }
+        }
+
+        return line;
+    }
     public string GetPart(int i)
     {
         if ( i >= _parts.Length)
@@ -60,60 +80,6 @@ public class Property
         else
         {
             return true;
-        }
-    }
-
-    // initialisation
-    public void Init(Item _item)
-    {
-        linkedItem = _item;
-
-        // if contains a number, its a content ( ex : water/5 )
-        // if contains "=" (0=10) its a range
-
-        // if contains "delay", it's a delay
-        // consider puttin days, hours, minutes etc...
-
-        // if contains ?, show between X values ( opened?closed?half opened )
-        // if contains %, only a chance of having the property ( ex : dirty/50% )
-
-        // EXEMPLE CONTEXTUEL
-        // flashlight
-        // battery/0=5
-        // TURN OFF
-        // off : stop delay
-        // on : start delay
-
-
-        /// NEW
-        for (int i = 0; i < _parts.Length; i++)
-        {
-            string part = _parts[i];
-
-            // value range
-            // fetch range ("=")
-            // gives random number between X=X
-            if (part.Contains('='))
-            {
-                int min = int.Parse(part.Split('=')[0]);
-                int max = int.Parse(part.Split('=')[1]);
-                _parts[i] = Random.Range(min, max).ToString();
-            }
-
-            // delay
-            // the valueSSS goes down every hour
-            if (part.Contains("delay"))
-            {
-                TimeManager.GetInstance().onNextHour += HandleOnNextHour;
-            }
-
-            // random state
-            // ex : opened?closed?haldopened
-            if(part.Contains("?"))
-            {
-                string[] strs = part.Split('?');
-                _parts[i] = strs[Random.Range(0, strs.Length)];
-            }
         }
     }
 
@@ -149,6 +115,7 @@ public class Property
         Debug.LogError("couldn't change value because no value parsed");
     }
 
+    #region description
     public string GetDescription()
     {
         if ( _parts.Length == 1)
@@ -158,9 +125,13 @@ public class Property
 
         foreach (var part in _parts)
         {
-            if ( part == "delay")
+            if ( part == "subTime")
             {
-                /*string[] phrases = new string[5]
+                if ( GetValue() == 0){
+                    return "it's " + GetPart(0);
+                }
+
+                string[] phrases = new string[5]
                 {
                     "empty",
                     "almost empty",
@@ -169,11 +140,11 @@ public class Property
                     "full",
                 };
 
-                float lerp = (float)GetValue() / GetMax();
+                float lerp = (float)GetValue() / value_max;
                 int index = (int)(lerp * phrases.Length);
-                string text = phrases[index];*/
-
-                return "only " + GetValue() + GetPart(0) + " left";
+                string text = phrases[index];
+                return "it's " + text;
+                //return "only " + GetValue() + GetPart(0) + " left";
             }
         }
 
@@ -183,12 +154,16 @@ public class Property
     }
     public void Write()
     {
-        Debug.Log("debug stuff");
-        //PhraseKey.Write("item_description");
+        PhraseKey.WriteHard(GetDescription());
     }
-
-    /// <summary>
-    /// ça a pas grand chose à foutre là quand on y pense
+    #endregion
+   
+    #region time handle
+     /// <summary>
+    /// ï¿½a a pas grand chose ï¿½ foutre lï¿½ quand on y pense
+    /// effectivement, on peut mettre cette fonction dans l'Item en lui meme
+    /// pour ne pas avoir le lien avec l'item DANS la property, dÃ©jÃ 
+    /// et aussi, lire plus loin dans la fonctin handonnexthour, mais faire ce truc de dif du temps
     /// </summary>
     public void HandleOnNextHour()
     {
@@ -203,11 +178,62 @@ public class Property
             return;
         }
 
-        TimeManager.GetInstance().onNextHour -= HandleOnNextHour;
+        // name/10/subTime/ITEM?
+        // check if there's a third part
+        // if the third part is an item, transform into item
+        // else, add it as property ?
+
+        // consequences for each part after "subTime"
+        for(int i = 3; i < _parts.Length; ++i){
+
+            // get the text of the part
+            string part = GetPart(i);
+            
+            // check if it's an item
+            Item tmpItem = Item.FindByName(part);
+            if (tmpItem != null){
+                // transform the property item into a new item ( pas trÃ¨s souple mais Ã  voir Ã§a peut faire le taf)
+                Item newItem = Item.CreateNew(tmpItem);
+                Debug.Log("found item " + part);
+                Item.Destroy(linkedItem);
+
+                /// IMPORTANT //
+                // actuelement l'objet est ajoutÃ© dans la tile actuelle parce qu'il n'y a pas de lien vers la tle dans la property
+                // POUR rÃ©soudre Ã§a, il faut check la diffÃ©rence de temps quand le joueur arrive dans une tile
+                // EXEMPLE :
+                // dry/5/subTime/gardening#0#unsubTime
+                // growing/10/subTime/carrot
+                // quand on arrive dans la tile, on check toutes les heures passÃ©es depuis la sub
+                // on loop tout Ã§a et le monticule sera dry avant de pouvoir grow ( t'as compris ?)
+                // comme Ã§a, beaucoup moins de suscription, mais juste une heure Ã  retenir par rappor au dÃ©but
+                // c'est bien, en tout cas Ã§a parait bien
+
+                Tile.GetCurrent.AddItem(newItem);
+                PhraseKey.WritePhrase("gardening_grew", newItem);
+            }
+            else{
+                // check if changing or adding property
+                string line = part.Replace('#', '/');
+                string[] tmpParts = line.Split('/');;
+                
+                if ( linkedItem.HasProperty(tmpParts[0])){
+                    Property tmpProperty = linkedItem.GetProperty(tmpParts[0]);
+                    tmpProperty.UpdateParts(tmpParts);
+                }
+                else{
+                    linkedItem.AddProperty(line);
+                }
+                
+            }
+        }
+
+        
+
+        UnsubscribeToTime();
 
 
-        // ici devraient être les actions
-        // maintenant c'est juste un état
+        // ici devraient ï¿½tre les actions
+        // maintenant c'est juste un ï¿½tat
         // battery = 0 ? s'allume pas
         // dry = ?
         // grow = ?
@@ -224,110 +250,38 @@ public class Property
                 break;
         }*/
     }
-
-    #region actions
-    public static void ChangeProperty()
+    public void SubscribeToTime()
     {
-        ChangeProperty(PlayerAction.GetCurrent.GetContent(0));
+        TimeManager.GetInstance().onNextHour += HandleOnNextHour;
+        
     }
-    public static void ChangeProperty(string _property)
+    public void UnsubscribeToTime()
     {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
+        TimeManager.GetInstance().onNextHour -= HandleOnNextHour;
+    }
 
-        if (!targetItem.HasProperty(_property))
+    public void UpdateParts(string[] tmpParts){
+        foreach (string part in tmpParts)
         {
-            // peut être la rajouter ? si elle n'existe pas, pour être sur ça peut être interessant
-            Debug.LogError(targetItem.debug_name + " doesn't have the property " + _property);
-            return;
-        }
-
-        Property property = targetItem.GetProperty(_property);
-
-        // check if value is +1 or -5
-        if (newContent.Contains("+") || newContent.Contains("-"))
-        {
-            int currentValue = targetItem.GetProperty(propName).GetValue();
-
-            string sign_str = newContent[0].ToString();
-            string amount_str = newContent[1].ToString();
-
-            int amount = int.Parse(amount_str);
-            int result = 0;
-
-            switch (sign_str)
-            {
-                case "+":
-                    result = currentValue + amount;
-                    break;
-
-                case "-":
-                    result = currentValue - amount;
-                    break;
-
-                default:
-                    result = 1;
-                    break;
+            int value = 0;
+            if ( int.TryParse(part, out value ) ){
+                int newValue = GetValue() + value;
+                newValue = Mathf.Clamp(newValue, 0, value_max);
+                SetValue(newValue);
+                continue;
             }
 
-            if (currentValue>= property.GetMax()||result >= property.GetMax())
-            {
-                result = Mathf.Clamp(result, 0, property.GetMax());
-                PhraseKey.Write("&le chien (main item)& est plein");
+            if ( part.Contains("subTime")){
+                SubscribeToTime();
+                continue;
             }
 
-            // change target content
-            // un peu chiant de devoir remettre le "m" à chaque fois mais en plus ça marche peut être pas
-            newContent = result.ToString() + "m" + property.GetMax();
+            if (part.Contains("unsubTime")){
+                UnsubscribeToTime();
+                continue;
+            }
+            
         }
-
-        targetItem.GetProperty(propName).SetContent(newContent);
-
-        targetItem.GetProperty(propName).Write();
-    }
-
-    public static void AddProperty()
-    {
-        switch (PlayerAction.GetCurrent.GetContentCount())
-        {
-            case 1:
-                AddProperty( PlayerAction.GetCurrent.GetContent(0) );
-                break;
-            case 2:
-                Item item = Item.FindInWorld(PlayerAction.GetCurrent.GetContent(1));
-                if (item != null)
-                {
-                    Debug.Log("found item : " + item.debug_name);
-                }
-                else
-                {
-                    Debug.LogError("couldn't find item : " + PlayerAction.GetCurrent.GetContent(1));
-                }
-                AddProperty( item,  PlayerAction.GetCurrent.GetContent(0) );
-                break;
-            default:
-                break;
-        }
-    }
-
-    public static void AddProperty(string str)
-    {
-        AddProperty(InputInfo.GetCurrent.MainItem, str);
-    }
-    public static void AddProperty(Item item, string str)
-    {
-        Property property;
-        // désolé, gabriel du futur, c'est vraiment dégueulasse ce que tu fais et ça va poser des problemes
-        if (str == "Main Item Prop")
-        {
-            property = InputInfo.GetCurrent.MainItem.properties[0];
-            Debug.Log("adding the same property");
-        }
-        else
-        {
-            property = new Property(str);
-        }
-
-        item.AddProperty(property);
     }
     #endregion
 }

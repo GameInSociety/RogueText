@@ -41,16 +41,16 @@ public class SurroundingTileManager {
         {
             if (Inventory.Instance.HasItem("lampe"))
             {
-                PhraseKey.Write("lamp_on");
+                PhraseKey.WritePhrase("lamp_on");
             }
             else
             {
-                PhraseKey.Write("lamp_off");
+                PhraseKey.WritePhrase("lamp_off");
                 return;
             }
         }
 
-        PhraseKey.Write("tile_surrounding_description");
+        PhraseKey.WritePhrase("tile_surrounding_description");
     }
 
     public static string GetSurroundingTilesDescription()

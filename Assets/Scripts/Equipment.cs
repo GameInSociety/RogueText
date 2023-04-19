@@ -70,7 +70,7 @@ public class Equipment {
 
         Item.Remove(InputInfo.GetCurrent.MainItem);
 
-        PhraseKey.Write("/_bag_equip/" + part.ToString());
+        PhraseKey.WritePhrase("/_bag_equip/" + part.ToString());
 
     }
 
@@ -80,13 +80,13 @@ public class Equipment {
 
         if ( GetEquipement(part) != InputInfo.GetCurrent.MainItem)
         {
-            PhraseKey.Write("bag_nothingToEquip");
+            PhraseKey.WritePhrase("bag_nothingToEquip");
             return;
         }
 
         Inventory.Instance.AddItem(InputInfo.GetCurrent.MainItem);
 
-        PhraseKey.Write("bag_unequip");
+        PhraseKey.WritePhrase("bag_unequip");
 
         SetEquipment(part, null);
     }

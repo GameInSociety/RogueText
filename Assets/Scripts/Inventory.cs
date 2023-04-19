@@ -72,7 +72,7 @@ public class Inventory : MonoBehaviour {
 
         if (item == null)
         {
-            PhraseKey.Write("inventory_throw_nothing");
+            PhraseKey.WritePhrase("inventory_throw_nothing");
             return;
         }
 
@@ -80,7 +80,7 @@ public class Inventory : MonoBehaviour {
 
         Tile.GetCurrent.AddItem(InputInfo.GetCurrent.MainItem);
 
-        PhraseKey.Write("inventory_throw_sucess");
+        PhraseKey.WritePhrase("inventory_throw_sucess");
     }
 
     void PickUp()
@@ -101,7 +101,7 @@ public class Inventory : MonoBehaviour {
         {
             if (bag_Item.ContainsItem(item))
             {
-                PhraseKey.Write("inventory_pickUp_already");
+                PhraseKey.WritePhrase("inventory_pickUp_already");
             }
             else
             {
@@ -177,19 +177,16 @@ public class Inventory : MonoBehaviour {
             Tile.GetCurrent.AddItem(item);
         }
 
-        PhraseKey.SetOverrideItem(item);
-        PhraseKey.Write("tile_addItem");
+        PhraseKey.WritePhrase("tile_addItem", item);
     }
     #endregion
 
     public bool CanSee()
     {
-        bool hasLamp = Inventory.Instance.HasItem("lampe torche");
-        if (hasLamp)
+        Item item = Inventory.Instance.GetItem("torchlight");
+        if ( item != null && item.GetProperty("battery").GetValue() > 0)
         {
-            bool lampTurnedOn = Inventory.Instance.GetItem("lampe torche").GetProperty("turnedOn").GetContent() == "true";
-
-            bool lampCharged = Inventory.Instance.GetItem("lampe torche").GetProperty("charge").GetValue() > 0;
+            return true;
         }
 
         return false;
@@ -211,14 +208,12 @@ public class Inventory : MonoBehaviour {
             // found no item in container, inventory or tile
             // break flow of actions
             targetItem = Item.GetDataItem(item_name);
-            PhraseKey.SetOverrideItem(targetItem);
-            PhraseKey.Write("item_require");
+            PhraseKey.WritePhrase("item_require", targetItem);
             PlayerActionManager.Instance.BreakAction();
             return;
         }
 
-        PhraseKey.SetOverrideItem(targetItem);
-        PhraseKey.Write("item_use");
+        PhraseKey.WritePhrase("item_use", targetItem);
 
         // s'il a l'objet en question, ne rien faire, juste continuer les actions
     }
@@ -227,7 +222,7 @@ public class Inventory : MonoBehaviour {
         if (!InputInfo.GetCurrent.HasSecondItem())
         {
             Debug.LogError("no second item");
-            PhraseKey.Write("item_noSecondItem");
+            PhraseKey.WritePhrase("item_noSecondItem");
             return;
         }
 
@@ -237,7 +232,7 @@ public class Inventory : MonoBehaviour {
 
         if (!InputInfo.GetCurrent.GetSecondItem.HasProperty(prop_name))
         {
-            PhraseKey.Write("item_noProperty");
+            PhraseKey.WritePhrase("item_noProperty");
             return;
         }
 
@@ -248,7 +243,7 @@ public class Inventory : MonoBehaviour {
             // est-ce que c'est le meme texte qui apparait partout ?
             // une nouvelle fonction ? CheckIfThereStillSomethingLeft()
             Debug.LogError("ici y'a un truc à changer ça veut rien dire");
-            PhraseKey.Write("item_NoMoreValue");
+            PhraseKey.WritePhrase("item_NoMoreValue");
             return;
         }
 
