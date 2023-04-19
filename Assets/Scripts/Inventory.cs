@@ -1,5 +1,4 @@
-﻿using JetBrains.Annotations;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -183,6 +182,15 @@ public class Inventory : MonoBehaviour {
 
     public bool CanSee()
     {
+        // avec nouveau systeme, pour simplifier et organiser :
+        // inventory.instance.ItemWithType("source of light");
+        // la property ressemblerait à ça :
+        // source of light
+        // battery/10/subTime/source of light#remove
+        // je crois que ça peut marcher comme ça
+
+        // alos chek if there's a source of light in the room
+
         Item item = Inventory.Instance.GetItem("torchlight");
         if ( item != null && item.GetProperty("battery").GetValue() > 0)
         {

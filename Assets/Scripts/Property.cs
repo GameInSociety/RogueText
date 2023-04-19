@@ -11,6 +11,9 @@ public class Property
     // qu'on split � chaque fois qu'on y accede 
     private string[] _parts;
 
+    public bool enabled = false;
+    private string[] _events;
+
     // l'objet � laquelle la propri�t� est attach�e,
     // trouver un autre moyen parce que niveau m�moire et serialization c'est pas ouf
     // bien dit, le moyen se serait de regarder si on peut pas gérer certaine chose dans l'objet pour avoir le lien
@@ -18,7 +21,7 @@ public class Property
     private Item linkedItem;
 
     //  the max of the potential value, set when  (0=10) 10 = max
-    public int value_max;
+    public int value_max = 10;
 
     /// <summary>
     /// CONSTRUCTOR
@@ -29,13 +32,13 @@ public class Property
     }
     public Property(string line, Item item)
     {
-        UpdateParts(_parts);
         linkedItem = item;
         _parts = line.Split('/');
+        InitParts();
     }
     ///
 
-    /// GET THE PARTS
+    #region setters & getters
     public string GetLine(){
         string line = "";
         for (int i = 0; i < _parts.Length; ++i){
@@ -114,6 +117,7 @@ public class Property
 
         Debug.LogError("couldn't change value because no value parsed");
     }
+    #endregion
 
     #region description
     public string GetDescription()
@@ -159,7 +163,29 @@ public class Property
     #endregion
    
     #region time handle
-     /// <summary>
+    public void SubscribeToTime()
+    {
+        TimeManager.GetInstance().onNextHour += HandleOnNextHour;
+        
+    }
+    public void UnsubscribeToTime()
+    {
+        TimeManager.GetInstance().onNextHour -= HandleOnNextHour;
+    }
+
+
+    public bool IsSubscribedToTime(){
+
+        foreach (string part in _parts ){
+            if ( part == "subTime")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    /// <summary>
     /// �a a pas grand chose � foutre l� quand on y pense
     /// effectivement, on peut mettre cette fonction dans l'Item en lui meme
     /// pour ne pas avoir le lien avec l'item DANS la property, déjà
@@ -177,92 +203,23 @@ public class Property
         {
             return;
         }
-
-        // name/10/subTime/ITEM?
-        // check if there's a third part
-        // if the third part is an item, transform into item
-        // else, add it as property ?
-
-        // consequences for each part after "subTime"
-        for(int i = 3; i < _parts.Length; ++i){
-
-            // get the text of the part
-            string part = GetPart(i);
-            
-            // check if it's an item
-            Item tmpItem = Item.FindByName(part);
-            if (tmpItem != null){
-                // transform the property item into a new item ( pas très souple mais à voir ça peut faire le taf)
-                Item newItem = Item.CreateNew(tmpItem);
-                Debug.Log("found item " + part);
-                Item.Destroy(linkedItem);
-
-                /// IMPORTANT //
-                // actuelement l'objet est ajouté dans la tile actuelle parce qu'il n'y a pas de lien vers la tle dans la property
-                // POUR résoudre ça, il faut check la différence de temps quand le joueur arrive dans une tile
-                // EXEMPLE :
-                // dry/5/subTime/gardening#0#unsubTime
-                // growing/10/subTime/carrot
-                // quand on arrive dans la tile, on check toutes les heures passées depuis la sub
-                // on loop tout ça et le monticule sera dry avant de pouvoir grow ( t'as compris ?)
-                // comme ça, beaucoup moins de suscription, mais juste une heure à retenir par rappor au début
-                // c'est bien, en tout cas ça parait bien
-
-                Tile.GetCurrent.AddItem(newItem);
-                PhraseKey.WritePhrase("gardening_grew", newItem);
-            }
-            else{
-                // check if changing or adding property
-                string line = part.Replace('#', '/');
-                string[] tmpParts = line.Split('/');;
-                
-                if ( linkedItem.HasProperty(tmpParts[0])){
-                    Property tmpProperty = linkedItem.GetProperty(tmpParts[0]);
-                    tmpProperty.UpdateParts(tmpParts);
-                }
-                else{
-                    linkedItem.AddProperty(line);
-                }
-                
-            }
-        }
-
-        
-
+        CallEvents();
         UnsubscribeToTime();
+    }
+    #endregion
 
+    #region init
+    public void InitParts(){
 
-        // ici devraient �tre les actions
-        // maintenant c'est juste un �tat
-        // battery = 0 ? s'allume pas
-        // dry = ?
-        // grow = ?
-        /*switch (name)
+        for (int i = 0; i < _parts.Length; ++i)
         {
-            case "dry":
-                Gardening.Dry(this);
-                break;
-            case "grow":
-                Gardening.Grow(this);
-                break;
-            default:
-                //Debug.LogError("timer property : " + name + " is dead end");
-                break;
-        }*/
-    }
-    public void SubscribeToTime()
-    {
-        TimeManager.GetInstance().onNextHour += HandleOnNextHour;
-        
-    }
-    public void UnsubscribeToTime()
-    {
-        TimeManager.GetInstance().onNextHour -= HandleOnNextHour;
-    }
+            string part = _parts[i];
 
-    public void UpdateParts(string[] tmpParts){
-        foreach (string part in tmpParts)
-        {
+            if ( part.Contains('?')){
+                string[] strs = part.Split('?');
+                part = strs[Random.Range (0, strs.Length)];
+            }
+
             int value = 0;
             if ( int.TryParse(part, out value ) ){
                 int newValue = GetValue() + value;
@@ -282,6 +239,107 @@ public class Property
             }
             
         }
+
+        if ( !IsSubscribedToTime()){
+            CallEvents();
+        }
+    }
+    public void ChangeParts(string[] tmpParts){
+        for(int i = 0; i < tmpParts.Length; ++i){
+            
+            if (i== tmpParts.Length)
+            {
+                break;
+            }
+
+            
+            string part = tmpParts[i];
+
+            if ( part.StartsWith('+')){
+                int newValue = int.Parse(part.Remove(0,1));
+                SetValue(GetValue() + newValue);
+                continue;
+            }
+
+            if (part.StartsWith('-')){
+                int newValue = int.Parse(part.Remove(0,1));
+                SetValue(GetValue() - newValue);
+                continue;
+            }
+
+            // change value
+            // growing / 10 / subTime
+            // set dur
+            int value = 0;
+            if ( int.TryParse(part, out value ) ){
+                int newValue = value;
+                newValue = Mathf.Clamp(newValue, 0, value_max);
+                SetValue(newValue);
+                continue;
+            }
+        }
+    }
+    #endregion
+
+
+    #region events
+    public void CallEvents(){
+
+        if ( _events.Length == 0 ){
+            return;   
+        }
+
+        foreach (string _event in _events){
+            string str = _event.Remove(_event.IndexOf())
+            switch ()
+        }
+
+        // name/10/subTime/ITEM?
+        // check if there's a third part
+        // if the third part is an item, transform into item
+        // else, add it as property ?
+
+    }
+    public void Event_AddItem(string content)
+    {
+
+        Item newItem = Item.CreateNew(Item.FindByName(content));
+        Debug.Log("found item " + content);
+        
+
+        /// IMPORTANT //
+        // actuelement l'objet est ajouté dans la tile actuelle parce qu'il n'y a pas de lien vers la tle dans la property
+        // POUR résoudre ça, il faut check la différence de temps quand le joueur arrive dans une tile
+        // EXEMPLE :
+        // dry/5/subTime/gardening#0#unsubTime
+        // growing/10/subTime/carrot
+        // quand on arrive dans la tile, on check toutes les heures passées depuis la sub
+        // on loop tout ça et le monticule sera dry avant de pouvoir grow ( t'as compris ?)
+        // comme ça, beaucoup moins de suscription, mais juste une heure à retenir par rappor au début
+        // c'est bien, en tout cas ça parait bien
+
+        Tile.GetCurrent.AddItem(newItem);
+        PhraseKey.WritePhrase("&a dog (override item)& is now here", newItem);
+    }
+    public void Event_RemoveItem(string content)
+    {
+        Item item = Item.FindInWorld(content);
+        Item.Destroy(linkedItem);
+    }
+    public void Event_ChangeProp(string content){
+        string[] _parts = content.Split(" / ");
+
+        Property tmpProperty = linkedItem.GetProperty(content);
+        //tmpProperty.
+    }
+    public void Event_EnableProp(string content){
+        Property property = linkedItem.properties.Find(x=> x.GetPart(0) == content);
+        property.enabled = true;
+        property.InitParts();
+    }
+    public void Event_DisableProp(string content){
+        Property property = linkedItem.properties.Find(x=> x.GetPart(0) == content);
+        property.enabled = false;
     }
     #endregion
 }

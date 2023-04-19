@@ -681,19 +681,12 @@ public class Item
     /// </summary>
     
     // adds whole new property
-    public Property AddProperty(string line){
+    public Property AddProperty(string line, booll ){
         Property newProperty = new Property(line, this);
         properties.Add(newProperty);
 
         return newProperty;
     }
-
-    // add existing property, not sure where it's use
-    public void AddProperty(Property property)
-    {
-        properties.Add(property);
-    }
-
     public bool HasProperties()
     {
         return properties.Count > 0;

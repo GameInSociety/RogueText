@@ -141,7 +141,6 @@ public class Interior {
 
         // create room types
         List<Tile.Type> roomTypes = new List<Tile.Type> ();
-		Tile.Type type = Tile.Type.LivingRoom;
 
         /// debug interior : create fix list of rooms
         roomTypes.Add(Tile.Type.Bathroom);

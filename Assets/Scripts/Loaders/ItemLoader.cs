@@ -46,10 +46,12 @@ public class ItemLoader : TextParser {
             return;
         }
 
-        // ? 
+        // * est pour passer les lignes vides,
+        // car on ne peut pas supprimer dans lignes ( elle ont des liens dans les autres DATAs )
+        // quand on rajouter un nouveau mot, il faut utiliser les * d'abord
         if ( cells[0][0] == '*')
         {
-            
+            return;
         }
 
         string nameCell = cells[0];
@@ -93,7 +95,23 @@ public class ItemLoader : TextParser {
             {
                 foreach (var property_line in property_lines)
                 {
+                    if ( string.IsNullOrEmpty(property_line))
+                    {
+                        // just an empty line, pour aérer la case
+                
+                        continue;
+                    }
+                    
+                    if (property_line.StartsWith('#')){
+                        // it's an event, 
+                    }
+
+                    if ( property_line.StartsWith('$'){
+                        // it's disabled on start of item
+                    }
+
                     newItem.AddProperty(property_line);
+                    newItem.properties[newItem.properties.Count-1].enabled = false;
                 }
             }
             //
@@ -124,7 +142,6 @@ public class ItemLoader : TextParser {
                     newCombination.itemIndex = newItem.index;
 
                     verb.AddCombination(newCombination);
-
                 }
 
                 ++verbIndex;

@@ -81,7 +81,7 @@ public class ConditionManager : MonoBehaviour
 
         WriteDescription();
 
-        Item.Remove(InputInfo.GetCurrent.MainItem);
+        //Item.Remove(InputInfo.GetCurrent.MainItem);
     }
 
     #region wait
@@ -100,7 +100,7 @@ public class ConditionManager : MonoBehaviour
         
         TimeManager.GetInstance().NextHour(hours);
 
-        // pour l'instant un peu obligé à cause des objets etc...
+        // pour l'instant un peu obligï¿½ ï¿½ cause des objets etc...
         DisplayDescription.Instance.UpdateDescription();
     }
     #endregion

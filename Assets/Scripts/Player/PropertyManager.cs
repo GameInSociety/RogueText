@@ -7,13 +7,11 @@ public class PropertyManager : MonoBehaviour
      #region actions
     public void ChangeProperty()
     {
-        ChangeProperty(PlayerAction.GetCurrent.GetContent(0));
-    }
-    public void ChangeProperty(string _property)
-    {
+        string str = PlayerAction.GetCurrent.GetContent(0);
+
         Item targetItem = InputInfo.GetCurrent.MainItem;
 
-        string[] newParts = _property.Split('/');
+        string[] newParts = str.Split('/');
 
         if (!targetItem.HasProperty(newParts[0]))
         {
@@ -24,7 +22,7 @@ public class PropertyManager : MonoBehaviour
 
         Property property = targetItem.GetProperty(newParts[0]);
 
-        property.UpdateParts(newParts);
+        property.InitParts();
 
         PhraseKey.WriteHard(property.GetDescription());
     }
