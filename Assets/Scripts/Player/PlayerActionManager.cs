@@ -10,6 +10,9 @@ public class PlayerActionManager : MonoBehaviour
 
     // action event
     public delegate void OnPlayerAction(PlayerAction action);
+    /// <summary>
+    /// POURQUOI CEST STATIC WEH SA VA CREER DES BRICOLES SI JE CHANGE DE SCENE
+    /// </summary>
     public static OnPlayerAction onPlayerAction;
 
     public bool debug = false;
@@ -21,6 +24,7 @@ public class PlayerActionManager : MonoBehaviour
 
     private void Start()
     {
+        // CENTRALISER LES ACTIONS !
         onPlayerAction += HandleOnPlayerAction;
     }
 
@@ -39,12 +43,6 @@ public class PlayerActionManager : MonoBehaviour
                 break;
             case PlayerAction.Type.PointNorth:
                 Coords.WriteDirectionToNorth();
-                break;
-            case PlayerAction.Type.ChangeProp:
-                PropertyManager.Instance.ChangeProperty();
-                break;
-            case PlayerAction.Type.AddProp:
-                PropertyManager.Instance.AddProperty();
                 break;
             default:
                 break;

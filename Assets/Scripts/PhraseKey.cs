@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class PhraseKey
 {
@@ -16,38 +17,21 @@ public class PhraseKey
     public static List<PhraseKey> phraseKeys = new List<PhraseKey>();
 
     // override c'est vraiment pas bien, il faut trouver une façon de faire ("&le chien sage (surrounding tile)&")
-    public static string GetPhrase(string key, Item _overrideItem)
-    {
-        overrideItem = _overrideItem;
     
-        return GetPhrase(key);
-    }
-
-    public static void SetOverrideItem(Item item)
-    {
-        overrideItem = item;
-    }
 
     public static void SetOverrideOrientation(Player.Orientation orientation){
         overrideOrientation = orientation;
     }
 
-    public static string GetPhraseKey(string key)
+    public static string GetPhrase(string key, Item _overrideItem)
     {
-        PhraseKey phraseKey = phraseKeys.Find(x => x.key == key);
+        overrideItem = _overrideItem;
 
-        if (phraseKey == null)
-        {
-            Debug.LogError("phrase <color=red>" + key + "</color> does not exist, returning key");
-            return key;
-        }
-
-        return phraseKey.values[Random.Range(0, phraseKey.values.Count)];
+        return GetPhrase(key);
     }
-
     public static string GetPhrase(string key)
     {
-        // get random
+        // get random if no phrase return the key
         string str = GetPhraseKey(key);
 
         // ITEM ( il faut le faire ici AUSSI, pour la compil du display description
@@ -56,6 +40,19 @@ public class PhraseKey
         str = KeyWords.ReplaceKeyWords(str);
 
         return str;
+    }
+
+    private static string GetPhraseKey(string key)
+    {
+        PhraseKey phraseKey = phraseKeys.Find(x => x.key == key);
+
+        if (phraseKey == null)
+        {
+            //Debug.LogError("phrase <color=red>" + key + "</color> does not exist, returning key");
+            return key;
+        }
+
+        return phraseKey.values[Random.Range(0, phraseKey.values.Count)];
     }
 
     public static string ExtractItemWords(string text)
@@ -178,9 +175,9 @@ public class PhraseKey
     }
 
     #region write phrase
-    public static void WritePhrase( string str, Item overrideItem)
+    public static void WritePhrase( string str, Item _overrideItem)
     {
-        SetOverrideItem(overrideItem);
+        overrideItem = _overrideItem;
         WritePhrase(str);
     }
     public static void WritePhrase( string str)
@@ -192,7 +189,6 @@ public class PhraseKey
 
     public static void WriteHard (string str){
         DisplayDescription.Instance.AddToDescription(str);
-
     }
     #endregion
 

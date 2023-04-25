@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 public class InputInfo
 {
@@ -24,14 +25,15 @@ public class InputInfo
     public static string text;
     public static List<string> parts = new List<string>();
 
-    //local 
+    // phrase content
     public Verb verb;
     private List<Item> items = new List<Item>();
     public Combination combination;
     public Player.Orientation orientation;
     public Cardinal direction;
-    public bool containsNumericValue = false;
-    public int numericValue = 0;
+    public bool hasValueInText = false;
+    public int valueInText = 0;
+
 
     public bool actionOnAll = false;
 
@@ -72,6 +74,7 @@ public class InputInfo
 
     }
 
+
     public static void ParsePhrase(string str)
     {
         text = str;
@@ -83,8 +86,7 @@ public class InputInfo
 
         text = text.TrimEnd(' ');
 
-        // separate text
-        parts = text.Split(new char[3] { ' ', '\'' , '\''}).ToList<string>();
+       
 
         // create action
         InputInfo newInputInfo = new InputInfo();
@@ -93,27 +95,39 @@ public class InputInfo
 
         newInputInfo.FindVerb();
 
+        // separate text ( after verb in case phrase changing, verb is removed 
+        parts = text.Split(new char[3] { ' ', '\'', '\'' }).ToList<string>();
+
+        newInputInfo.FindNumber();
+
         newInputInfo.FindOrientation();
 
         newInputInfo.FindItems();
 
         newInputInfo.FindCombination();
 
-        newInputInfo.FindNumber();
 
         PlayerActionManager.Instance.DisplayInputFeedback();
     }
 
     private void FindNumber()
     {
-        containsNumericValue = false;
+        hasValueInText = false;
 
-        foreach (var item in InputInfo.parts)
+        foreach (var part in InputInfo.parts)
         {
-            if (item.All(char.IsDigit))
+            if (part.All(char.IsDigit))
             {
-                containsNumericValue = true;
-                numericValue = int.Parse(item);
+
+                if ( int.TryParse(part, out valueInText))
+                {
+                    hasValueInText = true;
+                }
+                else
+                {
+                    //Debug.LogError("couldn't parse value " + part);
+                }
+
                 break;
             }
         }
@@ -121,14 +135,24 @@ public class InputInfo
 
     public void FindVerb()
     {
-        string str = InputInfo.parts[0];
+        //string str = InputInfo.parts[0];
 
-        verb = Verb.Find(str);
+        verb = Verb.Find(text);
 
         if (verb == null)
         {
             // c'est pas grave de pas avoir de verbe
             //Debug.LogError("couldn't find verb : " + str);
+        }
+        else
+        {
+            // remove text from input text to avoid confusion
+            // water sprout => il pensait que "water" était l'objet
+
+            // REPLACE ONLY ONCE grâce à ce truc trouvé sur l'internet
+            var regex = new Regex(Regex.Escape(verb.Name + " "));
+
+            text = regex.Replace(text, "",1);
         }
     }
 

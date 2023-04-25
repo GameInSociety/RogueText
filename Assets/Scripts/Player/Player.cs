@@ -169,6 +169,27 @@ public class Player : MonoBehaviour {
         }
     }
 
+    #region vision
+    public bool CanSee()
+    {
+        if (TimeManager.GetInstance().currentPartOfDay == TimeManager.PartOfDay.Night)
+        {
+            if (Inventory.Instance.HasItemWithProperty("source of light"))
+            {
+                PhraseKey.WritePhrase("lamp_on");
+                return true;
+            }
+            else
+            {
+                PhraseKey.WritePhrase("lamp_off");
+                return false;
+            }
+        }
+
+        return true;
+    }
+    #endregion
+
     #region movement
     public void Move(Player.Orientation orientation)
     {

@@ -172,13 +172,11 @@ public class Interior {
             // set entrance door
             if (a == 0)
             {
-                Item doorItem = Item.CreateNew("porte");
-                doorItem.AddProperty("entrance");
+                Item doorItem = ItemManager.Instance.CreateInTile(newHallwayTile, "door");
+                doorItem.CreateProperty("entrance");
                 // il n'y a plus réellement de porte dehors en fait non ?
                 //doorItem.word.SetAdjective(TileSet.map.GetTile(TileSet.map.playerCoords).items[0].word.GetAdjective);
-                doorItem.AddProperty("direction/to south");
-
-                newHallwayTile.AddItem(doorItem);
+                doorItem.CreateProperty("direction / to south");
             }
 
             // check if room appears
@@ -271,12 +269,12 @@ public class Interior {
         foreach (var dir in surr)
         {
             Coords c = tile.coords + (Coords)dir;
-            Tile adjTile = tileSet.GetTile(c);
+            Tile adjacentTile = tileSet.GetTile(c);
 
             string currentDoorDirection = "";
             string adjacentDoorDirection = "";
 
-            if (adjTile != null && adjTile.enclosed)
+            if (adjacentTile != null && adjacentTile.enclosed)
             {
                 switch (dir)
                 {
@@ -313,19 +311,17 @@ public class Interior {
                 // current tile door
                 if (tile.items.Find(x => x.word.text == "door" && x.GetProperty("direction").GetPart(1) == currentDoorDirection) == null)
                 {
-                    Item doorItem = Item.CreateNew("door");
+                    Item doorItem = ItemManager.Instance.CreateInTile(tile, "door");
                     doorItem.word.SetAdjective(adjective);
-                    doorItem.AddProperty("direction/" + currentDoorDirection);
-                    tile.AddItem(doorItem);
+                    doorItem.CreateProperty("direction / " + currentDoorDirection);
                 }
 
                 // adjacent tile door
-                if (adjTile.items.Find(x => x.word.text == "porte" && x.GetProperty("direction").GetPart(1) == adjacentDoorDirection) == null )
+                if (adjacentTile.items.Find(x => x.word.text == "porte" && x.GetProperty("direction").GetPart(1) == adjacentDoorDirection) == null )
                 {
-                    Item doorItem = Item.CreateNew("door");
+                    Item doorItem = ItemManager.Instance.CreateInTile(adjacentTile, "door");
                     doorItem.word.SetAdjective(adjective);
-                    doorItem.AddProperty("direction/" + adjacentDoorDirection);
-                    adjTile.AddItem(doorItem);
+                    doorItem.CreateProperty("direction / " + adjacentDoorDirection);
                 }
 
                 //Debug.Log("door name : " + currentTileDoorItemName + " adjacent door name : " + adjTileDoorItemName);

@@ -30,15 +30,7 @@ public class Tile
     {
         this.type = type;
 
-        string tileName = GetName();
-        Item item = Item.GetDataItem(tileName);
-
-        if ( item == null)
-        {
-            Debug.LogError("couldn't find tile item of name : " + tileName);
-        }
-
-        tileItem = Item.CreateNew(item);
+        tileItem = ItemManager.Instance.CreateFromData(GetName());
     }
 
     #region items
@@ -50,14 +42,17 @@ public class Tile
             {
                 if (Random.value * 100f < appearInfo.rate)
                 {
-                    Item newItem = Item.CreateNew(appearInfo.GetItem());
-                    AddItem(newItem);
+                    ItemManager.Instance.CreateInTile(this, appearInfo.GetItemName());
                 }
             }
         }
-
-        AddItem(Item.CreateNew(Item.GetDataItem("watering can")));
-        AddItem(Item.CreateNew(Item.GetDataItem("flashlight")));
+    }
+    public void UpdateProperties()
+    {
+        foreach (var item in items)
+        {
+            item.UpdateProperties();
+        }
     }
 
     public void RemoveItem(Item item)
@@ -85,7 +80,7 @@ public class Tile
         {
             str = PhraseKey.GetPhrase("tile_continue");
         }
-        else if (visited == false)
+        else if (!visited)
         {
             str = PhraseKey.GetPhrase("tile_discover");
         }
@@ -122,7 +117,6 @@ public class Tile
     {
         if (items.Count == 0)
         {
-            Debug.Log("no items on tile");
             return;
         }
 
@@ -131,44 +125,71 @@ public class Tile
     }
     public string GetItemDescriptions()
     {
-        // item AND item counts
-        List<ItemGroup> itemGroups = ItemGroup.GetItemGroups(items);
+        List<Socket> sockets= new List<Socket>();
 
-        // ITEM GROUP " est près de l'évier " SOCKET 
-        List<ItemPhrase> phrases = new List<ItemPhrase>();
+        string phrases = "";
 
-        // note : en quoi ItemGroup & ItemPhrase ne peuvent pas être les memes classes ?
-        // bonne question
-
-        string str = "";
-
-        for (int item_group_index = 0; item_group_index < itemGroups.Count; item_group_index++)
+        // get item item AND item counts
+        foreach (var item in items)
         {
-            ItemGroup itemGroup = itemGroups[item_group_index];
-
-            // retourne la phrase de position appropriée
-            Socket socket = itemGroup.item.GetSocket();
-
-            // si la position a déjà été trouve ( pour éviter : près du mur, une armoire, près de mur, une fenêtre )
-            // et donc addictioner les noms ( près du mur, une armoire ET une fenêtre )
-            ItemPhrase matchingPhrase = phrases.Find(x => x.socket == socket);
-
-            if (matchingPhrase != null && matchingPhrase.socket.relative == false)
+            // A REMETTRE
+            // j'ai mis de côté quand j'ai enlevé la classe "ItemPhrase" et "ItemGroup" qui ne servaient à rien
+            // mais important et à remettre
+            if (item.stackable)
             {
-                matchingPhrase.itemGroups.Add(itemGroup);
 
-                continue;
             }
 
-            ItemPhrase newPhrase = new ItemPhrase();
+            Socket socket = Socket.GetRandomSocket(item);
+            if ( sockets.Contains(socket) )
+            {
+                // socket already exists
+                socket = sockets.Find(x => x == socket);
+            }
+            else
+            { 
+                // didn't find socket, fetching new
+                sockets.Add(socket);
+                socket.itemGroups.Clear();
+            }
 
-            newPhrase.itemGroups.Add(itemGroup);
-            newPhrase.socket = socket;
+            // see if the item is already in the socket
+            Socket.ItemGroup itemGroup = socket.itemGroups.Find(x=> x.item.index == item.index);
 
-            str += newPhrase.GetText();
+            if (itemGroup.item ==null)
+            {
+                // it isn't, so add it
+                itemGroup = new Socket.ItemGroup();
+
+                itemGroup.item = item;
+
+                itemGroup.count = 1;
+
+                socket.itemGroups.Add(itemGroup);
+            }
+            else
+            {
+                // is already is, so add to the item group count
+                itemGroup.count++;
+            }
+
         }
 
-        return str;
+        // return the phrases
+        int i = 0;
+        foreach (var socket in sockets)
+        {
+            string phrase = socket.GetDescription();
+            phrases += phrase;
+
+            if ( i < sockets.Count -1) { 
+                phrases += "\n";
+            }
+
+            ++i;
+        }
+
+        return phrases;
     }
     #endregion
 

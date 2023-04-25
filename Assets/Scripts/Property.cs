@@ -1,82 +1,302 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro.EditorUtilities;
+using UnityEditor;
+using UnityEditor.MPE;
 using UnityEngine;
 using UnityEngine.Android;
+using UnityEngine.Networking.Match;
+using static UnityEditor.Progress;
 
 [System.Serializable]
 public class Property
 {
-    // les parties
-    // et si, par soucis de sauvegarde, de serialisation, etc les parts �taient tout le temps un string
-    // qu'on split � chaque fois qu'on y accede 
-    private string[] _parts;
+    public string name;
 
+    /// <summary>
+    /// POURQUOI ENABLE LES PROPS AU LIEU DE LES DETRUIRE ET RECREER ?
+    /// parce qu'elle contiennent des events, et que ça serait trop chiant de les remettre dans les cells d'action
+    /// et aussi parce que c'est mieux, par rapport à la mémoire etc... au garbage collector
+    /// </summary>
+    public List<string> parts = new List<string>();
     public bool enabled = false;
-    private string[] _events;
+
+    /// <summary>
+    ///  LES EVENTS EN QUESTION
+    ///  ils donnent lieu à discorde dans le studio, mais on a pas trouvé mieux pour l'instant
+    /// </summary>
+    public List<Event> events = new List<Event>();
 
     // l'objet � laquelle la propri�t� est attach�e,
     // trouver un autre moyen parce que niveau m�moire et serialization c'est pas ouf
     // bien dit, le moyen se serait de regarder si on peut pas gérer certaine chose dans l'objet pour avoir le lien
     // ( et pour ça regarder "growing" de Gardening )
-    private Item linkedItem;
+    
+    //private Item linkedItem;
 
     //  the max of the potential value, set when  (0=10) 10 = max
-    public int value_max = 10;
+    // MAX VALUE SHOULD BE IN THE PARTS
+    // battery / 0 / 10
+    public int value_max = -1;
 
     /// <summary>
     /// CONSTRUCTOR
     /// </summary>
     public Property()
     {
-
     }
-    public Property(string line, Item item)
+    public Property (Property copy)
     {
-        linkedItem = item;
-        _parts = line.Split('/');
-        InitParts();
+        name = copy.name;
+        events = copy.events;
+        enabled = copy.enabled;
+
+        foreach (var part in copy.parts)
+        {
+            parts.Add(part);
+        }
+
     }
     ///
 
-    #region setters & getters
-    public string GetLine(){
-        string line = "";
-        for (int i = 0; i < _parts.Length; ++i){
+    #region description
+    public string GetDescription()
+    {
+        if (!enabled)
+        {
+            return "";
+        }
 
-            line += _parts[i];
+        // get type
+        if ( parts.Count == 1)
+        {
+            return GetPart(0);
+        }
 
-            if (i < _parts.Length-1){
-                line += "/";
+        switch (GetPart(0))
+        {
+            case "state":
+                return GetPart(1);
+            case "iValue": // invisible value
+                return GetPart(1);
+            default:
+                break;
+        }
+
+        // wtf
+        // encore plus wtf
+        if (GetPart(0).ToLower().Contains("type"))
+        {
+            return "a " + GetPart(0);
+        }
+
+        if (HasValue())
+        {
+            if (value_max >= 0)
+            {
+                string[] phrases = new string[3]
+            {
+                    "almost empty",
+                    Random.value < 0.5f ? "half full" : "half empty",
+                    "almost full",
+            };
+
+                int value = GetValue();
+
+                if (value == 0)
+                {
+                    return "empty of " + GetPart(1);
+                }
+
+                if (value == value_max)
+                {
+                    return "full of " + GetPart(1);
+                }
+
+                float lerp = (float)value / value_max;
+
+                int index = (int)(lerp * phrases.Length);
+                index = Mathf.Clamp(index, 0, phrases.Length - 1);
+                string text = phrases[index];
+                return "" + text + " of " + GetPart(1);
             }
         }
 
-        return line;
+        Debug.Log("default property description");
+        return GetPart(0);
+
     }
+    #endregion
+
+    #region time handle
+
+    /// <summary>
+    /// �a a pas grand chose � foutre l� quand on y pense
+    /// effectivement, on peut mettre cette fonction dans l'Item en lui meme
+    /// pour ne pas avoir le lien avec l'item DANS la property, déjà
+    /// et aussi, lire plus loin dans la fonctin handonnexthour, mais faire ce truc de dif du temps
+    /// </summary>
+    public void HandleOnNextHour()
+    {
+        
+    }
+    public bool ContainsEvent(string eventName)
+    {
+        return events.Find(x => x.name == eventName) != null;
+    }
+    public Event FindEvent(string eventName)
+    {
+        Event propEvent = events.Find(x => x.name == eventName);
+        if ( propEvent == null)
+        {
+            Debug.LogError("couldn't find event : " + eventName + " on property " + name);
+        }
+
+        return propEvent;
+    }
+    #endregion
+
+    #region update
+    public void UpdateParts()
+    {
+        UpdateParts(parts);
+    }
+    public void UpdateParts(List<string> changingParts)
+    {
+
+        for (int i = 0; i < changingParts.Count; ++i)
+        {
+            string changinPart = changingParts[i];
+
+            if (changinPart.Contains('?'))
+            {
+                string[] strs = changinPart.Split('?');
+                parts[i] = strs[Random.Range(0, strs.Length)];
+
+                Debug.Log(parts[i]);
+                continue;
+            }
+
+            // check for max value if none is set
+            if ( value_max < 0)
+            {
+                Debug.Log("truing max");
+                int tmpMax = -1;
+                if (int.TryParse(changingParts[i], out tmpMax))
+                {
+                    value_max = tmpMax;
+                    Debug.Log("max of " + GetPart(0) + " " + value_max);
+                }
+            }
+
+            if (changinPart.Contains('='))
+            {
+                int min = int.Parse(changinPart.Split('=')[0]);
+                int max = int.Parse(changinPart.Split('=')[1]);
+                value_max = max;
+                parts[i] = Random.Range(min, max).ToString();
+                continue;
+            }
+
+            if (changinPart.StartsWith('+'))
+            {
+                int dif = int.Parse(changinPart.Remove(0, 1));
+                int newValue = GetValue() + dif;
+                newValue = Mathf.Clamp(newValue, 0, value_max);
+                parts[i] = newValue.ToString();
+                continue;
+            }
+
+            parts[i] = changinPart;
+
+        }
+    }
+    #endregion
+
+    public void Enable()
+    {
+        enabled = true;
+        UpdateParts();
+    }
+
+    public void Disable()
+    {
+        enabled = false;
+    }
+
+    /// <summary>
+    /// il faut donc à terme que les events soient appelé depuis la class "objet"
+    /// comme ça, l'abonnement à "OnNextHour" se fait que dans l'objet
+    /// et aussi pour ne pas faire passer "linkedItem" en pointeur
+    /// ce qui est horrible pour la documentation
+    /// et pas dans toutes les props
+    /// gros chantier mais à faire à un moment donné
+    /// </summary>
+    /// <param name="str"></param>
+
+    #region events
+    /// THIS CLASS WILL NEVER BE A COPY BECAUSE IT WILL NEVER CHANGE
+    [System.Serializable]
+    public class Event
+    {
+        public string name;
+        public List<Action> _actions;
+
+        public void AddAction(Action action)
+        {
+            if ( _actions == null)
+            {
+                _actions = new List<Action>();
+            }
+
+            _actions.Add(action);
+        }
+
+        [System.Serializable]
+        public class Action
+        {
+            public string function;
+            public string content;
+        }
+    }
+    public void AddEvent(Event propertyEvent)
+    {
+        if (events == null)
+        {
+            events = new List<Event>();
+        }
+
+        events.Add(propertyEvent);
+    }
+    #endregion
+
+    #region setters & getters
     public string GetPart(int i)
     {
-        if ( i >= _parts.Length)
+        if (i >= parts.Count)
         {
-            if ( _parts.Length == 0)
+            if (parts.Count == 0)
             {
                 Debug.LogError("error property : parts length 0");
                 return "error property parts";
             }
             Debug.LogError("error property : try get part " + i + " but out of range");
 
-            return _parts[0];
+            return parts[0];
         }
 
-        return _parts[i];
+        return parts[i];
     }
 
     public void SetPart(int i, string str)
     {
-        _parts[i] = str;
+        parts[i] = str;
     }
 
     public bool HasPart(int i)
     {
-        if ( i < _parts.Length)
+        if (i < parts.Count)
         {
             return false;
         }
@@ -86,16 +306,33 @@ public class Property
         }
     }
 
+    public bool HasValue()
+    {
+        int i = -1;
+
+        foreach (var part in parts)
+        {
+            if (int.TryParse(part, out i))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
     public int GetValue()
     {
         int i = -1;
 
-        foreach (var part in _parts)
+        foreach (var part in parts)
         {
-            int.TryParse(part, out i);
+            if (int.TryParse(part, out i))
+            {
+                return i;
+            }
         }
 
-        if ( i == -1)
+        if (i == -1)
         {
             Debug.LogError("couldn't parse");
         }
@@ -106,11 +343,11 @@ public class Property
     {
         int tmpValue = -1;
 
-        for (int i = 0; i < _parts.Length; i++)
+        for (int i = 0; i < parts.Count; i++)
         {
-            if (int.TryParse(_parts[i], out tmpValue))
+            if (int.TryParse(parts[i], out tmpValue))
             {
-                _parts[i] = newValue.ToString();
+                parts[i] = parts[i].Replace(parts[i], newValue.ToString());
                 return;
             }
         }
@@ -118,228 +355,5 @@ public class Property
         Debug.LogError("couldn't change value because no value parsed");
     }
     #endregion
-
-    #region description
-    public string GetDescription()
-    {
-        if ( _parts.Length == 1)
-        {
-            return "it's a " + GetPart(0);
-        }
-
-        foreach (var part in _parts)
-        {
-            if ( part == "subTime")
-            {
-                if ( GetValue() == 0){
-                    return "it's " + GetPart(0);
-                }
-
-                string[] phrases = new string[5]
-                {
-                    "empty",
-                    "almost empty",
-                    Random.value < 0.5f ? "half full" : "half empty",
-                    "almost full",
-                    "full",
-                };
-
-                float lerp = (float)GetValue() / value_max;
-                int index = (int)(lerp * phrases.Length);
-                string text = phrases[index];
-                return "it's " + text;
-                //return "only " + GetValue() + GetPart(0) + " left";
-            }
-        }
-
-        Debug.Log("default property description");
-        return GetPart(0);
-
-    }
-    public void Write()
-    {
-        PhraseKey.WriteHard(GetDescription());
-    }
-    #endregion
-   
-    #region time handle
-    public void SubscribeToTime()
-    {
-        TimeManager.GetInstance().onNextHour += HandleOnNextHour;
-        
-    }
-    public void UnsubscribeToTime()
-    {
-        TimeManager.GetInstance().onNextHour -= HandleOnNextHour;
-    }
-
-
-    public bool IsSubscribedToTime(){
-
-        foreach (string part in _parts ){
-            if ( part == "subTime")
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    /// <summary>
-    /// �a a pas grand chose � foutre l� quand on y pense
-    /// effectivement, on peut mettre cette fonction dans l'Item en lui meme
-    /// pour ne pas avoir le lien avec l'item DANS la property, déjà
-    /// et aussi, lire plus loin dans la fonctin handonnexthour, mais faire ce truc de dif du temps
-    /// </summary>
-    public void HandleOnNextHour()
-    {
-        // decrease time
-        int timeLeft = GetValue();
-        --timeLeft;
-        SetValue(timeLeft);
-
-        // don't do anything if the time left is above 0
-        if (timeLeft > 0)
-        {
-            return;
-        }
-        CallEvents();
-        UnsubscribeToTime();
-    }
-    #endregion
-
-    #region init
-    public void InitParts(){
-
-        for (int i = 0; i < _parts.Length; ++i)
-        {
-            string part = _parts[i];
-
-            if ( part.Contains('?')){
-                string[] strs = part.Split('?');
-                part = strs[Random.Range (0, strs.Length)];
-            }
-
-            int value = 0;
-            if ( int.TryParse(part, out value ) ){
-                int newValue = GetValue() + value;
-                newValue = Mathf.Clamp(newValue, 0, value_max);
-                SetValue(newValue);
-                continue;
-            }
-
-            if ( part.Contains("subTime")){
-                SubscribeToTime();
-                continue;
-            }
-
-            if (part.Contains("unsubTime")){
-                UnsubscribeToTime();
-                continue;
-            }
-            
-        }
-
-        if ( !IsSubscribedToTime()){
-            CallEvents();
-        }
-    }
-    public void ChangeParts(string[] tmpParts){
-        for(int i = 0; i < tmpParts.Length; ++i){
-            
-            if (i== tmpParts.Length)
-            {
-                break;
-            }
-
-            
-            string part = tmpParts[i];
-
-            if ( part.StartsWith('+')){
-                int newValue = int.Parse(part.Remove(0,1));
-                SetValue(GetValue() + newValue);
-                continue;
-            }
-
-            if (part.StartsWith('-')){
-                int newValue = int.Parse(part.Remove(0,1));
-                SetValue(GetValue() - newValue);
-                continue;
-            }
-
-            // change value
-            // growing / 10 / subTime
-            // set dur
-            int value = 0;
-            if ( int.TryParse(part, out value ) ){
-                int newValue = value;
-                newValue = Mathf.Clamp(newValue, 0, value_max);
-                SetValue(newValue);
-                continue;
-            }
-        }
-    }
-    #endregion
-
-
-    #region events
-    public void CallEvents(){
-
-        if ( _events.Length == 0 ){
-            return;   
-        }
-
-        foreach (string _event in _events){
-            string str = _event.Remove(_event.IndexOf())
-            switch ()
-        }
-
-        // name/10/subTime/ITEM?
-        // check if there's a third part
-        // if the third part is an item, transform into item
-        // else, add it as property ?
-
-    }
-    public void Event_AddItem(string content)
-    {
-
-        Item newItem = Item.CreateNew(Item.FindByName(content));
-        Debug.Log("found item " + content);
-        
-
-        /// IMPORTANT //
-        // actuelement l'objet est ajouté dans la tile actuelle parce qu'il n'y a pas de lien vers la tle dans la property
-        // POUR résoudre ça, il faut check la différence de temps quand le joueur arrive dans une tile
-        // EXEMPLE :
-        // dry/5/subTime/gardening#0#unsubTime
-        // growing/10/subTime/carrot
-        // quand on arrive dans la tile, on check toutes les heures passées depuis la sub
-        // on loop tout ça et le monticule sera dry avant de pouvoir grow ( t'as compris ?)
-        // comme ça, beaucoup moins de suscription, mais juste une heure à retenir par rappor au début
-        // c'est bien, en tout cas ça parait bien
-
-        Tile.GetCurrent.AddItem(newItem);
-        PhraseKey.WritePhrase("&a dog (override item)& is now here", newItem);
-    }
-    public void Event_RemoveItem(string content)
-    {
-        Item item = Item.FindInWorld(content);
-        Item.Destroy(linkedItem);
-    }
-    public void Event_ChangeProp(string content){
-        string[] _parts = content.Split(" / ");
-
-        Property tmpProperty = linkedItem.GetProperty(content);
-        //tmpProperty.
-    }
-    public void Event_EnableProp(string content){
-        Property property = linkedItem.properties.Find(x=> x.GetPart(0) == content);
-        property.enabled = true;
-        property.InitParts();
-    }
-    public void Event_DisableProp(string content){
-        Property property = linkedItem.properties.Find(x=> x.GetPart(0) == content);
-        property.enabled = false;
-    }
-    #endregion
 }
+

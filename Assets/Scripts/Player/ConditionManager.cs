@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class ConditionManager : MonoBehaviour
 {
-    
-
     private static ConditionManager _instance;
     public static ConditionManager GetInstance()
     {
@@ -89,9 +87,9 @@ public class ConditionManager : MonoBehaviour
     {
         int hours;
 
-        if (InputInfo.GetCurrent.containsNumericValue)
+        if (InputInfo.GetCurrent.hasValueInText)
         {
-            hours = InputInfo.GetCurrent.numericValue;
+            hours = InputInfo.GetCurrent.valueInText;
         }
         else
         {
@@ -114,13 +112,36 @@ public class ConditionManager : MonoBehaviour
 
     public void WriteDescription()
     {
+        string text = "";
+
+        int index = 0;
+
         foreach (var Condition in conditions)
         {
             if (Condition.progress != Condition.Progress.Normal)
             {
-                Condition.WriteDescripiton();
+                text += Condition.GetDescription();
+                
+                index++;
+
+                if ( index >= conditions.Length-1)
+                {
+                    break;
+                }
+
+                if ( index == conditions.Length -2 )
+                {
+                    text += " and ";
+                }
+                else
+                {
+                    text += ", ";
+                }
+
             }
         }
+
+        PhraseKey.WriteHard(text);
     }
 
     public Condition GetCondition(Condition.Type conditionType)

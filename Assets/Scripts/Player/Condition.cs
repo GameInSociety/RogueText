@@ -65,12 +65,11 @@ public class Condition
         return str;
     }
 
-    public void WriteDescripiton()
+    public string GetDescription()
     {
         string keyWord = type.ToString().ToLower() + "_" + progress.ToString().ToLower();
-        Debug.Log("getting condition keyword ; " + keyWord);
 
-        PhraseKey.WritePhrase(keyWord);
+        return PhraseKey.GetPhrase(keyWord);
     }
 
     public Progress GetProgress

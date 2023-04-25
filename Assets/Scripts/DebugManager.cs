@@ -8,17 +8,6 @@ public class DebugManager : MonoBehaviour
 
     public bool colorWords = true;
 
-    public string[] itemsOnStart;
-
-    private void Start()
-    {
-        foreach (var itemName in itemsOnStart)
-        {
-            Item item = Item.CreateNew(itemName);
-            Inventory.Instance.AddItem(item);
-        }
-    }
-
     private static DebugManager _instance;
     public static DebugManager Instance
     {

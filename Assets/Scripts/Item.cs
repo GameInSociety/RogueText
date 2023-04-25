@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEditor.Progress;
@@ -16,33 +17,37 @@ public class Item
     /// </summary>
     public int index;
     public int weight = 0;
-    public int value = 0;
     public bool usableAnytime = false;
 
     public string inputToFind = "str";
-
-    public List<AppearInfo> appearInfos = new List<AppearInfo>();
-
-    /// <summary>
-    /// exemples :
-    /// une carrote ou bouteille d'eau se trouverait souvent sur une table ou quoi
-    /// une flaque se trouverait souvent par terre
-    /// </summary>
-    private Socket socket;
 
     /// <summary>
     /// exemples :
     /// dans une forêt : "derrière l'arbre", ou "dans un buisson"
     /// dans un sac : (donc autre objet) au fond du sac, etc...
     /// </summary>
+    /// Je crois qu'il vaut mieux que ces trucs soient dans les sockets
+    /// ( liste d'int dans le socket parce quand y'a pas de copy dans les sockets )
+    ///c'est déjàle cas maisc'estpar rapport aux tiles
     public List<Socket> sockets = new List<Socket>();
+    // pareil
+    public List<AppearInfo> appearInfos = new List<AppearInfo>();
 
+    //
     public List<Item> containedItems;
 
     /// <summary>
     /// WORD
     /// </summary>
-    public Word word;
+    public int currentWordIndex = 0;
+    public Word word
+    {
+        get
+        {
+            return words[currentWordIndex];
+        }
+    }
+    public List<Word> words = new List<Word>();
     public bool stackable = false;
 
     /// <summary>
@@ -66,7 +71,9 @@ public class Item
     {
         //GenerateItems();
 
-        return containedItems != null && containedItems.Count > 0;
+        bool b = containedItems != null && containedItems.Count > 0;
+        Debug.Log("continas item ? " + b);
+        return b;
     }
     public void GenerateItems()
     {
@@ -81,12 +88,7 @@ public class Item
             {
                 if (Random.value * 100f < appearInfo.rate)
                 {
-                    if ( containedItems == null)
-                    {
-                        containedItems = new List<Item>();
-                    }
-
-                    AddItem(appearInfo.GetItem());
+                    ItemManager.Instance.CreateInItem(this, appearInfo.GetItemName());
                 }
             }
         }
@@ -100,8 +102,8 @@ public class Item
             containedItems = new List<Item>();
         }
 
-        Item newItem = Item.CreateNew(item);
-        containedItems.Add(newItem);
+        containedItems.Add(item);
+
     }
 
     // remove item
@@ -118,7 +120,7 @@ public class Item
 
     public Item FindItem(string str)
     {
-        Item item = containedItems.Find(x => x.word.Compare(str));
+        Item item = containedItems.Find(x => x.HasWord(str));
 
         if (item == null)
             return null;
@@ -155,11 +157,11 @@ public class Item
     /// </summary>
     public void Open()
     {
-        Item item = InputInfo.GetCurrent.MainItem;
-        Debug.Log("opening : " + item.debug_name);
-        item.GenerateItems();
+        Debug.Log("opening : " + debug_name);
+        GenerateItems();
 
         Container.opened = true;
+        Container.CurrentItem= this;
         WriteContainedDescription();
     }
 
@@ -211,25 +213,15 @@ public class Item
         public int rate = 0;
         public int amount = 1;
 
-        public Item GetItem()
+        public string GetItemName()
         {
-            return Item.dataItems[itemIndex];
+            return Item.dataItems[itemIndex].debug_name;
         }
 
         public bool CanAppear()
         {
             return false;
         }
-    }
-
-    public Socket GetSocket()
-    {
-        if (socket == null)
-        {
-            socket = Socket.GetRandomSocket(this);
-        }
-
-        return socket;
     }
     #endregion
 
@@ -239,46 +231,6 @@ public class Item
     /// </summary>
     ///
 
-    #region tools
-    
-    /// create a new item by name
-    public static Item CreateNew(string name)
-    {
-        Item item = GetDataItem(name);
-        return CreateNew(item);
-    }
-
-    // create  new item with a copy
-    public static Item CreateNew(Item copy)
-    {
-        // common to all
-        Item newItem = new Item();
-
-        newItem.debug_name = copy.debug_name;
-        newItem.index = copy.index;
-        newItem.weight = copy.weight;
-        newItem.value = copy.value;
-        newItem.usableAnytime = copy.usableAnytime;
-        newItem.appearInfos = copy.appearInfos;
-        newItem.socket = copy.socket;
-        newItem.sockets = copy.sockets;
-
-        // the word never changes, non ? pourquoi en copy
-        newItem.word = new Word(copy.word);
-        newItem.stackable = copy.stackable;
-
-        // unique
-        newItem.properties = new List<Property>();
-
-        foreach (var _property in copy.properties)
-        {
-            Property newProperty = new Property(_property.GetLine(), newItem);
-            newItem.properties.Add(newProperty);
-        }
-
-        return newItem;
-    }
-    #endregion
 
     public void PickUp()
     {
@@ -299,10 +251,6 @@ public class Item
     public static void Destroy(Item item){
         
         Remove(item);
-
-        Destroy(item);
-
-
     }
     public static void Remove(Item targetItem)
     {
@@ -337,6 +285,18 @@ public class Item
     #endregion
 
     #region search
+    public bool HasWord (string _text)
+    {
+        currentWordIndex = words.FindIndex(x => x.Compare(_text));
+
+        if ( currentWordIndex < 0)
+        {
+            currentWordIndex = 0;
+            return false;
+        }
+
+        return true;
+    }
     public static Item FindInWorld(string str)
     {
         Item item = null;
@@ -346,12 +306,13 @@ public class Item
         // dans un container
         if (Container.opened)
         {
-            item = Container.CurrentItem.containedItems.Find(x => x.word.Compare(str));
+            item = Container.CurrentItem.FindItem(str);
             if ( item != null)
             {
                 foundInContainer = true;
             }
         }
+
 
         // chercher une premiere fois dans l'inventaire s'il est ouvert
         if (Inventory.Instance.IsOpened)
@@ -362,6 +323,7 @@ public class Item
                 return item;
             }
         }
+
 
         // is the item one of the surrounding tiles ?
         if (item == null)
@@ -375,14 +337,10 @@ public class Item
             item = Inventory.Instance.FindItem(str);
         }
 
-        if (item == null)
-        {
-            item = FindUsableAnytime(str);
-        }
 
         if (item == null)
         {
-            //
+            item = FindUsableAnytime(str);
         }
 
         // pour éviter que le container reste ouvert si on fait une autre action
@@ -397,7 +355,7 @@ public class Item
     private static Item FindInTile(string str)
     {
         // is the item the exact same tile as the one we're in ?
-        if (Tile.GetCurrent.tileItem.word.Compare(str))
+        if (Tile.GetCurrent.tileItem.HasWord(str))
         {
             return Tile.GetCurrent.tileItem;
         }
@@ -445,7 +403,7 @@ public class Item
 
     private static Item FindUsableAnytime(string str)
     {
-        return dataItems.Find(x => x.word.Compare(str) && x.usableAnytime);
+        return dataItems.Find(x => x.HasWord(str) && x.usableAnytime);
         //return items.Find(x => x.word.Compare(str) );
     }
 
@@ -469,7 +427,15 @@ public class Item
     {
         _name = _name.ToLower();
 
-        Item item = dataItems.Find(x => x.word.text.ToLower() == _name);
+        // to find the word on ly
+        //Item item = dataItems.Find(x => x.word.text.ToLower() == _name);
+
+        // to search also in syonyms
+        Item item = dataItems.Find(x =>
+        x.words.Find(
+            x=>x.text.ToLower() == _name
+            ) != null
+            );
 
         if (item == null)
         {
@@ -514,7 +480,7 @@ public class Item
 
         foreach (var item in _items)
         {
-            text += item.word.GetContent("un chien");
+            text += item.word.GetContent("a dog");
 
             // pour l'instant en pause parce que pas forcément besoin, et systeme de poids un peu laissé de côté
             /*if (displayWeight)
@@ -533,53 +499,6 @@ public class Item
                     if (_items.Count > 2)
                     {
                         if (i == _items.Count - 2)
-                        {
-                            text += " and ";
-                        }
-                        else
-                        {
-                            text += ", ";
-                        }
-                    }
-                    else
-                    {
-                        text += " and ";
-                    }
-                }
-
-            }
-
-            ++i;
-        }
-
-        return text;
-    }
-    public static string ItemListString(List<ItemGroup> _itemSockets, bool separateWithLigns, bool displayWeight)
-    {
-        string text = "";
-
-        int i = 0;
-
-        foreach (var itemSocket in _itemSockets)
-        {
-            text += itemSocket.GetWordGroup();
-
-            if (displayWeight)
-            {
-                text += " (w:" + (itemSocket.item.weight * itemSocket.count) + ")";
-            }
-
-            if (_itemSockets.Count > 1 && i < _itemSockets.Count - 1)
-            {
-                if (separateWithLigns)
-                {
-                    text += "\n";
-                }
-                else
-                {
-                    if (_itemSockets.Count > 2)
-                    {
-                        if (i == _itemSockets.Count - 2)
                         {
                             text += " and ";
                         }
@@ -654,6 +573,8 @@ public class Item
             }
         }
 
+        str.Remove(str.Length - 2);
+
         return str;
        
     }
@@ -663,43 +584,128 @@ public class Item
 
         if (HasProperties())
         {
-            foreach (var property in properties)
+            str += "\nIt's ";
+
+            int enabledPropCount = GetEnabledProperties().Count;
+            for (int i = 0; i < enabledPropCount; i++)
             {
+                Property property = GetEnabledProperties()[i];
+
+                if (!property.enabled)
+                {
+                    continue;
+                }
+
                 str += property.GetDescription();
+
+                if (enabledPropCount > 1)
+                {
+                    if (i == enabledPropCount - 2)
+                    {
+                        str += " and ";
+                    }
+                    else if (i <enabledPropCount - 2)
+                    {
+                        str += ", ";
+                    }
+                }
             }
         }
 
-        return str;
+        return str = TextUtils.FirstLetterCap(str);
     }
     #endregion
 
     /// properties ///
     
     #region properties
-    /// <summary>
-    /// static functions
-    /// </summary>
-    
-    // adds whole new property
-    public Property AddProperty(string line, booll ){
-        Property newProperty = new Property(line, this);
+    // pour plus tard, update les propriétes sur l'objet
+    // plutot que sur les prop ellesmemes ( pour le temps par ex )
+    public void UpdateProperties()
+    {
+        foreach (var property in properties)
+        {
+            //property.UpdateParts();
+        }
+    }
+
+    // adds whole new, simple property
+    public Property CreateProperty(string line)
+    {
+        Property newProperty = new Property();
+        newProperty.enabled = true;
+        newProperty.parts = line.Split(" / ").ToList();
+        newProperty.UpdateParts();
+        properties.Add(newProperty);
+        return newProperty;
+    }
+    bool subbedToHours = false;
+    bool subbedToRain = false;
+    // add proper property, from the data, with events and all
+    public Property CreateProperty(Property property_data)
+    {
+        Property newProperty = new Property(property_data);
+
+        newProperty.UpdateParts();
+
+        foreach (var propEvent in newProperty.events)
+        {
+            Debug.Log("subscribing " + newProperty.name + " to " + propEvent.name);
+
+            switch (propEvent.name)
+            {
+                case "subHours":
+                    if (subbedToHours)
+                    {
+                        continue;
+                    }
+                    TimeManager.GetInstance().onNextHour += HandleOnNextHour;
+                    subbedToHours = true;
+                    break;
+                case "subRain":
+                    if ( subbedToRain)
+                    {
+                        continue;
+                    }
+                    TimeManager.GetInstance().onRaining += HandleOnRaining;
+                    subbedToRain=true;
+                    break;
+                default:
+            Debug.Log("no event : " + propEvent.name);
+                    break;
+            }
+        }
         properties.Add(newProperty);
 
         return newProperty;
     }
+    public void DeleteProperty(string propertyName)
+    {
+        Property property = GetProperty(propertyName);
+        if ( property == null)
+        {
+            Debug.LogError("DeleteProperty : property " + propertyName + " does not exist in " + debug_name);
+            return;
+        }
+        properties.Remove(property);
+    }
     public bool HasProperties()
     {
-        return properties.Count > 0;
+        return properties.FindAll(x=>x.enabled).Count > 0;
     }
-
     public bool HasProperty(string name)
     {
-        return properties.Find(x => x.GetPart(0) == name) != null;
+        return properties.Find(x => x.GetPart(1) == name && x.enabled) != null;
+    }
+
+    public List<Property> GetEnabledProperties()
+    {
+        return properties.FindAll(x=>x.enabled);
     }
 
     public Property GetProperty(string name)
     {
-        Property property = properties.Find(x => x.GetPart(0) == name);
+        Property property = properties.Find(x => x.GetPart(1) == name);
 
         if (property == null)
         {
@@ -712,6 +718,43 @@ public class Item
     }
     #endregion
 
+    #region events
+    public List<Property> FindPropertyWithEvents(string eventName)
+    {
+        return properties.FindAll(x => x.ContainsEvent(eventName) && x.enabled);
+    }
+    public void HandleOnNextHour()
+    {
+        foreach (Property property in FindPropertyWithEvents("subHours"))
+        {
+
+            // decrease time
+            int timeLeft = property.GetValue();
+            --timeLeft;
+            property.SetValue(timeLeft);
+
+            // don't do anything if the time left is above 0
+            if (timeLeft > 0)
+            {
+                continue;
+            }
+
+            EventManager.instance.CallEvent(property, "subHours", this);
+
+            property.Disable();
+        }
+    }
+    public void HandleOnRaining()
+    {
+        Debug.Log("raining");
+
+        foreach (Property property in FindPropertyWithEvents("subRain"))
+        {
+            EventManager.instance.CallEvent(property, "subRain", this);
+        }
+    }
+    #endregion
+
     public static Item GetItemOfType(string type)
     {
         Item[] items = Item.dataItems.FindAll(x => x.HasProperty(type)).ToArray();
@@ -719,6 +762,47 @@ public class Item
         Item item = items[Random.Range(0, items.Length)];
 
         return item;
+    }
+
+    public string GetRelaivePosition()
+    {
+        string itemPosition = "";
+
+        Player.Orientation fac = Player.Orientation.None;
+
+        switch (GetProperty("direction").GetPart(1))
+        {
+            case "to north":
+                fac = Player.Instance.GetOrientation(Cardinal.North);
+                break;
+            case "to south":
+                fac = Player.Instance.GetOrientation(Cardinal.South);
+                break;
+            case "to east":
+                fac = Player.Instance.GetOrientation(Cardinal.East);
+                break;
+            case "to west":
+                fac = Player.Instance.GetOrientation(Cardinal.West);
+                break;
+            default:
+                break;
+        }
+
+        switch (fac)
+        {
+            case Player.Orientation.Front:
+                return PhraseKey.GetPhrase("position_front");
+            case Player.Orientation.Right:
+                return PhraseKey.GetPhrase("position_right");
+            case Player.Orientation.Back:
+                return PhraseKey.GetPhrase("position_back");
+            case Player.Orientation.Left:
+                return PhraseKey.GetPhrase("position_left");
+            default:
+                break;
+        }
+
+        return itemPosition;
     }
 
 }

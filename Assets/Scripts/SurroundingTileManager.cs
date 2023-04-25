@@ -27,7 +27,7 @@ public class SurroundingTileManager {
             return surr.orientations[0];
         }
     }
-
+    
     public static void WriteSurroundingTileDescription()
     {
         // enclosed, so no description of hallway, other rooms etc...
@@ -36,18 +36,11 @@ public class SurroundingTileManager {
             return;
         }
 
+
         /// light / night
-        if (TimeManager.GetInstance().currentPartOfDay == TimeManager.PartOfDay.Night)
+        if (!Player.Instance.CanSee())
         {
-            if (Inventory.Instance.HasItem("lampe"))
-            {
-                PhraseKey.WritePhrase("lamp_on");
-            }
-            else
-            {
-                PhraseKey.WritePhrase("lamp_off");
-                return;
-            }
+            return;
         }
 
         PhraseKey.WritePhrase("tile_surrounding_description");
@@ -69,6 +62,8 @@ public class SurroundingTileManager {
 
             string newPhrase = GetSurroundingTileDescription(surroundingTile);
 
+            str += newPhrase;
+
             if (i == tileGroups.Count - 2)
             {
                 str += " and ";
@@ -76,7 +71,7 @@ public class SurroundingTileManager {
             // dernier
             else if (i == tileGroups.Count - 1)
             {
-                str += ", ";
+                str += "";
             }
             // courrant de la phrase
             else
@@ -84,7 +79,6 @@ public class SurroundingTileManager {
                 str += ", ";
             }
 
-            str += newPhrase;
         }
 
         return str;

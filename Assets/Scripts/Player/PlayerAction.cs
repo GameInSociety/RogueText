@@ -10,45 +10,68 @@ public class PlayerAction
     {
         None,
 
+        // move
         Move,
         MoveRel,
         MoveToTargetItem,
         OrientPlayer,
+        
+        // look
         Look,
+        LookAround,
+        PointNorth,
+
+        // interior
         Enter,
         UseDoor,
-        LookAround,
         GoOut,
+        DescribeExterior,
+        ExitByWindow,
 
         // states
         SetState,
         
         // time
         Wait,
+        DisplayTimeOfDay,
+
+        // items
         PickUp,
         Throw,
-        AddToTile,
-        RemoveItem,
+        CreateInTile,
+        DestroyItem,
         RequireItem,
+        RequireItemWithProp,
+        DescribeItem,
+
+        // prop
         RequireProp,
+        ChangeProp,
+        AddProp,
+        RemoveProp,
+        CheckProp,
+        CheckPropValue,
+        EnableProp,
+        DisableProp,
+
+        // container
         OpenContainer,
         CloseContainer,
+
+        // equipment
         Equip,
         Unequip,
-        DescribeExterior,
-        DisplayTimeOfDay,
-        ExitByWindow,
-        DescribeItem,
-        PointNorth,
+
+        // other
         Craft,
         ReadRecipe,
         DisplayHelp,
-        SetParam,
-        ChangeProp,
-        AddProp
+        SetParam
     }
 
     private static PlayerAction current;
+    public Type type;
+    private List<string> contents = new List<string>();
 
     public static void SetCurrent(PlayerAction action)
     {
@@ -67,11 +90,6 @@ public class PlayerAction
     {
         SetCurrent(this);
     }
-
-
-    public Type type;
-
-    private List<string> contents = new List<string>();
 
     public string GetContent(int i)
     {
@@ -92,6 +110,10 @@ public class PlayerAction
     public bool HasContent()
     {
         return contents.Count > 0;
+    }
+    public bool HasContent(int i)
+    {
+        return contents.Count < i;
     }
 
     public int GetContentCount()

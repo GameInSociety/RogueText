@@ -59,7 +59,7 @@ public class CraftManager : MonoBehaviour {
 
         CraftInfo targetCraftInfo;
 
-        Debug.Log("item vaklue : "+ InputInfo.GetCurrent.MainItem.value);
+        /*Debug.Log("item vaklue : "+ InputInfo.GetCurrent.MainItem.value);
         if (InputInfo.GetCurrent.MainItem.value < 0)
         {
 
@@ -84,7 +84,7 @@ public class CraftManager : MonoBehaviour {
 
         string list_str = Item.ItemListString(requiredItems, Item.ListSeparator.Commas, false);
         Item targetItem = Item.dataItems[targetCraftInfo.itemRow];
-        PhraseKey.WritePhrase("/craft_list/ " + list_str, targetItem);
+        PhraseKey.WritePhrase("/craft_list/ " + list_str, targetItem);*/
     }
 
     private void Craft()

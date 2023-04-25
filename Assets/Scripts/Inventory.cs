@@ -13,6 +13,8 @@ public class Inventory : MonoBehaviour {
 
     //public List<Item> items = new List<Item>();
 
+    public string[] startItems;
+
     /// <summary>
     /// container
     /// </summary>
@@ -23,9 +25,24 @@ public class Inventory : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        PlayerActionManager.onPlayerAction += HandleOnAction;
 
-        bag_Item.AddItem(Item.GetDataItem("compas"));
+        // HANDS !
+        // POCKETS !
+        // NECK !
+        // BODY ITEMS!
+
+        PlayerActionManager.onPlayerAction += HandleOnAction;
+        
+        // getting data item because it's available anytime
+        // not good, because the player will find bags he can use
+        // also
+        // synonym is inventory, and it's not working cause it's synonyms
+        bag_Item = Item.GetDataItem("bag");
+
+        foreach (var itemName in startItems)
+        {
+            ItemManager.Instance.CreateInInventory(itemName);
+        }
     }
 
 	void HandleOnAction (PlayerAction action)
@@ -34,16 +51,19 @@ public class Inventory : MonoBehaviour {
 		case PlayerAction.Type.PickUp:
 			PickUp ();
 			break;
-        case PlayerAction.Type.AddToTile:
-            AddToTile();
+        case PlayerAction.Type.CreateInTile:
+            CreateInTile();
             break;
-        case PlayerAction.Type.RemoveItem:
-            RemoveItem();
+        case PlayerAction.Type.DestroyItem:
+            DestroyItem();
             break;
         case PlayerAction.Type.RequireItem:
 			RequireItem ();
 			break;
-        case PlayerAction.Type.Throw:
+            case PlayerAction.Type.RequireItemWithProp:
+                RequireItemWithProp();
+                break;
+            case PlayerAction.Type.Throw:
             ThrowCurrentItem();
             break;
         case PlayerAction.Type.OpenContainer:
@@ -65,6 +85,21 @@ public class Inventory : MonoBehaviour {
         return GetItem(item_name) != null;
     }
 
+    public bool HasItemWithProperty(string property_name)
+    {
+        Item item = bag_Item.containedItems.Find(
+
+            x => x.properties.Find(
+
+                x => x.GetPart(0) == property_name
+
+                ) != null
+
+            );
+
+        return item != null;
+    }
+
     private void ThrowCurrentItem()
     {
         Item item = GetItem(InputInfo.GetCurrent.MainItem.word.text);
@@ -75,8 +110,8 @@ public class Inventory : MonoBehaviour {
             return;
         }
 
+        // remove && add
         RemoveItem(item);
-
         Tile.GetCurrent.AddItem(InputInfo.GetCurrent.MainItem);
 
         PhraseKey.WritePhrase("inventory_throw_sucess");
@@ -120,7 +155,7 @@ public class Inventory : MonoBehaviour {
 
         bag_Item.RemoveItem(item);
 	}
-    void RemoveItem()
+    void DestroyItem()
     {
         Item item;
 
@@ -140,7 +175,7 @@ public class Inventory : MonoBehaviour {
             return;
         }
 
-        Item.Remove(item);
+        Item.Destroy(item);
         //Tile.GetCurrent.RemoveItem(item);
     }
 	#endregion
@@ -155,50 +190,24 @@ public class Inventory : MonoBehaviour {
         return bag_Item.FindItem(str);
     }
 
-    public void AddToTile()
+    public void CreateInTile()
     {
-        string item_name = PlayerAction.GetCurrent.GetContent(0);
-        Item item = Item.CreateNew(item_name);
-
-        if (item == null)
-        {
-            Debug.LogError("couldn't find item " + PlayerAction.GetCurrent.GetContent(0) + " in item list");
-        }
-
         int amount = 1;
         if (PlayerAction.GetCurrent.HasValue(1))
         {
             amount = PlayerAction.GetCurrent.GetValue(1);
         }
 
+        string item_name = PlayerAction.GetCurrent.GetContent(0);
+
         for (int i = 0; i < amount; i++)
         {
-            Tile.GetCurrent.AddItem(item);
+            Item item = ItemManager.Instance.CreateInTile(Tile.GetCurrent, item_name);
+            PhraseKey.WritePhrase("tile_addItem", item);
         }
 
-        PhraseKey.WritePhrase("tile_addItem", item);
     }
     #endregion
-
-    public bool CanSee()
-    {
-        // avec nouveau systeme, pour simplifier et organiser :
-        // inventory.instance.ItemWithType("source of light");
-        // la property ressemblerait à ça :
-        // source of light
-        // battery/10/subTime/source of light#remove
-        // je crois que ça peut marcher comme ça
-
-        // alos chek if there's a source of light in the room
-
-        Item item = Inventory.Instance.GetItem("torchlight");
-        if ( item != null && item.GetProperty("battery").GetValue() > 0)
-        {
-            return true;
-        }
-
-        return false;
-    }
 
     #region item requirements
     void RequireItem()
@@ -225,37 +234,42 @@ public class Inventory : MonoBehaviour {
 
         // s'il a l'objet en question, ne rien faire, juste continuer les actions
     }
-    void RequireProp()
+    void RequireItemWithProp()
     {
         if (!InputInfo.GetCurrent.HasSecondItem())
         {
             Debug.LogError("no second item");
             PhraseKey.WritePhrase("item_noSecondItem");
+            PlayerActionManager.Instance.BreakAction();
             return;
         }
-
-        Debug.LogError("he has a second item ? what ?");
 
         string prop_name = PlayerAction.GetCurrent.GetContent(0);
 
         if (!InputInfo.GetCurrent.GetSecondItem.HasProperty(prop_name))
         {
-            PhraseKey.WritePhrase("item_noProperty");
+            PhraseKey.WritePhrase("&the dog (override item)& has no " + prop_name, InputInfo.GetCurrent.GetSecondItem);
+            PlayerActionManager.Instance.BreakAction();
             return;
         }
 
-        if (InputInfo.GetCurrent.GetSecondItem.GetProperty(prop_name).GetValue() == 0)
+        if (InputInfo.GetCurrent.GetSecondItem.GetProperty(prop_name).HasValue()
+            && InputInfo.GetCurrent.GetSecondItem.GetProperty(prop_name).GetValue() == 0)
         {
-            // aller chercher prop names
-            // est-ce que c'est la meme valeur partout ?
-            // est-ce que c'est le meme texte qui apparait partout ?
-            // une nouvelle fonction ? CheckIfThereStillSomethingLeft()
-            Debug.LogError("ici y'a un truc à changer ça veut rien dire");
-            PhraseKey.WritePhrase("item_NoMoreValue");
+            PhraseKey.WritePhrase("No more " + prop_name + " in &the dog (override item)", InputInfo.GetCurrent.GetSecondItem);
+            PlayerActionManager.Instance.BreakAction();
             return;
         }
 
         Debug.Log("prop : " + prop_name + " bien présent, on passe à la suite");
+    }
+
+    public void UpdateProperties()
+    {
+        foreach (var item in bag_Item.containedItems)
+        {
+            item.UpdateProperties();
+        }
     }
     #endregion
 

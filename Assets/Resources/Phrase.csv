@@ -16,7 +16,7 @@ craft_list,"to craft &a dog (override item)&, you need "
 craft_sucess,you crafted &a dog&
 craft_unable,you don't have the necessary meterials to craft &a dog&
 door_locked,"the door is locked, you need a key"
-gardening_grew,&a dog (override item)& appeared in place &of the dog&
+gardening_grew,&a dog (override item)& appeared
 gardening_water,you water &the dog&
 health_concerning,you starting to feel bad
 health_critical,you're on the verge of dying
@@ -39,11 +39,12 @@ inventory_pickUp_already,you already have &the dog&
 inventory_throw_nothing,you don't have &a dog&
 inventory_throw_sucess,you throw away &the dog&
 inventory_TooHeavy,&the dog& is too heavy for the bag
-item_description,you can ITEM_VERBS &the dog& ITEM_PROPERTIES
+item_description,ITEM_PROPERTIES
+item_description_withoutVerbs,"you can ITEM_VERBS &the dog&, ITEM_PROPERTIES"
 item_noDescription,can't do much with &the dog&
 item_NoMoreValue,no more VALUE in  &the dog&
 item_noProperty,you can't VERB_NAME &the dog (second item)&
-item_noSecondItem,VERB_QUESTION do you want to VERB_NAME &the dog&
+item_noSecondItem,VERB_QUESTION do you want to VERB_NAME &the dog& with
 item_require,you don't have any &dog (override item)&
 item_use,you use &the dog (override item)&
 lamp_off,"it's too dark, you can't see anything"
@@ -69,9 +70,9 @@ surroundingTile_discover,"you see &a dog (override item)& SURROURING_TILE_ORIENT
 &a dog (override item)& is SURROURING_TILE_ORIENTATION
 SURROURING_TILE_ORIENTATION, you see &a dog (override item)&
 you see, SURROURING_TILE_ORIENTATION, &a dog (override item)&
-&a dog (override item)& can be seen at SURROURING_TILE_ORIENTATION"
-surroundingTile_visited,"you see &the dog (override item)& SURROURING_TILE_ORIENTATION
-&a dog (override item)& is at SURROURING_TILE_ORIENTATION
+&a dog (override item)& SURROURING_TILE_ORIENTATION"
+surroundingTile_visited,"you're back &the dog (override item)& SURROURING_TILE_ORIENTATION
+&a dog (override item)& is SURROURING_TILE_ORIENTATION
 SURROURING_TILE_ORIENTATION, you see &the dog (override item)&
 you see, SURROURING_TILE_ORIENTATION, &the dog (override item)&
 &the dog (override item)& can be seen SURROURING_TILE_ORIENTATION"

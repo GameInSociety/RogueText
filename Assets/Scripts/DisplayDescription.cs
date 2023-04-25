@@ -86,9 +86,9 @@ public class DisplayDescription : MonoBehaviour {
         uiText_Old.text += uiText.text;
         uiText.text = "";
         uiText.text += "\n";
-        uiText.text += "_____________________________";
+        /*uiText.text += "_____________________________";
         uiText.text += "\n";
-        uiText.text += "\n";
+        uiText.text += "\n";*/
     }
 
     public void AddToDescription(string str)
@@ -104,13 +104,7 @@ public class DisplayDescription : MonoBehaviour {
 
         AudioInteraction.Instance.StartSpeaking(str);
 
-        CancelInvoke("AddToDescriptionDelay");
-        Invoke("AddToDescriptionDelay", 0.001f);
-    }
-
-    void AddToDescriptionDelay()
-    {
-        uiText.text += "\n____________________\n";
+        //uiText.text += "\n____________________\n";
         scrollRect.verticalNormalizedPosition = 0f;
     }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class VerbLoader : TextParser
 {
@@ -13,7 +14,7 @@ public class VerbLoader : TextParser
     {
         base.GetCell(line_Index, line);
 
-        if ( line.Count < 4 )
+        if (line.Count < 3)
         {
             return;
         }
@@ -30,10 +31,13 @@ public class VerbLoader : TextParser
         }
 
         // parse all verb synonmys
-        newVerb.names = name.Split(new string[] { " / " }, System.StringSplitOptions.None);
+        newVerb.names = name.Split('\n');
         newVerb.question = line[1];
         newVerb.preposition = line[2];
-        newVerb.helpPhrase = line[3];
+        if ( line.Count > 3)
+        {
+            newVerb.universal = line[3] == "universal";
+        }
 
         Verb.AddVerb(newVerb);
 

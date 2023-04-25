@@ -107,6 +107,7 @@ public class ItemAppearInfoLoader : TextParser
             {
                 Item targetItem = Item.dataItems[itemIndex];
 
+                //Debug.Log(newAppearInfo.rate + " to find " + Item.dataItems[newAppearInfo.itemIndex].debug_name + " in " + targetItem.debug_name);
                 targetItem.appearInfos.Add(newAppearInfo);
             }
             

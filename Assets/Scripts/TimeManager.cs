@@ -29,6 +29,9 @@ public class TimeManager : MonoBehaviour {
     public bool raining = false;
     public bool displayRainDescription = false;
 
+    public delegate void OnRaining();
+    public OnRaining onRaining;
+
     /// <summary>
     /// HOURS
     /// </summary>
@@ -125,6 +128,14 @@ public class TimeManager : MonoBehaviour {
 
             // 
             UpdateStates();
+
+            if (raining)
+            {
+                if (onRaining != null)
+                {
+                    onRaining();
+                }
+            }
 
             if (timeOfDay == 24)
             {
