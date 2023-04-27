@@ -38,7 +38,7 @@ public class DisplayInput : MonoBehaviour {
 
     public void OnEndEdit () {
 
-        InputInfo.ParsePhrase(inputField.text);
+        InputInfo.Instance.ParseText(inputField.text);
         Clear();
     }
 

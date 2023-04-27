@@ -10,7 +10,7 @@ public class PhraseKey
     public List<string> values = new List<string>();
 
     static Item overrideItem = null;
-    static Player.Orientation overrideOrientation;
+    static List<Player.Orientation> overrideOrientations = new List<Player.Orientation>();
 
     // PARAMS
 
@@ -20,7 +20,11 @@ public class PhraseKey
     
 
     public static void SetOverrideOrientation(Player.Orientation orientation){
-        overrideOrientation = orientation;
+        overrideOrientations = new List<Player.Orientation> { orientation };
+    }
+    public static void SetOverrideOrientation(List<Player.Orientation> _orientations)
+    {
+        overrideOrientations = _orientations;
     }
 
     public static string GetPhrase(string key, Item _overrideItem)
@@ -35,9 +39,10 @@ public class PhraseKey
         string str = GetPhraseKey(key);
 
         // ITEM ( il faut le faire ici AUSSI, pour la compil du display description
-        str = ExtractItemWords(str);
 
         str = KeyWords.ReplaceKeyWords(str);
+
+        str = ExtractItemWords(str);
 
         return str;
     }
@@ -153,9 +158,9 @@ public class PhraseKey
         switch (itemCode)
         {
             case "main item":
-                return InputInfo.GetCurrent.MainItem;
+                return InputInfo.Instance.GetItem(0);
             case "second item":
-                return InputInfo.GetCurrent.GetSecondItem;
+                return InputInfo.Instance.GetItem(1);
             case "tile item":
                 return Tile.GetCurrent.tileItem;
             case "override item":
@@ -166,12 +171,12 @@ public class PhraseKey
                 return overrideItem;
             default:
                 Debug.LogError(itemCode + " doesnt go in any item category, returning input main item");
-                return InputInfo.GetCurrent.MainItem;
+                return InputInfo.Instance.GetItem(0);
         }
     }
 
-    public static Player.Orientation GetOverrideOrientation(){
-        return overrideOrientation;
+    public static List<Player.Orientation> GetOverrideOrientations(){
+        return overrideOrientations;
     }
 
     #region write phrase

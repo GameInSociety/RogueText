@@ -148,20 +148,17 @@ public class ItemLoader : TextParser {
                 Property newProperty = new Property();
 
                 List<string> parts = property_line.Split(" / ").ToList();
-                if (parts[0].StartsWith('$'))
+                newProperty.type = parts[0];
+                if (parts.Count < 2)
                 {
-                    parts[0] = parts[0].Remove(0, 1);
-                    newProperty.enabled = false;
+                    Debug.LogError(property_line + " is not well formated");
                 }
-                else
+                newProperty.name = parts[1];
+                if ( parts.Count> 2 )
                 {
-                    newProperty.enabled = true;
+                    newProperty.value = parts[2];
                 }
                 
-                newProperty.parts= parts;
-                newProperty.name = parts[0]; 
-                
-
                 newItem.properties.Add(newProperty);
 
                 //newItem.CreateProperty(property_line);

@@ -66,9 +66,9 @@ public class Equipment {
             Inventory.Instance.AddItem(GetEquipement(part));
         }
 
-        SetEquipment(part, InputInfo.GetCurrent.MainItem);
+        SetEquipment(part, InputInfo.Instance.GetItem(0));
 
-        Item.Remove(InputInfo.GetCurrent.MainItem);
+        Item.Remove(InputInfo.Instance.GetItem(0));
 
         PhraseKey.WritePhrase("/_bag_equip/" + part.ToString());
 
@@ -78,13 +78,13 @@ public class Equipment {
     {
         Part part = GetPartFromString(PlayerAction.GetCurrent.GetContent(0));
 
-        if ( GetEquipement(part) != InputInfo.GetCurrent.MainItem)
+        if ( GetEquipement(part) != InputInfo.Instance.GetItem(0))
         {
             PhraseKey.WritePhrase("bag_nothingToEquip");
             return;
         }
 
-        Inventory.Instance.AddItem(InputInfo.GetCurrent.MainItem);
+        Inventory.Instance.AddItem(InputInfo.Instance.GetItem(0));
 
         PhraseKey.WritePhrase("bag_unequip");
 

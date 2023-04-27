@@ -1,33 +1,15 @@
-﻿using System.Collections;
+﻿using JetBrains.Annotations;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class SurroundingTileManager {
 
     public static int surroundTileIndex;
 
-    public static List<SurroundingTileGroup> tileGroups = new List<SurroundingTileGroup> ();
-    public static SurroundingTileGroup currentSurroundingTile;
-
-    public static Player.Orientation GetOrientationWithTile(string str)
-    {
-        if (str == Tile.GetCurrent.tileItem.word.text) 
-        {
-            return Player.Orientation.Current;
-        }
-
-        SurroundingTileGroup surr = tileGroups.Find( x => x.tile.tileItem.word.text.StartsWith(str) );
-
-        if (surr.tile == null)
-        {
-            return Player.Orientation.None;
-        }
-        else
-        {
-            return surr.orientations[0];
-        }
-    }
-    
     public static void WriteSurroundingTileDescription()
     {
         // enclosed, so no description of hallway, other rooms etc...
@@ -43,33 +25,96 @@ public class SurroundingTileManager {
             return;
         }
 
-        PhraseKey.WritePhrase("tile_surrounding_description");
+        PhraseKey.WritePhrase(GetSurroundingTilesDescription());
+    }
+
+    public struct SurroundingTile
+    {
+        public List<Player.Orientation> orientations;
+        public Tile tile;
     }
 
     public static string GetSurroundingTilesDescription()
     {
         // get tiles
-        GetSurroundingTiles();
-
         List<string> phrases = new List<string>();
 
         // get text
         string str = "";
 
-        for (int i = 0; i < tileGroups.Count; i++)
+        List<SurroundingTile> surroundingTiles= new List<SurroundingTile>();
+
+        foreach (var tile in Player.Instance.SurroundingTiles())
         {
-            SurroundingTileGroup surroundingTile = tileGroups[i];
+            SurroundingTile surroundingTile = surroundingTiles.Find(x => x.tile.tileItem.index == tile.tileItem.index);
+            if ( surroundingTile.tile == null )
+            {
+                surroundingTile = new SurroundingTile();
+                surroundingTile.tile = tile;
+                surroundingTile.orientations = new List<Player.Orientation> { tile.OrientationToPlayer() };
+                surroundingTiles.Add(surroundingTile);
+            }
+            else
+            {
+                surroundingTile.orientations.Add(tile.OrientationToPlayer());
+            }
+        }
 
-            string newPhrase = GetSurroundingTileDescription(surroundingTile);
+        int index = 0;
+        foreach (var surroundingTile in surroundingTiles)
+        {
+            Debug.Log("surrounding tile : " + surroundingTile.tile.tileItem.debug_name);
 
-            str += newPhrase;
+            PhraseKey.SetOverrideOrientation(surroundingTile.orientations);
 
-            if (i == tileGroups.Count - 2)
+            Tile tile = surroundingTile.tile;
+
+            if (Tile.GetCurrent.tileItem.SameTypeAs(surroundingTile.tile.tileItem))
+            {
+                if (Tile.GetCurrent.tileItem.stackable)
+                {
+                    // tu es dans une forêt, la forêt continue
+                    str += PhraseKey.GetPhrase("surroundingTile_continue", tile.tileItem);
+                }
+                else
+                {
+                    // tu es près d'une maison, tu vois une maison que tu connais pas
+                    str += PhraseKey.GetPhrase("surroundingTile_discover", tile.tileItem);
+                }
+            } else if (Interior.InsideInterior())
+            {
+                // tu es dans la cuisine, et tu vois LE couloir ( dans un intérieur, les articles définis ont plus de sens )
+                if (tile.tileItem.stackable)
+                {
+                    // tu es dans une forêt, la forêt continue
+                    str += PhraseKey.GetPhrase("surroundingTile_continue", tile.tileItem);
+                }
+                else
+                {
+                    // tu es près d'une maison, tu vois une maison que tu connais pas
+                    str += PhraseKey.GetPhrase("surroundingTile_visited", tile.tileItem);
+                }
+            }
+            else
+            {
+                // ici
+                if (tile.visited)
+                {
+                    // tu vois es près d'une maison
+                    str += PhraseKey.GetPhrase("surroundingTile_visited", tile.tileItem);
+                }
+                else
+                {
+                    str += PhraseKey.GetPhrase("surroundingTile_discover", tile.tileItem);
+                }
+            }
+
+            if (index == surroundingTiles.Count - 2)
             {
                 str += " and ";
             }
             // dernier
-            else if (i == tileGroups.Count - 1)
+            else if (index == surroundingTiles.Count - 1)
             {
                 str += "";
             }
@@ -79,109 +124,10 @@ public class SurroundingTileManager {
                 str += ", ";
             }
 
+            ++index;
         }
 
         return str;
     }
-
-    public static void GetSurroundingTiles()
-    {
-        tileGroups.Clear();
-
-        // get description orientations
-        List<Player.Orientation> orientations = new List<Player.Orientation>();
-        orientations.Add(Player.Orientation.Front);
-        orientations.Add(Player.Orientation.Right);
-        orientations.Add(Player.Orientation.Left);
-
-        // le gros dilemme : on met derrière ou pas ?
-        //orientations.Add(Player.Orientation.Back);
-
-        foreach (var orientation in orientations)
-        {
-            Cardinal dir = Player.Instance.GetCardinal(orientation);
-
-            Coords targetCoords = Player.Instance.coords + (Coords)dir;
-
-            Tile targetTile = TileSet.current.GetTile(targetCoords);
-
-            if (targetTile == null)
-            {
-                continue;
-            }
-
-            if (targetTile.enclosed)
-            {
-                continue;
-            }
-
-            SurroundingTileGroup newSurroundingTiles = tileGroups.Find(x => x.tile.type == targetTile.type);
-
-            if (newSurroundingTiles == null)
-            {
-                newSurroundingTiles = new SurroundingTileGroup();
-                newSurroundingTiles.tile = targetTile;
-
-                newSurroundingTiles.orientations = new List<Player.Orientation>();
-                newSurroundingTiles.orientations.Add(orientation);
-
-                tileGroups.Add(newSurroundingTiles);
-            }
-            else
-            {
-                newSurroundingTiles.orientations.Add(orientation);
-            }
-        }
-    }
     
-    public static string GetSurroundingTileDescription(SurroundingTileGroup surroundingTile)
-    {
-        currentSurroundingTile = surroundingTile;
-
-        // same tile
-        if ( Tile.GetCurrent.tileItem.SameTypeAs(surroundingTile.tile.tileItem))
-        {
-            if (Tile.GetCurrent.tileItem.stackable)
-            {
-                // tu es dans une forêt, la forêt continue
-                return PhraseKey.GetPhrase("surroundingTile_continue", surroundingTile.tile.tileItem);
-            }
-            else
-            {
-                // tu es près d'une maison, tu vois une maison que tu connais pas
-                return PhraseKey.GetPhrase("surroundingTile_discover", surroundingTile.tile.tileItem);
-            }
-        }
-
-        // new tile
-        if (Interior.InsideInterior())
-        {
-            // tu es dans la cuisine, et tu vois LE couloir ( dans un intérieur, les articles définis ont plus de sens )
-            if (surroundingTile.tile.tileItem.stackable)
-            {
-                // tu es dans une forêt, la forêt continue
-                return PhraseKey.GetPhrase("surroundingTile_continue", surroundingTile.tile.tileItem);
-            }
-            else
-            {
-                // tu es près d'une maison, tu vois une maison que tu connais pas
-                return PhraseKey.GetPhrase("surroundingTile_visited", surroundingTile.tile.tileItem);
-            }
-        }
-        else
-        {
-            // ici
-            if ( surroundingTile.tile.visited)
-            {
-                // tu vois es près d'une maison
-                return PhraseKey.GetPhrase("surroundingTile_visited", surroundingTile.tile.tileItem);
-            }
-            else
-            {
-                return PhraseKey.GetPhrase("surroundingTile_discover", surroundingTile.tile.tileItem);
-            }
-        }
-
-
-    }
 }

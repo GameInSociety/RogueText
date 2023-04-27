@@ -360,23 +360,27 @@ public class Item
             return Tile.GetCurrent.tileItem;
         }
 
+        //List<Item> items = Player.Instance.SurroundingTiles().FindAll();
+
         // is the item one of the surrounding tiles ?
-        foreach (var tileGroup in SurroundingTileManager.tileGroups)
+        foreach (var tile in Player.Instance.SurroundingTiles())
         {
-            if (tileGroup.tile.tileItem.word.Compare(str))
+            if (tile.tileItem.word.Compare(str))
             {
-                return tileGroup.tile.tileItem;
+                return tile.tileItem;
             }
         }
 
         List<Item> items = Tile.GetCurrent.items.FindAll(x => x.word.Compare(str));
+
+        Debug.Log("");
 
         /// ADJECTIVES ///
 
         /// chercher les adjectifs pour différencier les objets ( porte bleu, porte rouge )
         if (items.Count > 0)
         {
-            foreach (var inputPart in InputInfo.parts)
+            foreach (var inputPart in InputInfo.Instance.parts)
             {
                 foreach (var item in items)
                 {
@@ -433,7 +437,7 @@ public class Item
         // to search also in syonyms
         Item item = dataItems.Find(x =>
         x.words.Find(
-            x=>x.text.ToLower() == _name
+            x => x.text.ToLower() == _name
             ) != null
             );
 
@@ -446,7 +450,7 @@ public class Item
             {
                 // found the plural
                 //Debug.Log("found plural");
-                InputInfo.GetCurrent.actionOnAll = true;
+                InputInfo.Instance.actionOnAll = true;
                 return item;
             }
         }
@@ -559,7 +563,9 @@ public class Item
 
     public string GetVerbsDescription()
     {
-        string str = "";
+        string str = "You can ";
+
+        List<Verb> verbList = new List<Verb>();
 
         foreach (var verb in Verb.GetVerbs)
         {
@@ -567,16 +573,50 @@ public class Item
             {
                 if (combination.itemIndex == index)
                 {
-                    str += verb.names[0] + ", ";
+                    verbList.Add(verb);
                 }
 
             }
         }
 
-        str.Remove(str.Length - 2);
+        for (int i = 0; i < verbList.Count; i++)
+        {
+            str += verbList[i].GetName;
+            if (!string.IsNullOrEmpty(verbList[i].GetProposition))
+            {
+                str += " " + verbList[i].GetProposition;
+            }
+
+            if (verbList.Count > 1)
+            {
+                if (i == verbList.Count - 2)
+                {
+                    str += " and ";
+                }
+                else if (i < verbList.Count - 2)
+                {
+                    str += ", ";
+                }
+            }
+
+        }
+
+        str += " &the dog&";
 
         return str;
        
+    }
+
+    public string GetDescription()
+    {
+        if (HasProperties())
+        {
+            return GetPropertiesDescription();
+        }
+        else
+        {
+            return GetVerbsDescription();
+        }
     }
     public string GetPropertiesDescription()
     {
@@ -633,12 +673,25 @@ public class Item
     public Property CreateProperty(string line)
     {
         Property newProperty = new Property();
-        newProperty.enabled = true;
-        newProperty.parts = line.Split(" / ").ToList();
-        newProperty.UpdateParts();
+        string[] parts = line.Split(" / ");
+        newProperty.type = parts[0];
+        newProperty.name = parts[1];
+        if ( parts.Length > 2)
+        {
+            newProperty.value = parts[2];
+        }
+
+        newProperty.Init();
+
         properties.Add(newProperty);
         return newProperty;
     }
+
+    /// <summary>
+    ///  WHAT THE FUCK JAI FAIS ça a 3 heures c'est pas bon mais je l'ai mis parce que ça permet
+    ///  de réfléchir à une autre solution
+    /// </summary>
+
     bool subbedToHours = false;
     bool subbedToRain = false;
     // add proper property, from the data, with events and all
@@ -646,7 +699,7 @@ public class Item
     {
         Property newProperty = new Property(property_data);
 
-        newProperty.UpdateParts();
+        newProperty.Init();
 
         foreach (var propEvent in newProperty.events)
         {
@@ -695,7 +748,7 @@ public class Item
     }
     public bool HasProperty(string name)
     {
-        return properties.Find(x => x.GetPart(1) == name && x.enabled) != null;
+        return properties.Find(x => x.name == name && x.enabled) != null;
     }
 
     public List<Property> GetEnabledProperties()
@@ -705,7 +758,7 @@ public class Item
 
     public Property GetProperty(string name)
     {
-        Property property = properties.Find(x => x.GetPart(1) == name);
+        Property property = properties.Find(x => x.name == name);
 
         if (property == null)
         {
@@ -714,7 +767,18 @@ public class Item
         }
 
         return property;
+    }
+    public Property GetPropertyOfType(string type)
+    {
+        Property property = properties.Find(x => x.type == type);
 
+        if (property == null)
+        {
+            Debug.LogError("property if type : " + type + " doesn't exist in item " + word.text);
+            return null;
+        }
+
+        return property;
     }
     #endregion
 
@@ -729,9 +793,9 @@ public class Item
         {
 
             // decrease time
-            int timeLeft = property.GetValue();
+            int timeLeft = property.GetInt();
             --timeLeft;
-            property.SetValue(timeLeft);
+            property.SetInt(timeLeft);
 
             // don't do anything if the time left is above 0
             if (timeLeft > 0)
@@ -764,25 +828,30 @@ public class Item
         return item;
     }
 
-    public string GetRelaivePosition()
+    public string GetRelativePosition()
     {
+        if (!HasProperty("direction"))
+        {
+            return "";
+        }
+
         string itemPosition = "";
 
         Player.Orientation fac = Player.Orientation.None;
 
-        switch (GetProperty("direction").GetPart(1))
+        switch (GetProperty("direction").value)
         {
-            case "to north":
-                fac = Player.Instance.GetOrientation(Cardinal.North);
+            case "north":
+                fac = Player.Instance.CardinalToOrientation(Cardinal.North);
                 break;
-            case "to south":
-                fac = Player.Instance.GetOrientation(Cardinal.South);
+            case "south":
+                fac = Player.Instance.CardinalToOrientation(Cardinal.South);
                 break;
-            case "to east":
-                fac = Player.Instance.GetOrientation(Cardinal.East);
+            case "east":
+                fac = Player.Instance.CardinalToOrientation(Cardinal.East);
                 break;
-            case "to west":
-                fac = Player.Instance.GetOrientation(Cardinal.West);
+            case "west":
+                fac = Player.Instance.CardinalToOrientation(Cardinal.West);
                 break;
             default:
                 break;

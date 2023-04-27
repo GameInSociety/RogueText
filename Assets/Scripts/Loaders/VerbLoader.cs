@@ -33,7 +33,7 @@ public class VerbLoader : TextParser
         // parse all verb synonmys
         newVerb.names = name.Split('\n');
         newVerb.question = line[1];
-        newVerb.preposition = line[2];
+        newVerb.prepositions = line[2].Split('\n');
         if ( line.Count > 3)
         {
             newVerb.universal = line[3] == "universal";

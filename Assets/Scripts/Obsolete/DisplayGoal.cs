@@ -30,8 +30,9 @@ public class DisplayGoal : DisplayText {
             return;
         }
 
-        Cardinal dir = Coords.GetDirectionFromCoords(Player.Instance.coords , ClueManager.Instance.clueCoords);
-        string direction_str = Coords.GetWordsDirection(dir).GetContent("au chien");
+        Coords dir = Player.Instance.coords - ClueManager.Instance.clueCoords;
+        Cardinal cardinal = Coords.GetCardinalFromCoords(dir);
+        string direction_str = Coords.GetWordsDirection(cardinal).GetContent("au chien");
 
         goal = goal.Replace("CLUEPOSITION",direction_str);
 

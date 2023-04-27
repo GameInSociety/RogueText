@@ -6,17 +6,15 @@ using UnityEngine;
 public static class KeyWords
 {
     public enum KeyWord {
-        SURROURING_TILE_ORIENTATION,
         CONTAINER_LIST,
+        ITEM_DESCRIPTION,
+        ITEM_VERBS,
         ITEM_PROPERTIES,
         VERB_NAME,
         VERB_QUESTION,
-        ITEM_VERBS,
         TILE_CURRENT_DESCRIPTION,
-        TILE_SURROUNDING_DESCRIPTION,
-        TILE_ITEM_DESCRIPTION,
+        TILE_ITEM_DESCRIPTIONS,
         TIME_OF_DAY,
-        PLAYER_ORIENTATION_FROM_NORTH,
 
         TARGET_ORIENTATION
     }
@@ -38,30 +36,24 @@ public static class KeyWords
     {
         switch (keyWord)
         {
-            case KeyWord.SURROURING_TILE_ORIENTATION:
-                return Coords.GetOrientationText(SurroundingTileManager.currentSurroundingTile.orientations);
             case KeyWord.CONTAINER_LIST:
                 return Item.ItemListString(Container.CurrentItem.containedItems, Item.ListSeparator.Commas, true);
-            case KeyWord.ITEM_PROPERTIES:
-                return InputInfo.GetCurrent.MainItem.GetPropertiesDescription();
-            case KeyWord.VERB_NAME:
-                return InputInfo.GetCurrent.verb.names[0];
-            case KeyWord.VERB_QUESTION:
-                return InputInfo.GetCurrent.verb.question;
-            case KeyWord.ITEM_VERBS:
-                return InputInfo.GetCurrent.MainItem.GetVerbsDescription();
+            
             case KeyWord.TILE_CURRENT_DESCRIPTION:
                 return Tile.GetCurrent.GetDescription();
-            case KeyWord.TILE_SURROUNDING_DESCRIPTION:
-                return SurroundingTileManager.GetSurroundingTilesDescription();
-            case KeyWord.TILE_ITEM_DESCRIPTION:
+            case KeyWord.TILE_ITEM_DESCRIPTIONS:
                 return Tile.GetCurrent.GetItemDescriptions();
             case KeyWord.TIME_OF_DAY:
                 return TimeManager.GetInstance().GetTimeOfDayDescription();
-            case KeyWord.PLAYER_ORIENTATION_FROM_NORTH:
-                return Coords.GetOrientationText(Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal));
             case KeyWord.TARGET_ORIENTATION:
-                return Coords.GetOrientationText(PhraseKey.GetOverrideOrientation());
+                return Coords.GetOrientationText(PhraseKey.GetOverrideOrientations());
+            case KeyWord.ITEM_DESCRIPTION:
+                return InputInfo.Instance.GetItem(0).GetDescription();
+            case KeyWord.VERB_NAME:
+                return InputInfo.Instance.verb.names[0];
+            case KeyWord.VERB_QUESTION:
+                return InputInfo.Instance.verb.question;
+
             default:
                 Debug.LogError("no text for KEY WORD " + keyWord.ToString());
                 return keyWord.ToString();

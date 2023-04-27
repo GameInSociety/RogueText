@@ -7,20 +7,29 @@ using UnityEditor.MPE;
 using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.Networking.Match;
+using UnityEngine.UI;
 using static UnityEditor.Progress;
 
 [System.Serializable]
 public class Property
 {
     public string name;
+    public bool enabled = false;
+    public string type;
+    // might be a list later
+    // is a string or a numeric
+    public string value;
+
+    //  the max of the potential value, set when  (0=10) 10 = max
+    // MAX VALUE SHOULD BE IN THE PARTS
+    // battery / 0 / 10
+    public int value_max = -1;
 
     /// <summary>
     /// POURQUOI ENABLE LES PROPS AU LIEU DE LES DETRUIRE ET RECREER ?
     /// parce qu'elle contiennent des events, et que ça serait trop chiant de les remettre dans les cells d'action
     /// et aussi parce que c'est mieux, par rapport à la mémoire etc... au garbage collector
     /// </summary>
-    public List<string> parts = new List<string>();
-    public bool enabled = false;
 
     /// <summary>
     ///  LES EVENTS EN QUESTION
@@ -35,11 +44,7 @@ public class Property
     
     //private Item linkedItem;
 
-    //  the max of the potential value, set when  (0=10) 10 = max
-    // MAX VALUE SHOULD BE IN THE PARTS
-    // battery / 0 / 10
-    public int value_max = -1;
-
+   
     /// <summary>
     /// CONSTRUCTOR
     /// </summary>
@@ -49,82 +54,78 @@ public class Property
     public Property (Property copy)
     {
         name = copy.name;
+        type = copy.type;
+        value = copy.value;
         events = copy.events;
-        enabled = copy.enabled;
-
-        foreach (var part in copy.parts)
+    }
+    public void Init ()
+    {
+        if (type.StartsWith('$'))
         {
-            parts.Add(part);
+            type = type.Remove(0, 1);
+            enabled = false;
+        }
+        else
+        {
+            enabled = true;
         }
 
+        if (name.Contains('?'))
+        {
+            string[] strs = name.Split('?');
+            name = strs[Random.Range(0, strs.Length)];
+            Debug.Log(name);
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(value))
+        {
+            if (HasInt())
+            {
+                value_max = GetInt();
+                Debug.Log("max of " + name + " " + value_max);
+            }
+            else if (value.Contains('='))
+            {
+                int min = int.Parse(value.Split('=')[0]);
+                int max = int.Parse(value.Split('=')[1]);
+                value_max = max;
+                int tmpValue = Random.Range(min, max);
+                SetInt(tmpValue);
+                return;
+            }
+        }
     }
-    ///
 
     #region description
     public string GetDescription()
     {
-        if (!enabled)
-        {
-            return "";
-        }
-
-        // get type
-        if ( parts.Count == 1)
-        {
-            return GetPart(0);
-        }
-
-        switch (GetPart(0))
+        // get prop type
+        switch (type)
         {
             case "state":
-                return GetPart(1);
-            case "iValue": // invisible value
-                return GetPart(1);
+                return name;
+            case "iValue": // invisible value, not added in decription
+                return name;
+            case "value":
+                return "has " + value;
+            case "container":
+                return TextUtils.GetPropertyContainerText(this);
+            case "dir":
+                return "goes " + value;
             default:
                 break;
         }
 
         // wtf
         // encore plus wtf
-        if (GetPart(0).ToLower().Contains("type"))
+        if (type.ToLower().Contains("type"))
         {
-            return "a " + GetPart(0);
-        }
-
-        if (HasValue())
-        {
-            if (value_max >= 0)
-            {
-                string[] phrases = new string[3]
-            {
-                    "almost empty",
-                    Random.value < 0.5f ? "half full" : "half empty",
-                    "almost full",
-            };
-
-                int value = GetValue();
-
-                if (value == 0)
-                {
-                    return "empty of " + GetPart(1);
-                }
-
-                if (value == value_max)
-                {
-                    return "full of " + GetPart(1);
-                }
-
-                float lerp = (float)value / value_max;
-
-                int index = (int)(lerp * phrases.Length);
-                index = Mathf.Clamp(index, 0, phrases.Length - 1);
-                string text = phrases[index];
-                return "" + text + " of " + GetPart(1);
-            }
+            return "a " + name;
         }
 
         Debug.Log("default property description");
-        return GetPart(0);
+        return name;
 
     }
     #endregion
@@ -158,66 +159,26 @@ public class Property
     #endregion
 
     #region update
-    public void UpdateParts()
+    public void UpdateProperty(string line)
     {
-        UpdateParts(parts);
-    }
-    public void UpdateParts(List<string> changingParts)
-    {
-
-        for (int i = 0; i < changingParts.Count; ++i)
+        if (line.StartsWith('+'))
         {
-            string changinPart = changingParts[i];
-
-            if (changinPart.Contains('?'))
-            {
-                string[] strs = changinPart.Split('?');
-                parts[i] = strs[Random.Range(0, strs.Length)];
-
-                Debug.Log(parts[i]);
-                continue;
-            }
-
-            // check for max value if none is set
-            if ( value_max < 0)
-            {
-                Debug.Log("truing max");
-                int tmpMax = -1;
-                if (int.TryParse(changingParts[i], out tmpMax))
-                {
-                    value_max = tmpMax;
-                    Debug.Log("max of " + GetPart(0) + " " + value_max);
-                }
-            }
-
-            if (changinPart.Contains('='))
-            {
-                int min = int.Parse(changinPart.Split('=')[0]);
-                int max = int.Parse(changinPart.Split('=')[1]);
-                value_max = max;
-                parts[i] = Random.Range(min, max).ToString();
-                continue;
-            }
-
-            if (changinPart.StartsWith('+'))
-            {
-                int dif = int.Parse(changinPart.Remove(0, 1));
-                int newValue = GetValue() + dif;
-                newValue = Mathf.Clamp(newValue, 0, value_max);
-                parts[i] = newValue.ToString();
-                continue;
-            }
-
-            parts[i] = changinPart;
-
+            int dif = int.Parse(value.Remove(0, 1));
+            int newValue = GetInt() + dif;
+            newValue = Mathf.Clamp(newValue, 0, value_max);
+            SetInt(newValue);
+            return;
         }
+
+        name = line;
+
+        Debug.LogError("falling into no case of update property in prop " + name);
     }
     #endregion
 
     public void Enable()
     {
         enabled = true;
-        UpdateParts();
     }
 
     public void Disable()
@@ -272,64 +233,24 @@ public class Property
     #endregion
 
     #region setters & getters
-    public string GetPart(int i)
+    public bool HasInt()
     {
-        if (i >= parts.Count)
-        {
-            if (parts.Count == 0)
-            {
-                Debug.LogError("error property : parts length 0");
-                return "error property parts";
-            }
-            Debug.LogError("error property : try get part " + i + " but out of range");
-
-            return parts[0];
-        }
-
-        return parts[i];
-    }
-
-    public void SetPart(int i, string str)
-    {
-        parts[i] = str;
-    }
-
-    public bool HasPart(int i)
-    {
-        if (i < parts.Count)
+        if (string.IsNullOrEmpty(value))
         {
             return false;
         }
-        else
-        {
-            return true;
-        }
-    }
 
-    public bool HasValue()
+        int i = -1;
+
+        return int.TryParse(value, out i);
+    }
+    public int GetInt()
     {
         int i = -1;
 
-        foreach (var part in parts)
+        if (int.TryParse(value, out i))
         {
-            if (int.TryParse(part, out i))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    public int GetValue()
-    {
-        int i = -1;
-
-        foreach (var part in parts)
-        {
-            if (int.TryParse(part, out i))
-            {
-                return i;
-            }
+            return i;
         }
 
         if (i == -1)
@@ -339,20 +260,9 @@ public class Property
 
         return i;
     }
-    public void SetValue(int newValue)
+    public void SetInt(int newValue)
     {
-        int tmpValue = -1;
-
-        for (int i = 0; i < parts.Count; i++)
-        {
-            if (int.TryParse(parts[i], out tmpValue))
-            {
-                parts[i] = parts[i].Replace(parts[i], newValue.ToString());
-                return;
-            }
-        }
-
-        Debug.LogError("couldn't change value because no value parsed");
+        value = newValue.ToString();
     }
     #endregion
 }

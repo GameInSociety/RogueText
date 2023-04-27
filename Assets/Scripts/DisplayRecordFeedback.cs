@@ -65,7 +65,7 @@ public class DisplayRecordFeedback : MonoBehaviour
     public void Hide()
     {
         Debug.Log("parsing phrase : " + uiText.text);
-        InputInfo.ParsePhrase(uiText.text);
+        InputInfo.Instance.ParseText(uiText.text);
 
         canvasGroup.DOFade(0f, duration);
 

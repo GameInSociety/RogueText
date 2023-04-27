@@ -59,19 +59,19 @@ public class CraftManager : MonoBehaviour {
 
         CraftInfo targetCraftInfo;
 
-        /*Debug.Log("item vaklue : "+ InputInfo.GetCurrent.MainItem.value);
-        if (InputInfo.GetCurrent.MainItem.value < 0)
+        /*Debug.Log("item vaklue : "+ InputInfo.GetCurrent.GetItem(0).value);
+        if (InputInfo.GetCurrent.GetItem(0).value < 0)
         {
 
 
             int i = itemRows[Random.Range(0, itemRows.Count)];
             targetCraftInfo = craftInfos[i];
 
-            InputInfo.GetCurrent.MainItem.value = i;
+            InputInfo.GetCurrent.GetItem(0).value = i;
         }
         else
         {
-            targetCraftInfo = craftInfos[InputInfo.GetCurrent.MainItem.value];
+            targetCraftInfo = craftInfos[InputInfo.GetCurrent.GetItem(0).value];
         }
 
         List<Item> requiredItems = new List<Item>();
@@ -89,7 +89,7 @@ public class CraftManager : MonoBehaviour {
 
     private void Craft()
     {
-        CraftInfo craftInfo = craftInfos[InputInfo.GetCurrent.MainItem.index];
+        CraftInfo craftInfo = craftInfos[InputInfo.Instance.GetItem(0).index];
         if ( craftInfo.requiredToolItemRows == null)
         {
             //Phrase.Write("vous ne pouvez pas fabriquer de " + Action.last.primaryItem.word.GetDescription(Word.Def.Undefined,Word.Preposition.De));
@@ -128,7 +128,7 @@ public class CraftManager : MonoBehaviour {
                     }
                 }
 
-                Inventory.Instance.AddItem(InputInfo.GetCurrent.MainItem);
+                Inventory.Instance.AddItem(InputInfo.Instance.GetItem(0));
 
                 PhraseKey.WritePhrase("craft_sucess");
 

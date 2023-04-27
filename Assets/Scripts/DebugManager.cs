@@ -5,6 +5,7 @@ using UnityEngine;
 public class DebugManager : MonoBehaviour
 {
     public Tile tile;
+    public InputInfo inputInfo;
 
     public bool colorWords = true;
 

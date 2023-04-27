@@ -79,7 +79,7 @@ public class ConditionManager : MonoBehaviour
 
         WriteDescription();
 
-        //Item.Remove(InputInfo.GetCurrent.MainItem);
+        //Item.Remove(InputInfo.GetCurrent.GetItem(0));
     }
 
     #region wait
@@ -87,9 +87,9 @@ public class ConditionManager : MonoBehaviour
     {
         int hours;
 
-        if (InputInfo.GetCurrent.hasValueInText)
+        if (InputInfo.Instance.hasValueInText)
         {
-            hours = InputInfo.GetCurrent.valueInText;
+            hours = InputInfo.Instance.valueInText;
         }
         else
         {

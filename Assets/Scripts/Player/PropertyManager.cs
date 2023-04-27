@@ -45,18 +45,18 @@ public class PropertyManager : MonoBehaviour
     #region actions
     public void Action_ChangeProperty()
     {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
-        string line = PlayerAction.GetCurrent.GetContent(0);
-        Action_ChangeProperty(targetItem, line);
+        Item targetItem = InputInfo.Instance.GetItem(0);
+        string targetProp = PlayerAction.GetCurrent.GetContent(0);
+        string line = PlayerAction.GetCurrent.GetContent(1);
+        Action_ChangeProperty(targetItem, targetProp, line);
     }
-    public void Action_ChangeProperty(Item targetItem, string line)
+    public void Action_ChangeProperty(Item targetItem, string targetProp, string line)
     {
-        List<string> parts = line.Split(" / ").ToList();
 
         // in the function type is not reffered, so go for part 0
-        Property property = targetItem.GetProperty(parts[0]);
+        Property property = targetItem.GetProperty(targetProp);
 
-        property.UpdateParts(parts);
+        property.UpdateProperty(line);
 
         UpdateDescription();
     }
@@ -66,7 +66,7 @@ public class PropertyManager : MonoBehaviour
     /// </summary>
     public void Action_AddProperty()
     {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
+        Item targetItem = InputInfo.Instance.GetItem(0);
 
         string line = PlayerAction.GetCurrent.GetContent(0);
 
@@ -84,7 +84,7 @@ public class PropertyManager : MonoBehaviour
     /// </summary>
     public void Action_RemoveProperty()
     {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
+        Item targetItem = InputInfo.Instance.GetItem(0);
 
         string propertyName = PlayerAction.GetCurrent.GetContent(0);
 
@@ -102,32 +102,32 @@ public class PropertyManager : MonoBehaviour
     /// </summary>
     public void Action_CheckProperty()
     {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
+        Item targetItem = InputInfo.Instance.GetItem(0);
 
         string property_line = PlayerAction.GetCurrent.GetContent(0);
         string[] parts = property_line.Split(" / ");
 
         if (!targetItem.HasProperty(parts[0]))
         {
-            PhraseKey.WriteHard("It's not " + parts[0]);
+            PhraseKey.WriteHard("It's " + parts[0]);
             PlayerActionManager.Instance.BreakAction();
             return;
         }
 
         Property property = targetItem.GetProperty(parts[0]);
 
-        if (property.HasValue())
+        if (property.HasInt())
         {
-            if ( property.GetValue() <= int.Parse(parts[1]))
+            if ( property.GetInt() <= int.Parse(parts[1]))
             {
-                PhraseKey.WriteHard("No " + property.GetPart(1));
+                PhraseKey.WriteHard("No " + property.name);
                 PlayerActionManager.Instance.BreakAction();
                 return;
             }
         }
         else
         {
-            if (property.GetPart(1) != parts[1])
+            if (property.name != parts[1])
             {
                 PhraseKey.WriteHard("It's not " + parts[1]);
                 PlayerActionManager.Instance.BreakAction();
@@ -137,15 +137,15 @@ public class PropertyManager : MonoBehaviour
     }
     public void Action_CheckPropertyValue()
     {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
+        Item targetItem = InputInfo.Instance.GetItem(0);
 
         string propertyName = PlayerAction.GetCurrent.GetContent(0);
 
         Property property = targetItem.GetProperty(propertyName);
 
-        if (property.GetValue() <= 0)
+        if (property.GetInt() <= 0)
         {
-            PhraseKey.WriteHard("No " + property.GetPart(0));
+            PhraseKey.WriteHard("No " + property.name);
             PlayerActionManager.Instance.BreakAction();
             return;
         }
@@ -156,7 +156,7 @@ public class PropertyManager : MonoBehaviour
     /// </summary>
     public void Action_EnableProperty()
     {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
+        Item targetItem = InputInfo.Instance.GetItem(0);
 
         string line = PlayerAction.GetCurrent.GetContent(0);
 
@@ -165,7 +165,7 @@ public class PropertyManager : MonoBehaviour
     }
     public void Action_EnableProperty(Item targetItem, string prop_name)
     {
-        Property property = targetItem.properties.Find(x => x.GetPart(0) == prop_name);
+        Property property = targetItem.properties.Find(x => x.name == prop_name);
 
         if ( property == null)
         {
@@ -177,7 +177,7 @@ public class PropertyManager : MonoBehaviour
     }
     public void Action_DisableProperty()
     {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
+        Item targetItem = InputInfo.Instance.GetItem(0);
 
         string line = PlayerAction.GetCurrent.GetContent(0);
         Action_DisableProperty(targetItem, line);
@@ -185,7 +185,7 @@ public class PropertyManager : MonoBehaviour
     }
     public void Action_DisableProperty(Item targetItem, string prop_name)
     {
-        Property property = targetItem.properties.Find(x => x.GetPart(0) == prop_name);
+        Property property = targetItem.properties.Find(x => x.name == prop_name);
         property.Disable();
     }
     #endregion
@@ -206,7 +206,7 @@ public class PropertyManager : MonoBehaviour
     void UpdateDescriptionDelay()
     {
         updateDescription = false;
-        PhraseKey.WriteHard(InputInfo.GetCurrent.MainItem.GetPropertiesDescription()); ;
+        PhraseKey.WriteHard(InputInfo.Instance.GetItem(0).GetPropertiesDescription()); ;
     }
 
     public void UpdateProperties()

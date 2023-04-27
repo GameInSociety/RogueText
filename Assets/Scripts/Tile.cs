@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 
@@ -17,8 +18,8 @@ public class Tile
 
     public static bool itemsChanged = false;
 
+    // va virer quand la class descendra de ITEM
     public List<Item> items = new List<Item>();
-
     public Item tileItem;
 
     public Tile(Coords coords)
@@ -120,7 +121,7 @@ public class Tile
             return;
         }
 
-        PhraseKey.WritePhrase("tile_item_descriptions");
+        PhraseKey.WritePhrase(GetItemDescriptions()); ;
 
     }
     public string GetItemDescriptions()
@@ -202,6 +203,16 @@ public class Tile
 
         return Tile.GetCurrent.type == Tile.GetPrevious.type;
     }
+    public Player.Orientation OrientationToPlayer()
+    {
+        Coords dir = coords - Player.Instance.coords;
+
+        Cardinal cardinal = (Cardinal)dir;
+
+        Player.Orientation orientation = Player.Instance.CardinalToOrientation(cardinal);
+
+        return orientation;
+    }
     #endregion
 
     public string GetName ()
@@ -262,7 +273,7 @@ public class Tile
             case Type.DiningRoom:
                 return "dining room";
             case Type.ChildBedroom:
-                return "children's bed room";
+                return "children's room";
             case Type.Bedroom:
                 return "bedroom";
             case Type.Bathroom:
@@ -334,6 +345,20 @@ public class Tile
 
     }
 
+    /// <summary>
+    /// INTERIOR
+    /// </summary>
+    public bool HasDoor (string direction)
+    {
+        return items.Find(x =>
+        x.HasWord("door") &&
+        x.HasProperty("direction") &&
+        x.GetProperty("direction").value == direction) != null;
+    }
+
+    /// <summary>
+    /// TOOLS
+    /// </summary>
     private static Tile _previous;
     public static Tile GetPrevious {
         get

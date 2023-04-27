@@ -1477,7 +1477,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 388731313}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1731,6 +1731,70 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 521048788}
   m_CullTransparentMesh: 0
+--- !u!1 &590356671
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 590356672}
+  - component: {fileID: 590356673}
+  m_Layer: 0
+  m_Name: InputInfo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &590356672
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 590356671}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1155866337}
+  m_RootOrder: 16
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &590356673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 590356671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 370c83b2c4743cb4ba150f5e4abc5f67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: 
+  parts: []
+  verb:
+    col: 0
+    question: 
+    prepositions: []
+    helpPhrase: 
+    universal: 0
+    names: []
+    currentNameIndex: 0
+    combinations: []
+  items: []
+  combination:
+    content: 
+    itemIndex: 0
+  orientation: 8
+  cardinal: 8
+  hasValueInText: 0
+  valueInText: 0
+  actionOnAll: 0
 --- !u!1 &597216345
 GameObject:
   m_ObjectHideFlags: 0
@@ -1783,6 +1847,9 @@ MonoBehaviour:
     x: -1
     y: -1
   coords:
+    x: -1
+    y: -1
+  direction:
     x: -1
     y: -1
   startCoords:
@@ -2747,6 +2814,7 @@ Transform:
   - {fileID: 263378800}
   - {fileID: 1209840572}
   - {fileID: 1016588175}
+  - {fileID: 590356672}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2856,7 +2924,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   daysPasted: 0
-  timeOfDay: 23
+  timeOfDay: 8
   rainRate_Max: 40
   rainRate_Min: 10
   hoursLeftToRain: 0
@@ -3995,6 +4063,7 @@ MonoBehaviour:
       opened: 0
       emptied: 0
       properties: []
+  inputInfo: {fileID: 0}
   colorWords: 1
 --- !u!1 &1976029674
 GameObject:

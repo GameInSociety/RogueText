@@ -1,41 +1,54 @@
 help,how,,
-go,where,towards,
+go,where,to,
 open,what,,
 close,what,,
 eat,what,,
 sleep,where,on,
 "look
-observe",what,,
+observe",what,"at
+",
 "take
-pick up",what,,
+pick up",what,"
+",
 fill,what,,
 drink,what,,
-move,what,,
+"move
+advance
+walk
+continue
+keep going",where,towards,
 read,what,,
 cut,what,,
-go in,where,in,
+"go in
+enter",where,"to
+",
 throw,what,,
 "equip
 put on",what,,
 "unequip
 take off",what,,
-listen,what,,
-"continue
-keep going",where,towards,
-leave,from where,from,
-go back,where,towards,
-break,where,,
-tear,where,,
+listen,what,to,
+NOUVEAU VERB,where,"towards
+towards",
+"leave
+go out
+exit",from where,"from
+from",
+"go back
+return",where,"to
+to",
+break,what,,
+tear,what,,
 "make
 craft",what,,universal
 turn on,what,,
 turn off,what,,
-advance,where,towards,
-plant,what,in,
-unearth,what,in,
-water,what,in,
-dig,where,in,
-wait,how long,when,
-empty,where,where,
-charge,what,what,
+NOUVEAU VERB2,where,to,
+plant,what,,
+unearth,what,,
+water,what,,
+dig,where or what,,
+wait,how long,,
+empty,what,,
+charge,what,,
 yes,no,maybe,

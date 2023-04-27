@@ -3,108 +3,98 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Runtime.ConstrainedExecution;
+using System.Text;
 
-public class InputInfo
+[System.Serializable]
+public class InputInfo : MonoBehaviour
 {
-    public static void SetCurrent(InputInfo inputInfo)
-    {
-        current = inputInfo;
-    }
-
-    private static InputInfo current;
-
-    public static InputInfo GetCurrent
-    {
-        get
-        {
-            return current;
-        }
-    }
+    public static InputInfo Instance;
+   
 
     // static
-    public static string text;
-    public static List<string> parts = new List<string>();
+    public string text;
+    public List<string> parts = new List<string>();
 
     // phrase content
     public Verb verb;
-    private List<Item> items = new List<Item>();
-    public Combination combination;
-    public Player.Orientation orientation;
-    public Cardinal direction;
-    public bool hasValueInText = false;
-    public int valueInText = 0;
 
+    public List<Item> items = new List<Item>();
+
+    public Combination combination;
+
+    public Player.Orientation orientation = Player.Orientation.None;
+    public Cardinal cardinal = Cardinal.None;
+
+    public bool hasValueInText = false;
+
+    public int valueInText = 0;
 
     public bool actionOnAll = false;
 
-    public Item MainItem
+    private void Awake()
     {
-        get
+        Instance = this;
+    }
+
+    public Item GetItem(int index)
+    {
+        if (items.Count == 0)
         {
-            if (!HasItems())
-            {
-                return null;
-            }
-
-            return items[0];
+            return null;
         }
-    }
 
-    public bool HasSecondItem()
-    {
-        return items.Count > 1;
-    }
-
-    public Item GetSecondItem
-    {
-        get
+        if (index >= items.Count)
         {
-            if ( items.Count < 1)
-            {
-                Debug.LogError("no second item");
-                return MainItem;
-            }
-
-            return items[1];
+            Debug.LogError("index " + index + " out of list of input items ( " + items.Count + " )");
+            return GetItem(0);
         }
-    }
 
-    public void GetItemCount()
-    {
-
+        return items[index];
     }
 
 
-    public static void ParsePhrase(string str)
+    public void ParseText(string str)
     {
         text = str;
 
         if (text.Length == 0)
         {
+            Debug.LogError("input text : is empty");
             return;
         }
 
         text = text.TrimEnd(' ');
 
-       
-
         // create action
-        InputInfo newInputInfo = new InputInfo();
 
-        InputInfo.SetCurrent(newInputInfo);
-
-        newInputInfo.FindVerb();
+        FindVerb();
 
         // separate text ( after verb in case phrase changing, verb is removed 
         parts = text.Split(new char[3] { ' ', '\'', '\'' }).ToList<string>();
 
-        newInputInfo.FindNumber();
+        FindNumber();
 
-        newInputInfo.FindOrientation();
+        FindOrientation();
 
-        newInputInfo.FindItems();
+        FindItems();
 
-        newInputInfo.FindCombination();
+        if (HasVerb())
+        {
+            if (HasItems())
+            {
+                FindCombination(verb, GetItem(0));
+            }
+            else
+            {
+                Item verbItem = Item.GetDataItem("verbe seul");
+                FindCombination(verb, verbItem);
+            }
+        }
+        else
+        {
+            combination = null;
+        }
 
 
         PlayerActionManager.Instance.DisplayInputFeedback();
@@ -114,7 +104,7 @@ public class InputInfo
     {
         hasValueInText = false;
 
-        foreach (var part in InputInfo.parts)
+        foreach (var part in parts)
         {
             if (part.All(char.IsDigit))
             {
@@ -137,20 +127,21 @@ public class InputInfo
     {
         //string str = InputInfo.parts[0];
 
-        verb = Verb.Find(text);
+        Verb tmpVerb = Verb.Find(text);
 
-        if (verb == null)
+        if (tmpVerb == null)
         {
             // c'est pas grave de pas avoir de verbe
             //Debug.LogError("couldn't find verb : " + str);
         }
         else
         {
+            verb = tmpVerb;
             // remove text from input text to avoid confusion
             // water sprout => il pensait que "water" était l'objet
 
             // REPLACE ONLY ONCE grâce à ce truc trouvé sur l'internet
-            var regex = new Regex(Regex.Escape(verb.Name + " "));
+            var regex = new Regex(Regex.Escape(verb.GetName + " "));
 
             text = regex.Replace(text, "",1);
         }
@@ -159,9 +150,8 @@ public class InputInfo
     public void FindItems()
     {
         actionOnAll = false;
-        items.Clear();
 
-        if (InputInfo.text.Contains(" tous ") || InputInfo.text.Contains(" toutes "))
+        if (text.Contains(" all ") )
         {
             Debug.Log("actions on all !!!!");
             actionOnAll = true;
@@ -169,7 +159,7 @@ public class InputInfo
 
         List<Item> probableItems = new List<Item>();
 
-        foreach (var input_part in InputInfo.parts)
+        foreach (var input_part in parts)
         {
             // ici c'est la longueur minimale de chaine de character pour la detection
             // ( pour éviter que " l' " soit détécté comme n'importe quel mot commençant par " l " dans l'inventaire*
@@ -190,10 +180,15 @@ public class InputInfo
             }
         }
 
+        /// if no probable items, we KEEP the previous items, for feature enter IT, look at IT
+        /// input preservation on peut appeler ça
         if (probableItems.Count == 0)
         {
             return;
         }
+
+        items.Clear();
+
 
         Item mostProbableItem = probableItems[0];
 
@@ -217,50 +212,24 @@ public class InputInfo
         //items.Add(mostProbableItem);
     }
 
-    public void AddItem( Item item)
-    {
-        items.Add(item);
-    }
-
     public void FindOrientation()
     {
         orientation = Player.Orientation.None;
 
-        foreach (var inputPart in InputInfo.parts)
+        for (int i = 0; i < 8; i++)
         {
-            // actuellement ça fonctionne pas trop aprce que "devant à droite" c'est plusieurs parties par exemple
-            string[] strs = new string[8]
+            Player.Orientation tmpOrientation = (Player.Orientation)i;
+
+            if (text.Contains(Coords.GetOrientationText(orientation)))
             {
-                "devant",
-                "devant à droite",
-                "droite",
-                "derrière à droite",
-                "derrière",
-                "derrière à gauche",
-                "gauche",
-                "devant à gauche" 
-            };
-
-            Player.Orientation tmpOrientation = (Player.Orientation)0;
-
-            foreach (var str in strs)
-            {
-                if (inputPart.Contains(str))
-                {
-                    orientation = tmpOrientation;
-                    //Debug.Log("found orientation : " + orientation.ToString());
-                    return;
-                }
-
-                ++tmpOrientation;
+                orientation = tmpOrientation;
             }
-
         }
     }
 
     public bool HasVerb()
     {
-        return verb != null;
+        return !string.IsNullOrEmpty(verb.GetName);
     }
 
     public bool HasItems()
@@ -268,25 +237,18 @@ public class InputInfo
         return items.Count != 0;
     }
 
-    public Combination FindCombination()
+    public void FindCombination(Verb _verb, Item _item)
     {
         if ( verb == null)
         {
-            return null;
+            return;
         }
 
-        if ( !HasItems())
+        if ( _item == null)
         {
-            return null;
+            return;
         }
 
-        combination = verb.combinations.Find(x => x.itemIndex == MainItem.index);
-
-        if (combination == null)
-        {
-            return null;
-        }
-
-        return combination;
+        combination = verb.combinations.Find(x => x.itemIndex == _item.index);
     }
 }

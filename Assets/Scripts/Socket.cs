@@ -65,7 +65,7 @@ public class Socket
     {
         if (relative)
         {
-            return item.GetRelaivePosition();
+            return item.GetRelativePosition();
         }
         else
         {

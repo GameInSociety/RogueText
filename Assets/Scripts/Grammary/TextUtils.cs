@@ -42,4 +42,33 @@ public class TextUtils
 
         return str;
     }
+
+    public static string GetPropertyContainerText(Property property)
+    {
+        string[] phrases = new string[3]
+        {
+            "almost empty",
+            Random.value < 0.5f ? "half full" : "half empty",
+            "almost full",
+        };
+
+        int value = property.GetInt();
+
+        if (value == 0)
+        {
+            return "empty of " + property.name;
+        }
+
+        if (value == property.value_max)
+        {
+            return "full of " + property.name;
+        }
+
+        float lerp = (float)value / property.value_max;
+
+        int index = (int)(lerp * phrases.Length);
+        index = Mathf.Clamp(index, 0, phrases.Length - 1);
+        string text = phrases[index];
+        return "" + text + " of " + property.name;
+    }
 }

@@ -81,7 +81,7 @@ public class EventManager : MonoBehaviour
         if (content.StartsWith('*'))
         {
             string targetPropertyName = content.Remove(0, 1);
-            content = currentItem.GetProperty(targetPropertyName).GetPart(0);
+            content = currentItem.GetProperty(targetPropertyName).name;
             Debug.Log("getting " + targetPropertyName + " on " +currentItem.debug_name);
         }
 
@@ -95,7 +95,12 @@ public class EventManager : MonoBehaviour
     }
     public void Event_ChangeProp(string content)
     {
-        PropertyManager.Instance.Action_ChangeProperty(currentItem, content);
+        // encore une preuve qu'il faut que les actions des "events" soient dans les memes que player action
+        // et qu'il faut changer player action, parce que c'est plus ouf
+        // car la séparation se fait déjà dans input
+        string[] parts = content.Split(", ");
+
+        PropertyManager.Instance.Action_ChangeProperty(currentItem, parts[0], parts[1]);
     }
     public void Event_EnableProp(string content)
     {

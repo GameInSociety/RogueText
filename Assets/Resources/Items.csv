@@ -1,25 +1,35 @@
 ,,type,prep,stackable ?,properties,help,go,open,close,eat,sleep,"look
 observe","take
-pick up",fill,drink,move,read,cut,go in,throw,"equip
+pick up",fill,drink,"move
+advance
+walk
+continue
+keep going",read,cut,"go in
+enter",throw,"equip
 put on","unequip
-take off",listen,"continue
-keep going",leave,go back,break,tear,"make
-craft",turn on,turn off,advance,plant,unearth,water,dig,wait,empty,charge,yes
+take off",listen,NOUVEAU VERB,"leave
+go out
+exit","go back
+return",break,tear,"make
+craft",turn on,turn off,NOUVEAU VERB2,plant,unearth,water,dig,wait,empty,charge,yes
 verbe seul,s,Objet,,FALSE,,DisplayHelp,,,CloseContainer,,"Write(you sleep on the floor)
 SetState(sleep, +1)
-SetState(health, -1)",,,,,,,,,,,,,MoveRel(0),GOOUT,MoveRel(4),,,,,,MoveRel(0),,,,,WAIT(1),,,
-north,s,Objet,,FALSE,,,Move(0),,,,,,,,,,,,,,,,,Move(0),,Move(0),,,,,,Move(0),,,,,,,,
-north east,s,Objet,,FALSE,,,Move(1),,,,,,,,,,,,,,,,,Move(1),,Move(1),,,,,,Move(1),,,,,,,,
-east,s, ,,FALSE,,,Move(2),,,,,,,,,,,,,,,,,Move(2),,Move(2),,,,,,Move(2),,,,,,,,
-south east,s,Objet,,FALSE,,,Move(3),,,,,,,,,,,,,,,,,Move(3),,Move(3),,,,,,Move(3),,,,,,,,
-south,s,Objet,,FALSE,,,Move(4),,,,,,,,,,,,,,,,,Move(4),,Move(4),,,,,,Move(4),,,,,,,,
-south west,s,Objet,,FALSE,,,Move(5),,,,,,,,,,,,,,,,,Move(5),,Move(5),,,,,,Move(5),,,,,,,,
-ouest,s,Objet,,FALSE,,,Move(6),,,,,,,,,,,,,,,,,Move(6),,Move(6),,,,,,Move(6),,,,,,,,
-north west,s,Objet,,FALSE,,,Move(7),,,,,,,,,,,,,,,,,Move(7),,Move(7),,,,,,Move(7),,,,,,,,
-front,s,Objet,,FALSE,,,MoveRel(0),,,,,OrientPlayer(0),,,,,,,,,,,,MoveRel(0),,MoveRel(0),,,,,,MoveRel(0),,,,,,,,
-right,s,Objet,,FALSE,,,MoveRel(2),,,,,OrientPlayer(2),,,,,,,,,,,,MoveRel(2),,MoveRel(2),,,,,,MoveRel(2),,,,,,,,
-back,s,Objet,,FALSE,,,MoveRel(4),,,,,OrientPlayer(4),,,,,,,,,,,,MoveRel(4),,MoveRel(4),,,,,,MoveRel(4),,,,,,,,
-left,s,Objet,,FALSE,,,MoveRel(6),,,,,OrientPlayer(6),,,,,,,,,,,,MoveRel(6),,MoveRel(6),,,,,,MoveRel(6),,,,,,,,
+SetState(health, -1)",,,,,MoveRel(0),,,,,,,,,GOOUT,MoveRel(4),,,,,,MoveRel(0),,,,,WAIT(1),,,
+north,s,Objet,,FALSE,,,Move(0),,,,,,,,,Move(0),,,,,,,,,,Move(0),,,,,,Move(0),,,,,,,,
+north east,s,Objet,,FALSE,,,Move(1),,,,,,,,,Move(1),,,,,,,,,,Move(1),,,,,,Move(1),,,,,,,,
+east,s, ,,FALSE,,,Move(2),,,,,,,,,Move(2),,,,,,,,,,Move(2),,,,,,Move(2),,,,,,,,
+south east,s,Objet,,FALSE,,,Move(3),,,,,,,,,Move(3),,,,,,,,,,Move(3),,,,,,Move(3),,,,,,,,
+south,s,Objet,,FALSE,,,Move(4),,,,,,,,,Move(4),,,,,,,,,,Move(4),,,,,,Move(4),,,,,,,,
+south west,s,Objet,,FALSE,,,Move(5),,,,,,,,,Move(5),,,,,,,,,,Move(5),,,,,,Move(5),,,,,,,,
+west,s,Objet,,FALSE,,,Move(6),,,,,,,,,Move(6),,,,,,,,,,Move(6),,,,,,Move(6),,,,,,,,
+north west,s,Objet,,FALSE,,,Move(7),,,,,,,,,Move(7),,,,,,,,,,Move(7),,,,,,Move(7),,,,,,,,
+"front
+forward",s,Objet,,FALSE,,,MoveRel(0),,,,,OrientPlayer(0),,,,MoveRel(0),,,,,,,,,,MoveRel(0),,,,,,MoveRel(0),,,,,,,,
+right,s,Objet,,FALSE,,,MoveRel(2),,,,,OrientPlayer(2),,,,MoveRel(2),,,,,,,,,,MoveRel(2),,,,,,MoveRel(2),,,,,,,,
+"back
+backwards
+behind",s,Objet,,FALSE,,,MoveRel(4),,,,,OrientPlayer(4),,,,MoveRel(4),,,,,,,,,,MoveRel(4),,,,,,MoveRel(4),,,,,,,,
+left,s,Objet,,FALSE,,,MoveRel(6),,,,,OrientPlayer(6),,,,MoveRel(6),,,,,,,,,,MoveRel(6),,,,,,,,,,,,,,
 "inventory
 bag",s,Objet,,FALSE,,,,OpenContainer,CloseContainer,,,OpenContainer,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 fake1,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -27,7 +37,7 @@ around,s,Objet,,FALSE,,,,,,,,LookAround,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 placeholder,s,Objet,,FALSE,,,,,,,,LookAround,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 door,s,Objet,,FALSE,,,,UseDoor,,,,DescribeItem,UseDoor,,,,,,UseDoor,,,,,,UseDoor,,,,,,,,,,,,,,,
 mushroom,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-puddle,s,Objet,,TRUE,,,,,,,,DescribeItem,,,"SetState(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
+puddle,s,Objet,,TRUE,water / 5,,,,,,,DescribeItem,,,"SetState(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
 bed,s,Objet,,FALSE,,,,,,,"SetState(sleep, +1)",DescribeItem,,,,,,,,,,,,,,,,,Craft,,,,,,,,,,,
 "bottle
 water bottle
@@ -51,20 +61,20 @@ log,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,"Write(""you cut the log into s
 CreateInTile(stick, 3)
 DestroyItem",,Throw,,,,,,,,,,,,,,,,,,,,
 stick,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-tomato,s,Objet,,TRUE,vegetable,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-brocoli,s,Objet,,TRUE,vegetable,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-apple,s,Objet,,TRUE,vegetable,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-banana,s,Objet,,TRUE,vegetable,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-milk bottle,s,Objet,,TRUE,"spoiled / 10 / delay
-milk / 5",,,,,,,DescribeItem,PickUp,,"SetState(thirst, +3)
+tomato,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+brocoli,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+apple,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+banana,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+milk bottle,s,Objet,,TRUE,"state / spoiled / 10
+container / milk / 0=5",,,,,,,DescribeItem,PickUp,,"SetState(thirst, +3)
 DestroyItem",,,,,Throw,,,,,,,,,,,,,,,,,,,,
 * ,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,"SetState(thirst, +3)
 DestroyItem",,,,,Throw,,,,,,,,,,,,,,,,,,,,
-piece of bread,s,Objet,,TRUE,spoiled / 10 / delay,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+piece of bread,s,Objet,,TRUE,state / spoiled / 10,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 * ,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 * ,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,"SetState(thirst+1)
 DestroyItem",,,,,Throw,,,,,,,,,,,,,,,,,,,,
-carrot,s,Objet,,TRUE,vegetable,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+carrot,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 * ,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 meat can,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 tomato can,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
@@ -102,7 +112,7 @@ CreateInTile(stick, 4)
 CreateInTile(plank, 1)",,Craft,,,,,,,,,,,
 sofa,s,Objet,,FALSE,,,,,,,"SetState(sleep, +5)",DescribeItem,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 clock,s,Objet,,FALSE,,,,,,,,DisplayTimeOfDay,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-window,s,Objet,,FALSE,opened?closed,,,"ici, il faut utiliser paramètre","ici, il faut utiliser paramètre",,,DescribeExterior,,,,,,,Enter,,,,,,"Write(you go out the window)
+window,s,Objet,,FALSE,state / opened?closed,,,"ici, il faut utiliser paramètre","ici, il faut utiliser paramètre",,,DescribeExterior,,,,,,,Enter,,,,,,"Write(you go out the window)
 ExitByWindow",,,,,,,,,,,,,,,
 box,s,Objet,,TRUE,,,,OpenContainer,CloseContainer,,,DescribeItem,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 phone,s,Objet,,FALSE,,,,,,,,DescribeItem,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -128,21 +138,21 @@ glasses,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,Equip(head),UnEquip
 watch,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,Equip(head),UnEquip(head),,,,,,,,,,,,,,,,,,
 * ,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,Equip(head),UnEquip(head),,,,,,,,,,,,,,,,,,
 washing machine,s,Objet,,FALSE,,,,,,,,DescribeItem,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-candle,s,Objet,,TRUE,lit / 2 / subHours,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
+candle,s,Objet,,TRUE,iValue / burning / 2,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 flashlight,s,Objet,,TRUE,"state / off
 
-$battery / 0=10
+$container / battery / 0=10
 %subHours
 #RemoveProp(source of light)
-#ChangeProp(state / off)",,,,,,,DescribeItem,PickUp,,,,,,,Throw,Equip(misc),UnEquip(misc),,,,,,,Craft,"CheckProp(state / off)
+#ChangeProp(on, off)",,,,,,,DescribeItem,PickUp,,,,,,,Throw,Equip(misc),UnEquip(misc),,,,,,,Craft,"CheckProp(on)
 CheckPropValue(battery)
 EnableProp(battery)
-AddProp(source of light / type)
-ChangeProp(state / on)","CheckProp(state / on)
+AddProp(type / source of light)
+ChangeProp(on, off)","CheckProp(off)
 RemoveProp(source of light)
 DisableProp(battery)
-ChangeProp(state / off)",,,,,,,,"RequireItem(battery)
-ChangeProp(battery / +10)
+ChangeProp(on, off)",,,,,,,,"RequireItem(battery)
+ChangeProp(battery, +10)
 DestroyItem(battery)",
 screw,s,Objet,,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 scothtape,s,Objet,,TRUE,,,,,,,,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
@@ -170,75 +180,75 @@ seeds,p,Objet,,TRUE,,,,,,"SetState(thirst, -2)
 SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,"DestroyItem
 CreateInTile(sprout)
 CheckProp(fertile)",,,,,,,
-sprout,s,Objet,,TRUE,"apple?brocoli?tomato?carrot / vegetableType
+sprout,s,Objet,,TRUE,"vegetableType / apple?brocoli?tomato?carrot
 
-growing / 50
+iValue / growing / 50
 %subHours
 #DestroyItem(sprout)
 #CreateItem(*vegetableType)
 
-fine / 10
+iValue / fine / 10
 %subHours
 #EnableProp(drying)
 
 %subRain
-#ChangeProp(fine / +10)
+#ChangeProp(fine, +10)
 
-$drying / 10
+$iValue / drying / 10
 %subHours
 #DisableProp(growing)
 #EnableProp(dead)
 
 %subRain
-#ChangeProp(drying / +10)
+#ChangeProp(drying, +10)
 #DisableProp(drying)
-#ChangeProp(fine / +10)
+#ChangeProp(fine, +10)
 #EnableProp(fine)
 
 
-$dead / state",,,,,"SetState(thirst, -2)
+$state / dead",,,,,"SetState(thirst, -2)
 SetState(hunger, +1)",,DescribeItem,PickUp,,,,,,,Throw,,,,,,,,,,,,,,"DestroyItem
 Write(the dog& is gone)","CheckProp(dead)
 RequireItemWithProp(water)
 DisableProp(drying)
 EnableProp(fine)
-ChangeProp(fine / +10)
-ChangeProp(drying / +10)",,,,,
-plain,s,Rural,on,TRUE,fertile,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-field,s,Rural,in,TRUE,fertile,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-clearing,s,Rural,in,TRUE,fertile,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-hill,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-mountain,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-forest,s,Rural,in,TRUE,fertile,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-wood,s,Rural,in,TRUE,fertile,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-sea,s,Rural,near,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-lake,s,Rural,near,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-river,s,Rural,along,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-beach,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-road,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-village road,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-costal road,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-path,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-bridge,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(0),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-house,s,Urbain,in front of,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,Enter,,,,,MoveToTargetItem,Enter,MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-farm,s,Urbain,in front of,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,Enter,,,,,MoveToTargetItem,Enter,MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-cabin,s,Urbain,in front of,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,Enter,,,,,MoveToTargetItem,Enter,MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-mansion,s,Urbain,in front of,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,Enter,,,,,MoveToTargetItem,Enter,MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-hallway,s,Urbain,in,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-stairs,s,Urbain,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-living room,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-kitchen,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-dining room,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-children's room,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-bedroom,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-bathromo,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-toilets,p,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-attic,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-basement,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-cellar,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,MoveToTargetItem,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
-office,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,MoveToTargetItem,,,,,,,,
+ChangeProp(fine, +10)
+ChangeProp(drying, +10)",,,,,
+plain,s,Rural,on,TRUE,state / fertile,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+field,s,Rural,in,TRUE,state / fertile,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+clearing,s,Rural,in,TRUE,state / fertile,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+hill,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+mountain,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+forest,s,Rural,in,TRUE,state / fertile,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+wood,s,Rural,in,TRUE,state / fertile,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+sea,s,Rural,near,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+lake,s,Rural,near,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+river,s,Rural,along,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+beach,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+road,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+village road,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+costal road,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+path,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+bridge,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+house,s,Urbain,in front of,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,Enter,,,Enter,,,,,,Enter,MoveToTargetItem,,,,,,,,,,,,,,
+farm,s,Urbain,in front of,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,Enter,,,Enter,,,,,,Enter,MoveToTargetItem,,,,,,,,,,,,,,
+cabin,s,Urbain,in front of,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,Enter,,,Enter,,,,,,Enter,MoveToTargetItem,,,,,,,,,,,,,,
+mansion,s,Urbain,in front of,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,Enter,,,Enter,,,,,,Enter,MoveToTargetItem,,,,,,,,,,,,,,
+hallway,s,Urbain,in,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+stairs,s,Urbain,on,TRUE,,,MoveToTargetItem,,,,,DescribeItem,,,,,,,,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+living room,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+kitchen,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+dining room,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+children's room,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+bedroom,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+bathroom,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+toilets,p,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+attic,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+basement,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+cellar,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
+office,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,DescribeItem,,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
 * ,s,Urbain,in,FALSE,,,,,,,,DescribeItem,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-watering can,s,Objet,,TRUE,water / 0=10,,,,,,,DescribeItem,PickUp,"RequireProp(water)
+watering can,s,Objet,,TRUE,container / water / 0=10,,,,,,,DescribeItem,PickUp,"RequireProp(water)
 ChangeProp(water, +1)","SetState(thirst, -1)
 ChangeProp(water, -1)",,,,,,,,,,,,,,,,,,,,,,,"ChangeProp(water, 0)
 CreateItemInTile(puddle)",,

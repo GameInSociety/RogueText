@@ -67,10 +67,10 @@ public class Inventory : MonoBehaviour {
             ThrowCurrentItem();
             break;
         case PlayerAction.Type.OpenContainer:
-            InputInfo.GetCurrent.MainItem.Open();
+            InputInfo.Instance.GetItem(0).Open();
             break;
         case PlayerAction.Type.CloseContainer:
-            InputInfo.GetCurrent.MainItem.Close();
+            InputInfo.Instance.GetItem(0).Close();
             break;
 		}
 	}
@@ -91,7 +91,7 @@ public class Inventory : MonoBehaviour {
 
             x => x.properties.Find(
 
-                x => x.GetPart(0) == property_name
+                x => x.name == property_name
 
                 ) != null
 
@@ -102,7 +102,7 @@ public class Inventory : MonoBehaviour {
 
     private void ThrowCurrentItem()
     {
-        Item item = GetItem(InputInfo.GetCurrent.MainItem.word.text);
+        Item item = GetItem(InputInfo.Instance.GetItem(0).word.text);
 
         if (item == null)
         {
@@ -112,7 +112,7 @@ public class Inventory : MonoBehaviour {
 
         // remove && add
         RemoveItem(item);
-        Tile.GetCurrent.AddItem(InputInfo.GetCurrent.MainItem);
+        Tile.GetCurrent.AddItem(InputInfo.Instance.GetItem(0));
 
         PhraseKey.WritePhrase("inventory_throw_sucess");
     }
@@ -121,14 +121,14 @@ public class Inventory : MonoBehaviour {
     {
         List<Item> targetItems = new List<Item>();
 
-        if (InputInfo.GetCurrent.actionOnAll)
+        if (InputInfo.Instance.actionOnAll)
         {
             Debug.Log("trying action on all items");
-            targetItems = Tile.GetCurrent.items.FindAll(x => x.word.text == InputInfo.GetCurrent.MainItem.word.text);
+            targetItems = Tile.GetCurrent.items.FindAll(x => x.word.text == InputInfo.Instance.GetItem(0).word.text);
         }
         else
         {
-            targetItems.Add(InputInfo.GetCurrent.MainItem);
+            targetItems.Add(InputInfo.Instance.GetItem(0));
         }
 
         foreach (var item in targetItems)
@@ -166,7 +166,7 @@ public class Inventory : MonoBehaviour {
         }
         else
         {
-            item = InputInfo.GetCurrent.MainItem;
+            item = InputInfo.Instance.GetItem(0);
         }
 
         if (item == null)
@@ -236,7 +236,7 @@ public class Inventory : MonoBehaviour {
     }
     void RequireItemWithProp()
     {
-        if (!InputInfo.GetCurrent.HasSecondItem())
+        if (InputInfo.Instance.items.Count > 1)
         {
             Debug.LogError("no second item");
             PhraseKey.WritePhrase("item_noSecondItem");
@@ -246,17 +246,17 @@ public class Inventory : MonoBehaviour {
 
         string prop_name = PlayerAction.GetCurrent.GetContent(0);
 
-        if (!InputInfo.GetCurrent.GetSecondItem.HasProperty(prop_name))
+        if (!InputInfo.Instance.GetItem(1).HasProperty(prop_name))
         {
-            PhraseKey.WritePhrase("&the dog (override item)& has no " + prop_name, InputInfo.GetCurrent.GetSecondItem);
+            PhraseKey.WritePhrase("&the dog (override item)& has no " + prop_name, InputInfo.Instance.GetItem(1));
             PlayerActionManager.Instance.BreakAction();
             return;
         }
 
-        if (InputInfo.GetCurrent.GetSecondItem.GetProperty(prop_name).HasValue()
-            && InputInfo.GetCurrent.GetSecondItem.GetProperty(prop_name).GetValue() == 0)
+        if (InputInfo.Instance.GetItem(1).GetProperty(prop_name).HasInt()
+            && InputInfo.Instance.GetItem(1).GetProperty(prop_name).GetInt() == 0)
         {
-            PhraseKey.WritePhrase("No more " + prop_name + " in &the dog (override item)", InputInfo.GetCurrent.GetSecondItem);
+            PhraseKey.WritePhrase("No more " + prop_name + " in &the dog (override item)", InputInfo.Instance.GetItem(1));
             PlayerActionManager.Instance.BreakAction();
             return;
         }

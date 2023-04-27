@@ -13,11 +13,9 @@ public struct Coords
     public int x;
     public int y;
 
-    public static Cardinal GetDirectionFromCoords(Coords c1, Coords c2)
+    public static Cardinal GetCardinalFromCoords(Coords coords)
     {
-        Coords c = c2 - c1;
-
-        Vector2 v = (Vector2)c;
+        Vector2 v = (Vector2)coords;
 
         Cardinal direction = Cardinal.North;
 
@@ -65,7 +63,7 @@ public struct Coords
 
         foreach (var facing in orientations)
         {
-            string directionWord = Coords.GetOrientationText(facing);
+            string directionWord = GetOrientationText(facing);
 
             str += directionWord;
 
@@ -124,6 +122,8 @@ public struct Coords
 
     public static void WriteDirectionToNorth()
     {
+        Player.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
+        PhraseKey.SetOverrideOrientation(orientation);
         PhraseKey.WritePhrase("compas_giveNorth");
     }
 
@@ -247,6 +247,48 @@ public struct Coords
         }
 
         return new Coords();
+    }
+
+    public static explicit operator Cardinal(Coords c)
+    {
+        if ( c.x < 0)
+        {
+            switch (c.y)
+            {
+                case -1:
+                    return Cardinal.SouthWest;
+                case 0:
+                    return Cardinal.West;
+                case 1:
+                    return Cardinal.NorthWest;
+            }
+        }
+        else if (c.x > 0)
+        {
+            switch (c.y)
+            {
+                case -1:
+                    return Cardinal.SouthEast; ;
+                case 0:
+                    return Cardinal.East;
+                case 1:
+                    return Cardinal.NorthEast;
+            }
+        }
+        else
+        {
+            switch (c.y)
+            {
+                case -1:
+                    return Cardinal.South;
+                case 0:
+                    return Cardinal.None;
+                case 1:
+                    return Cardinal.None;
+            }
+        }
+
+        return Cardinal.None;
     }
 
     public static Word GetWordsDirection(Cardinal direction)

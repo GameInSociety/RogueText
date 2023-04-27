@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -7,13 +8,13 @@ using UnityEngine;
 [System.Serializable]
 public class Player : MonoBehaviour {
 
-	public static Player Instance;
+    public static Player Instance;
 
     public Cardinal previousCardinal;
-	public Cardinal currentCarnidal;
+    public Cardinal currentCarnidal;
 
     // STATES
-	public int health = 0;
+    public int health = 0;
     public int maxHealth = 10;
 
     /// <summary>
@@ -21,9 +22,10 @@ public class Player : MonoBehaviour {
     /// </summary>
     public Stats stats;
 
-	// COORDS
-	public Coords prevCoords = new Coords(-1,-1);
-	public Coords coords = new Coords (-1,-1);
+    // COORDS
+    public Coords prevCoords = new Coords(-1, -1);
+    public Coords coords = new Coords(-1, -1);
+    public Coords direction = new Coords(-1, -1);
 
     public Coords startCoords;
 
@@ -37,7 +39,7 @@ public class Player : MonoBehaviour {
         Instance = this;
     }
 
-    public void Init () {
+    public void Init() {
 
         // pick a random interior to start in from off
         /*int startInteriorID = Random.Range(0, Interior.interiors.Count);
@@ -53,50 +55,50 @@ public class Player : MonoBehaviour {
         // stats
         stats = new Stats();
 
-		PlayerActionManager.onPlayerAction+= HandleOnAction;
+        PlayerActionManager.onPlayerAction += HandleOnAction;
 
         Move(Cardinal.None);
     }
 
-    void HandleOnAction (PlayerAction action)
-	{
-		switch (action.type) {
-		case PlayerAction.Type.Move:
-			Move ((Cardinal)PlayerAction.GetCurrent.GetValue(0));
-			break;
-		case PlayerAction.Type.MoveRel:
-            Orientation moveOrientation = (Orientation)PlayerAction.GetCurrent.GetValue(0);
-			Move (GetCardinal(moveOrientation));
+    void HandleOnAction(PlayerAction action)
+    {
+        switch (action.type) {
+            case PlayerAction.Type.Move:
+                Move((Cardinal)PlayerAction.GetCurrent.GetValue(0));
+                break;
+            case PlayerAction.Type.MoveRel:
+                Orientation moveOrientation = (Orientation)PlayerAction.GetCurrent.GetValue(0);
+                Move(OrientationToCardinal(moveOrientation));
                 break;
             case PlayerAction.Type.OrientPlayer:
-            Orientation lookOrientation = (Orientation)PlayerAction.GetCurrent.GetValue(0);
-            Orient(lookOrientation);
+                Orientation lookOrientation = (Orientation)PlayerAction.GetCurrent.GetValue(0);
+                Orient(lookOrientation);
                 break;
             case PlayerAction.Type.MoveToTargetItem:
                 MoveToTargetItem();
                 break;
             case PlayerAction.Type.Look:
-			break;
+                break;
             case PlayerAction.Type.UseDoor:
                 UseDoor();
                 break;
-		case PlayerAction.Type.Enter:
-			EnterCurrentInterior ();
-			break;
+            case PlayerAction.Type.Enter:
+                EnterCurrentInterior();
+                break;
             case PlayerAction.Type.ExitByWindow:
-            Interior.GetCurrent.ExitByWindow();
-            break;
-        case PlayerAction.Type.GoOut:
+                Interior.GetCurrent.ExitByWindow();
+                break;
+            case PlayerAction.Type.GoOut:
                 GoOut();
-			break;
-		default:
-			break;
-		}
-	}
+                break;
+            default:
+                break;
+        }
+    }
 
     void UseDoor()
     {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
+        Item targetItem = InputInfo.Instance.GetItem(0);
 
         // check if locked
         if (targetItem.HasProperty("locked"))
@@ -108,21 +110,21 @@ public class Player : MonoBehaviour {
         // check if has direction ( for interiors )
         if (!targetItem.HasProperty("entrance"))
         {
-            switch (targetItem.GetProperty("direction").GetPart(1))
+            switch (targetItem.GetProperty("direction").value)
             {
-                case "to north":
+                case "north":
                     Move(Cardinal.North);
                     break;
 
-                case "to south":
+                case "south":
                     Move(Cardinal.South);
                     break;
 
-                case "to east":
+                case "east":
                     Move(Cardinal.East);
                     break;
 
-                case "to west":
+                case "west":
                     Move(Cardinal.West);
                     break;
                 default:
@@ -137,8 +139,8 @@ public class Player : MonoBehaviour {
         }
     }
 
-    void EnterCurrentInterior ()
-	{
+    void EnterCurrentInterior()
+    {
         if (Interior.GetCurrent == null)
         {
             Interior.Get(coords).Enter();
@@ -153,7 +155,7 @@ public class Player : MonoBehaviour {
     {
         if (Interior.GetCurrent != null)
         {
-            if ( Player.Instance.coords == Coords.Zero)
+            if (Player.Instance.coords == Coords.Zero)
             {
                 Interior.Get(coords).ExitByDoor();
             }
@@ -193,13 +195,15 @@ public class Player : MonoBehaviour {
     #region movement
     public void Move(Player.Orientation orientation)
     {
-        Move(GetCardinal(orientation));
+        Move(OrientationToCardinal(orientation));
+    }
+    public void Move(Cardinal dir)
+    {
+        Coords targetCoords = coords + (Coords)dir;
+        Move(targetCoords);
     }
 
-    public void Move ( Cardinal dir ) {
-
-        // setting next coords
-        Coords targetCoords = coords + (Coords)dir;
+    public void Move(Coords targetCoords) {
 
         // cancel if path blocked
         if (!CanMoveForward(targetCoords))
@@ -207,10 +211,10 @@ public class Player : MonoBehaviour {
             return;
         }
 
-        StartCoroutine(MoveCoroutine(dir));
+        StartCoroutine(MoveCoroutine(targetCoords));
 
     }
-    IEnumerator MoveCoroutine(Cardinal carninal)
+    IEnumerator MoveCoroutine(Coords targetCoords)
     {
         // first of all, advance time ( and items states etc... )
         TimeManager.GetInstance().AdvanceTime();
@@ -222,11 +226,12 @@ public class Player : MonoBehaviour {
         }
 
         // change current coords
-        coords += (Coords)carninal;
+        coords = targetCoords;
+        direction = coords - prevCoords;
 
         // set preivous & current tile
-        Tile.SetPrevious (Tile.GetCurrent);
-        Tile.SetCurrent (TileSet.current.GetTile(coords));
+        Tile.SetPrevious(Tile.GetCurrent);
+        Tile.SetCurrent(TileSet.current.GetTile(coords));
 
         // generate tile items
         if (Tile.GetCurrent.visited == false)
@@ -234,12 +239,9 @@ public class Player : MonoBehaviour {
             Tile.GetCurrent.GenerateItems();
         }
 
-        // because the game starts with no movement
-        if (carninal == Cardinal.None)
-            carninal = Cardinal.North;
-
         // set new direction
-        currentCarnidal = carninal;
+        currentCarnidal = (Cardinal)direction;
+
         DisplayDescription.Instance.UpdateDescription();
 
         MapTexture.Instance.UpdateFeedbackMap();
@@ -252,43 +254,30 @@ public class Player : MonoBehaviour {
 
     public void MoveToTargetItem()
     {
-        Item targetItem = InputInfo.GetCurrent.MainItem;
+        Debug.Log("move to target tile");
 
-        foreach (var tileGroup in SurroundingTileManager.tileGroups)
+        Item targetItem = InputInfo.Instance.GetItem(0);
+
+        /// ici il faut check si il y a pas d'adjectifs dans l'inputinfo
+        foreach (var tile in SurroundingTiles())
         {
-            if ( tileGroup.tile.tileItem.SameTypeAs(targetItem))
-            {
-                if ( InputInfo.GetCurrent.orientation != Orientation.None)
-                {
-                    SetDirection (GetCardinal(InputInfo.GetCurrent.orientation));
+            Debug.Log("tile : " + tile.tileItem.debug_name);
 
-                    if (tileGroup.orientations.Contains(InputInfo.GetCurrent.orientation))
-                    {
-                        Cardinal dir = GetCardinal(InputInfo.GetCurrent.orientation);
-                        Move(dir);
-                    }
-                    else
-                    {
-                        PhraseKey.WritePhrase("movement_blocked");
-                    }
-                    return;
-                }
-                else
-                {
-                    Cardinal dir = GetCardinal(tileGroup.orientations[0]);
-                    Move(dir);
-                    return;
-                }
-               
+            if (tile.tileItem.SameTypeAs(targetItem))
+            {
+                Move(tile.coords);
+                return;
             }
         }
+
+        PhraseKey.WritePhrase("You are already &on the dog&");
     }
 
     public void Orient(Orientation orientation)
     {
         PhraseKey.SetOverrideOrientation(orientation);
         PhraseKey.WritePhrase("position_orientPlayer");
-        SetDirection(GetCardinal(orientation));
+        SetDirection(OrientationToCardinal(orientation));
     }
     public void SetDirection(Cardinal cardinal)
     {
@@ -297,48 +286,96 @@ public class Player : MonoBehaviour {
     }
     #endregion
 
-    bool CanMoveForward (Coords c)
-	{
-		Tile targetTile = TileSet.current.GetTile (c);
+    bool CanMoveForward(Coords c)
+    {
+        Tile targetTile = TileSet.current.GetTile(c);
 
-		if ( targetTile == null ) {
-			PhraseKey.WritePhrase ("blocked_void");
-			return false;
-		}
+        if (targetTile == null) {
+            PhraseKey.WritePhrase("blocked_void");
+            return false;
+        }
 
-		switch (targetTile.type) {
-		case Tile.Type.Hill:
-			PhraseKey.WritePhrase ("blocked_hill");
-			return false;
-		case Tile.Type.Mountain:
-			PhraseKey.WritePhrase ("blocked_mountain");
-			return false;
-		case Tile.Type.Sea:
-			PhraseKey.WritePhrase ("blocked_sea");
-			return false;
-		case Tile.Type.Lake:
-			PhraseKey.WritePhrase ("blocked_lake");
-			return false;
-		case Tile.Type.River:
-			PhraseKey.WritePhrase ("blocked_river");
-			return false;
-		default:
-			break;
-		}
+        switch (targetTile.type) {
+            case Tile.Type.Hill:
+                PhraseKey.WritePhrase("blocked_hill");
+                return false;
+            case Tile.Type.Mountain:
+                PhraseKey.WritePhrase("blocked_mountain");
+                return false;
+            case Tile.Type.Sea:
+                PhraseKey.WritePhrase("blocked_sea");
+                return false;
+            case Tile.Type.Lake:
+                PhraseKey.WritePhrase("blocked_lake");
+                return false;
+            case Tile.Type.River:
+                PhraseKey.WritePhrase("blocked_river");
+                return false;
+            default:
+                break;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public Cardinal GetCardinal ( Orientation orientation ) {
 
-		int a = (int)currentCarnidal + (int)orientation;
-		if ( a >= 8 ) {
-			a -= 8;
-		}
 
-		return (Cardinal)a;
-	}
-    public Orientation GetOrientation(Cardinal cardinal)
+    public List<Tile> SurroundingTiles()
+    {
+        List<Tile> result = new List<Tile>();
+
+        List<Orientation> orientations = new List<Player.Orientation>
+        {
+            Orientation.Front,
+            Orientation.Right,
+            Orientation.Left
+        };
+
+        foreach (var orientation in orientations)
+        {
+
+            Tile targetTile = GetTile(orientation);
+
+            if (targetTile == null)
+            {
+                continue;
+            }
+
+            if (targetTile.enclosed)
+            {
+                continue;
+            }
+
+
+            result.Add(targetTile);
+        }
+
+        return result;
+    }
+
+    public Tile GetTile(Orientation orientation)
+    {
+        Cardinal dir = OrientationToCardinal(orientation);
+
+        Coords targetCoords = coords + (Coords)dir;
+
+        return TileSet.current.GetTile(targetCoords);
+    }
+
+
+    public Cardinal OrientationToCardinal(Orientation orientation)
+    {
+
+        int a = (int)currentCarnidal + (int)orientation;
+        if (a >= 8)
+        {
+            a -= 8;
+        }
+
+        return (Cardinal)a;
+    }
+
+    public Orientation CardinalToOrientation(Cardinal cardinal)
     {
 
         int a = (int)cardinal - (int)currentCarnidal;
@@ -349,6 +386,12 @@ public class Player : MonoBehaviour {
 
         return (Orientation)a;
     }
+
+    /// <summary>
+    /// ORIENTATION : front, left, right, back etc...
+    /// CARDINAL : north, west, south east
+    /// DIRECTION : to north, to west, to east, to south
+    /// </summary>
 
     public enum Orientation
     {
@@ -365,6 +408,8 @@ public class Player : MonoBehaviour {
 
         Current,
     }
+
+
     public void Save()
     {
         

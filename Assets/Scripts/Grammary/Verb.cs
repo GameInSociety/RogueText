@@ -3,12 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Verb {
 
 	public int col = 0;
-
-    public string inputToFind = "";
-    public int indexToFind = -1;
 
     private static List<Verb> _verbs = new List<Verb>();
 	public static List<Verb> GetVerbs
@@ -25,7 +23,7 @@ public class Verb {
     }
 
     public string question = "";
-    public string preposition = "";
+    public string[] prepositions;
 
     public string helpPhrase = "";
 
@@ -33,11 +31,23 @@ public class Verb {
 
 	public string[] names;
     public int currentNameIndex = 0;
-    public string Name
+    public string GetName
     {
         get
         {
             return names[currentNameIndex];
+        }
+    }
+    public string GetProposition
+    {
+        get
+        {
+            if ( currentNameIndex >= names.Length)
+            {
+                return prepositions[0];
+            }
+
+            return prepositions[currentNameIndex];
         }
     }
    
@@ -57,21 +67,30 @@ public class Verb {
 	public static Verb Find ( string fullPhrase ) {
 
         List<Verb> possibleVerbs = new List<Verb>();
-        List<int> possibleVerbsIndex = new List<int>();
+
+        int smallestIndex = 300;
 
         foreach (var verb in GetVerbs) {
 
-            int synonymIndex = 0;
+            int currentNameIndex = 0;
 			foreach (var verb_Name in verb.names) {
-                // puttin " " + verb_name + " " to separate with words
+                // get all the verbs
                 if (fullPhrase.Contains(verb_Name))
                 {
-                    verb.indexToFind = fullPhrase.IndexOf(verb_Name);
+                    int index = fullPhrase.IndexOf(verb_Name);
+
+                    if (index < smallestIndex)
+                    {
+                        possibleVerbs.Clear();
+                        smallestIndex = index;
+                    }
+
+                    verb.currentNameIndex = currentNameIndex;
                     possibleVerbs.Add(verb);
                     goto NextVerb;
 				}
 
-                ++synonymIndex;
+                ++currentNameIndex;
 
 			}
 
@@ -80,31 +99,26 @@ public class Verb {
 
 		}
 
-        
 
         // ne marche pas trop 
         // exemple "look at watering can", il prend pense que c'est "water watering can"
         // donc on passe à la position du mot dans la phrase
 
-
-
         // list of verb found in the phrase
         if ( possibleVerbs.Count > 0)
         {
-            Verb firstVerb = possibleVerbs[0];
+            Verb longestVerb = possibleVerbs[0];
 
-            // find longest input used to find the verb
-            // "input to find" can also be reused when mentionning verbs
-            // that way if the player says "light", it will not say "turn on"
+            // find longest verb
             foreach (var verb in possibleVerbs)
             {
-                if ( verb.indexToFind < firstVerb.indexToFind)
+                if ( verb.GetName.Length > longestVerb.GetName.Length)
                 {
-                    firstVerb = verb;
+                    longestVerb = verb;
                 }
             }
 
-            return firstVerb;
+            return longestVerb;
         }
 
 		return null;

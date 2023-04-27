@@ -39,7 +39,7 @@ inventory_pickUp_already,you already have &the dog&
 inventory_throw_nothing,you don't have &a dog&
 inventory_throw_sucess,you throw away &the dog&
 inventory_TooHeavy,&the dog& is too heavy for the bag
-item_description,ITEM_PROPERTIES
+item_description,ITEM_DESCRIPTION
 item_description_withoutVerbs,"you can ITEM_VERBS &the dog&, ITEM_PROPERTIES"
 item_noDescription,can't do much with &the dog&
 item_NoMoreValue,no more VALUE in  &the dog&
@@ -64,18 +64,18 @@ sleep_concerning,you feel slightly tired
 sleep_critical,"you're exhausted, find somewhere to rest"
 sleep_normal,you feel well rested
 sleep_problematic,you feel tired
-surroundingTile_continue,"SURROURING_TILE_ORIENTATION, &the dog (override item)& continue
-&the dog (override item)& continue SURROURING_TILE_ORIENTATION"
-surroundingTile_discover,"you see &a dog (override item)& SURROURING_TILE_ORIENTATION
-&a dog (override item)& is SURROURING_TILE_ORIENTATION
-SURROURING_TILE_ORIENTATION, you see &a dog (override item)&
-you see, SURROURING_TILE_ORIENTATION, &a dog (override item)&
-&a dog (override item)& SURROURING_TILE_ORIENTATION"
-surroundingTile_visited,"you're back &the dog (override item)& SURROURING_TILE_ORIENTATION
-&a dog (override item)& is SURROURING_TILE_ORIENTATION
-SURROURING_TILE_ORIENTATION, you see &the dog (override item)&
-you see, SURROURING_TILE_ORIENTATION, &the dog (override item)&
-&the dog (override item)& can be seen SURROURING_TILE_ORIENTATION"
+surroundingTile_continue,"TARGET_ORIENTATION, &the dog (override item)& continue
+&the dog (override item)& continue TARGET_ORIENTATION"
+surroundingTile_discover,"you see &a dog (override item)& TARGET_ORIENTATION
+&a dog (override item)& is TARGET_ORIENTATION
+TARGET_ORIENTATION, you see &a dog (override item)&
+you see, TARGET_ORIENTATION, &a dog (override item)&
+&a dog (override item)& TARGET_ORIENTATION"
+surroundingTile_visited,"you're back &the dog (override item)& TARGET_ORIENTATION
+&a dog (override item)& is TARGET_ORIENTATION
+TARGET_ORIENTATION, you see &the dog (override item)&
+you see, TARGET_ORIENTATION, &the dog (override item)&
+&the dog (override item)& can be seen TARGET_ORIENTATION"
 thirst_concerning,your throat is slighty dry
 thirst_critical,"you're completly dry and feel awful, drink something"
 thirst_normal,you don't feel thirsty
@@ -89,15 +89,11 @@ you find youself &on a good dog (tile item)&
 you are &on a good dog (tile item)&"
 tile_goback,"here you are &on the good dog (tile item)& again
 you're back &on the good dog (tile item)&"
-tile_item_descriptions,TILE_ITEM_DESCRIPTION
-tile_locationPhrases,stands
-tile_positionPhrases,"you perceive
-you see
-you notice"
+tile_item_descriptions,TILE_ITEM_DESCRIPTIONS
+tile_locationPhrases,there's
+tile_positionPhrases,you see
 tile_surrounding_description,TILE_SURROUNDING_DESCRIPTION
-tile_visionPhrases,"next to you
-not far from reach
-at walking distance"
+tile_visionPhrases,there's
 time_Hour,It's TIMEOFDAY
 weather_afternoon,the afternoon is starting
 weather_dawn,the sun is just rising
