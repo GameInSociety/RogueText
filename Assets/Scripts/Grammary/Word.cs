@@ -6,7 +6,7 @@ using UnityEngine;
 public class Word
 {
     // data //
-    private string locationPrep = "";
+    public string locationPrep = "";
     public string text = "";
     public Number defaultNumber = Number.Singular;
 
@@ -42,12 +42,6 @@ public class Word
         get
         {
             string str = locationPrep;
-
-            if (str.Contains("/DE"))
-            {
-                currentInfo.preposition = Preposition.Of;
-                str = str.Replace("/DE", "");
-            }
 
             return str;
         }

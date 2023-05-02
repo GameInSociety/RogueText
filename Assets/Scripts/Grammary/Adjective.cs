@@ -57,7 +57,7 @@ public class Adjective {
 
         if ( adjectiveGroup == null)
         {
-            Debug.LogError("couldn't find adjective group : " + _name);
+            //Debug.LogError("couldn't find adjective group : " + _name);
             adjectiveGroup = adjectiveGroups[0];
         }
 

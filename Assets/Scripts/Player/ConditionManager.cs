@@ -141,7 +141,7 @@ public class ConditionManager : MonoBehaviour
             }
         }
 
-        PhraseKey.WriteHard(text);
+        TextManager.WriteHard(text);
     }
 
     public Condition GetCondition(Condition.Type conditionType)

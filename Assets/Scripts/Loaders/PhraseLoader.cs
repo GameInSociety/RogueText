@@ -24,11 +24,11 @@ public class PhraseLoader : TextParser
 
         string[] parts = cells[1].Split('\n');
 
-        PhraseKey.phraseKeys.Add(newPhrase);
+        TextManager.phraseKeys.Add(newPhrase);
 
         foreach (var part in parts)
         {
-            PhraseKey.phraseKeys[PhraseKey.phraseKeys.Count - 1].values.Add(part);
+            TextManager.phraseKeys[TextManager.phraseKeys.Count - 1].values.Add(part);
         }
 
 

@@ -42,7 +42,7 @@ public class Verb {
     {
         get
         {
-            if ( currentNameIndex >= names.Length)
+            if ( currentNameIndex >= prepositions.Length)
             {
                 return prepositions[0];
             }
@@ -99,7 +99,6 @@ public class Verb {
 
 		}
 
-
         // ne marche pas trop 
         // exemple "look at watering can", il prend pense que c'est "water watering can"
         // donc on passe à la position du mot dans la phrase
@@ -107,7 +106,9 @@ public class Verb {
         // list of verb found in the phrase
         if ( possibleVerbs.Count > 0)
         {
-            Verb longestVerb = possibleVerbs[0];
+            return possibleVerbs[0];
+
+            /*Verb longestVerb = possibleVerbs[0];
 
             // find longest verb
             foreach (var verb in possibleVerbs)
@@ -118,9 +119,9 @@ public class Verb {
                 }
             }
 
-            return longestVerb;
+            return longestVerb;*/
         }
 
-		return null;
+        return null;
 	}
 }

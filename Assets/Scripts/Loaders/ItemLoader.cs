@@ -25,7 +25,7 @@ public class ItemLoader : TextParser {
         base.FinishLoading();
 
         // debug list to explore items
-        items_debug = Item.dataItems.ToArray();
+        items_debug = ItemManager.Instance.dataItems.ToArray();
         foreach (var item in items_debug)
         {
             item.debug_name = item.word.text;
@@ -90,7 +90,7 @@ public class ItemLoader : TextParser {
         }
 
         //newItem.index = rowIndex-1;
-        newItem.index = itemIndex;
+        newItem.dataIndex = itemIndex;
 
         
 
@@ -167,7 +167,7 @@ public class ItemLoader : TextParser {
         //
 
         // add to item list
-        Item.dataItems.Add(newItem);
+        ItemManager.Instance.dataItems.Add(newItem);
 
         // actions
         int verbIndex = 0;
@@ -189,7 +189,7 @@ public class ItemLoader : TextParser {
                 // verb out of range
                 Combination newCombination = new Combination();
                 newCombination.content = cell;
-                newCombination.itemIndex = newItem.index;
+                newCombination.itemIndex = newItem.dataIndex;
 
                 verb.AddCombination(newCombination);
             }

@@ -6,6 +6,8 @@ public class ItemAppearInfoLoader : TextParser
 {
     public static ItemAppearInfoLoader Instance;
 
+    public bool debug = false;
+
     private void Awake()
     {
         Instance = this;
@@ -22,6 +24,13 @@ public class ItemAppearInfoLoader : TextParser
 
         if (rowIndex < 1)
         {
+            for (int i = 2; i < cells.Count; i++)
+            {
+                AppearInfo appearInfo = new AppearInfo();
+                appearInfo.name = cells[i];
+
+                ItemManager.Instance.appearInfos.Add(appearInfo);
+            }
             return;
         }
 
@@ -32,7 +41,7 @@ public class ItemAppearInfoLoader : TextParser
 
         int itemToAddIndex = rowIndex - 1;
 
-        if ( itemToAddIndex >= Item.dataItems.Count)
+        if ( itemToAddIndex >= ItemManager.Instance.dataItems.Count)
         {
             Debug.LogError("fuck :" +
                 "bug de quand la longeur de la liste d'objets et des autres listes ne sont pas les memes" +
@@ -40,7 +49,7 @@ public class ItemAppearInfoLoader : TextParser
             return;
         }
 
-        Item itemToAdd = Item.dataItems[itemToAddIndex];
+        Item itemToAdd = ItemManager.Instance.dataItems[itemToAddIndex];
 
         if ( cells[1] == "TRUE")
         {
@@ -58,32 +67,33 @@ public class ItemAppearInfoLoader : TextParser
                 continue;
             }
 
-            string amount_str = string.Empty;
+            int itemIndex = cellIndex - 2;
+            AppearInfo appearInfo = AppearInfo.GetAppearInfo(itemIndex);
 
-            Item.AppearInfo newAppearInfo = new Item.AppearInfo();
 
+            AppearInfo.ItemInfo itemInfo = new AppearInfo.ItemInfo();
+
+            itemInfo.name = itemToAdd.debug_name;
             // id 
-            newAppearInfo.itemIndex = itemToAddIndex;
+            itemInfo.itemIndex = itemToAddIndex;
 
 
             // amount
-            newAppearInfo.amount = 1; // default appear amount
+            string amount_str = string.Empty;
+            itemInfo.amount = 1; // default appear amount
             if (cell_str.Contains("*"))
             {
                 rate_str = cell_str.Split('*')[0];
                 amount_str = cell_str.Split('*')[1];
 
-                if (string.IsNullOrEmpty(amount_str))
+                int amount = 0;
+                if (!int.TryParse(amount_str, out amount))
                 {
-                    int amount = 0;
-                    if (!int.TryParse(amount_str, out amount))
-                    {
-                        Debug.LogError("couldn't parse amount (" + amount_str + ") in cell " + GetCellName(rowIndex, cellIndex));
-                    }
-                    else
-                    {
-                        newAppearInfo.amount = amount;
-                    }
+                    Debug.LogError("couldn't parse amount (" + amount_str + ") in cell " + GetCellName(rowIndex, cellIndex));
+                }
+                else
+                {
+                    itemInfo.amount = amount;
                 }
             }
             else
@@ -99,18 +109,17 @@ public class ItemAppearInfoLoader : TextParser
                 Debug.LogError("cell : " + GetCellName(rowIndex, cellIndex));
             }
 
-            newAppearInfo.rate = appearRate;
+            itemInfo.rate = appearRate;
 
             // add to item 
-            int itemIndex = cellIndex - 2;
-            if ( itemIndex < Item.dataItems.Count)
-            {
-                Item targetItem = Item.dataItems[itemIndex];
+            appearInfo.itemInfos.Add(itemInfo);
 
-                //Debug.Log(newAppearInfo.rate + " to find " + Item.dataItems[newAppearInfo.itemIndex].debug_name + " in " + targetItem.debug_name);
-                targetItem.appearInfos.Add(newAppearInfo);
+            if (debug)
+            {
+                Debug.Log(itemInfo.rate + " chance to find " + ItemManager.Instance.dataItems[itemInfo.itemIndex].debug_name + " in " + ItemManager.Instance.dataItems[itemIndex].debug_name);
+
             }
-            
+
         }
     }
 }

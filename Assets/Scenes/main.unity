@@ -154,7 +154,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 11
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9734451
 MonoBehaviour:
@@ -393,6 +393,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bc2cbfbb8e1ea74889965bbf1c6bb41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dataItems: []
+  appearInfos: []
 --- !u!4 &109545162
 Transform:
   m_ObjectHideFlags: 0
@@ -406,7 +408,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &170928085
 GameObject:
@@ -492,7 +494,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.4622547
+  m_Size: 0.41240013
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -738,52 +740,6 @@ MonoBehaviour:
     rate: 18
     progress: 0
     color: {r: 1, g: 1, b: 1, a: 1}
---- !u!1 &263378798
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 263378800}
-  - component: {fileID: 263378799}
-  m_Layer: 0
-  m_Name: Text
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &263378799
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 263378798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8250c3017df879e469460d4eba43f4dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  colorCharacters: 
-  colors: []
---- !u!4 &263378800
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 263378798}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1155866337}
-  m_RootOrder: 13
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &286931222
 GameObject:
   m_ObjectHideFlags: 0
@@ -1434,40 +1390,73 @@ MonoBehaviour:
   interiorMap_Image: {fileID: 324848494}
   interiorMap_Texture: {fileID: 2800000, guid: bee07c9a94dc7374bb34bda641a38fcb, type: 3}
   range: 1
-  tileColors:
-  - {r: 0, g: 0, b: 0, a: 0}
-  - {r: 0.48713237, g: 0.7794118, b: 0.48713237, a: 1}
-  - {r: 0.85658044, g: 0.88235295, b: 0.41522488, a: 1}
-  - {r: 0.628, g: 0.8235294, b: 0.49048445, a: 1}
-  - {r: 0.74264705, g: 0.54389584, b: 0.33309907, a: 1}
-  - {r: 0.52205884, g: 0.38549086, b: 0.23799743, a: 1}
-  - {r: 0.1813365, g: 0.31617647, b: 0.1813365, a: 1}
-  - {r: 0.3328287, g: 0.5955882, b: 0.3328287, a: 1}
-  - {r: 0.2901961, g: 0.4862745, b: 0.61960787, a: 1}
-  - {r: 0.47437286, g: 0.6612501, b: 0.78676474, a: 1}
-  - {r: 0.7305091, g: 0.83559984, b: 0.9056604, a: 1}
-  - {r: 0.7840519, g: 0.684, b: 0.2700584, a: 1}
-  - {r: 0.85294116, g: 0.85294116, b: 0.85294116, a: 1}
-  - {r: 0.85294116, g: 0.797, b: 0.809, a: 1}
-  - {r: 0.854902, g: 0.854902, b: 0.854902, a: 1}
-  - {r: 0.854902, g: 0.854902, b: 0.678, a: 1}
-  - {r: 0.31617647, g: 0.31617647, b: 0.24178201, a: 1}
-  - {r: 0.7352941, g: 0.36224046, b: 0.36224046, a: 1}
-  - {r: 0.6985294, g: 0.528, b: 0.303, a: 1}
-  - {r: 0.69803923, g: 0.3019608, b: 0.5559973, a: 1}
-  - {r: 0.69803923, g: 0.184, b: 0.328, a: 1}
-  - {r: 0.7205882, g: 0.69409597, b: 0.70146775, a: 1}
-  - {r: 0.72794116, g: 0.5566609, b: 0.6055981, a: 1}
-  - {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
-  - {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
-  - {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
-  - {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
-  - {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
-  - {r: 0.24705884, g: 0.24705884, b: 0.24705884, a: 1}
-  - {r: 0.6392157, g: 0.48627454, b: 0.5294118, a: 1}
-  - {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
-  - {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
-  - {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
+  tileInfos:
+  - name: plain
+    color: {r: 0.48713237, g: 0.7794118, b: 0.48713237, a: 1}
+  - name: field
+    color: {r: 0.85658044, g: 0.88235295, b: 0.41522488, a: 1}
+  - name: clearing
+    color: {r: 0.628, g: 0.8235294, b: 0.49048445, a: 1}
+  - name: hill
+    color: {r: 0.74264705, g: 0.54389584, b: 0.33309907, a: 1}
+  - name: mountain
+    color: {r: 0.52205884, g: 0.38549086, b: 0.23799743, a: 1}
+  - name: forest
+    color: {r: 0.1813365, g: 0.31617647, b: 0.1813365, a: 1}
+  - name: wood
+    color: {r: 0.3328287, g: 0.5955882, b: 0.3328287, a: 1}
+  - name: sea
+    color: {r: 0.2901961, g: 0.4862745, b: 0.61960787, a: 1}
+  - name: lake
+    color: {r: 0.47437286, g: 0.6612501, b: 0.78676474, a: 1}
+  - name: river
+    color: {r: 0.7305091, g: 0.83559984, b: 0.9056604, a: 1}
+  - name: beach
+    color: {r: 0.7840519, g: 0.684, b: 0.2700584, a: 1}
+  - name: road
+    color: {r: 0.85294116, g: 0.85294116, b: 0.85294116, a: 1}
+  - name: village road
+    color: {r: 0.85294116, g: 0.797, b: 0.809, a: 1}
+  - name: costal road
+    color: {r: 0.854902, g: 0.854902, b: 0.854902, a: 1}
+  - name: path
+    color: {r: 0.854902, g: 0.854902, b: 0.678, a: 1}
+  - name: bridge
+    color: {r: 0.31617647, g: 0.31617647, b: 0.24178201, a: 1}
+  - name: house
+    color: {r: 0.7352941, g: 0.36224046, b: 0.36224046, a: 1}
+  - name: farm
+    color: {r: 0.6985294, g: 0.528, b: 0.303, a: 1}
+  - name: cabin
+    color: {r: 0.69803923, g: 0.3019608, b: 0.5559973, a: 1}
+  - name: mansion
+    color: {r: 0.69803923, g: 0.184, b: 0.328, a: 1}
+  - name: hallway
+    color: {r: 0.7205882, g: 0.69409597, b: 0.70146775, a: 1}
+  - name: stairs
+    color: {r: 0.72794116, g: 0.5566609, b: 0.6055981, a: 1}
+  - name: living room
+    color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
+  - name: kitchen
+    color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
+  - name: dining room
+    color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
+  - name: children's room
+    color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
+  - name: bedroom
+    color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
+  - name: bathroom
+    color: {r: 0.24705884, g: 0.24705884, b: 0.24705884, a: 1}
+  - name: toilets
+    color: {r: 0.6392157, g: 0.48627454, b: 0.5294118, a: 1}
+  - name: attic
+    color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
+  - name: basement
+    color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
+  - name: cellar
+    color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
+  - name: office
+    color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
   testcolorx: 0
   testcolory: 0
 --- !u!114 &388731316
@@ -1477,7 +1466,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 388731313}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1519,7 +1508,7 @@ GameObject:
   - component: {fileID: 417817032}
   - component: {fileID: 417817033}
   m_Layer: 0
-  m_Name: Item Position
+  m_Name: Item Sockets
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1538,7 +1527,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1014188666}
-  m_RootOrder: 4
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &417817033
 MonoBehaviour:
@@ -1549,13 +1538,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 417817031}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46b45d4ac3a734547ba4000d73f99bc0, type: 3}
+  m_Script: {fileID: 11500000, guid: 4b1e6e7d6b6ff18409c23a900154b960, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  url: https://docs.google.com/spreadsheets/d/1iyVD7GpuSjc9tocA5sPprHDpO1drN16kmCp5GBOD9Oc/edit
+  url: https://docs.google.com/spreadsheets/d/1iyVD7GpuSjc9tocA5sPprHDpO1drN16kmCp5GBOD9Oc/edit#gid=0
   targetAsset: {fileID: 4900000, guid: a62de3ed09f9f094d86b5f0b5e659f87, type: 3}
-  phrases:
-  - /somewhere/
+  phrases: []
 --- !u!1 &431890882
 GameObject:
   m_ObjectHideFlags: 0
@@ -1761,7 +1749,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 16
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &590356673
 MonoBehaviour:
@@ -1795,6 +1783,8 @@ MonoBehaviour:
   hasValueInText: 0
   valueInText: 0
   actionOnAll: 0
+  sustainVerb: 0
+  sustainItem: 0
 --- !u!1 &597216345
 GameObject:
   m_ObjectHideFlags: 0
@@ -2051,6 +2041,52 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0.7069087, b: 1, a: 0.50980395}
   m_EffectDistance: {x: 0.1, y: 0.1}
   m_UseGraphicAlpha: 1
+--- !u!1 &812726506
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 812726507}
+  - component: {fileID: 812726508}
+  m_Layer: 0
+  m_Name: SocketManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &812726507
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 812726506}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1155866337}
+  m_RootOrder: 15
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &812726508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 812726506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de4c293e08cd4394388c51f9ca4ee4c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemSockets: []
+  tileSockets: []
 --- !u!1 &815016655
 GameObject:
   m_ObjectHideFlags: 0
@@ -2081,7 +2117,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 10
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &815016657
 MonoBehaviour:
@@ -2095,6 +2131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b887fa8a5f96b4ae589134115adc0d7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pendingProps: []
 --- !u!1 &859047420
 GameObject:
   m_ObjectHideFlags: 0
@@ -2125,7 +2162,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1014188666}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &859047422
 MonoBehaviour:
@@ -2291,7 +2328,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &995658948
 MonoBehaviour:
@@ -2336,7 +2373,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1014188666}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1010163075
 MonoBehaviour:
@@ -2352,6 +2389,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   url: https://docs.google.com/spreadsheets/d/1j1dnVySIQ3QyZP-AN6A76r7_jz8t6OOu0wrv0Qigmyg/edit#gid=0
   targetAsset: {fileID: 4900000, guid: 10996dc0c8c02774596e06a533cfab0d, type: 3}
+  debug: 0
 --- !u!1 &1014188665
 GameObject:
   m_ObjectHideFlags: 0
@@ -2384,10 +2422,10 @@ Transform:
   - {fileID: 892232396}
   - {fileID: 500605528}
   - {fileID: 344407971}
-  - {fileID: 417817032}
   - {fileID: 1010163074}
   - {fileID: 859047421}
   - {fileID: 1379487688}
+  - {fileID: 417817032}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2421,7 +2459,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 15
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1016588176
 MonoBehaviour:
@@ -2802,7 +2840,6 @@ Transform:
   - {fileID: 218687744}
   - {fileID: 1988128025}
   - {fileID: 255872040}
-  - {fileID: 1967984056}
   - {fileID: 995658947}
   - {fileID: 1655582910}
   - {fileID: 1675485243}
@@ -2811,10 +2848,10 @@ Transform:
   - {fileID: 815016656}
   - {fileID: 9734450}
   - {fileID: 1718442643}
-  - {fileID: 263378800}
   - {fileID: 1209840572}
   - {fileID: 1016588175}
   - {fileID: 590356672}
+  - {fileID: 812726507}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2956,7 +2993,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 14
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1256131593
 GameObject:
@@ -3248,7 +3285,7 @@ GameObject:
   - component: {fileID: 1379487688}
   - component: {fileID: 1379487689}
   m_Layer: 0
-  m_Name: Positions in Items
+  m_Name: Tile Sockets
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3267,7 +3304,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1014188666}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1379487689
 MonoBehaviour:
@@ -3283,8 +3320,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   url: https://docs.google.com/spreadsheets/d/1-FG6lFNHvpvVmejBV1lj_FtTtG3J4x7Qm1jHyQioqDk/edit#gid=0
   targetAsset: {fileID: 4900000, guid: 2764b8db5aae63d48b8d8f25c739e51c, type: 3}
-  phrases:
-  - /somewhere/
 --- !u!1 &1529932468
 GameObject:
   m_ObjectHideFlags: 0
@@ -3482,9 +3517,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   genericSockets:
-  - itemIndexes: 
+  - _text: on the floor
+    itemIndexes: 
     relative: 0
-    _text: on the floor
+    itemGroups: []
 --- !u!4 &1578065325
 Transform:
   m_ObjectHideFlags: 0
@@ -3498,7 +3534,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1655582908
 GameObject:
@@ -3544,7 +3580,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1675485241
 GameObject:
@@ -3555,7 +3591,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1675485243}
-  - component: {fileID: 1675485242}
+  - component: {fileID: 1675485244}
   m_Layer: 0
   m_Name: Inventory
   m_TagString: Untagged
@@ -3563,37 +3599,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1675485242
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1675485241}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dcc5768f51f543a418383da4b69aa664, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxWeight: 15
-  bag_Item:
-    debug_name: debug name
-    index: 0
-    weight: 0
-    usableAnytime: 0
-    inputToFind: str
-    sockets: []
-    appearInfos: []
-    containedItems: []
-    currentWordIndex: 0
-    words: []
-    stackable: 0
-    opened: 0
-    emptied: 0
-    properties: []
-  startItems:
-  - seeds
-  - watering can
 --- !u!4 &1675485243
 Transform:
   m_ObjectHideFlags: 0
@@ -3607,8 +3612,21 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1675485244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1675485241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce2c19ba60d45bb45857d10f995c3709, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startItems: []
 --- !u!1 &1718442642
 GameObject:
   m_ObjectHideFlags: 0
@@ -3639,7 +3657,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 12
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1718442644
 MonoBehaviour:
@@ -4020,13 +4038,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1967984055}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1155866337}
-  m_RootOrder: 4
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1967984057
 MonoBehaviour:
@@ -4041,30 +4059,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tile:
+    debug_name: debug name
+    dataIndex: 0
+    weight: 0
+    usableAnytime: 0
+    mContainedItems: []
+    currentWordIndex: 0
+    words: []
+    stackable: 0
+    opened: 0
+    emptied: 0
+    properties: []
     coords:
       x: 0
       y: 0
-    type: 0
     visited: 0
     enclosed: 0
-    items: []
-    tileItem:
-      debug_name: debug name
-      index: 0
-      weight: 0
-      usableAnytime: 0
-      inputToFind: str
-      sockets: []
-      appearInfos: []
-      containedItems: []
-      currentWordIndex: 0
-      words: []
-      stackable: 0
-      opened: 0
-      emptied: 0
-      properties: []
+  inventory:
+    debug_name: debug name
+    dataIndex: 0
+    weight: 0
+    usableAnytime: 0
+    mContainedItems: []
+    currentWordIndex: 0
+    words: []
+    stackable: 0
+    opened: 0
+    emptied: 0
+    properties: []
   inputInfo: {fileID: 0}
   colorWords: 1
+  itemsOnTile:
+  - watering can
 --- !u!1 &1976029674
 GameObject:
   m_ObjectHideFlags: 0
@@ -4186,23 +4212,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d62947d3648cc94488b926ff1f89eb49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goal_text: 
-  bunkerCoords:
-    x: 7
-    y: 13
-  clueCoords:
-    x: 7
-    y: 13
-  letterContent: "Coucou,  J'ai laiss\xE9 quelques trucs pour toi ici, un peu \xE0
-    manger et \xE0 boire. Voil\xE0, tu peux essayer de r\xE9ussir l\xE0 o\xF9 j'ai
-    \xE9chou\xE9. Pour t'en sortir ici, tu dois imp\xE9rativement faire ces choses
-    : - Tu dois trouver un moyen de traverser la rivi\xE8re au nord d'ici, il n'y
-    a plus grands choses ici. - Tu dois trouver la tour qui emet sur les ondes radio.
-    Il doit y avoir quelque chose l\xE0 bas, c'est s\xFBr. - Commence \xE0 planter
-    des trucs, d\xE8s que tu peux. Je sais que t'as pas la main verte mais il faut
-    t'y mettres d\xE8s maintenant. - Enfin, tu dois le savoir, mais ils vont commencer
-    \xE0 arriver par le sud, et de plus en plus nombreux.  Bisous et bonne chance, 
-    A bient\xF4t aussi j'esp\xE8re,"
 --- !u!4 &1988128025
 Transform:
   m_ObjectHideFlags: 0

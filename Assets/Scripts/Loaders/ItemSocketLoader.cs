@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemPositionLoader : TextParser
+public class ItemSocketLoader : TextParser
 {
-    public static ItemPositionLoader Instance;
+    public static ItemSocketLoader Instance;
 
     public List<string> phrases = new List<string>();
 
@@ -31,7 +31,7 @@ public class ItemPositionLoader : TextParser
                     newSocket._text = cells[cellIndex];
                 }
 
-                Socket.sockets.Add(newSocket);
+                SocketManager.Instance.itemSockets.Add(newSocket);
 
                 //phrases.Add(cells[cellIndex]);
             }
@@ -40,7 +40,7 @@ public class ItemPositionLoader : TextParser
         {
             int itemIndex = rowIndex - 1;
 
-            if (itemIndex >= Item.dataItems.Count)
+            if (itemIndex >= ItemManager.Instance.dataItems.Count)
             {
                 return;
             }
@@ -52,10 +52,10 @@ public class ItemPositionLoader : TextParser
             {
                 if (cells[cellIndex].Length != 0)
                 {
-                    Item item = Item.dataItems[itemIndex];
+                    Item item = ItemManager.Instance.dataItems[itemIndex];
 
-                    Socket.sockets[socketIndex].itemIndexes.Add(item.index);
-                    //Debug.Log("adding item : " + item.word.text + " (index:"+item.index+") in socket " + Socket.sockets[socketIndex]._text);
+                    SocketManager.Instance.itemSockets[socketIndex].itemIndexes.Add(item.dataIndex);
+                    //Debug.Log("adding item : " + item.word.text + " (index:"+item.dataIndex+") in socket " + Socket.itemSockets[socketIndex]._text);
                 }
 
                 socketIndex++;

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using TMPro.EditorUtilities;
 using UnityEditor;
 using UnityEditor.MPE;
@@ -74,7 +75,6 @@ public class Property
         {
             string[] strs = name.Split('?');
             name = strs[Random.Range(0, strs.Length)];
-            Debug.Log(name);
             return;
         }
 
@@ -83,7 +83,6 @@ public class Property
             if (HasInt())
             {
                 value_max = GetInt();
-                Debug.Log("max of " + name + " " + value_max);
             }
             else if (value.Contains('='))
             {
@@ -161,18 +160,48 @@ public class Property
     #region update
     public void UpdateProperty(string line)
     {
+        bool add = false;
+
         if (line.StartsWith('+'))
         {
-            int dif = int.Parse(value.Remove(0, 1));
-            int newValue = GetInt() + dif;
-            newValue = Mathf.Clamp(newValue, 0, value_max);
+            line = line.Remove(0, 1);
+            add = true;
+        }
+
+        if (line.StartsWith('*'))
+        {
+            line = line.Remove(0, 1);
+            Property pendingProp = PropertyManager.Instance.pendingProps.Find(x => x.name == line);
+            line = pendingProp.value;
+
+            int valueNeeded = pendingProp.value_max - pendingProp.GetInt();
+
+            Debug.Log("current value : " + pendingProp.GetInt());
+            Debug.Log("value max : " + pendingProp.value_max);
+            Debug.Log("value needed : " + valueNeeded);
+
+            int i = pendingProp.GetInt() - valueNeeded;
+            pendingProp.SetInt(i);
+
+            Debug.Log("new value : " + i);
+        }
+
+        int dif = 0;
+
+        if ( int.TryParse(line, out dif))
+        {
+            int newValue = dif;
+            if ( add)
+            {
+                newValue = GetInt() + dif;
+            }
+
             SetInt(newValue);
             return;
         }
 
         name = line;
 
-        Debug.LogError("falling into no case of update property in prop " + name);
     }
     #endregion
 
@@ -262,6 +291,16 @@ public class Property
     }
     public void SetInt(int newValue)
     {
+        newValue = Mathf.Clamp(newValue, 0, value_max);
+
+        if ( newValue <= 0)
+        {
+            // probleme avec les events, toujours en lien avec le pointeur vers ITEM ( il n'y en a pas )
+            // est-ce que je m'emmerderais pas un peu à trouver un moyen de contourner cette merde,
+            // met un pointeur et arrête de casser les couilles
+            //EventManager.instance.CallEvent(this, "subEmpty", this);
+        }
+
         value = newValue.ToString();
     }
     #endregion

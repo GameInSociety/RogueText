@@ -103,7 +103,7 @@ public class Player : MonoBehaviour {
         // check if locked
         if (targetItem.HasProperty("locked"))
         {
-            PhraseKey.WritePhrase("door_locked");
+            TextManager.WritePhrase("door_locked");
             return;
         }
 
@@ -178,12 +178,12 @@ public class Player : MonoBehaviour {
         {
             if (Inventory.Instance.HasItemWithProperty("source of light"))
             {
-                PhraseKey.WritePhrase("lamp_on");
+                TextManager.WritePhrase("lamp_on");
                 return true;
             }
             else
             {
-                PhraseKey.WritePhrase("lamp_off");
+                TextManager.WritePhrase("lamp_off");
                 return false;
             }
         }
@@ -208,14 +208,9 @@ public class Player : MonoBehaviour {
         // cancel if path blocked
         if (!CanMoveForward(targetCoords))
         {
+            Debug.Log("can't move forward");
             return;
         }
-
-        StartCoroutine(MoveCoroutine(targetCoords));
-
-    }
-    IEnumerator MoveCoroutine(Coords targetCoords)
-    {
         // first of all, advance time ( and items states etc... )
         TimeManager.GetInstance().AdvanceTime();
 
@@ -248,8 +243,6 @@ public class Player : MonoBehaviour {
 
         Tile.GetCurrent.visited = true;
 
-        yield return new WaitForEndOfFrame();
-
     }
 
     public void MoveToTargetItem()
@@ -261,22 +254,22 @@ public class Player : MonoBehaviour {
         /// ici il faut check si il y a pas d'adjectifs dans l'inputinfo
         foreach (var tile in SurroundingTiles())
         {
-            Debug.Log("tile : " + tile.tileItem.debug_name);
+            Debug.Log("tile : " + tile.debug_name);
 
-            if (tile.tileItem.SameTypeAs(targetItem))
+            if (tile.SameTypeAs(targetItem))
             {
                 Move(tile.coords);
                 return;
             }
         }
 
-        PhraseKey.WritePhrase("You are already &on the dog&");
+        TextManager.WritePhrase("You are already &on the dog&");
     }
 
     public void Orient(Orientation orientation)
     {
-        PhraseKey.SetOverrideOrientation(orientation);
-        PhraseKey.WritePhrase("position_orientPlayer");
+        TextManager.SetOverrideOrientation(orientation);
+        TextManager.WritePhrase("position_orientPlayer");
         SetDirection(OrientationToCardinal(orientation));
     }
     public void SetDirection(Cardinal cardinal)
@@ -291,25 +284,25 @@ public class Player : MonoBehaviour {
         Tile targetTile = TileSet.current.GetTile(c);
 
         if (targetTile == null) {
-            PhraseKey.WritePhrase("blocked_void");
+            TextManager.WritePhrase("blocked_void");
             return false;
         }
 
-        switch (targetTile.type) {
-            case Tile.Type.Hill:
-                PhraseKey.WritePhrase("blocked_hill");
+        switch (targetTile.debug_name) {
+            case "hill":
+                TextManager.WritePhrase("blocked_hill");
                 return false;
-            case Tile.Type.Mountain:
-                PhraseKey.WritePhrase("blocked_mountain");
+            case "mountain":
+                TextManager.WritePhrase("blocked_mountain");
                 return false;
-            case Tile.Type.Sea:
-                PhraseKey.WritePhrase("blocked_sea");
+            case "sea":
+                TextManager.WritePhrase("blocked_sea");
                 return false;
-            case Tile.Type.Lake:
-                PhraseKey.WritePhrase("blocked_lake");
+            case "lake":
+                TextManager.WritePhrase("blocked_lake");
                 return false;
-            case Tile.Type.River:
-                PhraseKey.WritePhrase("blocked_river");
+            case "river":
+                TextManager.WritePhrase("blocked_river");
                 return false;
             default:
                 break;

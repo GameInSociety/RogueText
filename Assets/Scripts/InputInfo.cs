@@ -87,8 +87,14 @@ public class InputInfo : MonoBehaviour
             }
             else
             {
-                Item verbItem = Item.GetDataItem("verbe seul");
+                Item verbItem = ItemManager.Instance.GetDataItem("verbe seul");
+
                 FindCombination(verb, verbItem);
+
+                if ( combination != null)
+                {
+                    items.Add(verbItem);
+                }
             }
         }
         else
@@ -123,9 +129,19 @@ public class InputInfo : MonoBehaviour
         }
     }
 
+    public bool sustainVerb = false;
+
     public void FindVerb()
     {
         //string str = InputInfo.parts[0];
+
+        if ( !sustainVerb)
+        {
+            verb = null;
+        }
+
+        sustainVerb = false;
+
 
         Verb tmpVerb = Verb.Find(text);
 
@@ -147,6 +163,8 @@ public class InputInfo : MonoBehaviour
         }
     }
 
+    public bool sustainItem = false;
+
     public void FindItems()
     {
         actionOnAll = false;
@@ -156,6 +174,24 @@ public class InputInfo : MonoBehaviour
             Debug.Log("actions on all !!!!");
             actionOnAll = true;
         }
+
+        foreach (var input_part in parts)
+        {
+            if (text == "it" || text == "them")
+            {
+                sustainItem = true;
+            }
+        }
+
+        if (sustainItem)
+        {
+            sustainItem = false;
+        }
+        else
+        {
+            items.Clear();
+        }
+
 
         List<Item> probableItems = new List<Item>();
 
@@ -167,18 +203,15 @@ public class InputInfo : MonoBehaviour
             if (input_part.Length < 3)
                 continue;
 
-            Item item = Item.FindInWorld(input_part);
+            Item item = ItemManager.Instance.FindInWorld(input_part);
 
             if  (item != null)
             {
-                //Debug.Log("found : " + item.word.text);
-
-                item.inputToFind = input_part;
-
-                //Debug.Log("input to find : " + item.word.text + " is " + input_part);
-                probableItems.Add(item);
+                items.Add(item);
             }
         }
+
+        
 
         /// if no probable items, we KEEP the previous items, for feature enter IT, look at IT
         /// input preservation on peut appeler ça
@@ -187,29 +220,8 @@ public class InputInfo : MonoBehaviour
             return;
         }
 
-        items.Clear();
-
-
-        Item mostProbableItem = probableItems[0];
-
-        foreach (var item in probableItems)
-        {
-            if (item.inputToFind.Length > mostProbableItem.inputToFind.Length)
-            {
-                mostProbableItem = item;
-            }
-        }
 
         items = probableItems;
-
-        //items.Sort((a, b) => a.word.text.Length.CompareTo(b.word.text.Length));
-
-        /*foreach (var item in items)
-        {
-            Debug.Log("item in input : " + item.word.text);
-        }*/
-
-        //items.Add(mostProbableItem);
     }
 
     public void FindOrientation()
@@ -229,12 +241,16 @@ public class InputInfo : MonoBehaviour
 
     public bool HasVerb()
     {
-        return !string.IsNullOrEmpty(verb.GetName);
+        return verb != null && verb.names.Length > 0 && !string.IsNullOrEmpty(verb.GetName);
     }
 
     public bool HasItems()
     {
         return items.Count != 0;
+    }
+    public bool HasItem(int i)
+    {
+        return i < items.Count;
     }
 
     public void FindCombination(Verb _verb, Item _item)
@@ -249,6 +265,6 @@ public class InputInfo : MonoBehaviour
             return;
         }
 
-        combination = verb.combinations.Find(x => x.itemIndex == _item.index);
+        combination = verb.combinations.Find(x => x.itemIndex == _item.dataIndex);
     }
 }

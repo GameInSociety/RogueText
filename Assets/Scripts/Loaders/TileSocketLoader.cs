@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PositionsInItemLoader : TextParser
+public class TileSocketLoader : TextParser
 {
-    public static PositionsInItemLoader Instance;
-
-    public List<string> phrases = new List<string>();
-    List<Socket> tmpSockets = new List<Socket>();
+    public static TileSocketLoader Instance;
 
     private void Awake()
     {
@@ -25,31 +22,30 @@ public class PositionsInItemLoader : TextParser
             {
                 Socket newSocket = new Socket();
                 newSocket._text = cells[cellIndex];
-                tmpSockets.Add(newSocket);
+                SocketManager.Instance.tileSockets.Add(newSocket);
             }
         }
         else
         {
             int itemIndex = rowIndex - 1;
 
-            int socketIndex = 0;
+            int tileSocketIndex = 0;
 
             for (int cellIndex = 1; cellIndex < cells.Count; cellIndex++)
             {
                 if ( cells[cellIndex].Length != 0)
                 {
-                    if ( itemIndex >= Item.dataItems.Count)
+                    if ( itemIndex >= ItemManager.Instance.dataItems.Count)
                     {
                         continue;
                     }
 
-                    Item item = Item.dataItems[itemIndex];
-                    Socket socket = tmpSockets[socketIndex];
-
-                    item.sockets.Add(socket);
+                    Item item = ItemManager.Instance.dataItems[itemIndex];
+                    Socket socket = SocketManager.Instance.tileSockets[tileSocketIndex];
+                    socket.itemIndexes.Add(itemIndex);
                 }
 
-                socketIndex++;
+                tileSocketIndex++;
             }
         }
     }

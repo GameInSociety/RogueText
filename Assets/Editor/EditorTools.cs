@@ -1,9 +1,48 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
+using static UnityEngine.UIElements.UxmlAttributeDescription;
+using UnityEditor.Experimental.GraphView;
 
 public class EditorTools : EditorWindow
 {
+    string[] strings = new string[33]
+    {
+        "plain",
+"field",
+"clearing",
+"hill",
+"mountain",
+"forest",
+"wood",
+"sea",
+"lake",
+"river",
+"beach",
+"road",
+"village road",
+"costal road",
+"path",
+"bridge",
+"house",
+"farm",
+"cabin",
+"mansion",
+"hallway",
+"stairs",
+"living room",
+"kitchen",
+"dining room",
+"children's room",
+"bedroom",
+"bathroom",
+"toilets",
+"attic",
+"basement",
+"cellar",
+"office",
+    };
+
     public bool mapVisible = false;
 
     bool showStates = false;

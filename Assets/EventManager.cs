@@ -86,11 +86,11 @@ public class EventManager : MonoBehaviour
         }
 
         Item newItem = ItemManager.Instance.CreateInTile(Tile.GetCurrent, content);
-        PhraseKey.WritePhrase("&a dog (override item)& is now here", newItem);
+        TextManager.WritePhrase("&a dog (override item)& is now here", newItem);
     }
     public void Event_DestroyItem(string content)
     {
-        Item item = Item.FindInWorld(content);
+        Item item = ItemManager.Instance.FindInWorld (content);
         Item.Destroy(item);
     }
     public void Event_ChangeProp(string content)

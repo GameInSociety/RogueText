@@ -38,11 +38,11 @@ public class PlayerActionManager : MonoBehaviour
             case PlayerAction.Type.DisplayTimeOfDay:
                 TimeManager.GetInstance().WriteTimeOfDay();
                 break;
-            case PlayerAction.Type.DescribeItem:
-                InputInfo.Instance.GetItem(0).Describe();
-                break;
             case PlayerAction.Type.PointNorth:
                 Coords.WriteDirectionToNorth();
+                break;
+            case PlayerAction.Type.Write:
+                TextManager.WritePhrase(PlayerAction.GetCurrent.GetContent(0));
                 break;
             default:
                 break;
@@ -63,7 +63,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("no verb, no items");
             }
 
-            PhraseKey.WritePhrase("input_nothingRecognized");
+            TextManager.WritePhrase("input_nothingRecognized");
             return;
         }
 
@@ -75,7 +75,8 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("no verb");
             }
 
-            PhraseKey.WritePhrase("input_noVerb");
+
+            TextManager.WritePhrase("input_noVerb");
             return;
         }
 
@@ -86,7 +87,10 @@ public class PlayerActionManager : MonoBehaviour
             {
                 Debug.LogError("only verb, no item");
             }
-            PhraseKey.WritePhrase("input_noItem");
+
+            inputInfo.sustainVerb = true;
+
+            TextManager.WritePhrase("input_noItem");
             return;
         }
 
@@ -98,9 +102,12 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("Fail : no combination between verb : " + inputInfo.verb.names[0] + " and item : " + inputInfo.GetItem(0).word.text);
             }
 
-            PhraseKey.WritePhrase("input_noCombination");
+            TextManager.WritePhrase("input_noCombination");
             return;
         }
+
+        // clear all props variables
+        PropertyManager.Instance.pendingProps.Clear();
 
         // get cell content
         string[] lines = inputInfo.combination.content.Split('\n');
@@ -181,6 +188,13 @@ public class PlayerActionManager : MonoBehaviour
 
     #region action breaking
     bool breakActions = false;
+
+    public void BreakAction(string text)
+    {
+        TextManager.WritePhrase(text);
+
+        BreakAction();
+    }
 
     public void BreakAction()
     {

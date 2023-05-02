@@ -101,7 +101,7 @@ public struct Coords
         string key = orientation.ToString().Remove(1).ToLower() + orientation.ToString().Remove(0, 1);
         key = "position_" + key;
 
-        return PhraseKey.GetPhrase(key);
+        return TextManager.GetPhrase(key);
     }
 
     public static Cardinal GetDirectionFromString(string str)
@@ -123,8 +123,8 @@ public struct Coords
     public static void WriteDirectionToNorth()
     {
         Player.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
-        PhraseKey.SetOverrideOrientation(orientation);
-        PhraseKey.WritePhrase("compas_giveNorth");
+        TextManager.SetOverrideOrientation(orientation);
+        TextManager.WritePhrase("compas_giveNorth");
     }
 
     public bool OutOfMap()
@@ -293,11 +293,11 @@ public struct Coords
 
     public static Word GetWordsDirection(Cardinal direction)
     {
-        return Item.dataItems[(int)direction + 1].word;
+        return ItemManager.Instance.dataItems[(int)direction + 1].word;
     }
     public static Item GetDirectionItem(Cardinal direction)
     {
-        return Item.dataItems[(int)direction + 1];
+        return ItemManager.Instance.dataItems[(int)direction + 1];
     }
 
     // string

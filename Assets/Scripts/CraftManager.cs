@@ -52,7 +52,7 @@ public class CraftManager : MonoBehaviour {
         {
             if (craftInfo.requiredToolItemRows != null)
             {
-                Debug.Log("craft info : " + Item.dataItems[craftInfo.itemRow].word.text + " is not empty");
+                Debug.Log("craft info : " + ItemManager.Instance.dataItems[craftInfo.itemRow].word.text + " is not empty");
                 itemRows.Add(craftInfo.itemRow);
             }
         }
@@ -77,19 +77,19 @@ public class CraftManager : MonoBehaviour {
         List<Item> requiredItems = new List<Item>();
 
         foreach (var requiredToolrow in targetCraftInfo.requiredToolItemRows)
-            requiredItems.Add(Item.dataItems[requiredToolrow]);
+            requiredItems.Add(ItemManager.Instance.dataItems[requiredToolrow]);
 
         foreach (var requiredItemRow in targetCraftInfo.requiredItemRows)
-            requiredItems.Add(Item.dataItems[requiredItemRow]);
+            requiredItems.Add(ItemManager.Instance.dataItems[requiredItemRow]);
 
         string list_str = Item.ItemListString(requiredItems, Item.ListSeparator.Commas, false);
-        Item targetItem = Item.dataItems[targetCraftInfo.itemRow];
-        PhraseKey.WritePhrase("/craft_list/ " + list_str, targetItem);*/
+        Item targetItem = ItemManager.Instance.dataItems[targetCraftInfo.itemRow];
+        TextManager.WritePhrase("/craft_list/ " + list_str, targetItem);*/
     }
 
     private void Craft()
     {
-        CraftInfo craftInfo = craftInfos[InputInfo.Instance.GetItem(0).index];
+        CraftInfo craftInfo = craftInfos[InputInfo.Instance.GetItem(0).dataIndex];
         if ( craftInfo.requiredToolItemRows == null)
         {
             //Phrase.Write("vous ne pouvez pas fabriquer de " + Action.last.primaryItem.word.GetDescription(Word.Def.Undefined,Word.Preposition.De));
@@ -102,19 +102,19 @@ public class CraftManager : MonoBehaviour {
 
             foreach (var requiredToolrow in craftInfo.requiredToolItemRows)
             {
-                if (Inventory.Instance.GetItem(Item.dataItems[requiredToolrow].word.text) == null)
+                if (Inventory.Instance.GetItem(ItemManager.Instance.dataItems[requiredToolrow].word.text) == null)
                 {
                     hasAllItems = false;
-                    missingItems.Add(Item.dataItems[requiredToolrow]);
+                    missingItems.Add(ItemManager.Instance.dataItems[requiredToolrow]);
                 }
             }
 
             foreach (var requiredItemRow in craftInfo.requiredItemRows)
             {
-                if (Inventory.Instance.GetItem(Item.dataItems[requiredItemRow].word.text) == null)
+                if (Inventory.Instance.GetItem(ItemManager.Instance.dataItems[requiredItemRow].word.text) == null)
                 {
                     hasAllItems = false;
-                    missingItems.Add(Item.dataItems[requiredItemRow]);
+                    missingItems.Add(ItemManager.Instance.dataItems[requiredItemRow]);
                 }
             }
 
@@ -124,18 +124,18 @@ public class CraftManager : MonoBehaviour {
                 {
                     for (int a = 0; a < craftInfo.requiredItemAmounts[i]; a++)
                     {
-                        Inventory.Instance.RemoveItem(craftInfo.requiredItemRows[i]);
+                        //Inventory.Instance.RemoveItem(craftInfo.requiredItemRows[i]);
                     }
                 }
 
                 Inventory.Instance.AddItem(InputInfo.Instance.GetItem(0));
 
-                PhraseKey.WritePhrase("craft_sucess");
+                TextManager.WritePhrase("craft_sucess");
 
             }
             else
             {
-                PhraseKey.WritePhrase("craft_unable");
+                TextManager.WritePhrase("craft_unable");
             }
         }
         
@@ -149,7 +149,7 @@ public class CraftManager : MonoBehaviour {
 
         int itemIndex = 0;
 
-        craftInfos = new CraftInfo[Item.dataItems.Count];
+        craftInfos = new CraftInfo[ItemManager.Instance.dataItems.Count];
 
         for (int rowIndex = 1; rowIndex < rows.Length - 1; rowIndex++)
         {
@@ -157,7 +157,7 @@ public class CraftManager : MonoBehaviour {
 
             CraftInfo newCraftInfo = new CraftInfo();
 
-            newCraftInfo.itemRow = Item.dataItems[itemIndex].index;
+            newCraftInfo.itemRow = ItemManager.Instance.dataItems[itemIndex].dataIndex;
 
             if (cells[1].Length > 1)
             {
@@ -169,15 +169,15 @@ public class CraftManager : MonoBehaviour {
                 {
                     string itemName = cellPart.Trim('"');
 
-                    Item requiredToolItem = Item.dataItems.Find(x => x.word.text == itemName);
+                    Item requiredToolItem = ItemManager.Instance.dataItems.Find(x => x.word.text == itemName);
 
                     if (requiredToolItem == null)
                     {
-                        Debug.LogError("couldn't find tool for item " + Item.dataItems[itemIndex].word.text + " / content : " + itemName);
+                        Debug.LogError("couldn't find tool for item " + ItemManager.Instance.dataItems[itemIndex].word.text + " / content : " + itemName);
                         break;
                     }
 
-                    newCraftInfo.requiredToolItemRows[requiredToolIndex] = requiredToolItem.index;
+                    newCraftInfo.requiredToolItemRows[requiredToolIndex] = requiredToolItem.dataIndex;
 
                     ++requiredToolIndex;
                 }
@@ -203,15 +203,15 @@ public class CraftManager : MonoBehaviour {
                         itemAmount = int.Parse(str[1].Remove(0, 1));
                     }
 
-                    Item requiredItem = Item.dataItems.Find(x => x.word.text == itemName);
+                    Item requiredItem = ItemManager.Instance.dataItems.Find(x => x.word.text == itemName);
 
                     if (requiredItem == null)
                     {
-                        Debug.LogError("couldn't find required item for item " + Item.dataItems[itemIndex].word.text + " / content : " + itemName);
+                        Debug.LogError("couldn't find required item for item " + ItemManager.Instance.dataItems[itemIndex].word.text + " / content : " + itemName);
                         break;
                     }
 
-                    newCraftInfo.requiredItemRows[requiredItemIndex] = requiredItem.index;
+                    newCraftInfo.requiredItemRows[requiredItemIndex] = requiredItem.dataIndex;
                     newCraftInfo.requiredItemAmounts[requiredItemIndex] = itemAmount;
 
                     ++requiredItemIndex;

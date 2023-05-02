@@ -37,18 +37,16 @@ public static class KeyWords
         switch (keyWord)
         {
             case KeyWord.CONTAINER_LIST:
-                return Item.ItemListString(Container.CurrentItem.containedItems, Item.ListSeparator.Commas, true);
-            
-            case KeyWord.TILE_CURRENT_DESCRIPTION:
-                return Tile.GetCurrent.GetDescription();
+                return Item.ItemListString(Item.OpenedItem.GetContainedItems, Item.ListSeparator.Commas, true);
             case KeyWord.TILE_ITEM_DESCRIPTIONS:
                 return Tile.GetCurrent.GetItemDescriptions();
             case KeyWord.TIME_OF_DAY:
                 return TimeManager.GetInstance().GetTimeOfDayDescription();
             case KeyWord.TARGET_ORIENTATION:
-                return Coords.GetOrientationText(PhraseKey.GetOverrideOrientations());
+                return Coords.GetOrientationText(TextManager.GetOverrideOrientations());
             case KeyWord.ITEM_DESCRIPTION:
-                return InputInfo.Instance.GetItem(0).GetDescription();
+                InputInfo.Instance.GetItem(0).WritePropertiesDescription();
+                return "";
             case KeyWord.VERB_NAME:
                 return InputInfo.Instance.verb.names[0];
             case KeyWord.VERB_QUESTION:

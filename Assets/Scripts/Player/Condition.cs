@@ -69,7 +69,7 @@ public class Condition
     {
         string keyWord = type.ToString().ToLower() + "_" + progress.ToString().ToLower();
 
-        return PhraseKey.GetPhrase(keyWord);
+        return TextManager.GetPhrase(keyWord);
     }
 
     public Progress GetProgress

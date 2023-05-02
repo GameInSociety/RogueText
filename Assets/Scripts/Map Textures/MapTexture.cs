@@ -19,7 +19,15 @@ public class MapTexture : MonoBehaviour {
 
     public int range = 1;
     private int scale = 0;
-    public Color[] tileColors;
+
+    [System.Serializable]
+    public struct TileInfo
+    {
+        public string name;
+        public Color color;
+    }
+
+    public TileInfo[] tileInfos;
     public int testcolorx = 0;
     public int testcolory = 0;
 
@@ -64,8 +72,7 @@ public class MapTexture : MonoBehaviour {
 
         foreach (var coords in TileSet.current.tiles.Keys)
         {
-            Color color = tileColors[(int)TileSet.current.tiles[coords].type];
-            interiorMap_Texture.SetPixel(coords.x, coords.y, color);
+            interiorMap_Texture.SetPixel(coords.x, coords.y, Color.green);
         }
 
         interiorMap_Texture.Apply();
@@ -88,67 +95,40 @@ public class MapTexture : MonoBehaviour {
         {
             for (int y = 0; y < h; y++)
             {
-                Coords c = new Coords(x, y);
+                Coords coords = new Coords(x, y);
 
                 Color pixelColor = mainMap_Texture.GetPixel(x, y);
 
-                Tile.Type tileType = Tile.Type.None;
-
-                for (int i = 0; i < tileColors.Length; i++)
+                for (int i = 0; i < tileInfos.Length; i++)
                 {
                    
                     // check for color match
 
-                    Color tileColor = tileColors[i];
-
-                    float tileColor_r = Mathf.Round(tileColor.r * 1000f);
-                    float tileColor_g = Mathf.Round(tileColor.g * 1000f);
-                    float tileColor_b = Mathf.Round(tileColor.b * 1000f);
-
-                    float pixel_r = Mathf.Round(pixelColor.r * 1000f);
-                    float pixel_g = Mathf.Round(pixelColor.g * 1000f);
-                    float pixel_b = Mathf.Round(pixelColor.b * 1000f);
-
-                    float tolerance = 3;
+                    Color tileColor = tileInfos[i].color;
 
                     if (
-                        pixel_r >= tileColor_r - tolerance && pixel_r <= tileColor_r + tolerance &&
-                        pixel_g >= tileColor_g - tolerance && pixel_g <= tileColor_g + tolerance &&
-                        pixel_b >= tileColor_b - tolerance && pixel_b <= tileColor_b + tolerance
+                        ColorUtility.ToHtmlStringRGB(tileColor) == ColorUtility.ToHtmlStringRGB(pixelColor)
                         )
                     {
-                        Tile newTile = new Tile(c);
+                        TileInfo tileInfo = tileInfos[i];
+
+                        Tile newTile = ItemManager.Instance.CreateTile(coords, tileInfo.name);
 
                         // get tile type from color
-                        tileType = (Tile.Type)i;
 
-                        if (tileType == Tile.Type.None)
+                        if (i == 0)
                         {
                             break;
                         }
 
-                        newTile.SetType(tileType);
+                        TileSet.map.Add(coords, newTile);
 
-                        TileSet.map.Add(c, newTile);
-
-                        switch (tileType)
+                        if (newTile.HasProperty("interior"))
                         {
-                            case Tile.Type.TownHouse:
-                            case Tile.Type.Farm:
-                            case Tile.Type.ForestCabin:
-                            case Tile.Type.CountryHouse:
-                                Interior.NewInterior(newTile);
-                                break;
-                            default:
-                                break;
+                            Interior.NewInterior(newTile);
                         }
                         break;
                     }
-                }
-
-                if (tileType == Tile.Type.None)
-                {
-
                 }
 
             }
@@ -157,6 +137,7 @@ public class MapTexture : MonoBehaviour {
     }
     #endregion
 
+    
     #region texture
 	public void ResetTexture () {
 		Color[] colors = new Color[scale*scale];
@@ -171,15 +152,6 @@ public class MapTexture : MonoBehaviour {
 	}
 	public void Paint ( Coords coords , Color c ) {
 		feedbackMap_Texture.SetPixel (coords.x, coords.y, c);
-	}
-	public void Paint ( Coords c , Tile.Type tileType ) {
-		Paint (c, GetTileColor (tileType));
-	}
-	#endregion
-
-	#region colors
-	public Color GetTileColor ( Tile.Type type ) {
-		return tileColors [(int)type];
 	}
 	#endregion
 }

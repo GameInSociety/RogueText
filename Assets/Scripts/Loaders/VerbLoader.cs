@@ -34,6 +34,13 @@ public class VerbLoader : TextParser
         newVerb.names = name.Split('\n');
         newVerb.question = line[1];
         newVerb.prepositions = line[2].Split('\n');
+        for (int i = 0; i < newVerb.prepositions.Length; i++)
+        {
+            if (newVerb.prepositions[i] == "*" )
+            {
+                newVerb.prepositions[i] = newVerb.prepositions[i].Remove(0, 1);
+            }
+        }
         if ( line.Count > 3)
         {
             newVerb.universal = line[3] == "universal";

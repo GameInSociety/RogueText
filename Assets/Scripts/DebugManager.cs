@@ -5,9 +5,20 @@ using UnityEngine;
 public class DebugManager : MonoBehaviour
 {
     public Tile tile;
+    public Item inventory;
     public InputInfo inputInfo;
 
     public bool colorWords = true;
+
+    public List<string> itemsOnTile = new List<string>();
+
+    private void Start()
+    {
+        foreach (var item in itemsOnTile)
+        {
+            
+        }
+    }
 
     private static DebugManager _instance;
     public static DebugManager Instance

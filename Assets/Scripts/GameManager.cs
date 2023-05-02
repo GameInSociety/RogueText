@@ -24,20 +24,14 @@ public class GameManager : MonoBehaviour
         ItemLoader.Instance.Load();
 
         ItemAppearInfoLoader.Instance.Load();
-        ItemPositionLoader.Instance.Load();
-        PositionsInItemLoader.Instance.Load();
+        ItemSocketLoader.Instance.Load();
+        TileSocketLoader.Instance.Load();
 
         MapTexture.Instance.CreateMapFromTexture();
 
-        ClueManager.Instance.Init();
-
-        Invoke("StartDelay", 0.01f);
-    }
-
-    void StartDelay()
-    {
         Player.Instance.Init();
     }
+
 
     /*private void Update()
     {

@@ -1,15 +1,19 @@
 help,how,,
 go,where,to,
-open,what,,
+"open
+look inside",what,"*
+*",
 close,what,,
 eat,what,,
 sleep,where,on,
 "look
+look at
 observe",what,"at
-",
+*
+*",
 "take
-pick up",what,"
-",
+pick up",what,"*
+*",
 fill,what,,
 drink,what,,
 "move
@@ -28,8 +32,8 @@ put on",what,,
 "unequip
 take off",what,,
 listen,what,to,
-NOUVEAU VERB,where,"towards
-towards",
+"put
+place",where,in,
 "leave
 go out
 exit",from where,"from

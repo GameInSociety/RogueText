@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEditor.Progress;
@@ -10,16 +11,13 @@ public class Item
 {
     public string debug_name = "debug name";
 
-    public static List<Item> dataItems = new List<Item>();
-
     /// <summary>
     /// declaration
     /// </summary>
-    public int index;
+    public int dataIndex;
+    // maybe should be a property ?
     public int weight = 0;
     public bool usableAnytime = false;
-
-    public string inputToFind = "str";
 
     /// <summary>
     /// exemples :
@@ -29,12 +27,21 @@ public class Item
     /// Je crois qu'il vaut mieux que ces trucs soient dans les sockets
     /// ( liste d'int dans le socket parce quand y'a pas de copy dans les sockets )
     ///c'est déjàle cas maisc'estpar rapport aux tiles
-    public List<Socket> sockets = new List<Socket>();
     // pareil
-    public List<AppearInfo> appearInfos = new List<AppearInfo>();
+    public List<Item> GetContainedItems
+    {
+        get
+        {
+            if (mContainedItems == null)
+            {
+                mContainedItems = new List<Item>();
+            }
 
-    //
-    public List<Item> containedItems;
+            return mContainedItems;
+        }
+    }
+    [SerializeField]
+    private List<Item> mContainedItems;
 
     /// <summary>
     /// WORD
@@ -53,6 +60,14 @@ public class Item
     /// <summary>
     /// container
     /// </summary>
+    public static Item OpenedItem;
+    public static bool AnItemIsOpened
+    {
+        get
+        {
+            return OpenedItem!= null;
+        }
+    }
     public bool opened = false;
     public bool emptied = false;
 
@@ -69,26 +84,23 @@ public class Item
     #region container
     public bool ContainsItems()
     {
-        //GenerateItems();
-
-        bool b = containedItems != null && containedItems.Count > 0;
-        Debug.Log("continas item ? " + b);
+        bool b = GetContainedItems != null && GetContainedItems.Count > 0;
         return b;
     }
-    public void GenerateItems()
+    public virtual void GenerateItems()
     {
         if (ContainsItems())
         {
             return;
         }
 
-        foreach (var appearInfo in appearInfos)
+        foreach (var itemInfo in AppearInfo.GetAppearInfo(dataIndex).itemInfos)
         {
-            for (int i = 0; i < appearInfo.amount; i++)
+            for (int i = 0; i < itemInfo.amount; i++)
             {
-                if (Random.value * 100f < appearInfo.rate)
+                if (Random.value * 100f < itemInfo.rate)
                 {
-                    ItemManager.Instance.CreateInItem(this, appearInfo.GetItemName());
+                    ItemManager.Instance.CreateInItem(this, itemInfo.GetItemName());
                 }
             }
         }
@@ -97,30 +109,26 @@ public class Item
 
     public void AddItem(Item item)
     {
-        if (containedItems == null)
-        {
-            containedItems = new List<Item>();
-        }
 
-        containedItems.Add(item);
+        GetContainedItems.Add(item);
 
     }
 
     // remove item
     public void RemoveItem(Item item)
     {
-        containedItems.Remove(item);
+        GetContainedItems.Remove(item);
     }
     // item row : wtf ? le craft system est pas ouf
     public void RemoveItem(int itemRow)
     {
-        RemoveItem(containedItems.Find(x => x.index == itemRow));
+        RemoveItem(GetContainedItems.Find(x => x.dataIndex == itemRow));
     }
     //
 
     public Item FindItem(string str)
     {
-        Item item = containedItems.Find(x => x.HasWord(str));
+        Item item = GetContainedItems.Find(x => x.HasWord(str));
 
         if (item == null)
             return null;
@@ -130,12 +138,12 @@ public class Item
 
     public Item GetItem(string itemName)
     {
-        return containedItems.Find(x => x.word.text == itemName);
+        return GetContainedItems.Find(x => x.word.text == itemName);
     }
 
     public bool ContainsItem( Item item)
     {
-        return containedItems.Contains(item);
+        return GetContainedItems.Contains(item);
     }
 
     /// <summary>
@@ -144,7 +152,7 @@ public class Item
     public int GetContainedItemWeight()
     {
         int w = 0;
-        foreach (var item in containedItems)
+        foreach (var item in GetContainedItems)
         {
             w += item.weight;
         }
@@ -157,47 +165,58 @@ public class Item
     /// </summary>
     public void Open()
     {
-        Debug.Log("opening : " + debug_name);
         GenerateItems();
 
-        Container.opened = true;
-        Container.CurrentItem= this;
-        WriteContainedDescription();
+        if (ContainsItems())
+        {
+            OpenedItem = this;
+            WriteContainedItemDescription();
+            return;
+        }
+
+        Debug.Log(debug_name + " is empty");
+        TextManager.WritePhrase("container_empty");
     }
 
     public void Close()
     {
         // toujours dans la classe inventory.cs pour l'intsant
-        if (!Container.opened)
+        if (!AnItemIsOpened)
         {
-            PhraseKey.WritePhrase("container_alreadyClosed");
+            TextManager.WritePhrase("container_alreadyClosed");
             return;
         }
 
-        Container.opened = false;
-        PhraseKey.WritePhrase("container_clsose", Container.CurrentItem);
+        TextManager.WritePhrase("container_clsose", Item.OpenedItem);
+
+        OpenedItem = null;
     }
     ///
 
     /// <summary>
     /// DESCRIPTION
     /// </summary>
-    public void WriteContainedDescription()
+    public void WriteContainedItemDescription()
     {
         if (!ContainsItems())
         {
-            Debug.Log(debug_name + " is empty");
-            PhraseKey.WritePhrase("container_empty");
             return;
         }
 
-        PhraseKey.Renew();
-        PhraseKey.WritePhrase("container_describe");
+        TextManager.WritePhrase(GetItemDescriptions());
+
+    }
+    public virtual string GetItemDescriptions()
+    {
+        Socket socket = new Socket();
+        socket._text = "&on the dog&";
+
+        return SocketManager.Instance.DescribeItems(GetContainedItems, socket);
     }
 
     public bool SameTypeAs(Item otherItem)
     {
-        return otherItem.index == index;
+        return otherItem.dataIndex == dataIndex;
     }
     public bool ExactSameAs(Item otherItem)
     {
@@ -205,26 +224,7 @@ public class Item
     }
     #endregion
 
-    #region appear info
-    [System.Serializable]
-    public class AppearInfo
-    {
-        public int itemIndex = 0;
-        public int rate = 0;
-        public int amount = 1;
-
-        public string GetItemName()
-        {
-            return Item.dataItems[itemIndex].debug_name;
-        }
-
-        public bool CanAppear()
-        {
-            return false;
-        }
-    }
-    #endregion
-
+    
     ///
     /// <summary>
     /// TOOLS
@@ -234,9 +234,9 @@ public class Item
 
     public void PickUp()
     {
-        if (Inventory.Instance.bag_Item.GetContainedItemWeight() + weight > Inventory.Instance.maxWeight)
+        if (Inventory.Instance.GetContainedItemWeight() + weight > Inventory.Instance.maxWeight)
         {
-            PhraseKey.WritePhrase("inventory_TooHeavy");
+            TextManager.WritePhrase("inventory_TooHeavy");
             return;
         }
 
@@ -244,7 +244,7 @@ public class Item
 
         Inventory.Instance.AddItem(this);
 
-        PhraseKey.WritePhrase("inventory_PickUp");
+        TextManager.WritePhrase("inventory_PickUp");
     }
 
     #region remove & destroy
@@ -255,17 +255,17 @@ public class Item
     public static void Remove(Item targetItem)
     {
         // first search thing in opened container
-        if (Container.opened)
+        if (AnItemIsOpened)
         {
-            if (Container.CurrentItem.containedItems.Contains(targetItem))
+            if (Item.OpenedItem.GetContainedItems.Contains(targetItem))
             {
-                Container.CurrentItem.RemoveItem(targetItem);
+                Item.OpenedItem.RemoveItem(targetItem);
             }
             return;
         }
 
         // then in tile
-        if (Tile.GetCurrent.items.Contains(targetItem))
+        if (Tile.GetCurrent.GetContainedItems.Contains(targetItem))
         {
             Tile.GetCurrent.RemoveItem(targetItem);
 
@@ -274,7 +274,7 @@ public class Item
         }
 
         // then in inventory
-        if (Inventory.Instance.bag_Item.ContainsItem(targetItem))
+        if (Inventory.Instance.ContainsItem(targetItem))
         {
             Inventory.Instance.RemoveItem(targetItem);
             return;
@@ -297,177 +297,12 @@ public class Item
 
         return true;
     }
-    public static Item FindInWorld(string str)
-    {
-        Item item = null;
-
-        bool foundInContainer = false;
-
-        // dans un container
-        if (Container.opened)
-        {
-            item = Container.CurrentItem.FindItem(str);
-            if ( item != null)
-            {
-                foundInContainer = true;
-            }
-        }
-
-
-        // chercher une premiere fois dans l'inventaire s'il est ouvert
-        if (Inventory.Instance.IsOpened)
-        {
-            item = Inventory.Instance.FindItem(str);
-            if (item != null)
-            {
-                return item;
-            }
-        }
-
-
-        // is the item one of the surrounding tiles ?
-        if (item == null)
-        {
-            item = FindInTile(str);
-        }
-
-        // et en dernier s'il est fermé
-        if (item == null)
-        {
-            item = Inventory.Instance.FindItem(str);
-        }
-
-
-        if (item == null)
-        {
-            item = FindUsableAnytime(str);
-        }
-
-        // pour éviter que le container reste ouvert si on fait une autre action
-        if ( item != null && Container.opened && !foundInContainer)
-        {
-            Container.CurrentItem.Close();
-        }
-
-        return item;
-    }
-
-    private static Item FindInTile(string str)
-    {
-        // is the item the exact same tile as the one we're in ?
-        if (Tile.GetCurrent.tileItem.HasWord(str))
-        {
-            return Tile.GetCurrent.tileItem;
-        }
-
-        //List<Item> items = Player.Instance.SurroundingTiles().FindAll();
-
-        // is the item one of the surrounding tiles ?
-        foreach (var tile in Player.Instance.SurroundingTiles())
-        {
-            if (tile.tileItem.word.Compare(str))
-            {
-                return tile.tileItem;
-            }
-        }
-
-        List<Item> items = Tile.GetCurrent.items.FindAll(x => x.word.Compare(str));
-
-        Debug.Log("");
-
-        /// ADJECTIVES ///
-
-        /// chercher les adjectifs pour différencier les objets ( porte bleu, porte rouge )
-        if (items.Count > 0)
-        {
-            foreach (var inputPart in InputInfo.Instance.parts)
-            {
-                foreach (var item in items)
-                {
-                    if (!item.word.HasAdjective())
-                    {
-                        continue;
-                    }
-
-                    string adjSTR = item.word.GetAdjective.GetContent(false);
-
-                    if (adjSTR == inputPart)
-                    {
-                        return item;
-                    }
-                }
-            }
-
-            return items[0];
-
-        }
-
-        return null;
-    }
-
-    private static Item FindUsableAnytime(string str)
-    {
-        return dataItems.Find(x => x.HasWord(str) && x.usableAnytime);
-        //return items.Find(x => x.word.Compare(str) );
-    }
-
-    public static Item GetDataItem(string _name)
-    {
-        Item item = TryGetItem(_name);
-
-        if ( item == null)
-        {
-            Debug.LogError("couldn't find item : " + _name);
-        }
-
-        return item;
-        
-    }
+    
     public bool IsAnItem(string item_name)
     {
-        return TryGetItem(item_name) != null;
+        return ItemManager.Instance.TryGetItem(item_name) != null;
     }
-    public static Item TryGetItem(string _name)
-    {
-        _name = _name.ToLower();
-
-        // to find the word on ly
-        //Item item = dataItems.Find(x => x.word.text.ToLower() == _name);
-
-        // to search also in syonyms
-        Item item = dataItems.Find(x =>
-        x.words.Find(
-            x => x.text.ToLower() == _name
-            ) != null
-            );
-
-        if (item == null)
-        {
-            // find plural
-            item = dataItems.Find(x => x.word.GetPlural() == _name);
-
-            if (item != null)
-            {
-                // found the plural
-                //Debug.Log("found plural");
-                InputInfo.Instance.actionOnAll = true;
-                return item;
-            }
-        }
-
-        return item;
-    }
-    public static List<Item> FindAllByName(string str)
-    {
-        str = str.ToLower();
-
-        return dataItems.FindAll(x => x.word.text.StartsWith(str));
-    }
-    public static Item FindByName(string str){
-        str = str.ToLower();
-        return dataItems.Find(x => x.word.text.StartsWith(str));
-
-    }
+    
     #endregion
 
     #region list
@@ -527,18 +362,6 @@ public class Item
     #endregion
 
     #region actions
-    public void Describe()
-    {
-        if (CanBeDescribed())
-        {
-            PhraseKey.WritePhrase("item_description");
-        }
-        else
-        {
-            PhraseKey.WritePhrase("item_noDescription");
-        }
-    }
-
     public bool CanBeDescribed()
     {
         int count = 0;
@@ -552,7 +375,7 @@ public class Item
         {
             foreach (var combination in verb.combinations)
             {
-                if (combination.itemIndex == index)
+                if (combination.itemIndex == dataIndex)
                     ++count;
 
             }
@@ -571,7 +394,7 @@ public class Item
         {
             foreach (var combination in verb.combinations)
             {
-                if (combination.itemIndex == index)
+                if (combination.itemIndex == dataIndex)
                 {
                     verbList.Add(verb);
                 }
@@ -606,7 +429,11 @@ public class Item
         return str;
        
     }
+    public void WritePropertiesDescription()
+    {
+        TextManager.WritePhrase(GetPropertiesDescription(), this);
 
+    }
     public string GetDescription()
     {
         if (HasProperties())
@@ -622,19 +449,15 @@ public class Item
     {
         string str = "";
 
-        if (HasProperties())
-        {
-            str += "\nIt's ";
+        int enabledPropCount = GetEnabledProperties().Count;
 
-            int enabledPropCount = GetEnabledProperties().Count;
+        if (enabledPropCount > 0)
+        {
+            str += "&the dog (override item)& is ";
+
             for (int i = 0; i < enabledPropCount; i++)
             {
                 Property property = GetEnabledProperties()[i];
-
-                if (!property.enabled)
-                {
-                    continue;
-                }
 
                 str += property.GetDescription();
 
@@ -659,16 +482,6 @@ public class Item
     /// properties ///
     
     #region properties
-    // pour plus tard, update les propriétes sur l'objet
-    // plutot que sur les prop ellesmemes ( pour le temps par ex )
-    public void UpdateProperties()
-    {
-        foreach (var property in properties)
-        {
-            //property.UpdateParts();
-        }
-    }
-
     // adds whole new, simple property
     public Property CreateProperty(string line)
     {
@@ -703,7 +516,6 @@ public class Item
 
         foreach (var propEvent in newProperty.events)
         {
-            Debug.Log("subscribing " + newProperty.name + " to " + propEvent.name);
 
             switch (propEvent.name)
             {
@@ -746,14 +558,23 @@ public class Item
     {
         return properties.FindAll(x=>x.enabled).Count > 0;
     }
+    public bool HasVisibleProperties()
+    {
+        return properties.FindAll(x => x.enabled && x.type != "hidden").Count > 0;
+    }
     public bool HasProperty(string name)
     {
-        return properties.Find(x => x.name == name && x.enabled) != null;
+        Property property = properties.Find(x => x.name == name && x.enabled);
+
+        return property != null;
     }
 
     public List<Property> GetEnabledProperties()
     {
-        return properties.FindAll(x=>x.enabled);
+        // ici "type == container" veut dire que la battery ou water des items est décrite meme si le truc est disabled,
+        // à terme, mettre un parametre qui fait que la prop est décrite meme quand l'item est disabled
+        // ou un autre truc mieux
+        return properties.FindAll(x => x.enabled||x.type == "container");
     }
 
     public Property GetProperty(string name)
@@ -779,6 +600,10 @@ public class Item
         }
 
         return property;
+    }
+    public bool HasItemWithProperty( string propertyName)
+    {
+        return GetContainedItems.Find(x=> x.HasProperty(propertyName)) != null;
     }
     #endregion
 
@@ -821,7 +646,7 @@ public class Item
 
     public static Item GetItemOfType(string type)
     {
-        Item[] items = Item.dataItems.FindAll(x => x.HasProperty(type)).ToArray();
+        Item[] items = ItemManager.Instance.dataItems.FindAll(x => x.HasProperty(type)).ToArray();
 
         Item item = items[Random.Range(0, items.Length)];
 
@@ -860,13 +685,13 @@ public class Item
         switch (fac)
         {
             case Player.Orientation.Front:
-                return PhraseKey.GetPhrase("position_front");
+                return TextManager.GetPhrase("position_front");
             case Player.Orientation.Right:
-                return PhraseKey.GetPhrase("position_right");
+                return TextManager.GetPhrase("position_right");
             case Player.Orientation.Back:
-                return PhraseKey.GetPhrase("position_back");
+                return TextManager.GetPhrase("position_back");
             case Player.Orientation.Left:
-                return PhraseKey.GetPhrase("position_left");
+                return TextManager.GetPhrase("position_left");
             default:
                 break;
         }

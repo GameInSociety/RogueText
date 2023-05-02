@@ -41,29 +41,30 @@ public class DisplayDescription : MonoBehaviour {
 
     public void ClearDescription()
     {
+
         uiText_Old.text = "";
         uiText.text = "";
     }
 
     public void UpdateDescription()
     {
-        PhraseKey.Renew();
+        TextManager.Renew();
 
         // CURRENT TILE
-        if (Tile.GetPrevious != null && Tile.GetCurrent.type == Tile.GetPrevious.type)
+        if (Tile.GetPrevious != null && Tile.GetCurrent.SameTypeAs(Tile.GetPrevious))
         {
 
         }
         else
         {
-            PhraseKey.WritePhrase("tile_current_description");
+            TextManager.WritePhrase(Tile.GetCurrent.GetDescription());
         }
 
         // SURROUNDING TILES
         SurroundingTileManager.WriteSurroundingTileDescription();
 
         // display tile items
-        Tile.GetCurrent.WriteItemDescription();
+        Tile.GetCurrent.WriteContainedItemDescription();
 
         // pas sûr que les choses d'état de santé, de temps et autre trucs divers doivent être là, pense à changer
         ConditionManager.GetInstance().WriteDescription();
@@ -93,8 +94,9 @@ public class DisplayDescription : MonoBehaviour {
 
     public void AddToDescription(string str)
     {
+
         // replace keywords
-        str = PhraseKey.ExtractItemWords(str);
+        str = TextManager.ExtractItemWords(str);
 
         // majuscule
         str = TextUtils.FirstLetterCap(str);

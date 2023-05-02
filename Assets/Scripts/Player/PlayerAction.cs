@@ -42,7 +42,6 @@ public class PlayerAction
         DestroyItem,
         RequireItem,
         RequireItemWithProp,
-        DescribeItem,
 
         // prop
         RequireProp,
@@ -65,8 +64,8 @@ public class PlayerAction
         // other
         Craft,
         ReadRecipe,
-        DisplayHelp,
-        SetParam
+        SetParam,
+        Write,
     }
 
     private static PlayerAction current;
@@ -89,6 +88,17 @@ public class PlayerAction
     public void Call()
     {
         SetCurrent(this);
+    }
+
+    public void RemoveContent(int i)
+    {
+        if (i >= contents.Count)
+        {
+            Debug.LogError("removing contents : out of range (" + i + "/" + contents.Count + ")");
+            return;
+        }
+
+        contents.RemoveAt(i);
     }
 
     public string GetContent(int i)

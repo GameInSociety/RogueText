@@ -153,7 +153,7 @@ public class TimeManager : MonoBehaviour {
 
     public void WriteTimeOfDay()
     {
-        PhraseKey.WritePhrase("time_Hours");
+        TextManager.WritePhrase("time_Hours");
     }
 
     public string GetTimeOfDayDescription()
@@ -199,22 +199,22 @@ public class TimeManager : MonoBehaviour {
         switch (currentPartOfDay)
         {
             case PartOfDay.Dawn:
-                PhraseKey.WritePhrase("weather_dawn");
+                TextManager.WritePhrase("weather_dawn");
                 break;
             case PartOfDay.Morning:
-                PhraseKey.WritePhrase("weather_morning");
+                TextManager.WritePhrase("weather_morning");
                 break;
             case PartOfDay.Noon:
-                PhraseKey.WritePhrase("weather_noon");
+                TextManager.WritePhrase("weather_noon");
                 break;
             case PartOfDay.Afternoon:
-                PhraseKey.WritePhrase("weather_afternoon");
+                TextManager.WritePhrase("weather_afternoon");
                 break;
             case PartOfDay.Dusk:
-                PhraseKey.WritePhrase("weather_dusk");
+                TextManager.WritePhrase("weather_dusk");
                 break;
             case PartOfDay.Night:
-                PhraseKey.WritePhrase("weather_night");
+                TextManager.WritePhrase("weather_night");
                 break;
             default:
                 break;
@@ -236,11 +236,11 @@ public class TimeManager : MonoBehaviour {
 
         if (raining)
         {
-            PhraseKey.WritePhrase("weather_RainStarts");
+            TextManager.WritePhrase("weather_RainStarts");
         }
         else
         {
-            PhraseKey.WritePhrase("weather_RainStops");
+            TextManager.WritePhrase("weather_RainStops");
         }
 
         

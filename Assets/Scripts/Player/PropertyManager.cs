@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class PropertyManager : MonoBehaviour
 {
+    public List<Property> pendingProps = new List<Property>();
+    public List<Item> pendingItems = new List<Item>();
+
     private void Start()
     {
         // CENTRALISER LES ACTIONS !
@@ -25,7 +28,7 @@ public class PropertyManager : MonoBehaviour
                 Action_RemoveProperty();
                 break;
             case PlayerAction.Type.CheckProp:
-                Action_CheckProperty();
+                Action_CheckProp();
                 break;
             case PlayerAction.Type.CheckPropValue:
                 Action_CheckPropertyValue();
@@ -36,6 +39,9 @@ public class PropertyManager : MonoBehaviour
             case PlayerAction.Type.DisableProp:
                 Action_DisableProperty();
                 break;
+            case PlayerAction.Type.RequireItemWithProp:
+                RequireItemWithProp();
+                break;
             default:
                 break;
         }
@@ -43,9 +49,62 @@ public class PropertyManager : MonoBehaviour
 
 
     #region actions
+    void RequireItemWithProp()
+    {
+        if (InputInfo.Instance.items.Count < 2)
+        {
+            // this will display a phrase "what do you want to charge the flashlight with"
+            // hence, sustain verb and all so input follows
+            // but many actions require to sustain things
+            // so until je trouve quelque chose de mieux, je le mets partout
+            InputInfo.Instance.sustainVerb = true;
+            InputInfo.Instance.sustainItem = true;
+            PlayerActionManager.Instance.BreakAction("item_noSecondItem");
+            return;
+        }
+
+        string prop_name = PlayerAction.GetCurrent.GetContent(0);
+
+        if (!InputInfo.Instance.GetItem(1).HasProperty(prop_name))
+        {
+            TextManager.WritePhrase("&the dog (override item)& has no " + prop_name, InputInfo.Instance.GetItem(1));
+            PlayerActionManager.Instance.BreakAction();
+            return;
+        }
+
+        if (InputInfo.Instance.GetItem(1).GetProperty(prop_name).HasInt()
+            && InputInfo.Instance.GetItem(1).GetProperty(prop_name).GetInt() == 0)
+        {
+            TextManager.WritePhrase("No more " + prop_name + " in &the dog (override item)&", InputInfo.Instance.GetItem(1));
+            PlayerActionManager.Instance.BreakAction();
+            return;
+        }
+
+        pendingProps.Add(InputInfo.Instance.GetItem(1).GetProperty(prop_name));
+    }
     public void Action_ChangeProperty()
     {
-        Item targetItem = InputInfo.Instance.GetItem(0);
+        Item targetItem;
+
+        if (PlayerAction.GetCurrent.GetContent(0).StartsWith('*'))
+        {
+            string itemName = PlayerAction.GetCurrent.GetContent(0).Remove(0,1);
+            targetItem = ItemManager.Instance.FindInWorld(itemName);
+
+            if ( targetItem == null)
+            {
+                Debug.Log("no " + itemName);
+                PlayerActionManager.Instance.BreakAction("No " + itemName);
+                return;
+            }
+
+            PlayerAction.GetCurrent.RemoveContent(0);
+        }
+        else
+        {
+            targetItem = InputInfo.Instance.GetItem(0);
+        }
+
         string targetProp = PlayerAction.GetCurrent.GetContent(0);
         string line = PlayerAction.GetCurrent.GetContent(1);
         Action_ChangeProperty(targetItem, targetProp, line);
@@ -58,7 +117,7 @@ public class PropertyManager : MonoBehaviour
 
         property.UpdateProperty(line);
 
-        UpdateDescription();
+        UpdateDescription(targetItem);
     }
 
     /// <summary>
@@ -76,7 +135,7 @@ public class PropertyManager : MonoBehaviour
     {
         Property newProperty = targetItem.CreateProperty(property_line);
 
-        UpdateDescription();
+        UpdateDescription(targetItem);
     }
 
     /// <summary>
@@ -94,45 +153,66 @@ public class PropertyManager : MonoBehaviour
     {
         targetItem.DeleteProperty(line);
 
-        UpdateDescription();
+        UpdateDescription(targetItem);
     }
 
     /// <summary>
     /// CHECK PROPERTY ON TARGET ITEM
     /// </summary>
-    public void Action_CheckProperty()
+    public void Action_CheckProp()
     {
         Item targetItem = InputInfo.Instance.GetItem(0);
 
         string property_line = PlayerAction.GetCurrent.GetContent(0);
+
+        bool breakIfDisabled = false;
+
+        if (property_line.StartsWith('!'))
+        {
+            property_line = property_line.Remove(0, 1);
+            breakIfDisabled = true;
+        }
+
         string[] parts = property_line.Split(" / ");
 
         if (!targetItem.HasProperty(parts[0]))
         {
-            PhraseKey.WriteHard("It's " + parts[0]);
+            TextManager.WriteHard("It's " + parts[0]);
             PlayerActionManager.Instance.BreakAction();
             return;
         }
 
         Property property = targetItem.GetProperty(parts[0]);
 
+        if (property.enabled)
+        {
+            if (breakIfDisabled)
+            {
+                TextManager.WriteHard("It's " + parts[0]);
+                PlayerActionManager.Instance.BreakAction();
+                return;
+            }
+        }
+
         if (property.HasInt())
         {
             if ( property.GetInt() <= int.Parse(parts[1]))
             {
-                PhraseKey.WriteHard("No " + property.name);
+                TextManager.WriteHard("No " + property.name);
                 PlayerActionManager.Instance.BreakAction();
                 return;
             }
         }
         else
         {
-            if (property.name != parts[1])
+            // peut être obsoloete
+
+            /*if (property.name != parts[0])
             {
-                PhraseKey.WriteHard("It's not " + parts[1]);
+                TextManager.WriteHard("It's not " + parts[0]);
                 PlayerActionManager.Instance.BreakAction();
                 return;
-            }
+            }*/
         }
     }
     public void Action_CheckPropertyValue()
@@ -145,10 +225,12 @@ public class PropertyManager : MonoBehaviour
 
         if (property.GetInt() <= 0)
         {
-            PhraseKey.WriteHard("No " + property.name);
+            TextManager.WriteHard("No " + property.name);
             PlayerActionManager.Instance.BreakAction();
             return;
         }
+
+        pendingProps.Add(property);
     }
 
     /// <summary>
@@ -191,12 +273,15 @@ public class PropertyManager : MonoBehaviour
     #endregion
 
     bool updateDescription = false;
-    void UpdateDescription()
+    Item describedItem;
+    void UpdateDescription(Item targetItem)
     {
         if ( updateDescription)
         {
             return;
         }
+
+        describedItem = targetItem;
 
         updateDescription = true;
         CancelInvoke("UpdateDescriptionDelay");
@@ -206,15 +291,9 @@ public class PropertyManager : MonoBehaviour
     void UpdateDescriptionDelay()
     {
         updateDescription = false;
-        PhraseKey.WriteHard(InputInfo.Instance.GetItem(0).GetPropertiesDescription()); ;
+        describedItem.WritePropertiesDescription();
     }
 
-    public void UpdateProperties()
-    {
-        Tile.GetCurrent.UpdateProperties();
-        Inventory.Instance.UpdateProperties();
-    }
- 
     private static PropertyManager _instance;
     public static PropertyManager Instance
     {

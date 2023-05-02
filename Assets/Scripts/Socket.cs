@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using UnityEditor.UIElements;
 using UnityEngine;
 
 [System.Serializable]
@@ -9,20 +10,20 @@ public class Socket
     // LOCAL //
     // makes sens that the socket are unique ( no instances )
     // because they will not change, there will be no copy and nothing added to them
+    public string _text;
     public List<int> itemIndexes = new List<int>();
     public bool relative = false;
-    public string _text;
 
     public List<ItemGroup> itemGroups = new List<ItemGroup>();
-    
+
     public string GetDescription()
     {
-        string itemText = GetDescription(itemGroups);
+        string itemText = GetItemText();
 
         // phrases de vision ( vous voyez, remarquez etc... )
-        string visionPhrase = PhraseKey.GetPhrase("tile_visionPhrases");
+        string visionPhrase = TextManager.GetPhrase("tile_visionPhrases");
         // phrases de location ( se trouve, se tient etc ... )
-        string locationVerb = PhraseKey.GetPhrase("tile_locationPhrases");
+        string locationVerb = TextManager.GetPhrase("tile_locationPhrases");
 
         // PHRASE ORDER 
 
@@ -31,41 +32,39 @@ public class Socket
         // etc... )
         int phraseType = Random.Range(0, 5);
 
-        string text = "";
+        string text = GetSocketText() + " there's " + itemText;
 
-        Item firstItem = itemGroups[0].item;
-
-        switch (phraseType)
+        /*switch (phraseType)
         {
             case 0:
-                text = itemText + " " + locationVerb + " " + GetSocketText(firstItem);
+                text = itemText + " " + locationVerb + " " + GetSocketText();
                 break;
             case 1:
-                text = GetSocketText(firstItem) + " " + locationVerb + " " + itemText;
+                text = GetSocketText() + " " + locationVerb + " " + itemText;
                 break;
             case 2:
-                text = GetSocketText(firstItem) + ", " + visionPhrase + " " + itemText;
+                text = GetSocketText() + ", " + visionPhrase + " " + itemText;
 
                 break;
             case 3:
-                text = visionPhrase + " " + GetSocketText(firstItem) + " " + itemText;
+                text = visionPhrase + " " + GetSocketText() + " " + itemText;
                 break;
             case 4:
-                text = GetSocketText(firstItem) + ", " + itemText;
+                text = GetSocketText() + ", " + itemText;
                 break;
             default:
                 break;
-        }
+        }*/
 
         // mettre la phrase en majuscule
-        return TextManager.WithCaps(text);
+        return TextUtils.FirstLetterCap(text);
     }
 
-    public string GetSocketText(Item item)
+    public string GetSocketText()
     {
         if (relative)
         {
-            return item.GetRelativePosition();
+            return itemGroups[0].item.GetRelativePosition();
         }
         else
         {
@@ -73,12 +72,14 @@ public class Socket
         }
     }
 
-    public struct ItemGroup
+    [System.Serializable]
+    public class ItemGroup
     {
         public Item item;
         public int count;
         public string GetWordGroup()
         {
+
             if (count > 5)
             {
                 return "a lot " + item.word.GetContent("of dogs");
@@ -93,19 +94,20 @@ public class Socket
             }
             else
             {
-                if (!item.stackable)
+                return item.word.GetContent("a dog");
+                /*if (!item.stackable)
                 {
                     return item.word.GetContent("a good dog");
                 }
                 else
                 {
                     return item.word.GetContent("a dog");
-                }
+                }*/
             }
         }
     }
 
-    public static string GetDescription(List<Socket.ItemGroup> itemGroups)
+    public string GetItemText()
     {
         string text = "";
 
@@ -113,6 +115,7 @@ public class Socket
 
         foreach (var itemGroup in itemGroups)
         {
+
             text += itemGroup.GetWordGroup();
 
             if (itemGroups.Count > 1 && i < itemGroups.Count - 1)
@@ -142,51 +145,45 @@ public class Socket
     }
 
     // STATIC //
-    public static List<Socket> sockets = new List<Socket>();
 
     public static Socket GetRandomSocket(Item item)
     {
         List<Socket> possibleSockets = new List<Socket>();
 
-        foreach (var socket in sockets)
+        // has the item a socket ?
+        foreach (var socket in SocketManager.Instance.itemSockets)
         {
             foreach (var itemIndex in socket.itemIndexes)
             {
-                if (itemIndex == item.index)
+                if (itemIndex == item.dataIndex)
                 {
                     possibleSockets.Add(socket);
                 }
             }
         }
 
-        // item has no assigned sockets ?
+        // does the tile have any socket ?
         if (possibleSockets.Count == 0)
         {
-            if (Tile.GetCurrent.tileItem.sockets.Count > 0)
+            foreach (var socket in SocketManager.Instance.tileSockets)
             {
-                return Tile.GetCurrent.tileItem.sockets[Random.Range(0, Tile.GetCurrent.tileItem.sockets.Count)];
-            }
-            // current tile doesnt have sockets
-            else
-            {
-                // choose generic socket
-                return PhraseManager.Instance.genericSockets[Random.Range(0, PhraseManager.Instance.genericSockets.Length)];
+                foreach (var itemIndex in socket.itemIndexes)
+                {
+                    if (itemIndex == Tile.GetCurrent.dataIndex)
+                    {
+                        possibleSockets.Add(socket);
+                    }
+                }
             }
         }
-        else
+
+        if ( possibleSockets.Count == 0)
         {
 
-            int index = Random.Range(0, possibleSockets.Count);
-
-            if (index >= possibleSockets.Count || index < 0)
-            {
-                Debug.LogError("index out of range : " + index + " / possible sockets count : " + possibleSockets.Count);
-            }
-
-            Socket socket = possibleSockets[index];
-
-            return socket;
+            return PhraseManager.Instance.genericSockets[Random.Range(0, PhraseManager.Instance.genericSockets.Length)];
         }
+
+        return possibleSockets[Random.Range(0, possibleSockets.Count)];
     }
 
 }

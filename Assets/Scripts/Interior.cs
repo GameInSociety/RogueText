@@ -30,8 +30,6 @@ public class Interior {
 
     public static void NewInterior ( Tile tile)
     {
-        tile.SetType(tile.type);
-
         Interior newInterior = new Interior();
 
         newInterior.coords = tile.coords;
@@ -60,11 +58,11 @@ public class Interior {
 
         if (tile == null)
         {
-            PhraseKey.WritePhrase("interior_exteriorDescription_blocked");
+            TextManager.WritePhrase("interior_exteriorDescription_blocked");
         }
         else
         {
-            PhraseKey.WritePhrase("/interior_exteriorDescription_visible/" + tile.GetDescription());
+            TextManager.WritePhrase("/interior_exteriorDescription_visible/" + tile.GetDescription());
         }
 
     }
@@ -107,7 +105,7 @@ public class Interior {
         }
         else
         {
-            PhraseKey.WritePhrase("interior_getout_blocked");
+            TextManager.WritePhrase("interior_getout_blocked");
         }
         
     }
@@ -140,25 +138,24 @@ public class Interior {
         tileSet.height = TileSet.map.height;
 
         // create room types
-        List<Tile.Type> roomTypes = new List<Tile.Type> ();
-
-        /// debug interior : create fix list of rooms
-        roomTypes.Add(Tile.Type.Bathroom);
-        roomTypes.Add(Tile.Type.Bedroom);
-        roomTypes.Add(Tile.Type.ChildBedroom);
-        roomTypes.Add(Tile.Type.Kitchen);
-        roomTypes.Add(Tile.Type.Toilet);
+        List<string> tileNames = new List<string>
+        {
+            "bathroom",
+            "bedroom",
+            "children's room",
+            "kitchen",
+            "toilets"
+        };
 
         // create hallway
         Coords hallway_Coords = tileSet.Center;
         Coords hallway_Dir = new Coords(0,1);
         int a = 0;
 
-		while ( roomTypes.Count > 0 ) {
+		while ( tileNames.Count > 0 ) {
 
             // add new hallway tile
-			Tile newHallwayTile = new Tile (hallway_Coords);
-			newHallwayTile.SetType (Tile.Type.Hallway);
+            Tile newHallwayTile = ItemManager.Instance.CreateTile(hallway_Coords, "hallway");
 
             if (tileSet.tiles.ContainsKey(hallway_Coords))
             {
@@ -193,11 +190,10 @@ public class Interior {
                     continue;
                 }
 
-				Tile newRoomTile = new Tile(coords);
-				Tile.Type roomType = roomTypes [Random.Range (0, roomTypes.Count)];
-				newRoomTile.SetType (roomType);
+				string tileName = tileNames [Random.Range (0, tileNames.Count)];
+                Tile newRoomTile = ItemManager.Instance.CreateTile(coords, tileName);
 
-				roomTypes.Remove (roomType);
+                tileNames.Remove (tileName);
 
                 if (Random.value < chanceEnclosedRoom)
                     newRoomTile.enclosed = true;
@@ -216,38 +212,10 @@ public class Interior {
 
         }
 
-        InitStoryTiles();
-
         // ADDING DOORS
         AddDoors();
 
 	}
-
-    void InitStoryTiles()
-    {
-        if (coords == ClueManager.Instance.bunkerCoords)
-        {
-            //Debug.Log("creating letter");
-            int i = Random.Range(1, tileSet.tiles.Count);
-            Item letter_item = Item.GetDataItem("lettre");
-            tileSet.tiles.Values.ElementAt(i).items.Add(letter_item);
-        }
-
-        /*if (coords == ClueManager.Instance.bunkerCoords)
-        {
-            int i = Random.Range(1, tileSet.tiles.Count);
-            Item bunkerItem = Item.FindByName("tableau");
-            tileSet.tiles.Values.ElementAt(i).items.Add(bunkerItem);
-        }
-
-        if (coords == ClueManager.Instance.clueCoords)
-        {
-            int i = Random.Range(1, tileSet.tiles.Count);
-            Item clueItem = Item.FindByName("radio");
-            tileSet.tiles.Values.ElementAt(i).items.Add(clueItem);
-        }*/
-
-    }
 
     void AddDoors()
     {
