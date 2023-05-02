@@ -36,7 +36,9 @@ public class Property
     ///  LES EVENTS EN QUESTION
     ///  ils donnent lieu à discorde dans le studio, mais on a pas trouvé mieux pour l'instant
     /// </summary>
-    public List<Event> events = new List<Event>();
+    public List<Event> events;
+    public delegate void OnEmpty();
+    public OnEmpty onEmpty;
 
     // l'objet � laquelle la propri�t� est attach�e,
     // trouver un autre moyen parce que niveau m�moire et serialization c'est pas ouf
@@ -232,7 +234,7 @@ public class Property
     {
         public string name;
         public List<Action> _actions;
-
+        public bool subbed = false;
         public void AddAction(Action action)
         {
             if ( _actions == null)
@@ -295,10 +297,10 @@ public class Property
 
         if ( newValue <= 0)
         {
-            // probleme avec les events, toujours en lien avec le pointeur vers ITEM ( il n'y en a pas )
-            // est-ce que je m'emmerderais pas un peu à trouver un moyen de contourner cette merde,
-            // met un pointeur et arrête de casser les couilles
-            //EventManager.instance.CallEvent(this, "subEmpty", this);
+            if (onEmpty != null)
+            {
+                onEmpty();
+            }
         }
 
         value = newValue.ToString();

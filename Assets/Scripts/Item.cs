@@ -504,9 +504,6 @@ public class Item
     ///  WHAT THE FUCK JAI FAIS ça a 3 heures c'est pas bon mais je l'ai mis parce que ça permet
     ///  de réfléchir à une autre solution
     /// </summary>
-
-    bool subbedToHours = false;
-    bool subbedToRain = false;
     // add proper property, from the data, with events and all
     public Property CreateProperty(Property property_data)
     {
@@ -514,31 +511,35 @@ public class Item
 
         newProperty.Init();
 
+        if ( newProperty.events != null)
+        {
+
+        }
+
         foreach (var propEvent in newProperty.events)
         {
+            if (propEvent.subbed)
+            {
+                continue;
+            }
 
             switch (propEvent.name)
             {
                 case "subHours":
-                    if (subbedToHours)
-                    {
-                        continue;
-                    }
                     TimeManager.GetInstance().onNextHour += HandleOnNextHour;
-                    subbedToHours = true;
                     break;
                 case "subRain":
-                    if ( subbedToRain)
-                    {
-                        continue;
-                    }
                     TimeManager.GetInstance().onRaining += HandleOnRaining;
-                    subbedToRain=true;
+                    break;
+                case "subEmpty":
+                    newProperty.onEmpty += HandleOnEmpty;
                     break;
                 default:
             Debug.Log("no event : " + propEvent.name);
                     break;
             }
+
+            propEvent.subbed = true;
         }
         properties.Add(newProperty);
 
@@ -640,6 +641,13 @@ public class Item
         foreach (Property property in FindPropertyWithEvents("subRain"))
         {
             EventManager.instance.CallEvent(property, "subRain", this);
+        }
+    }
+    public void HandleOnEmpty()
+    {
+        foreach (var property in FindPropertyWithEvents("onEmpty"))
+        {
+
         }
     }
     #endregion

@@ -8,9 +8,33 @@ public class EventManager : MonoBehaviour
 
     private Item currentItem;
 
+
+    public List<PropertyEvent> properties = new List<PropertyEvent>();
+    public class PropertyEvent
+    {
+        public Item item;
+        public Property property;
+    }
+
+    public void AddPropertyEvent (Property property, Item item)
+    {
+        PropertyEvent propertyEvent = new PropertyEvent();
+        propertyEvent.item = item;
+        propertyEvent.property = property;
+
+        properties.Add(propertyEvent);
+    }
+
     private void Awake()
     {
         instance= this;
+    }
+
+    private void Start()
+    {
+        /*TimeManager.GetInstance().onNextHour += HandleOnNextHour;
+        TimeManager.GetInstance().onRaining += HandleOnRaining;
+        newProperty.onEmpty += HandleOnEmpty;*/
     }
 
     public void CallEvent(Property prop, string _event, Item _item)
@@ -24,6 +48,7 @@ public class EventManager : MonoBehaviour
         {
             Debug.Log("calling action : " + _action.function);
 
+            // this should be the exact same os player actions
             switch (_action.function)
             {
                 case "DestroyItem":
