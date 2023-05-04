@@ -25,7 +25,7 @@ public class SurroundingTileManager {
             return;
         }
 
-        TextManager.WritePhrase(GetSurroundingTilesDescription());
+        SocketManager.Instance.DescribeItems(Player.Instance.SurroundingTiles(), null);
     }
 
     public struct SurroundingTile
@@ -34,8 +34,10 @@ public class SurroundingTileManager {
         public Tile tile;
     }
 
-    public static string GetSurroundingTilesDescription()
+    private static string GetSurroundingTilesDescription()
     {
+        // à conserver parce que il y a des trucs intéressants ( je crois )
+        return "VIELLE MANIERE DE GERER LA DESCRIPTION SANS LES NOUVEAUX SOCKETS";
         // get tiles
         List<string> phrases = new List<string>();
 
@@ -44,7 +46,7 @@ public class SurroundingTileManager {
 
         List<SurroundingTile> surroundingTiles= new List<SurroundingTile>();
 
-        foreach (var tile in Player.Instance.SurroundingTiles())
+        /*foreach (var tile in Player.Instance.SurroundingTiles())
         {
             SurroundingTile surroundingTile = surroundingTiles.Find(x => x.tile.dataIndex == tile.dataIndex);
             if ( surroundingTile.tile == null )
@@ -68,45 +70,7 @@ public class SurroundingTileManager {
 
             Tile tile = surroundingTile.tile;
 
-            if (Tile.GetCurrent.SameTypeAs(surroundingTile.tile))
-            {
-                if (Tile.GetCurrent.stackable)
-                {
-                    // tu es dans une forêt, la forêt continue
-                    str += TextManager.GetPhrase("surroundingTile_continue", tile);
-                }
-                else
-                {
-                    // tu es près d'une maison, tu vois une maison que tu connais pas
-                    str += TextManager.GetPhrase("surroundingTile_discover", tile);
-                }
-            } else if (Interior.InsideInterior())
-            {
-                // tu es dans la cuisine, et tu vois LE couloir ( dans un intérieur, les articles définis ont plus de sens )
-                if (tile.stackable)
-                {
-                    // tu es dans une forêt, la forêt continue
-                    str += TextManager.GetPhrase("surroundingTile_continue", tile);
-                }
-                else
-                {
-                    // tu es près d'une maison, tu vois une maison que tu connais pas
-                    str += TextManager.GetPhrase("surroundingTile_visited", tile);
-                }
-            }
-            else
-            {
-                // ici
-                if (tile.visited)
-                {
-                    // tu vois es près d'une maison
-                    str += TextManager.GetPhrase("surroundingTile_visited", tile);
-                }
-                else
-                {
-                    str += TextManager.GetPhrase("surroundingTile_discover", tile);
-                }
-            }
+            str += GetTileText();
 
             if (index == surroundingTiles.Count - 2)
             {
@@ -126,7 +90,46 @@ public class SurroundingTileManager {
             ++index;
         }
 
-        return str;
+        return str;*/
+    }
+
+    string GetTileText(Item targetTile)
+    {
+        if (Tile.GetCurrent.SameTypeAs(targetTile))
+        {
+            if (Tile.GetCurrent.stackable)
+            {
+                // tu es dans une forêt, la forêt continue
+                return TextManager.GetPhrase("surroundingTile_continue", targetTile);
+            }
+            else
+            {
+                if (Interior.InsideInterior())
+                {
+
+                    // tu es dans la cuisine, et tu vois LE couloir ( dans un intérieur, les articles définis ont plus de sens )
+                    return TextManager.GetPhrase("surroundingTile_visited", targetTile);
+                }
+                else
+                {
+                    // tu es près d'une maison, tu vois une maison que tu connais pas
+                    return TextManager.GetPhrase("surroundingTile_discover", targetTile);
+                }
+            }
+        }
+        else
+        {
+            // ici
+            if ( ((Tile)targetTile).visited )
+            {
+                // tu vois es près d'une maison
+                return TextManager.GetPhrase("surroundingTile_visited", targetTile);
+            }
+            else
+            {
+                return TextManager.GetPhrase("surroundingTile_discover", targetTile);
+            }
+        }
     }
     
 }

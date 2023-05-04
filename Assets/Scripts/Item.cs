@@ -196,22 +196,12 @@ public class Item
     /// <summary>
     /// DESCRIPTION
     /// </summary>
-    public void WriteContainedItemDescription()
-    {
-        if (!ContainsItems())
-        {
-            return;
-        }
-
-        TextManager.WritePhrase(GetItemDescriptions());
-
-    }
-    public virtual string GetItemDescriptions()
+    public virtual void WriteContainedItemDescription()
     {
         Socket socket = new Socket();
         socket._text = "&on the dog&";
 
-        return SocketManager.Instance.DescribeItems(GetContainedItems, socket);
+        SocketManager.Instance.DescribeItems(GetContainedItems, socket);
     }
 
     public bool SameTypeAs(Item otherItem)
@@ -405,9 +395,9 @@ public class Item
         for (int i = 0; i < verbList.Count; i++)
         {
             str += verbList[i].GetName;
-            if (!string.IsNullOrEmpty(verbList[i].GetProposition))
+            if (!string.IsNullOrEmpty(verbList[i].GetPreposition))
             {
-                str += " " + verbList[i].GetProposition;
+                str += " " + verbList[i].GetPreposition;
             }
 
             if (verbList.Count > 1)
@@ -513,34 +503,9 @@ public class Item
 
         if ( newProperty.events != null)
         {
-
+            EventManager.instance.AddPropertyEvent(newProperty, this);
         }
 
-        foreach (var propEvent in newProperty.events)
-        {
-            if (propEvent.subbed)
-            {
-                continue;
-            }
-
-            switch (propEvent.name)
-            {
-                case "subHours":
-                    TimeManager.GetInstance().onNextHour += HandleOnNextHour;
-                    break;
-                case "subRain":
-                    TimeManager.GetInstance().onRaining += HandleOnRaining;
-                    break;
-                case "subEmpty":
-                    newProperty.onEmpty += HandleOnEmpty;
-                    break;
-                default:
-            Debug.Log("no event : " + propEvent.name);
-                    break;
-            }
-
-            propEvent.subbed = true;
-        }
         properties.Add(newProperty);
 
         return newProperty;
@@ -565,7 +530,7 @@ public class Item
     }
     public bool HasProperty(string name)
     {
-        Property property = properties.Find(x => x.name == name && x.enabled);
+        Property property = properties.Find(x => x.name == name);
 
         return property != null;
     }
@@ -608,50 +573,6 @@ public class Item
     }
     #endregion
 
-    #region events
-    public List<Property> FindPropertyWithEvents(string eventName)
-    {
-        return properties.FindAll(x => x.ContainsEvent(eventName) && x.enabled);
-    }
-    public void HandleOnNextHour()
-    {
-        foreach (Property property in FindPropertyWithEvents("subHours"))
-        {
-
-            // decrease time
-            int timeLeft = property.GetInt();
-            --timeLeft;
-            property.SetInt(timeLeft);
-
-            // don't do anything if the time left is above 0
-            if (timeLeft > 0)
-            {
-                continue;
-            }
-
-            EventManager.instance.CallEvent(property, "subHours", this);
-
-            property.Disable();
-        }
-    }
-    public void HandleOnRaining()
-    {
-        Debug.Log("raining");
-
-        foreach (Property property in FindPropertyWithEvents("subRain"))
-        {
-            EventManager.instance.CallEvent(property, "subRain", this);
-        }
-    }
-    public void HandleOnEmpty()
-    {
-        foreach (var property in FindPropertyWithEvents("onEmpty"))
-        {
-
-        }
-    }
-    #endregion
-
     public static Item GetItemOfType(string type)
     {
         Item[] items = ItemManager.Instance.dataItems.FindAll(x => x.HasProperty(type)).ToArray();
@@ -663,13 +584,6 @@ public class Item
 
     public string GetRelativePosition()
     {
-        if (!HasProperty("direction"))
-        {
-            return "";
-        }
-
-        string itemPosition = "";
-
         Player.Orientation fac = Player.Orientation.None;
 
         switch (GetProperty("direction").value)
@@ -693,6 +607,17 @@ public class Item
         switch (fac)
         {
             case Player.Orientation.Front:
+                return "front";
+            case Player.Orientation.Right:
+                return "right";
+            case Player.Orientation.Back:
+                return "behind";
+            case Player.Orientation.Left:
+                return "left";
+            default:
+                return "";
+
+            /*case Player.Orientation.Front:
                 return TextManager.GetPhrase("position_front");
             case Player.Orientation.Right:
                 return TextManager.GetPhrase("position_right");
@@ -701,10 +626,9 @@ public class Item
             case Player.Orientation.Left:
                 return TextManager.GetPhrase("position_left");
             default:
-                break;
+                return "";*/
         }
 
-        return itemPosition;
     }
 
 }

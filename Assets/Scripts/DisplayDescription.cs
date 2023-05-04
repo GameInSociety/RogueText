@@ -13,7 +13,7 @@ public class DisplayDescription : MonoBehaviour {
 
     string currentDescription;
 
-    public ScrollRect scrollRect;
+    public ScrollRect scrollRect; 
 
     public float test;
 
@@ -53,7 +53,7 @@ public class DisplayDescription : MonoBehaviour {
         // CURRENT TILE
         if (Tile.GetPrevious != null && Tile.GetCurrent.SameTypeAs(Tile.GetPrevious))
         {
-
+            // if the new tile is the same as the previous, don't bother describing itopen
         }
         else
         {

@@ -38,7 +38,7 @@ public class Verb {
             return names[currentNameIndex];
         }
     }
-    public string GetProposition
+    public string GetPreposition
     {
         get
         {

@@ -14,11 +14,13 @@ public class Socket
     public List<int> itemIndexes = new List<int>();
     public bool relative = false;
 
+    public bool hide = false;
+
     public List<ItemGroup> itemGroups = new List<ItemGroup>();
 
     public string GetDescription()
     {
-        string itemText = GetItemText();
+        string itemText = GetItemsText();
 
         // phrases de vision ( vous voyez, remarquez etc... )
         string visionPhrase = TextManager.GetPhrase("tile_visionPhrases");
@@ -33,6 +35,7 @@ public class Socket
         int phraseType = Random.Range(0, 5);
 
         string text = GetSocketText() + " there's " + itemText;
+        return text;
 
         /*switch (phraseType)
         {
@@ -57,19 +60,33 @@ public class Socket
         }*/
 
         // mettre la phrase en majuscule
-        return TextUtils.FirstLetterCap(text);
+    }
+
+    public Item GetItem()
+    {
+        return GetItem(0);
+    }
+
+    public Item GetItem(int index)
+    {
+        return itemGroups[index].item;
     }
 
     public string GetSocketText()
     {
-        if (relative)
+        switch (_text)
         {
-            return itemGroups[0].item.GetRelativePosition();
+            case "front":
+                return "in front on you,";
+            case "right":
+                return "on your right";
+            case "behind":
+                return "behind you";
+            case "left":
+                return "on your left";
         }
-        else
-        {
+
             return _text;
-        }
     }
 
     [System.Serializable]
@@ -107,7 +124,7 @@ public class Socket
         }
     }
 
-    public string GetItemText()
+    public string GetItemsText()
     {
         string text = "";
 

@@ -258,7 +258,8 @@ public class Player : MonoBehaviour {
 
             if (tile.SameTypeAs(targetItem))
             {
-                Move(tile.coords);
+                Tile tmpTest = tile as Tile;
+                Move(tmpTest.coords);
                 return;
             }
         }
@@ -313,9 +314,9 @@ public class Player : MonoBehaviour {
 
 
 
-    public List<Tile> SurroundingTiles()
+    public List<Item> SurroundingTiles()
     {
-        List<Tile> result = new List<Tile>();
+        List<Item> result = new List<Item>();
 
         List<Orientation> orientations = new List<Player.Orientation>
         {
@@ -326,6 +327,8 @@ public class Player : MonoBehaviour {
 
         foreach (var orientation in orientations)
         {
+
+
 
             Tile targetTile = GetTile(orientation);
 
@@ -338,6 +341,15 @@ public class Player : MonoBehaviour {
             {
                 continue;
             }
+
+            if (!targetTile.HasProperty("direction"))
+            {
+
+                targetTile.CreateProperty("dir / direction / none");
+            }
+
+            Cardinal dir = OrientationToCardinal(orientation);
+            targetTile.GetProperty("direction").Update(dir.ToString().ToLower());
 
 
             result.Add(targetTile);

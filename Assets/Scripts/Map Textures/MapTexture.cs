@@ -99,6 +99,11 @@ public class MapTexture : MonoBehaviour {
 
                 Color pixelColor = mainMap_Texture.GetPixel(x, y);
 
+                if ( pixelColor == Color.black)
+                {
+                    continue;
+                }
+
                 for (int i = 0; i < tileInfos.Length; i++)
                 {
                    
@@ -115,12 +120,6 @@ public class MapTexture : MonoBehaviour {
                         Tile newTile = ItemManager.Instance.CreateTile(coords, tileInfo.name);
 
                         // get tile type from color
-
-                        if (i == 0)
-                        {
-                            break;
-                        }
-
                         TileSet.map.Add(coords, newTile);
 
                         if (newTile.HasProperty("interior"))

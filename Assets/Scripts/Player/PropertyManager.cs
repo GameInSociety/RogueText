@@ -8,6 +8,9 @@ public class PropertyManager : MonoBehaviour
     public List<Property> pendingProps = new List<Property>();
     public List<Item> pendingItems = new List<Item>();
 
+    public delegate void OnEmptyValue();
+    public OnEmptyValue onEmptyValue;
+
     private void Start()
     {
         // CENTRALISER LES ACTIONS !
@@ -115,7 +118,7 @@ public class PropertyManager : MonoBehaviour
         // in the function type is not reffered, so go for part 0
         Property property = targetItem.GetProperty(targetProp);
 
-        property.UpdateProperty(line);
+        property.Update(line);
 
         UpdateDescription(targetItem);
     }
@@ -165,12 +168,12 @@ public class PropertyManager : MonoBehaviour
 
         string property_line = PlayerAction.GetCurrent.GetContent(0);
 
-        bool breakIfDisabled = false;
+        bool breakIfEnabled = false;
 
         if (property_line.StartsWith('!'))
         {
             property_line = property_line.Remove(0, 1);
-            breakIfDisabled = true;
+            breakIfEnabled = true;
         }
 
         string[] parts = property_line.Split(" / ");
@@ -186,7 +189,7 @@ public class PropertyManager : MonoBehaviour
 
         if (property.enabled)
         {
-            if (breakIfDisabled)
+            if (breakIfEnabled)
             {
                 TextManager.WriteHard("It's " + parts[0]);
                 PlayerActionManager.Instance.BreakAction();

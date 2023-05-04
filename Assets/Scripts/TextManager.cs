@@ -61,6 +61,12 @@ public class TextManager
             string itemCode = "";
             wordCode = GetItemCode(wordCode, out itemCode);
             Item targetItem = GetItemFromCode(itemCode);
+
+            if (targetItem == null)
+            {
+                Debug.LogError("target item is null " + itemCode + " text : " + text);
+            }
+
             // get word from item
             string word = targetItem.word.GetContent(wordCode);
             // replace target part with word, and continue

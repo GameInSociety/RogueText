@@ -27,12 +27,13 @@ south west,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 west,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 north west,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "front
-forward",s,Objet,,FALSE,,,MoveRel(0),,,,,OrientPlayer(0),,,,MoveRel(0),,,,,,,,,,MoveRel(0),,,,,,MoveRel(0),,,,,,,,
-right,s,Objet,,FALSE,,,MoveRel(2),,,,,OrientPlayer(2),,,,MoveRel(2),,,,,,,,,,MoveRel(2),,,,,,MoveRel(2),,,,,,,,
+forward
+ahead",s,Objet,,FALSE,,,MoveRel(0),,,,,OrientPlayer(0),,,,MoveRel(0),,,,,,,,,,MoveRel(0),,,,,,MoveRel(0),,,,,,,,
+test_socket/right,s,Objet,,FALSE,,,MoveRel(2),,,,,OrientPlayer(2),,,,MoveRel(2),,,,,,,,,,MoveRel(2),,,,,,MoveRel(2),,,,,,,,
 "back
 backwards
 behind",s,Objet,,FALSE,,,MoveRel(4),,,,,OrientPlayer(4),,,,MoveRel(4),,,,,,,,,,MoveRel(4),,,,,,MoveRel(4),,,,,,,,
-left,s,Objet,,FALSE,,,MoveRel(6),,,,,OrientPlayer(6),,,,MoveRel(6),,,,,,,,,,MoveRel(6),,,,,,,,,,,,,,
+test_socket/left,s,Objet,,FALSE,,,MoveRel(6),,,,,OrientPlayer(6),,,,MoveRel(6),,,,,,,,,,MoveRel(6),,,,,,,,,,,,,,
 "inventory
 bag",s,Objet,in,FALSE,,,,OpenContainer,CloseContainer,,,OpenContainer,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 *,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

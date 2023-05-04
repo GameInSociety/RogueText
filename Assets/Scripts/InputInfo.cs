@@ -10,10 +10,9 @@ using System.Text;
 public class InputInfo : MonoBehaviour
 {
     public static InputInfo Instance;
-   
 
     // static
-    public string text;
+    public string inputText;
     public List<string> parts = new List<string>();
 
     // phrase content
@@ -31,6 +30,8 @@ public class InputInfo : MonoBehaviour
     public int valueInText = 0;
 
     public bool actionOnAll = false;
+
+    public bool itemConfusion = false;
 
     private void Awake()
     {
@@ -56,28 +57,33 @@ public class InputInfo : MonoBehaviour
 
     public void ParseText(string str)
     {
-        text = str;
+        inputText = str;
 
-        if (text.Length == 0)
+        if (inputText.Length == 0)
         {
             Debug.LogError("input text : is empty");
             return;
         }
 
-        text = text.TrimEnd(' ');
+        inputText = inputText.TrimEnd(' ');
 
         // create action
 
         FindVerb();
 
         // separate text ( after verb in case phrase changing, verb is removed 
-        parts = text.Split(new char[3] { ' ', '\'', '\'' }).ToList<string>();
+        parts = inputText.Split(new char[3] { ' ', '\'', '\'' }).ToList<string>();
 
         FindNumber();
 
         FindOrientation();
 
         FindItems();
+
+        if ( itemConfusion)
+        {
+            return;
+        }
 
         if (HasVerb())
         {
@@ -105,7 +111,6 @@ public class InputInfo : MonoBehaviour
 
         PlayerActionManager.Instance.DisplayInputFeedback();
     }
-
     private void FindNumber()
     {
         hasValueInText = false;
@@ -143,7 +148,7 @@ public class InputInfo : MonoBehaviour
         sustainVerb = false;
 
 
-        Verb tmpVerb = Verb.Find(text);
+        Verb tmpVerb = Verb.Find(inputText);
 
         if (tmpVerb == null)
         {
@@ -159,7 +164,7 @@ public class InputInfo : MonoBehaviour
             // REPLACE ONLY ONCE grâce à ce truc trouvé sur l'internet
             var regex = new Regex(Regex.Escape(verb.GetName + " "));
 
-            text = regex.Replace(text, "",1);
+            inputText = regex.Replace(inputText, "",1);
         }
     }
 
@@ -169,15 +174,17 @@ public class InputInfo : MonoBehaviour
     {
         actionOnAll = false;
 
-        if (text.Contains(" all ") )
+        if (inputText.Contains(" all ") )
         {
             Debug.Log("actions on all !!!!");
             actionOnAll = true;
         }
 
+        itemConfusion = false;
+
         foreach (var input_part in parts)
         {
-            if (text == "it" || text == "them")
+            if (inputText == "it" || inputText == "them")
             {
                 sustainItem = true;
             }
@@ -186,14 +193,12 @@ public class InputInfo : MonoBehaviour
         if (sustainItem)
         {
             sustainItem = false;
+            return;
         }
         else
         {
             items.Clear();
         }
-
-
-        List<Item> probableItems = new List<Item>();
 
         foreach (var input_part in parts)
         {
@@ -202,37 +207,107 @@ public class InputInfo : MonoBehaviour
             // la tile ou les mots utilisables n'importe ou
             if (input_part.Length < 3)
                 continue;
+            
+            List<Item> tmpItems = ItemManager.Instance.FindItemsInWorld(input_part);
 
-            Item item = ItemManager.Instance.FindInWorld(input_part);
+            if (tmpItems.Count > 1) {
 
-            if  (item != null)
+
+                Item item = SocketManager.Instance.GetSocketItemInText(inputText);
+
+                if (item != null)
+                {
+                    items.Add(item);
+                    return;
+                }
+
+                if ( HasVerb())
+                {
+                    TextManager.WritePhrase("input_itemConfusion", tmpItems[0]);
+                }
+                else
+                {
+                    TextManager.WritePhrase("Which &dog (override item)&", tmpItems[0]);
+                }
+                itemConfusion = true;
+            }
+            else if (tmpItems.Count == 1)
             {
-                items.Add(item);
+                items.Add(tmpItems[0]);
             }
         }
 
-        
-
-        /// if no probable items, we KEEP the previous items, for feature enter IT, look at IT
-        /// input preservation on peut appeler ça
-        if (probableItems.Count == 0)
+        // if no items, search for mentionned sockets
+        // maybe temporary ou pas, c'est pour pouvoir ne pas avoir de confusion quand on met "open right door"
+        // il allait chercher le mot right, et à priori ça devrait se régler comme ça
+        if (items.Count==0)
         {
-            return;
+            Item item = SocketManager.Instance.GetSocketItemInText(inputText);
+
+            if (item != null)
+            {
+                items.Add(item);
+                Debug.Log("found " + item.debug_name + " in socket");
+                return;
+            }
+        }
+    }
+
+    public Item FindPreciseItem(List<Item> tmpItems)
+    {
+        foreach (var item in tmpItems)
+        {
+            if (!item.word.HasAdjective())
+            {
+                continue;
+            }
+
+            string itemAdjective = item.word.GetAdjective.GetContent(false);
+
+            if (inputText.Contains(itemAdjective))
+            {
+                Debug.Log("found adjective " + itemAdjective + " for word " + item.debug_name);
+
+                return item;
+            }
         }
 
+        // DONT SEARCH FOR ORIENTATIONS ( en tout cas pas pour les tile items )
+        // SEACH IN CURRENT SOCKETS
 
-        items = probableItems;
+        // search orientations
+        /*foreach (var item in tmpItems)
+        {
+            if (!item.word.HasAdjective())
+            {
+                continue;
+            }
+
+            string itemAdjective = item.word.GetAdjective.GetContent(false);
+
+            if (inputText.Contains(itemAdjective))
+            {
+                Debug.Log("found adjective " + itemAdjective + " for word " + item.debug_name);
+
+                return item;
+            }
+        }*/
+
+        return null;
     }
 
     public void FindOrientation()
     {
         orientation = Player.Orientation.None;
 
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i+=2)
         {
             Player.Orientation tmpOrientation = (Player.Orientation)i;
 
-            if (text.Contains(Coords.GetOrientationText(orientation)))
+            string orientationText = Coords.GetOrientationWord(tmpOrientation);
+
+
+            if (inputText.Contains(orientationText))
             {
                 orientation = tmpOrientation;
             }

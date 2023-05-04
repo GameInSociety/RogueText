@@ -131,7 +131,14 @@ public class Word
             switch (currentInfo.preposition)
             {
                 case Preposition.None:
-                    return "a ";
+                    if (StartsWithVowel())
+                    {
+                        return "an ";
+                    }
+                    else
+                    {
+                        return "a ";
+                    }
                 case Preposition.Of:
                     return "of the'";
                 case Preposition.To:
@@ -352,9 +359,7 @@ public class Word
     public bool Compare(string input_part)
     {
         return
-            (text.StartsWith(input_part))
-            ||
-            (GetPlural().StartsWith(input_part));
+            (text.StartsWith(input_part));
     }
 
     #region enums

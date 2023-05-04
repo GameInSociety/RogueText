@@ -1763,7 +1763,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 370c83b2c4743cb4ba150f5e4abc5f67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: 
+  inputText: 
   parts: []
   verb:
     col: 0
@@ -1783,6 +1783,7 @@ MonoBehaviour:
   hasValueInText: 0
   valueInText: 0
   actionOnAll: 0
+  itemConfusion: 0
   sustainVerb: 0
   sustainItem: 0
 --- !u!1 &597216345
@@ -2085,8 +2086,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de4c293e08cd4394388c51f9ca4ee4c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemSockets: []
+  itemSockets:
+  - _text: north
+    itemIndexes: 
+    relative: 0
+    hide: 0
+    itemGroups: []
+  - _text: south
+    itemIndexes: 
+    relative: 0
+    hide: 0
+    itemGroups: []
+  - _text: east
+    itemIndexes: 
+    relative: 0
+    hide: 0
+    itemGroups: []
+  - _text: west
+    itemIndexes: 
+    relative: 0
+    hide: 0
+    itemGroups: []
   tileSockets: []
+  currentSockets: []
 --- !u!1 &815016655
 GameObject:
   m_ObjectHideFlags: 0
@@ -2132,6 +2154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pendingProps: []
+  pendingItems: []
 --- !u!1 &859047420
 GameObject:
   m_ObjectHideFlags: 0
@@ -2473,6 +2496,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1394f3413b8e382419a9815b1f8ddae3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  propertyGroups: []
 --- !u!1 &1040175694
 GameObject:
   m_ObjectHideFlags: 0
@@ -3520,6 +3544,7 @@ MonoBehaviour:
   - _text: on the floor
     itemIndexes: 
     relative: 0
+    hide: 0
     itemGroups: []
 --- !u!4 &1578065325
 Transform:
@@ -4090,6 +4115,7 @@ MonoBehaviour:
   inputInfo: {fileID: 0}
   colorWords: 1
   itemsOnTile:
+  - sprout
   - watering can
 --- !u!1 &1976029674
 GameObject:

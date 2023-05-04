@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using TMPro;
+using static UnityEditor.Progress;
 
 public class ItemManager : MonoBehaviour {
 
@@ -48,56 +50,64 @@ public class ItemManager : MonoBehaviour {
     }
     public Item FindInWorld(string str)
     {
-        Item item = null;
+        List<Item> items = FindItemsInWorld(str);
 
-        //bool foundInContainer = false;
+        if ( items.Count == 0)
+        {
+            return null;
+        }
+        else
+        {
+            return items[0];
+        }
+    }
+
+    public List<Item> FindItemsInWorld(string str)
+    {
+        List<Item> tmpItems = new List<Item>();
+
+        Item tmpItem;
 
         // dans un container
         if (Item.AnItemIsOpened)
         {
-            item = Item.OpenedItem.FindItem(str);
-            /*if (item != null)
+            tmpItem = Item.OpenedItem.FindItem(str);
+            if (tmpItem != null)
             {
-                foundInContainer = true;
-            }*/
+                tmpItems.Add(tmpItem);
+            }
         }
 
 
         // chercher une premiere fois dans l'inventaire s'il est ouvert
         if (Inventory.Instance.opened)
         {
-            item = Inventory.Instance.FindItem(str);
-            if (item != null)
+            tmpItem = Inventory.Instance.FindItem(str);
+            if (tmpItem != null)
             {
-                return item;
+                tmpItems.Add(tmpItem);
             }
         }
 
-
-        // is the item one of the surrounding tiles ?
-        if (item == null)
+        foreach (var item in FindInTile(str))
         {
-            item = FindInTile(str);
+            tmpItems.Add(item);
         }
 
+        tmpItem = Inventory.Instance.FindItem(str);
         // et en dernier s'il est fermé
-        if (item == null)
+        if (tmpItem != null)
         {
-            item = Inventory.Instance.FindItem(str);
+            tmpItems.Add(tmpItem);
         }
 
-        if (item == null)
+        tmpItem = ItemManager.Instance.FindUsableAnytime(str);
+        if (tmpItem != null)
         {
-            item = ItemManager.Instance.FindUsableAnytime(str);
+            tmpItems.Add(tmpItem);
         }
 
-        // pour éviter que le container reste ouvert si on fait une autre action
-        /*if (item != null && Item.AnItemIsOpened && !foundInContainer)
-        {
-            Item.OpenedItem.Close();
-        }*/
-
-        return item;
+        return tmpItems;
     }
 
     public Tile CreateTile(Coords _coords, string tileName)
@@ -112,56 +122,42 @@ public class ItemManager : MonoBehaviour {
     }
 
 
-    private static Item FindInTile(string str)
+    private static List<Item> FindInTile(string str)
     {
-        // is the item the exact same tile as the one we're in ?
-        if (Tile.GetCurrent.HasWord(str))
-        {
-            return Tile.GetCurrent;
-        }
+        List<Item> tmpItems = new List<Item>();
 
-        //List<Item> items = Player.Instance.SurroundingTiles().FindAll();
-
-        // is the item one of the surrounding tiles ?
+        // first of all, look at surrounding tiles, that way no confusing if your on a road
+        // and you wanna look the continuing road
+        // to change, because you need to be able to differenciate the both
         foreach (var tile in Player.Instance.SurroundingTiles())
         {
             if (tile.HasWord(str))
             {
-                return tile;
+        // for now, add each surr tile, so that we can say "go to road on the left, or on the right
+                tmpItems.Add(tile);
             }
         }
 
-        List<Item> items = Tile.GetCurrent.GetContainedItems.FindAll(x => x.word.Compare(str));
+        // than return them direclty
+        if( tmpItems.Count > 0)
+        {
+            return tmpItems;
+        }
 
+        // is the item the exact same tile as the one we're in ?
+        if (Tile.GetCurrent.HasWord(str))
+        {
+            tmpItems.Add(Tile.GetCurrent);
+            return tmpItems;
+        }
+
+        foreach (var item in Tile.GetCurrent.GetContainedItems.FindAll(x => x.word.Compare(str)))
+        {
+            tmpItems.Add(item);
+        }
 
         /// ADJECTIVES ///
-
-        /// chercher les adjectifs pour différencier les objets ( porte bleu, porte rouge )
-        if (items.Count > 0)
-        {
-            foreach (var inputPart in InputInfo.Instance.parts)
-            {
-                foreach (var item in items)
-                {
-                    if (!item.word.HasAdjective())
-                    {
-                        continue;
-                    }
-
-                    string adjSTR = item.word.GetAdjective.GetContent(false);
-
-                    if (adjSTR == inputPart)
-                    {
-                        return item;
-                    }
-                }
-            }
-
-            return items[0];
-
-        }
-
-        return null;
+        return tmpItems;
     }
 
 

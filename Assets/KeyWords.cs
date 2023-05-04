@@ -12,8 +12,8 @@ public static class KeyWords
         ITEM_PROPERTIES,
         VERB_NAME,
         VERB_QUESTION,
+        VERB_PREPOSITION,
         TILE_CURRENT_DESCRIPTION,
-        TILE_ITEM_DESCRIPTIONS,
         TIME_OF_DAY,
 
         TARGET_ORIENTATION
@@ -38,8 +38,6 @@ public static class KeyWords
         {
             case KeyWord.CONTAINER_LIST:
                 return Item.ItemListString(Item.OpenedItem.GetContainedItems, Item.ListSeparator.Commas, true);
-            case KeyWord.TILE_ITEM_DESCRIPTIONS:
-                return Tile.GetCurrent.GetItemDescriptions();
             case KeyWord.TIME_OF_DAY:
                 return TimeManager.GetInstance().GetTimeOfDayDescription();
             case KeyWord.TARGET_ORIENTATION:
@@ -48,9 +46,11 @@ public static class KeyWords
                 InputInfo.Instance.GetItem(0).WritePropertiesDescription();
                 return "";
             case KeyWord.VERB_NAME:
-                return InputInfo.Instance.verb.names[0];
+                return InputInfo.Instance.verb.GetName;
             case KeyWord.VERB_QUESTION:
                 return InputInfo.Instance.verb.question;
+            case KeyWord.VERB_PREPOSITION:
+                return InputInfo.Instance.verb.GetPreposition;
 
             default:
                 Debug.LogError("no text for KEY WORD " + keyWord.ToString());

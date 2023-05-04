@@ -104,6 +104,29 @@ public struct Coords
         return TextManager.GetPhrase(key);
     }
 
+    public static string GetOrientationWord(Player.Orientation orientation)
+    {
+        switch (orientation)
+        {
+            case Player.Orientation.Front:
+                return "front";
+            case Player.Orientation.Right:
+                return "right";
+            case Player.Orientation.Back:
+                return "back";
+            case Player.Orientation.Left:
+                return "left";
+            case Player.Orientation.None:
+                return "eeeeeeeeeh";
+            case Player.Orientation.Current:
+                return "here";
+            default:
+                break;
+        }
+
+        return "woops orientation";
+    }
+
     public static Cardinal GetDirectionFromString(string str)
     {
 
@@ -111,7 +134,6 @@ public struct Coords
         {
             if (item.ToString() == str)
             {
-                //				Debug.Log ("found direction : " + item);
                 return (Cardinal)item;
             }
         }

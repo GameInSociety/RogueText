@@ -37,8 +37,6 @@ public class Property
     ///  ils donnent lieu à discorde dans le studio, mais on a pas trouvé mieux pour l'instant
     /// </summary>
     public List<Event> events;
-    public delegate void OnEmpty();
-    public OnEmpty onEmpty;
 
     // l'objet � laquelle la propri�t� est attach�e,
     // trouver un autre moyen parce que niveau m�moire et serialization c'est pas ouf
@@ -160,7 +158,7 @@ public class Property
     #endregion
 
     #region update
-    public void UpdateProperty(string line)
+    public void Update(string line)
     {
         bool add = false;
 
@@ -178,14 +176,8 @@ public class Property
 
             int valueNeeded = pendingProp.value_max - pendingProp.GetInt();
 
-            Debug.Log("current value : " + pendingProp.GetInt());
-            Debug.Log("value max : " + pendingProp.value_max);
-            Debug.Log("value needed : " + valueNeeded);
-
             int i = pendingProp.GetInt() - valueNeeded;
             pendingProp.SetInt(i);
-
-            Debug.Log("new value : " + i);
         }
 
         int dif = 0;
@@ -202,7 +194,17 @@ public class Property
             return;
         }
 
-        name = line;
+        if ( value != line)
+        {
+            value = line;
+            return;
+        }
+
+        if (string.IsNullOrEmpty(value))
+        {
+        Debug.Log("changing name of " + name + " to " + line);
+            name = line;
+        }
 
     }
     #endregion
@@ -295,15 +297,17 @@ public class Property
     {
         newValue = Mathf.Clamp(newValue, 0, value_max);
 
+        value = newValue.ToString();
+
         if ( newValue <= 0)
         {
-            if (onEmpty != null)
+
+            if (PropertyManager.Instance.onEmptyValue != null)
             {
-                onEmpty();
+                PropertyManager.Instance.onEmptyValue();
             }
         }
 
-        value = newValue.ToString();
     }
     #endregion
 }

@@ -8,22 +8,31 @@ public class EventManager : MonoBehaviour
 
     private Item currentItem;
 
+    public List<PropertyEventGroup> propertyGroups = new List<PropertyEventGroup>();
 
-    public List<PropertyEvent> properties = new List<PropertyEvent>();
-    public class PropertyEvent
+    [System.Serializable]
+    public class PropertyEventGroup
     {
         public Item item;
         public Property property;
+
+        
+    }
+
+    public List<PropertyEventGroup> FindPropertyEventGroup(string eventName)
+    {
+        return propertyGroups.FindAll(x => x.property.ContainsEvent(eventName) && x.property.enabled);
     }
 
     public void AddPropertyEvent (Property property, Item item)
     {
-        PropertyEvent propertyEvent = new PropertyEvent();
-        propertyEvent.item = item;
-        propertyEvent.property = property;
+        PropertyEventGroup newGroup = new PropertyEventGroup();
+        newGroup.item = item;
+        newGroup.property = property;
 
-        properties.Add(propertyEvent);
+        propertyGroups.Add(newGroup);
     }
+
 
     private void Awake()
     {
@@ -32,10 +41,66 @@ public class EventManager : MonoBehaviour
 
     private void Start()
     {
-        /*TimeManager.GetInstance().onNextHour += HandleOnNextHour;
+        TimeManager.GetInstance().onNextHour += HandleOnNextHour;
         TimeManager.GetInstance().onRaining += HandleOnRaining;
-        newProperty.onEmpty += HandleOnEmpty;*/
+        PropertyManager.Instance.onEmptyValue += HandleOnEmptyValue;
     }
+
+    #region events
+    
+    public void HandleOnNextHour()
+    {
+        foreach (var propertyGroup in FindPropertyEventGroup("subHours"))
+        {
+            Property property = propertyGroup.property;
+
+            int timeLeft = property.GetInt();
+            --timeLeft;
+            property.SetInt(timeLeft);
+
+            // don't do anything if the time left is above 0
+            if (timeLeft > 0)
+            {
+                continue;
+            }
+
+            CallEvent(property, "subHours", propertyGroup.item);
+
+            property.Disable();
+        }
+    }
+    public void HandleOnRaining()
+    {
+        Debug.Log("raining");
+
+        foreach (var propertyGroup in FindPropertyEventGroup("subRain"))
+        {
+            Property property = propertyGroup.property;
+            CallEvent(property, "subRain", propertyGroup.item);
+        }
+    }
+    public void HandleOnEmptyValue()
+    {
+
+        /// il y a un bug parce que ce event est appelé de n'importe ou et ça brise le flow des trucs
+        Debug.Log("on empty value");
+
+        foreach (var propertyGroup in FindPropertyEventGroup("subEmpty"))
+        {
+
+            Property property = propertyGroup.property;
+
+            Debug.Log("property " + property.name + " of " + propertyGroup.item.debug_name + " is " + property.GetInt());
+
+
+            if ( property.GetInt() == 0)
+            {
+                CallEvent(property, "subEmpty", propertyGroup.item);
+            }
+        }
+    }
+    #endregion
+
 
     public void CallEvent(Property prop, string _event, Item _item)
     {
@@ -46,8 +111,6 @@ public class EventManager : MonoBehaviour
 
         foreach (Property.Event.Action _action in propertyEvent._actions)
         {
-            Debug.Log("calling action : " + _action.function);
-
             // this should be the exact same os player actions
             switch (_action.function)
             {

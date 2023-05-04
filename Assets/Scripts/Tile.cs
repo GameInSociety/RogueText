@@ -52,9 +52,14 @@ public class Tile : Item
         }
     }
 
-    public override string GetItemDescriptions()
+    public override void WriteContainedItemDescription()
     {
-        return SocketManager.Instance.DescribeItems(GetContainedItems, null);
+        //base.WriteContainedItemDescription();
+
+        Socket socket = new Socket();
+        socket._text = "&on the dog (tile item)&";
+
+        SocketManager.Instance.DescribeItems(GetContainedItems, socket);
     }
 
     #region info
