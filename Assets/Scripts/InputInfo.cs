@@ -22,7 +22,7 @@ public class InputInfo : MonoBehaviour
 
     public Combination combination;
 
-    public Player.Orientation orientation = Player.Orientation.None;
+    public Movable.Orientation orientation = Movable.Orientation.None;
     public Cardinal cardinal = Cardinal.None;
 
     public bool hasValueInText = false;
@@ -224,10 +224,11 @@ public class InputInfo : MonoBehaviour
                 if ( HasVerb())
                 {
                     TextManager.WritePhrase("input_itemConfusion", tmpItems[0]);
+                    InputInfo.Instance.sustainVerb = true;
                 }
                 else
                 {
-                    TextManager.WritePhrase("Which &dog (override item)&", tmpItems[0]);
+                    TextManager.WritePhrase("Which &dog (override)&", tmpItems[0]);
                 }
                 itemConfusion = true;
             }
@@ -247,7 +248,6 @@ public class InputInfo : MonoBehaviour
             if (item != null)
             {
                 items.Add(item);
-                Debug.Log("found " + item.debug_name + " in socket");
                 return;
             }
         }
@@ -298,11 +298,11 @@ public class InputInfo : MonoBehaviour
 
     public void FindOrientation()
     {
-        orientation = Player.Orientation.None;
+        orientation = Movable.Orientation.None;
 
         for (int i = 0; i < 8; i+=2)
         {
-            Player.Orientation tmpOrientation = (Player.Orientation)i;
+            Movable.Orientation tmpOrientation = (Movable.Orientation)i;
 
             string orientationText = Coords.GetOrientationWord(tmpOrientation);
 

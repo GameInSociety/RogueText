@@ -15,9 +15,13 @@ public static class KeyWords
         VERB_PREPOSITION,
         TILE_CURRENT_DESCRIPTION,
         TIME_OF_DAY,
+        SOCKET_POS,
+        SOCKET_ITEMS,
 
         TARGET_ORIENTATION
     }
+
+    public static Socket socket;
 
     public static string ReplaceKeyWords(string str)
     {
@@ -51,6 +55,8 @@ public static class KeyWords
                 return InputInfo.Instance.verb.question;
             case KeyWord.VERB_PREPOSITION:
                 return InputInfo.Instance.verb.GetPreposition;
+            case KeyWord.SOCKET_POS:
+                return socket.GetPositionText();
 
             default:
                 Debug.LogError("no text for KEY WORD " + keyWord.ToString());

@@ -950,7 +950,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &324848493
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1786,66 +1786,6 @@ MonoBehaviour:
   itemConfusion: 0
   sustainVerb: 0
   sustainItem: 0
---- !u!1 &597216345
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 597216346}
-  - component: {fileID: 597216347}
-  m_Layer: 0
-  m_Name: Player
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &597216346
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 597216345}
-  m_LocalRotation: {x: -0.011169814, y: 0, z: 0, w: 0.99993765}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: -1.28, y: 0, z: 0}
---- !u!114 &597216347
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 597216345}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a7c52d6a799888408c60954931d1b6b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  previousCardinal: 0
-  currentCarnidal: 0
-  health: 0
-  maxHealth: 20
-  prevCoords:
-    x: -1
-    y: -1
-  coords:
-    x: -1
-    y: -1
-  direction:
-    x: -1
-    y: -1
-  startCoords:
-    x: 9
-    y: 9
 --- !u!1 &667825934
 GameObject:
   m_ObjectHideFlags: 0
@@ -2087,28 +2027,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemSockets:
-  - _text: north
-    itemIndexes: 
-    relative: 0
-    hide: 0
+  - itemIndexes: 
+    _positions: []
     itemGroups: []
-  - _text: south
-    itemIndexes: 
-    relative: 0
-    hide: 0
+  - itemIndexes: 
+    _positions: []
     itemGroups: []
-  - _text: east
-    itemIndexes: 
-    relative: 0
-    hide: 0
+  - itemIndexes: 
+    _positions: []
     itemGroups: []
-  - _text: west
-    itemIndexes: 
-    relative: 0
-    hide: 0
+  - itemIndexes: 
+    _positions: []
     itemGroups: []
   tileSockets: []
-  currentSockets: []
+  socketGroups: []
 --- !u!1 &815016655
 GameObject:
   m_ObjectHideFlags: 0
@@ -2450,7 +2382,7 @@ Transform:
   - {fileID: 1379487688}
   - {fileID: 417817032}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1016588174
 GameObject:
@@ -2876,8 +2808,9 @@ Transform:
   - {fileID: 1016588175}
   - {fileID: 590356672}
   - {fileID: 812726507}
+  - {fileID: 2065804044}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1169447288
 GameObject:
@@ -3062,7 +2995,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1275752590
 GameObject:
@@ -3541,10 +3474,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   genericSockets:
-  - _text: on the floor
-    itemIndexes: 
-    relative: 0
-    hide: 0
+  - itemIndexes: 
+    _positions: []
     itemGroups: []
 --- !u!4 &1578065325
 Transform:
@@ -4069,7 +4000,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1967984057
 MonoBehaviour:
@@ -4088,6 +4019,7 @@ MonoBehaviour:
     dataIndex: 0
     weight: 0
     usableAnytime: 0
+    used: 0
     mContainedItems: []
     currentWordIndex: 0
     words: []
@@ -4098,13 +4030,13 @@ MonoBehaviour:
     coords:
       x: 0
       y: 0
-    visited: 0
     enclosed: 0
   inventory:
     debug_name: debug name
     dataIndex: 0
     weight: 0
     usableAnytime: 0
+    used: 0
     mContainedItems: []
     currentWordIndex: 0
     words: []
@@ -4114,9 +4046,7 @@ MonoBehaviour:
     properties: []
   inputInfo: {fileID: 0}
   colorWords: 1
-  itemsOnTile:
-  - sprout
-  - watering can
+  itemsOnTile: []
 --- !u!1 &1976029674
 GameObject:
   m_ObjectHideFlags: 0
@@ -4495,6 +4425,7 @@ MonoBehaviour:
   test: 0
   uiText: {fileID: 2010397798}
   uiText_Old: {fileID: 1275752592}
+  debug_cardinal: 6
 --- !u!222 &2032537942
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4533,6 +4464,51 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &2065804043
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2065804044}
+  - component: {fileID: 2065804045}
+  m_Layer: 0
+  m_Name: ZombieManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2065804044
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2065804043}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1155866337}
+  m_RootOrder: 16
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2065804045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2065804043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7c6c8949fb3c86489d9dba93a4a1909, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  count: 0
 --- !u!1 &2075234872
 GameObject:
   m_ObjectHideFlags: 0

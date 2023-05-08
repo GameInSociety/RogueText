@@ -21,7 +21,7 @@ public class TileSocketLoader : TextParser
             for (int cellIndex = 1; cellIndex < cells.Count; cellIndex++)
             {
                 Socket newSocket = new Socket();
-                newSocket._text = cells[cellIndex];
+                newSocket.SetPosition(cells[cellIndex]);
                 SocketManager.Instance.tileSockets.Add(newSocket);
             }
         }

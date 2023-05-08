@@ -22,14 +22,7 @@ public class ItemSocketLoader : TextParser
             for (int cellIndex = 1; cellIndex < cells.Count; cellIndex++)
             {
                 Socket newSocket = new Socket();
-                if (cells[cellIndex].StartsWith("relative"))
-                {
-                    newSocket.relative = true;
-                }
-                else
-                {
-                    newSocket._text = cells[cellIndex];
-                }
+                newSocket.SetPosition(cells[cellIndex]);
 
                 SocketManager.Instance.itemSockets.Add(newSocket);
 

@@ -55,6 +55,16 @@ public class MapTexture : MonoBehaviour {
             }
         }
 
+        foreach (var item in ZombieManager.Instance.zombies)
+        {
+            // horde visuazilation
+            /*Color pixelColor = mainMap_Texture.GetPixel(item.coords.x, item.coords.y);
+            pixelColor.r = 1f;
+            pixelColor.a += 0.05f;*/
+
+            Paint(item.coords, Color.red);
+        }
+
         Paint(Player.Instance.coords, Color.blue);
         //Paint(ClueManager.Instance.clueCoords, Color.cyan);
         RefreshTexture();

@@ -11,6 +11,10 @@ public class Item
 {
     public string debug_name = "debug name";
 
+    // va rendre les liste d'items obsolètes
+    // void "no item list" dans la feuille de routes
+    //public List<Socket> sockets = new List<Socket>();
+
     /// <summary>
     /// declaration
     /// </summary>
@@ -18,6 +22,11 @@ public class Item
     // maybe should be a property ?
     public int weight = 0;
     public bool usableAnytime = false;
+
+    // nom à changer
+    // concept à changer
+    // vie à changer
+    public bool used = false;
 
     /// <summary>
     /// exemples :
@@ -87,12 +96,15 @@ public class Item
         bool b = GetContainedItems != null && GetContainedItems.Count > 0;
         return b;
     }
-    public virtual void GenerateItems()
+    public virtual void TryGenerateItems()
     {
-        if (ContainsItems())
+        if (used)
         {
             return;
         }
+
+        used = true;
+
 
         foreach (var itemInfo in AppearInfo.GetAppearInfo(dataIndex).itemInfos)
         {
@@ -165,7 +177,7 @@ public class Item
     /// </summary>
     public void Open()
     {
-        GenerateItems();
+        TryGenerateItems();
 
         if (ContainsItems())
         {
@@ -199,7 +211,7 @@ public class Item
     public virtual void WriteContainedItemDescription()
     {
         Socket socket = new Socket();
-        socket._text = "&on the dog&";
+        socket.SetPosition("&on the dog&");
 
         SocketManager.Instance.DescribeItems(GetContainedItems, socket);
     }
@@ -443,7 +455,7 @@ public class Item
 
         if (enabledPropCount > 0)
         {
-            str += "&the dog (override item)& is ";
+            str += "&the dog (override)& is ";
 
             for (int i = 0; i < enabledPropCount; i++)
             {
@@ -584,51 +596,12 @@ public class Item
 
     public string GetRelativePosition()
     {
-        Player.Orientation fac = Player.Orientation.None;
 
-        switch (GetProperty("direction").value)
-        {
-            case "north":
-                fac = Player.Instance.CardinalToOrientation(Cardinal.North);
-                break;
-            case "south":
-                fac = Player.Instance.CardinalToOrientation(Cardinal.South);
-                break;
-            case "east":
-                fac = Player.Instance.CardinalToOrientation(Cardinal.East);
-                break;
-            case "west":
-                fac = Player.Instance.CardinalToOrientation(Cardinal.West);
-                break;
-            default:
-                break;
-        }
+        Cardinal cardinal = Coords.GetCardinalFromString(GetProperty("direction").value);
 
-        switch (fac)
-        {
-            case Player.Orientation.Front:
-                return "front";
-            case Player.Orientation.Right:
-                return "right";
-            case Player.Orientation.Back:
-                return "behind";
-            case Player.Orientation.Left:
-                return "left";
-            default:
-                return "";
+        Movable.Orientation orientation = Movable.CardinalToOrientation(cardinal);
 
-            /*case Player.Orientation.Front:
-                return TextManager.GetPhrase("position_front");
-            case Player.Orientation.Right:
-                return TextManager.GetPhrase("position_right");
-            case Player.Orientation.Back:
-                return TextManager.GetPhrase("position_back");
-            case Player.Orientation.Left:
-                return TextManager.GetPhrase("position_left");
-            default:
-                return "";*/
-        }
-
+        return Coords.GetOrientationWord(orientation);
     }
 
 }

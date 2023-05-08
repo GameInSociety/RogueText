@@ -20,6 +20,8 @@ public class DisplayDescription : MonoBehaviour {
     public Text uiText;
     public Text uiText_Old;
 
+    public Cardinal debug_cardinal;
+
 	void Awake () {
 		Instance = this;
 	}
@@ -48,24 +50,18 @@ public class DisplayDescription : MonoBehaviour {
 
     public void UpdateDescription()
     {
-        TextManager.Renew();
 
-        // CURRENT TILE
-        if (Tile.GetPrevious != null && Tile.GetCurrent.SameTypeAs(Tile.GetPrevious))
-        {
-            // if the new tile is the same as the previous, don't bother describing itopen
-        }
-        else
-        {
-            TextManager.WritePhrase(Tile.GetCurrent.GetDescription());
-        }
+        // je vide les sockets ici, mais à terme, il faut que les sockets restent dans la tile
+        // à regarder "no item list" dans la feuille de route
+        SocketManager.Instance.socketGroups.Clear();
+
+        Tile.GetCurrent.Describe();
 
         // SURROUNDING TILES
-        SurroundingTileManager.WriteSurroundingTileDescription();
+        
 
         // display tile items
-        Tile.GetCurrent.WriteContainedItemDescription();
-
+        
         // pas sûr que les choses d'état de santé, de temps et autre trucs divers doivent être là, pense à changer
         ConditionManager.GetInstance().WriteDescription();
 
@@ -74,12 +70,6 @@ public class DisplayDescription : MonoBehaviour {
 
         // weather
         TimeManager.GetInstance().WriteWeatherDescription();
-
-        // l'indication de la lettre
-        /*if ( !Story.Instance.GetParam("retrieved_letter"))
-        {
-            str += "\n\nJ'ai laissé la lettre quelque part dans cette maison, mais je ne sais plus où...";
-        }*/
     }
 
     public void Renew()
@@ -94,9 +84,6 @@ public class DisplayDescription : MonoBehaviour {
 
     public void AddToDescription(string str)
     {
-
-        // replace keywords
-        str = TextManager.ExtractItemWords(str);
 
         // majuscule
         str = TextUtils.FirstLetterCap(str);

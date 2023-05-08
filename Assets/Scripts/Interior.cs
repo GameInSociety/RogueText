@@ -45,25 +45,21 @@ public class Interior {
 
     public static void DescribeExterior()
     {
-        Cardinal dir = Cardinal.East;
+        Cardinal cardinal = Coords.GetCardinalFromString(InputInfo.Instance.GetItem(0).GetProperty("direction").value);
 
-        if (Player.Instance.coords.x < 0)
+        Coords targetCoords = Tile.GetCurrent.coords+ (Coords)cardinal;
+
+        Tile tile = TileSet.map.GetTile(targetCoords);
+
+        if ( tile == null)
         {
-            dir = Cardinal.West;
-        }
-
-        Coords tCoords = TileSet.map.playerCoords + (Coords)dir;
-
-        Tile tile = TileSet.map.GetTile(tCoords);
-
-        if (tile == null)
-        {
-            TextManager.WritePhrase("interior_exteriorDescription_blocked");
+            TextManager.WritePhrase("The view is blocked by some bushes");
         }
         else
         {
-            TextManager.WritePhrase("/interior_exteriorDescription_visible/" + tile.GetDescription());
+            tile.Describe();
         }
+
 
     }
 

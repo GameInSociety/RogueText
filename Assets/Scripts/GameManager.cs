@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         AdjectiveLoader.Instance.Load();
 
         PhraseLoader.Instance.Load();
@@ -29,7 +30,12 @@ public class GameManager : MonoBehaviour
 
         MapTexture.Instance.CreateMapFromTexture();
 
+        Player.Instance = new Player();
         Player.Instance.Init();
+        Player.Instance.Move(Cardinal.None);
+
+        ZombieManager.Instance.Init();
+
     }
 
 

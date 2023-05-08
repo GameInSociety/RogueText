@@ -174,7 +174,7 @@ public class EventManager : MonoBehaviour
         }
 
         Item newItem = ItemManager.Instance.CreateInTile(Tile.GetCurrent, content);
-        TextManager.WritePhrase("&a dog (override item)& is now here", newItem);
+        TextManager.WritePhrase("&a dog (override)& is now here", newItem);
     }
     public void Event_DestroyItem(string content)
     {

@@ -33,17 +33,14 @@ public class ConditionManager : MonoBehaviour
         switch (action.type)
         {
             case PlayerAction.Type.SetState:
-                SetCondition();
-                break;
-            case PlayerAction.Type.Wait:
-                Wait();
+                Action_SetCondition();
                 break;
             default:
                 break;
         }
     }
 
-    void SetCondition()
+    void Action_SetCondition()
     {
         Condition.Type conditionType =  (Condition.Type)System.Enum.Parse(typeof(Condition.Type), PlayerAction.GetCurrent.GetContent(0), true);
 
@@ -81,27 +78,6 @@ public class ConditionManager : MonoBehaviour
 
         //Item.Remove(InputInfo.GetCurrent.GetItem(0));
     }
-
-    #region wait
-    public void Wait()
-    {
-        int hours;
-
-        if (InputInfo.Instance.hasValueInText)
-        {
-            hours = InputInfo.Instance.valueInText;
-        }
-        else
-        {
-            hours = PlayerAction.GetCurrent.GetValue(0);
-        }
-        
-        TimeManager.GetInstance().NextHour(hours);
-
-        // pour l'instant un peu oblig� � cause des objets etc...
-        DisplayDescription.Instance.UpdateDescription();
-    }
-    #endregion
 
     public void AdvanceCondition()
     {
@@ -141,7 +117,7 @@ public class ConditionManager : MonoBehaviour
             }
         }
 
-        TextManager.WriteHard(text);
+        TextManager.WritePhrase(text);
     }
 
     public Condition GetCondition(Condition.Type conditionType)

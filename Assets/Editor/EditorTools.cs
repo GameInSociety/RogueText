@@ -6,43 +6,6 @@ using UnityEditor.Experimental.GraphView;
 
 public class EditorTools : EditorWindow
 {
-    string[] strings = new string[33]
-    {
-        "plain",
-"field",
-"clearing",
-"hill",
-"mountain",
-"forest",
-"wood",
-"sea",
-"lake",
-"river",
-"beach",
-"road",
-"village road",
-"costal road",
-"path",
-"bridge",
-"house",
-"farm",
-"cabin",
-"mansion",
-"hallway",
-"stairs",
-"living room",
-"kitchen",
-"dining room",
-"children's room",
-"bedroom",
-"bathroom",
-"toilets",
-"attic",
-"basement",
-"cellar",
-"office",
-    };
-
     public bool mapVisible = false;
 
     bool showStates = false;
@@ -59,6 +22,13 @@ public class EditorTools : EditorWindow
 
     void OnGUI()
     {
+
+        if (Player.Instance != null)
+        {
+            GUILayout.Label("Player orientation : " + Player.Instance.currentCarnidal, EditorStyles.boldLabel);
+        }
+
+
         GUILayout.Label("Base Settings", EditorStyles.boldLabel);
 
         DrawMap();
@@ -68,6 +38,16 @@ public class EditorTools : EditorWindow
         DrawTime();
 
         DrawStates();
+
+        if (GUILayout.Button("Wait 1 hour"))
+        {
+            TimeManager.GetInstance().Wait(1);
+        }
+
+        if (GUILayout.Button("Wait 10 hours"))
+        {
+            TimeManager.GetInstance().Wait(10);
+        }
     }
 
     void DrawTime()

@@ -129,7 +129,7 @@ public class ItemManager : MonoBehaviour {
         // first of all, look at surrounding tiles, that way no confusing if your on a road
         // and you wanna look the continuing road
         // to change, because you need to be able to differenciate the both
-        foreach (var tile in Player.Instance.SurroundingTiles())
+        foreach (var tile in Tile.GetCurrent.SurroundingTiles())
         {
             if (tile.HasWord(str))
             {

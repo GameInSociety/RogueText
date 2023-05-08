@@ -118,7 +118,8 @@ CreateInTile(stick, 4)
 CreateInTile(plank, 1)",,Craft,,,,,,,,,,,
 sofa,s,Objet,on,FALSE,,,,,,,"SetState(sleep, +5)",Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 clock,s,Objet,,FALSE,,,,,,,,DisplayTimeOfDay,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-window,s,Objet,,FALSE,state / opened?closed,,,"ici, il faut utiliser paramètre","ici, il faut utiliser paramètre",,,DescribeExterior,,,,,,,Enter,,,,,,"Write(you go out the window)
+window,s,Objet,,FALSE,"state / opened?closed
+dir / direction / north?south?east?west",,,"ici, il faut utiliser paramètre","ici, il faut utiliser paramètre",,,DescribeExterior,,,,,,,Enter,,,,,,"Write(you go out the window)
 ExitByWindow",,,,,,,,,,,,,,,
 box,s,Objet,,TRUE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 phone,s,Objet,,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -226,12 +227,12 @@ plain,s,Rural,on,TRUE,state / fertile,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTI
 field,s,Rural,in,TRUE,state / fertile,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
 clearing,s,Rural,in,TRUE,state / fertile,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
 hill,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
-mountain,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+mountain,s,Rural,on,TRUE,hidden / blocking,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
 forest,s,Rural,in,TRUE,state / fertile,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
 wood,s,Rural,in,TRUE,state / fertile,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
-sea,s,Rural,near,TRUE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
-lake,s,Rural,near,TRUE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
-river,s,Rural,along,TRUE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+sea,s,Rural,near,TRUE,hidden / blocking,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+lake,s,Rural,near,TRUE,hidden / blocking,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
+river,s,Rural,along,TRUE,hidden / blocking,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
 beach,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
 road,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,
 village road,s,Rural,on,TRUE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,,,,,,,MoveRel(0),MoveToTargetItem,,,,,,,,,,,,,,

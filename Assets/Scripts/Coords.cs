@@ -55,7 +55,7 @@ public struct Coords
         this.y = y;
     }
 
-    public static string GetOrientationText(List<Player.Orientation> orientations)
+    public static string GetOrientationText(List<Movable.Orientation> orientations)
     {
         string str = "";
 
@@ -96,7 +96,7 @@ public struct Coords
         }
     }
 
-    public static string GetOrientationText(Player.Orientation orientation)
+    public static string GetOrientationText(Movable.Orientation orientation)
     {
         string key = orientation.ToString().Remove(1).ToLower() + orientation.ToString().Remove(0, 1);
         key = "position_" + key;
@@ -104,21 +104,21 @@ public struct Coords
         return TextManager.GetPhrase(key);
     }
 
-    public static string GetOrientationWord(Player.Orientation orientation)
+    public static string GetOrientationWord(Movable.Orientation orientation)
     {
         switch (orientation)
         {
-            case Player.Orientation.Front:
+            case Movable.Orientation.Front:
                 return "front";
-            case Player.Orientation.Right:
+            case Movable.Orientation.Right:
                 return "right";
-            case Player.Orientation.Back:
+            case Movable.Orientation.Back:
                 return "back";
-            case Player.Orientation.Left:
+            case Movable.Orientation.Left:
                 return "left";
-            case Player.Orientation.None:
+            case Movable.Orientation.None:
                 return "eeeeeeeeeh";
-            case Player.Orientation.Current:
+            case Movable.Orientation.Current:
                 return "here";
             default:
                 break;
@@ -127,9 +127,8 @@ public struct Coords
         return "woops orientation";
     }
 
-    public static Cardinal GetDirectionFromString(string str)
+    public static Cardinal GetCardinalFromString(string str)
     {
-
         foreach (var item in System.Enum.GetValues(typeof(Cardinal)))
         {
             if (item.ToString() == str)
@@ -138,13 +137,27 @@ public struct Coords
             }
         }
 
+        switch (str)
+        {
+            case "north":
+                return Cardinal.North;
+            case "south":
+                return Cardinal.South;
+            case "east":
+                return Cardinal.East;
+            case "west":
+                return Cardinal.West;
+        }
+
+        Debug.LogError("no cardinal found in " + str);
+
         return Cardinal.None;
 
     }
 
     public static void WriteDirectionToNorth()
     {
-        Player.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
+        Movable.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
         TextManager.SetOverrideOrientation(orientation);
         TextManager.WritePhrase("compas_giveNorth");
     }
@@ -328,31 +341,31 @@ public struct Coords
         return "X : " + x + " / Y : " + y;
     }
 
-    public static Player.Orientation GetOrientationFromNorth(Cardinal direction)
+    public static Movable.Orientation GetOrientationFromNorth(Cardinal direction)
     {
         switch (direction)
         {
             case Cardinal.North:
-                return Player.Orientation.Front;
+                return Movable.Orientation.Front;
             case Cardinal.NorthEast:
                 break;
             case Cardinal.East:
-                return Player.Orientation.Left;
+                return Movable.Orientation.Left;
             case Cardinal.SouthEast:
                 break;
             case Cardinal.South:
-                return Player.Orientation.Back;
+                return Movable.Orientation.Back;
             case Cardinal.SouthWest:
                 break;
             case Cardinal.West:
-                return Player.Orientation.Right;
+                return Movable.Orientation.Right;
             case Cardinal.NorthWest:
                 break;
             case Cardinal.None:
                 break;
         }
 
-        return Player.Orientation.None;
+        return Movable.Orientation.None;
 
     }
 
@@ -412,7 +425,7 @@ public struct Coords
 
     }
 
-    public static Cardinal GetRelativeDirection(Cardinal direction, Player.Orientation facing)
+    public static Cardinal GetRelativeDirection(Cardinal direction, Movable.Orientation facing)
     {
         int a = (int)direction + (int)facing;
         if (a >= 8)

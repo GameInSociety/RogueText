@@ -6,16 +6,16 @@ using static UnityEditor.Progress;
 public class TextManager
 {
     static Item overrideItem = null;
-    static List<Player.Orientation> overrideOrientations = new List<Player.Orientation>();
+    static List<Movable.Orientation> overrideOrientations = new List<Movable.Orientation>();
     // PARAMS
     public static List<PhraseKey> phraseKeys = new List<PhraseKey>();
     // override c'est vraiment pas bien, il faut trouver une façon de faire ("&le chien sage (surrounding tile)&")
 
-    public static void SetOverrideOrientation(Player.Orientation orientation)
+    public static void SetOverrideOrientation(Movable.Orientation orientation)
     {
-        overrideOrientations = new List<Player.Orientation> { orientation };
+        overrideOrientations = new List<Movable.Orientation> { orientation };
     }
-    public static void SetOverrideOrientation(List<Player.Orientation> _orientations)
+    public static void SetOverrideOrientation(List<Movable.Orientation> _orientations)
     {
         overrideOrientations = _orientations;
     }
@@ -28,8 +28,12 @@ public class TextManager
     {
         // get random if no phrase return the key
         string str = GetPhraseKey(key);
+        
         // ITEM ( il faut le faire ici AUSSI, pour la compil du display description
         str = KeyWords.ReplaceKeyWords(str);
+
+        // &a good dog& => a charred road
+        // &some dogs (main)& => some seeds
         str = ExtractItemWords(str);
         return str;
     }
@@ -53,24 +57,32 @@ public class TextManager
         // each "&le chien sage (itemcode)& iteration
         while (text.Contains("&"))
         {
-            // bonjour je suis &le chien sage (main item)& => &le chien sage (main item)&
+            // bonjour je suis &le chien sage (main)& => &le chien sage (main)&
             string targetPart = IsolatePart(text);
-            // "&le chien sage (main item)& => le chien sage (main item)
-            string wordCode = TrimPart(targetPart);
-            // get target item
-            string itemCode = "";
-            wordCode = GetItemCode(wordCode, out itemCode);
-            Item targetItem = GetItemFromCode(itemCode);
+            // "&le chien sage (main)& => le chien sage (main)
+            string wordInfo = TrimPart(targetPart);
+            // le chien sage (main) => main
+            string itemInfo = GetKey(wordInfo);
 
-            if (targetItem == null)
+            if ( itemInfo == "socket")
             {
-                Debug.LogError("target item is null " + itemCode + " text : " + text);
+                // socket is a group of words, so petite fainte là ( pas ouf )
+                text = text.Replace(targetPart, KeyWords.socket.GetItemsText(wordInfo));
             }
+            else
+            {
+                Item targetItem = GetItemFromCode(itemInfo);
 
-            // get word from item
-            string word = targetItem.word.GetContent(wordCode);
-            // replace target part with word, and continue
-            text = text.Replace(targetPart, word);
+                if (targetItem == null)
+                {
+                    Debug.LogError("target item is null " + itemInfo + " text : " + text);
+                }
+
+                // get word from item
+                string word = targetItem.word.GetContent(wordInfo);
+                // replace target part with word, and continue
+                text = text.Replace(targetPart, word);
+            }
 
             // safety break
             ++safetyBreak;
@@ -83,23 +95,24 @@ public class TextManager
         return text;
         //
     }
-    private static string GetItemCode(string wordCode, out string itemCode)
+    private static string GetKey(string _key)
     {
-        // word code = le chien sage (main item)
+        // word code = le chien sage (main)
         // check if there tags
-        if (!wordCode.Contains("("))
+        if (!_key.Contains("("))
         {
+            // no key specified, so returning the main
+            // not a bug, just flemme
+
             //Debug.LogError("word code : " + wordCode + " doesn't contain item code");
-            itemCode = "main item";
-            return wordCode;
+            return "main";
         }
-        int startIndex = wordCode.IndexOf('(');
-        string tmpItemCode = wordCode.Remove(0, startIndex + 1);
+        int startIndex = _key.IndexOf('(');
+        string tmpItemCode = _key.Remove(0, startIndex + 1);
         tmpItemCode = tmpItemCode.Remove(tmpItemCode.Length - 1);
-        wordCode = wordCode.Remove(startIndex - 1);
+        _key = _key.Remove(startIndex - 1);
         // assign
-        itemCode = tmpItemCode;
-        return wordCode;
+        return tmpItemCode;
     }
     // isolate "&" du texte
     static string IsolatePart(string str)
@@ -124,24 +137,22 @@ public class TextManager
     {
         switch (itemCode)
         {
-            case "main item":
+            case "main":
                 return InputInfo.Instance.GetItem(0);
-            case "second item":
-                return InputInfo.Instance.GetItem(1);
-            case "tile item":
+            case "tile":
                 return Tile.GetCurrent;
-            case "override item":
+            case "override":
                 if (overrideItem == null)
                 {
-                    Debug.LogError("trying override item, but null");
+                    Debug.LogError("trying override, but null");
                 }
                 return overrideItem;
             default:
-                Debug.LogError(itemCode + " doesnt go in any item category, returning input main item");
+                Debug.LogError(itemCode + " doesnt go in any item category, returning input main");
                 return InputInfo.Instance.GetItem(0);
         }
     }
-    public static List<Player.Orientation> GetOverrideOrientations()
+    public static List<Movable.Orientation> GetOverrideOrientations()
     {
         return overrideOrientations;
     }
@@ -155,10 +166,6 @@ public class TextManager
     {
         string text = GetPhrase(str);
         DisplayDescription.Instance.AddToDescription(text);
-    }
-    public static void WriteHard(string str)
-    {
-        DisplayDescription.Instance.AddToDescription(str);
     }
     #endregion
     public static void Space()

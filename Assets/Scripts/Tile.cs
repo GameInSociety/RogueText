@@ -4,47 +4,144 @@ using UnityEditor.Experimental.GraphView;
 using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 using Newtonsoft.Json;
+using TMPro;
 
 [System.Serializable]
 public class Tile : Item
 {
     // location of tile in world
     public Coords coords;
-    // tile type
-    public bool visited = false;
 
     public bool enclosed = false;
 
     public static bool itemsChanged = false;
 
     #region tile description
-    public string GetDescription()
+    // describe from the target cardinal ( example : Player Direction if move, window direction if look at window )
+    // pas mal
+    public void Describe( )
     {
-        // ici en fait, il faudrait aussi que les phrases d'accroches aient des paramètres dans une db
-        // exemple : "vous êtes encore/DEFINED/LOC|PREP/Singular etc...
-        string str = "";
-
-        // tile is continued ( road, forest etc... )
-        if (SameAsPrevious() && stackable)
+        if (Player.Instance.coords== coords)
         {
-            str = TextManager.GetPhrase("tile_continue");
-        }
-        else if (!visited)
-        {
-            str = TextManager.GetPhrase("tile_discover");
+            // don't change orientation
         }
         else
         {
-            str = TextManager.GetPhrase("tile_goback");
+            // change orientation, so the description is correct
+            Coords dir = coords - Player.Instance.coords;
+            Cardinal cardinal = (Cardinal) dir;
+            Player.Instance.Orient(Movable.CardinalToOrientation(cardinal));
         }
 
-        return str;
+        TextManager.Renew();
+
+        DescribeSelf();
+
+        if (!Player.Instance.CanSee())
+        {
+            return;
+        }
+
+        WriteSurroundingTileDescription();
+
+        WriteContainedItemDescription();
+
+    }
+
+    public void WriteSurroundingTileDescription()
+    {
+        if (enclosed)
+        {
+            return;
+        }
+
+        SocketManager.Instance.DescribeItems(SurroundingTiles(), null);
+    }
+
+
+
+    public void DescribeSelf()
+    {
+        if (stackable)
+        {
+            TextManager.WritePhrase("tile_continue", (Item)this);
+        }
+        else if (!used)
+        {
+            TextManager.WritePhrase("tile_discover", (Item)this);
+        }
+        else
+        {
+            TextManager.WritePhrase("tile_goback", (Item)this);
+        }
+
+
+    }
+
+    // with the reference cardinal
+    // player dir if move
+    // window dir if look...
+    // and coming others
+    public List<Item> SurroundingTiles()
+    {
+        List<Item> result = new List<Item>();
+
+        List<Movable.Orientation> orientations = new List<Movable.Orientation>
+        {
+            Movable.Orientation.Front,
+            Movable.Orientation.Right,
+            Movable.Orientation.Left
+        };
+
+        foreach (var orientation in orientations)
+        {
+            Tile targetTile = GetTile(orientation);
+
+            if (targetTile == null)
+            {
+                continue;
+            }
+
+            if (targetTile.enclosed)
+            {
+                continue;
+            }
+
+            if (!targetTile.HasProperty("direction"))
+            {
+
+                targetTile.CreateProperty("dir / direction / none");
+            }
+
+            Cardinal dir = Movable.OrientationToCardinal( orientation);
+            targetTile.GetProperty("direction").Update(dir.ToString().ToLower());
+
+
+            result.Add(targetTile);
+        }
+
+        return result;
+    }
+
+    public Tile GetTile( Movable.Orientation orientation)
+    {
+        Cardinal dir = Movable.OrientationToCardinal(orientation);
+
+        Coords targetCoords = coords + (Coords)dir;
+
+        return TileSet.current.GetTile(targetCoords);
+    }
+    public Tile GetAdjacentTile (Cardinal cardinal)
+    {
+        Coords targetCoords = coords + (Coords)cardinal;
+
+        return TileSet.current.GetTile(targetCoords);
     }
     #endregion
 
-    public override void GenerateItems()
+    public override void TryGenerateItems()
     {
-        base.GenerateItems();
+        base.TryGenerateItems();
 
         foreach (var item in DebugManager.Instance.itemsOnTile)
         {
@@ -56,8 +153,13 @@ public class Tile : Item
     {
         //base.WriteContainedItemDescription();
 
+        if (!used)
+        {
+            TryGenerateItems();
+        }
+
         Socket socket = new Socket();
-        socket._text = "&on the dog (tile item)&";
+        socket.SetPosition("&on the dog (tile)&");
 
         SocketManager.Instance.DescribeItems(GetContainedItems, socket);
     }
@@ -70,13 +172,13 @@ public class Tile : Item
 
         return GetCurrent.SameTypeAs(GetPrevious);
     }
-    public Player.Orientation OrientationToPlayer()
+    public Movable.Orientation OrientationToPlayer()
     {
         Coords dir = coords - Player.Instance.coords;
 
         Cardinal cardinal = (Cardinal)dir;
 
-        Player.Orientation orientation = Player.Instance.CardinalToOrientation(cardinal);
+        Movable.Orientation orientation = Movable.CardinalToOrientation(cardinal);
 
         return orientation;
     }

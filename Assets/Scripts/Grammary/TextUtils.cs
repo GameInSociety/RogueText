@@ -4,6 +4,36 @@ using UnityEngine;
 
 public class TextUtils
 {
+    public static string GetLink(int index, int lenght)
+    {
+        if ( index == lenght - 1)
+        {
+            return "";
+        }
+
+        if (lenght == 1)
+        {
+            return "";
+        }
+
+        if (lenght == 2)
+        {
+            return " and ";
+        }
+
+        if (index == lenght - 2)
+        {
+            return " and ";
+        }
+        // dernier
+        else if (index < lenght - 2)
+        {
+            return ", ";
+        }
+
+        return "";
+    }
+
     public static string FirstLetterCap(string str)
     {
         if ( str.Length < 2)

@@ -78,8 +78,17 @@ public class Property
             return;
         }
 
+       
+
         if (!string.IsNullOrEmpty(value))
         {
+            if (value.Contains('?'))
+            {
+                string[] strs = value.Split('?');
+                value = strs[Random.Range(0, strs.Length)];
+                return;
+            }
+
             if (HasInt())
             {
                 value_max = GetInt();

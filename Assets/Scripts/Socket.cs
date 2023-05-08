@@ -1,5 +1,7 @@
+using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -10,58 +12,89 @@ public class Socket
     // LOCAL //
     // makes sens that the socket are unique ( no instances )
     // because they will not change, there will be no copy and nothing added to them
-    public string _text;
+
+    // item that can appear in the socket
     public List<int> itemIndexes = new List<int>();
-    public bool relative = false;
 
-    public bool hide = false;
+    // on the left and on the right
+    // at the foot of a tree
+    public List<string> _positions = new List<string>();
 
+    // the road
+    // 3 apples
+    // a watering can
     public List<ItemGroup> itemGroups = new List<ItemGroup>();
 
-    public string GetDescription()
+    #region positions
+    public void SetPosition(string str)
     {
-        string itemText = GetItemsText();
-
-        // phrases de vision ( vous voyez, remarquez etc... )
-        string visionPhrase = TextManager.GetPhrase("tile_visionPhrases");
-        // phrases de location ( se trouve, se tient etc ... )
-        string locationVerb = TextManager.GetPhrase("tile_locationPhrases");
-
-        // PHRASE ORDER 
-
-        // le type de la phrase ( noms, verbe de vision et position de l'objet
-        // , ou position de l'objet, verbe de location et noms
-        // etc... )
-        int phraseType = Random.Range(0, 5);
-
-        string text = GetSocketText() + " there's " + itemText;
-        return text;
-
-        /*switch (phraseType)
+        if (_positions.Count == 0)
         {
-            case 0:
-                text = itemText + " " + locationVerb + " " + GetSocketText();
-                break;
-            case 1:
-                text = GetSocketText() + " " + locationVerb + " " + itemText;
-                break;
-            case 2:
-                text = GetSocketText() + ", " + visionPhrase + " " + itemText;
-
-                break;
-            case 3:
-                text = visionPhrase + " " + GetSocketText() + " " + itemText;
-                break;
-            case 4:
-                text = GetSocketText() + ", " + itemText;
-                break;
-            default:
-                break;
-        }*/
-
-        // mettre la phrase en majuscule
+            _positions.Add(str);
+        }
+        else
+        {
+            _positions[0] = str;
+        }
     }
 
+    public void AddPosition(string str)
+    {
+        _positions.Add(str);
+    }
+
+    public string GetPosition()
+    {
+        return GetPosition(0);
+    }
+
+    public string GetPosition(int i)
+    {
+        if (i >= _positions.Count)
+        {
+            Debug.LogError("position out of range for socket");
+            return "";
+        }
+
+        return _positions[i];
+    }
+    public string GetPositionText()
+    {
+        string str = "";
+
+        for (int i = 0; i < _positions.Count; i++)
+        {
+            str += CheckKeywords(_positions[i]);
+
+            str += TextUtils.GetLink(i, _positions.Count);
+        }
+
+        return str;
+    }
+    #endregion
+
+    #region text
+
+    private string CheckKeywords(string content)
+    {
+        switch (content)
+        {
+            case "front":
+                return "in front on you";
+            case "right":
+                return "on your right";
+            case "behind":
+                return "behind you";
+            case "left":
+                return "on your left";
+        }
+
+        return content;
+    }
+
+    #endregion
+
+    #region item groups
     public Item GetItem()
     {
         return GetItem(0);
@@ -72,21 +105,39 @@ public class Socket
         return itemGroups[index].item;
     }
 
-    public string GetSocketText()
+    public void AddItem(Item item)
     {
-        switch (_text)
-        {
-            case "front":
-                return "in front on you,";
-            case "right":
-                return "on your right";
-            case "behind":
-                return "behind you";
-            case "left":
-                return "on your left";
-        }
+        AddItem(item, false);
+    }
 
-            return _text;
+    public void AddItem(Item item, bool forceNew)
+    {
+        // see if the item is already in the socket
+        Socket.ItemGroup itemGroup = itemGroups.Find(x => x.item.dataIndex == item.dataIndex);
+
+        if (itemGroup == null || forceNew)
+        {
+            // it isn't, so add it
+            itemGroup = new ItemGroup();
+
+            itemGroup.item = item;
+
+            itemGroup.count = 1;
+
+            if (forceNew)
+            {
+                itemGroup.hidden = true;
+            }
+
+            itemGroups.Add(itemGroup);
+        }
+        else
+        {
+
+            // is already is, so add to the item group count
+            itemGroup.count += 1;
+
+        }
     }
 
     [System.Serializable]
@@ -94,9 +145,10 @@ public class Socket
     {
         public Item item;
         public int count;
-        public string GetWordGroup()
-        {
+        public bool hidden = false;
 
+        public string GetWordGroup(string key)
+        {
             if (count > 5)
             {
                 return "a lot " + item.word.GetContent("of dogs");
@@ -111,7 +163,7 @@ public class Socket
             }
             else
             {
-                return item.word.GetContent("a dog");
+                return item.word.GetContent(key);
                 /*if (!item.stackable)
                 {
                     return item.word.GetContent("a good dog");
@@ -124,83 +176,21 @@ public class Socket
         }
     }
 
-    public string GetItemsText()
+    public string GetItemsText(string wordInfo)
     {
         string text = "";
 
-        int i = 0;
+        List<ItemGroup> _groups = itemGroups.FindAll(x => !x.hidden);
 
-        foreach (var itemGroup in itemGroups)
+        int l = _groups.Count;
+        for (int i = 0; i < l; i++)
         {
-
-            text += itemGroup.GetWordGroup();
-
-            if (itemGroups.Count > 1 && i < itemGroups.Count - 1)
-            {
-                if (itemGroups.Count > 2)
-                {
-                    if (i == itemGroups.Count - 2)
-                    {
-                        text += " and ";
-                    }
-                    else
-                    {
-                        text += ", ";
-                    }
-                }
-                else
-                {
-                    text += " and ";
-                }
-
-            }
-
-            ++i;
+            text += _groups[i].GetWordGroup(wordInfo);
+            text += TextUtils.GetLink(i, l);
         }
 
         return text;
     }
-
-    // STATIC //
-
-    public static Socket GetRandomSocket(Item item)
-    {
-        List<Socket> possibleSockets = new List<Socket>();
-
-        // has the item a socket ?
-        foreach (var socket in SocketManager.Instance.itemSockets)
-        {
-            foreach (var itemIndex in socket.itemIndexes)
-            {
-                if (itemIndex == item.dataIndex)
-                {
-                    possibleSockets.Add(socket);
-                }
-            }
-        }
-
-        // does the tile have any socket ?
-        if (possibleSockets.Count == 0)
-        {
-            foreach (var socket in SocketManager.Instance.tileSockets)
-            {
-                foreach (var itemIndex in socket.itemIndexes)
-                {
-                    if (itemIndex == Tile.GetCurrent.dataIndex)
-                    {
-                        possibleSockets.Add(socket);
-                    }
-                }
-            }
-        }
-
-        if ( possibleSockets.Count == 0)
-        {
-
-            return PhraseManager.Instance.genericSockets[Random.Range(0, PhraseManager.Instance.genericSockets.Length)];
-        }
-
-        return possibleSockets[Random.Range(0, possibleSockets.Count)];
-    }
+    #endregion
 
 }

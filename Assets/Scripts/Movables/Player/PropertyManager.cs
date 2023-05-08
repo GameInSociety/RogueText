@@ -70,7 +70,7 @@ public class PropertyManager : MonoBehaviour
 
         if (!InputInfo.Instance.GetItem(1).HasProperty(prop_name))
         {
-            TextManager.WritePhrase("&the dog (override item)& has no " + prop_name, InputInfo.Instance.GetItem(1));
+            TextManager.WritePhrase("&the dog (override)& has no " + prop_name, InputInfo.Instance.GetItem(1));
             PlayerActionManager.Instance.BreakAction();
             return;
         }
@@ -78,7 +78,7 @@ public class PropertyManager : MonoBehaviour
         if (InputInfo.Instance.GetItem(1).GetProperty(prop_name).HasInt()
             && InputInfo.Instance.GetItem(1).GetProperty(prop_name).GetInt() == 0)
         {
-            TextManager.WritePhrase("No more " + prop_name + " in &the dog (override item)&", InputInfo.Instance.GetItem(1));
+            TextManager.WritePhrase("No more " + prop_name + " in &the dog (override)&", InputInfo.Instance.GetItem(1));
             PlayerActionManager.Instance.BreakAction();
             return;
         }
@@ -180,7 +180,7 @@ public class PropertyManager : MonoBehaviour
 
         if (!targetItem.HasProperty(parts[0]))
         {
-            TextManager.WriteHard("It's " + parts[0]);
+            TextManager.WritePhrase("It's " + parts[0]);
             PlayerActionManager.Instance.BreakAction();
             return;
         }
@@ -191,7 +191,7 @@ public class PropertyManager : MonoBehaviour
         {
             if (breakIfEnabled)
             {
-                TextManager.WriteHard("It's " + parts[0]);
+                TextManager.WritePhrase("It's " + parts[0]);
                 PlayerActionManager.Instance.BreakAction();
                 return;
             }
@@ -201,7 +201,7 @@ public class PropertyManager : MonoBehaviour
         {
             if ( property.GetInt() <= int.Parse(parts[1]))
             {
-                TextManager.WriteHard("No " + property.name);
+                TextManager.WritePhrase("No " + property.name);
                 PlayerActionManager.Instance.BreakAction();
                 return;
             }
@@ -228,7 +228,7 @@ public class PropertyManager : MonoBehaviour
 
         if (property.GetInt() <= 0)
         {
-            TextManager.WriteHard("No " + property.name);
+            TextManager.WritePhrase("No " + property.name);
             PlayerActionManager.Instance.BreakAction();
             return;
         }
