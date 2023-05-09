@@ -39,7 +39,12 @@ bag",s,Objet,in,FALSE,,,,OpenContainer,CloseContainer,,,OpenContainer,,,,,,,,,,,
 *,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 around,s,Objet,,FALSE,,,,,,,,LookAround,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 placeholder,s,Objet,,FALSE,,,,,,,,LookAround,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-door,s,Objet,,FALSE,,,,UseDoor,,,,Write(ITEM_DESCRIPTION),UseDoor,,,,,,UseDoor,,,,,,UseDoor,,,,,,,,,,,,,,,
+door,s,Objet,,FALSE,state / ?locked,,"CheckProp(!locked)
+UseDoor","CheckProp(!locked)
+UseDoor",,,,Write(ITEM_DESCRIPTION),"CheckProp(unlocked)
+UseDoor",,,,,,"CheckProp(unlocked)
+UseDoor",,,,,,"CheckProp(unlocked)
+UseDoor",,,,,,,,,,,,,,,
 mushroom,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 puddle,s,Objet,,TRUE,"container / water / 100
 %subEmpty
@@ -118,10 +123,12 @@ CreateInTile(stick, 4)
 CreateInTile(plank, 1)",,Craft,,,,,,,,,,,
 sofa,s,Objet,on,FALSE,,,,,,,"SetState(sleep, +5)",Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 clock,s,Objet,,FALSE,,,,,,,,DisplayTimeOfDay,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-window,s,Objet,,FALSE,"state / opened?closed
-dir / direction / north?south?east?west",,,"ici, il faut utiliser paramètre","ici, il faut utiliser paramètre",,,DescribeExterior,,,,,,,Enter,,,,,,"Write(you go out the window)
-ExitByWindow",,,,,,,,,,,,,,,
-box,s,Objet,,TRUE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+window,s,Objet,,FALSE,"state / open?closed
+dir / direction / none",,,"CheckProp(closed)
+ChangeProp(closed, open)","CheckProp(open)
+ChangeProp(open, closed)",,,DescribeExterior,,,,,,,Enter,,,,,,"CheckProp(open)
+Exit",,,,,,,,,,,,,,,
+box,s,Objet,,TRUE,,,,,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 phone,s,Objet,,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 computer,s,Objet,,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 radio,s,Objet,,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,GiveClue,,,,,,Craft,,,,,,,,,,,

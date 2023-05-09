@@ -187,6 +187,13 @@ public class ItemManager : MonoBehaviour {
         return dataItems.Find(x => x.HasWord(str) && x.usableAnytime);
     }
 
+    public Item CreateInTile(Tile tile, Item item)
+    {
+        Item newItem = CreateFromData(item);
+        tile.AddItem(newItem);
+        return newItem;
+    }
+
     public Item CreateInTile(Tile tile, string itemName)
     {
         Item newItem = CreateFromData(itemName);
@@ -202,11 +209,15 @@ public class ItemManager : MonoBehaviour {
 
     public List<AppearInfo> appearInfos = new List<AppearInfo>();
 
-    /// create a new item by name
     public Item CreateFromData(string name)
     {
         Item copy = GetDataItem(name);
+        return CreateFromData(copy);
+    }
 
+    /// create a new item by name
+    public Item CreateFromData(Item copy)
+    {
         // common to all
         Item newItem = new Item();
 

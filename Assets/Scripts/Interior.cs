@@ -45,9 +45,10 @@ public class Interior {
 
     public static void DescribeExterior()
     {
-        Cardinal cardinal = Coords.GetCardinalFromString(InputInfo.Instance.GetItem(0).GetProperty("direction").value);
-
-        Coords targetCoords = Tile.GetCurrent.coords+ (Coords)cardinal;
+        //Cardinal cardinal = Coords.GetCardinalFromString(InputInfo.Instance.GetItem(0).GetProperty("direction").value);
+        //Coords targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
+        
+        Coords targetCoords = TileSet.map.playerCoords;
 
         Tile tile = TileSet.map.GetTile(targetCoords);
 
@@ -87,42 +88,17 @@ public class Interior {
 
     }
 
-    public void ExitByWindow()
-    {
-        //Coords tCoords = TileSet.map.playerCoords + (Coords)Player.Instance.direction;
-        Coords tCoords = TileSet.map.playerCoords;
-
-        Tile tile = TileSet.map.GetTile(tCoords);
-
-        if ( tile!= null)
-        {
-            Player.Instance.coords = tCoords;
-            Exit();
-        }
-        else
-        {
-            TextManager.WritePhrase("interior_getout_blocked");
-        }
-        
-    }
-
-    public void ExitByDoor()
+    public void Exit()
     {
         Player.Instance.coords = TileSet.map.playerCoords;
 
-        Exit();
-    }
-
-    void Exit()
-    {
-        Interior.GetCurrent = null;
+        GetCurrent = null;
 
         TileSet.SetCurrent(TileSet.map);
 
         Player.Instance.Move(Cardinal.None);
 
         TimeManager.GetInstance().ChangeMovesPerHour(10);
-
     }
     #endregion
 
@@ -166,7 +142,6 @@ public class Interior {
             if (a == 0)
             {
                 Item doorItem = ItemManager.Instance.CreateInTile(newHallwayTile, "door");
-                doorItem.CreateProperty("type / entrance");
                 // stating that it goes south so it displays "behind you" when entering the interior
                 // pas ouf, ça changer avec la description des propriétes
                 doorItem.CreateProperty("dir / direction / south");
@@ -273,21 +248,25 @@ public class Interior {
                 Adjective adjective = adjectives[Random.Range(0, adjectives.Count)];
                 adjectives.Remove(adjective);
 
+                Item doorItem;
+
                 // current tile door
                 if (!tile.HasDoor(currentDoorDirection))
                 {
-                    Item doorItem = ItemManager.Instance.CreateInTile(tile, "door");
+                    doorItem = ItemManager.Instance.CreateInTile(tile, "door");
                     doorItem.word.SetAdjective(adjective);
                     doorItem.CreateProperty("dir / direction / " + currentDoorDirection);
+
+                    // adjacent tile door
+                    if (!adjacentTile.HasDoor(adjacentDoorDirection))
+                    {
+                        Item ajdDoorItem = ItemManager.Instance.CreateInTile(adjacentTile, doorItem);
+                        ajdDoorItem.word.SetAdjective(adjective);
+                        ajdDoorItem.GetProperty("direction").Update("direction / " + adjacentDoorDirection);
+                    }
+
                 }
 
-                // adjacent tile door
-                if (!adjacentTile.HasDoor(adjacentDoorDirection))
-                {
-                    Item doorItem = ItemManager.Instance.CreateInTile(adjacentTile, "door");
-                    doorItem.word.SetAdjective(adjective);
-                    doorItem.CreateProperty("dir / direction / " + adjacentDoorDirection);
-                }
 
                 //Debug.Log("door name : " + currentTileDoorItemName + " adjacent door name : " + adjTileDoorItemName);
             }

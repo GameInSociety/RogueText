@@ -64,13 +64,7 @@ public class Player : Movable {
                 UseDoor();
                 break;
             case PlayerAction.Type.Enter:
-                EnterCurrentInterior();
-                break;
-            case PlayerAction.Type.ExitByWindow:
-                Interior.GetCurrent.ExitByWindow();
-                break;
-            case PlayerAction.Type.GoOut:
-                GoOut();
+                Interior.Get(coords).Enter();
                 break;
             default:
                 break;
@@ -81,54 +75,16 @@ public class Player : Movable {
     {
         Item targetItem = InputInfo.Instance.GetItem(0);
 
-        // check if locked
-        if (targetItem.HasProperty("locked"))
-        {
-            TextManager.WritePhrase("door_locked");
-            return;
-        }
+        Cardinal cardinal = Coords.GetCardinalFromString(targetItem.GetProperty("direction").value);
 
-        // check if has direction ( for interiors )
-        if (!targetItem.HasProperty("entrance"))
+        if ( Tile.GetCurrent.GetAdjacentTile(cardinal) == null)
         {
-            Cardinal cardinal = Coords.GetCardinalFromString(targetItem.GetProperty("direction").value);
+            // no tile, so exit interior
+            Interior.GetCurrent.Exit();
+        }
+        else
+        {
             Move(cardinal);
-        }
-        else
-        {
-            EnterCurrentInterior();
-        }
-    }
-
-    void EnterCurrentInterior()
-    {
-        if (Interior.GetCurrent == null)
-        {
-            Interior.Get(coords).Enter();
-        }
-        else
-        {
-            Interior.GetCurrent.ExitByDoor();
-        }
-    }
-
-    void GoOut()
-    {
-        if (Interior.GetCurrent != null)
-        {
-            if (Player.Instance.coords == Coords.Zero)
-            {
-                Interior.Get(coords).ExitByDoor();
-            }
-            else
-            {
-                Move(Movable.Orientation.Back);
-                //Phrase.Write("Vous n'êtes pas près de l'entrée");
-            }
-        }
-        else
-        {
-            Move(Movable.Orientation.Back);
         }
     }
 

@@ -24,9 +24,7 @@ public class PlayerAction
         // interior
         Enter,
         UseDoor,
-        GoOut,
         DescribeExterior,
-        ExitByWindow,
 
         // states
         SetState,
