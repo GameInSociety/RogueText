@@ -109,14 +109,14 @@ public class ItemAppearInfoLoader : TextParser
                 Debug.LogError("cell : " + GetCellName(rowIndex, cellIndex));
             }
 
-            itemInfo.rate = appearRate;
+            itemInfo.chanceAppear = appearRate;
 
             // add to item 
             appearInfo.itemInfos.Add(itemInfo);
 
             if (debug)
             {
-                Debug.Log(itemInfo.rate + " chance to find " + ItemManager.Instance.dataItems[itemInfo.itemIndex].debug_name + " in " + ItemManager.Instance.dataItems[itemIndex].debug_name);
+                Debug.Log(itemInfo.chanceAppear + " chance to find " + ItemManager.Instance.dataItems[itemInfo.itemIndex].debug_name + " in " + ItemManager.Instance.dataItems[itemIndex].debug_name);
 
             }
 

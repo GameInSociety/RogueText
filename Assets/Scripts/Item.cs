@@ -110,7 +110,7 @@ public class Item
         {
             for (int i = 0; i < itemInfo.amount; i++)
             {
-                if (Random.value * 100f < itemInfo.rate)
+                if (Random.value * 100f < itemInfo.chanceAppear)
                 {
                     ItemManager.Instance.CreateInItem(this, itemInfo.GetItemName());
                 }
@@ -539,6 +539,11 @@ public class Item
     public bool HasVisibleProperties()
     {
         return properties.FindAll(x => x.enabled && x.type != "hidden").Count > 0;
+    }
+    public bool HasEnabledProperty(string name){
+        Property property = properties.Find(x => x.name == name && x.enabled);
+
+        return property != null;
     }
     public bool HasProperty(string name)
     {

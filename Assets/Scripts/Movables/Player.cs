@@ -75,6 +75,12 @@ public class Player : Movable {
     {
         Item targetItem = InputInfo.Instance.GetItem(0);
 
+        if (!targetItem.HasProperty("direction")){
+            Interior.GetCurrent.Exit();
+            return;
+        }
+
+        Property prop = targetItem.GetProperty("direction");
         Cardinal cardinal = Coords.GetCardinalFromString(targetItem.GetProperty("direction").value);
 
         if ( Tile.GetCurrent.GetAdjacentTile(cardinal) == null)

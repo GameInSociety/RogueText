@@ -168,34 +168,36 @@ public class PropertyManager : MonoBehaviour
 
         string property_line = PlayerAction.GetCurrent.GetContent(0);
 
-        bool breakIfEnabled = false;
-
         if (property_line.StartsWith('!'))
         {
+            Debug.Log("start with !");
             property_line = property_line.Remove(0, 1);
-            breakIfEnabled = true;
+            
+            if (targetItem.HasEnabledProperty(property_line))
+            {
+                Debug.Log("property is there and enabled");
+                TextManager.WritePhrase("It's " + property_line);
+                PlayerActionManager.Instance.BreakAction();
+                return;
+            }
+            else{
+                Debug.Log("doesnt have property, so move on");
+            }
+
+            return;
+            
         }
 
         string[] parts = property_line.Split(" / ");
 
-        if (!targetItem.HasProperty(parts[0]))
+        if (!targetItem.HasEnabledProperty(parts[0]))
         {
-            TextManager.WritePhrase("It's " + parts[0]);
+            TextManager.WritePhrase("It's not " + parts[0]);
             PlayerActionManager.Instance.BreakAction();
             return;
         }
 
         Property property = targetItem.GetProperty(parts[0]);
-
-        if (property.enabled)
-        {
-            if (breakIfEnabled)
-            {
-                TextManager.WritePhrase("It's " + parts[0]);
-                PlayerActionManager.Instance.BreakAction();
-                return;
-            }
-        }
 
         if (property.HasInt())
         {
@@ -208,7 +210,7 @@ public class PropertyManager : MonoBehaviour
         }
         else
         {
-            // peut être obsoloete
+            // peut ï¿½tre obsoloete
 
             /*if (property.name != parts[0])
             {

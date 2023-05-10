@@ -123,8 +123,7 @@ CreateInTile(stick, 4)
 CreateInTile(plank, 1)",,Craft,,,,,,,,,,,
 sofa,s,Objet,on,FALSE,,,,,,,"SetState(sleep, +5)",Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 clock,s,Objet,,FALSE,,,,,,,,DisplayTimeOfDay,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-window,s,Objet,,FALSE,"state / open?closed
-dir / direction / none",,,"CheckProp(closed)
+window,s,Objet,,FALSE,state / open?closed,,,"CheckProp(closed)
 ChangeProp(closed, open)","CheckProp(open)
 ChangeProp(open, closed)",,,DescribeExterior,,,,,,,Enter,,,,,,"CheckProp(open)
 Exit",,,,,,,,,,,,,,,

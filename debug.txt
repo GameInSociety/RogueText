@@ -1,2 +1,14 @@
-- est-ce que les positions items changent tout le temps ?
-	-> non -> assigner des items positios fixes aux objets
+
+Check appear rates
+
+“Back”
+“Back behind and backwards", 
+Vision for window
+Sockets in rooms
+
+Stairs, cellars, basements, garages
+
+ON THE TABLE / SHELF
+IN THE BASKET / CUPBOARD
+
+If the preposition of the item is “on”, display right away

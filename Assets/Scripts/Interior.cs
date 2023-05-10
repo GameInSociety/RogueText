@@ -58,7 +58,7 @@ public class Interior {
         }
         else
         {
-            tile.Describe();
+            tile.DescribeSelf();
         }
 
 
@@ -262,7 +262,7 @@ public class Interior {
                     {
                         Item ajdDoorItem = ItemManager.Instance.CreateInTile(adjacentTile, doorItem);
                         ajdDoorItem.word.SetAdjective(adjective);
-                        ajdDoorItem.GetProperty("direction").Update("direction / " + adjacentDoorDirection);
+                        ajdDoorItem.GetProperty("direction").Update(adjacentDoorDirection);
                     }
 
                 }

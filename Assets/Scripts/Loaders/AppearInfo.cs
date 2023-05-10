@@ -13,7 +13,7 @@ public class AppearInfo
     {
         public string name; // for debug purposes
         public int itemIndex;
-        public int rate;
+        public int chanceAppear;
         public int amount;
 
         public string GetItemName()

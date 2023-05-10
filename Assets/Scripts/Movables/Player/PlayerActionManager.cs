@@ -128,6 +128,8 @@ public class PlayerActionManager : MonoBehaviour
                     Debug.Log("call action " + action.type);
                 }
 
+    
+
                 if (breakActions)
                 {
                     Debug.Log(" !!!!! ACTION SEARCH IS STOPPED DUE TO THING !!!! ");
@@ -141,6 +143,11 @@ public class PlayerActionManager : MonoBehaviour
 
     public PlayerAction GetAction(string line)
     {
+        if ( line.StartsWith("=>")){
+            // link to other combinationn
+            // example : => open window
+        }
+
         PlayerAction.Type[] actionTypes = System.Enum.GetValues(typeof(PlayerAction.Type)) as PlayerAction.Type[];
         
             // check parameters
