@@ -14,10 +14,10 @@ place","leave
 go out
 exit","go back
 return",break,tear,"make
-craft",turn on,turn off,NOUVEAU VERB2,plant,unearth,water,dig,wait,empty,charge,yes
+craft",turn on,turn off,unlock,plant,unearth,water,dig,wait,empty,charge,yes
 verbe seul,s,Objet,,FALSE,,DisplayHelp,,,CloseContainer,,"Write(you sleep on the floor)
 SetState(sleep, +1)
-SetState(health, -1)",,,,,MoveRel(0),,,,,,,,,GOOUT,MoveRel(4),,,,,,MoveRel(0),,,,,WAIT(1),,,
+SetState(health, -1)",,,,,MoveRel(0),,,,,,,,,GOOUT,MoveRel(4),,,,,,,,,,,WAIT(1),,,
 north,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 north east,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 east,s, ,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -28,23 +28,26 @@ west,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 north west,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "front
 forward
-ahead",s,Objet,,FALSE,,,MoveRel(0),,,,,OrientPlayer(0),,,,MoveRel(0),,,,,,,,,,MoveRel(0),,,,,,MoveRel(0),,,,,,,,
-test_socket/right,s,Objet,,FALSE,,,MoveRel(2),,,,,OrientPlayer(2),,,,MoveRel(2),,,,,,,,,,MoveRel(2),,,,,,MoveRel(2),,,,,,,,
+ahead",s,Objet,,FALSE,,,MoveRel(0),,,,,OrientPlayer(0),,,,MoveRel(0),,,,,,,,,,MoveRel(0),,,,,,,,,,,,,,
+test_socket/right,s,Objet,,FALSE,,,MoveRel(2),,,,,OrientPlayer(2),,,,MoveRel(2),,,,,,,,,,MoveRel(2),,,,,,,,,,,,,,
 "back
 backwards
-behind",s,Objet,,FALSE,,,MoveRel(4),,,,,OrientPlayer(4),,,,MoveRel(4),,,,,,,,,,MoveRel(4),,,,,,MoveRel(4),,,,,,,,
+behind",s,Objet,,FALSE,,,MoveRel(4),,,,,OrientPlayer(4),,,,MoveRel(4),,,,,,,,,,MoveRel(4),,,,,,,,,,,,,,
 test_socket/left,s,Objet,,FALSE,,,MoveRel(6),,,,,OrientPlayer(6),,,,MoveRel(6),,,,,,,,,,MoveRel(6),,,,,,,,,,,,,,
 "inventory
 bag",s,Objet,in,FALSE,,,,OpenContainer,CloseContainer,,,OpenContainer,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 *,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 around,s,Objet,,FALSE,,,,,,,,LookAround,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-placeholder,s,Objet,,FALSE,,,,,,,,LookAround,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-door,s,Objet,,FALSE,state / ?locked,,"CheckProp(!locked)
+placeholder,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+door,s,Objet,,FALSE,state / 100%locked?open,,"CheckProp(!locked)
 UseDoor","CheckProp(!locked)
 UseDoor",,,,Write(ITEM_DESCRIPTION),"CheckProp(unlocked)
 UseDoor",,,,,,"CheckProp(unlocked)
 UseDoor",,,,,,"CheckProp(unlocked)
-UseDoor",,,,,,,,,,,,,,,
+UseDoor",,,,,,,"CheckProp(locked)
+RequireItem(key)
+ChangeProp(locked, open)
+DestroyItem(key)",,,,,,,,
 mushroom,s,Objet,,TRUE,,,,,,"SetState(hunger, +1)",,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 puddle,s,Objet,,TRUE,"container / water / 100
 %subEmpty
@@ -59,11 +62,10 @@ ChangeProp(water, -1)",,,,,Throw,,,,,,,,,,,,,,,,,,"ChangeProp(water, 0)",,
 sink,s,Objet,in,FALSE,container / water / 100,,,,,,,Write(ITEM_DESCRIPTION),,,"SetState(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
 shower,s,Objet,in,FALSE,container / water / 100,,,,,,,Write(ITEM_DESCRIPTION),,,"SetState(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
 * ,s,Objet,,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
-letter,s,Objet,,TRUE,,,,,,,,"GiveClue
-SetParam(retrieved_letter, true)","Take
+letter,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),"Take
 SetParam(retrieved_letter, true)",,,,"GiveClue
 SetParam(retrieved_letter, true)",,,,,,,,,,,,,,,,,,,,,,,
-* ,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+bush,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 tree,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),,,,MoveAWAY,,"Write(the tree falls down)
 DestroyItem
 CreateInTile(bûche, 5)
@@ -123,10 +125,11 @@ CreateInTile(stick, 4)
 CreateInTile(plank, 1)",,Craft,,,,,,,,,,,
 sofa,s,Objet,on,FALSE,,,,,,,"SetState(sleep, +5)",Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 clock,s,Objet,,FALSE,,,,,,,,DisplayTimeOfDay,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-window,s,Objet,,FALSE,state / open?closed,,,"CheckProp(closed)
+window,s,Objet,,FALSE,state / open?closed,,"CheckProp(open)
+UseDoor","CheckProp(closed)
 ChangeProp(closed, open)","CheckProp(open)
-ChangeProp(open, closed)",,,DescribeExterior,,,,,,,Enter,,,,,,"CheckProp(open)
-Exit",,,,,,,,,,,,,,,
+ChangeProp(open, closed)", ,,DescribeExterior,,,,CheckProp(,,,Enter,,,,,,"CheckProp(open)
+UseDoor",,,,,,,,,,,,,,,
 box,s,Objet,,TRUE,,,,,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 phone,s,Objet,,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 computer,s,Objet,,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -149,7 +152,7 @@ DestroyItem",Craft,,,,,,,,,,,
 shoes,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,Equip(feet),UnEquip(feet),,,,,,,Craft,,,,,,,,,,,
 glasses,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,Equip(head),UnEquip(head),,,,,,,Craft,,,,,,,,,,,
 watch,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,Equip(head),UnEquip(head),,,,,,,,,,,,,,,,,,
-* ,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,Equip(head),UnEquip(head),,,,,,,,,,,,,,,,,,
+calendar,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,Equip(head),UnEquip(head),,,,,,,,,,,,,,,,,,
 washing machine,s,Objet,in,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 candle,s,Objet,,TRUE,iValue / burning / 2,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 flashlight,s,Objet,,TRUE,"state / off
@@ -164,32 +167,32 @@ AddProp(type / source of light)
 ChangeProp(off, on)","CheckProp(on)
 RemoveProp(source of light)
 DisableProp(battery)
-ChangeProp(on, off)",,,,,,,,"RequireItem()
+ChangeProp(on, off)",,,,,,,,"RequireItem(battery)
 ChangeProp(battery, +10)
 DestroyItem(battery)",
-screw,s,Objet,,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+screw,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 scothtape,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 nail,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 paper,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 berry,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-* ,s,Objet,,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,"SetState(thirst, +1)",,,,,,,,,,,,,,,,,,,,,,,,,
+basket,s,Objet,in,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,"SetState(thirst, +1)",,,,,,,,,,,,,,,,,,,,,,,,,
 compas,s,Objet,,TRUE,,,,,,,,PointNorth,PickUp,,,,,,,Throw,,,,,,,,,Craft,,,,,,,,,,,
 plank,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,Throw,,,,,,,,,Craft,,,,,,,,,,,
 piece of cloth,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,Write(the piece is too small...),,,,,,,,,,,,
 scissors,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 die,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 thread,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
-battery,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,"RequireItem
+battery,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,"RequireItem(flashlight)
 ChangeProp(*flashlight, battery, +10)
 DestroyItem",,,,,,,,,,,,,,,,
 fridge,s,Objet,in,FALSE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 chest,s,Objet,in,FALSE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 armory,s,Objet,in,FALSE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 cupboard,s,Objet,in,FALSE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
-shelf,s,Objet,on,FALSE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+cabinet,s,Objet,on,FALSE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 wallet,s,Objet,in,TRUE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,,,,,,,,,,,,,,,,,,,,,
 tool box,s,Objet,in,FALSE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
-bathroom shelf,s,Objet,on,FALSE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+shelf,s,Objet,on,FALSE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 cardboard,s,Objet,in,TRUE,,,,OpenContainer,CloseContainer,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 seeds,p,Objet,,TRUE,,,,,,"SetState(thirst, -2)
 SetState(hunger, +1)",,Write(ITEM_DESCRIPTION),PickUp,,,,,,,Throw,,,,,,,,,,,,,"DestroyItem
@@ -262,7 +265,7 @@ attic,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveTo
 basement,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
 cellar,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
 office,s,Urbain,in,FALSE,,,MoveToTargetItem,,,,,Write(ITEM_DESCRIPTION),,,,MoveToTargetItem,,,MoveToTargetItem,,,,,,MoveRel(4),MoveToTargetItem,,,,,,,,,,,,,,
-* ,s,Urbain,in,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+garage,s,Urbain,in,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 watering can,s,Objet,,TRUE,container / water / 0=10,,,,,,,Write(ITEM_DESCRIPTION),PickUp,"RequireItemWithProp(water)
 ChangeProp(water, +*water)","SetState(thirst, -1)
 ChangeProp(water, -1)",,,,,Throw,,,,,,,,,,,,,,,,,,"CheckPropValue(water)
@@ -270,5 +273,6 @@ CreateInTile(puddle)
 ChangeProp(*puddle, water, *water)",,
 floor,s,Objet,on,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,CreateInTile(trou),,,,
 hole,s,Objet,in,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),,DestroyItem(hole),,,,,,,,,,,,,,,,,,,,,,CreateInTile(trou),,,,
-* ,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,,,,,,,,,,,,,,,,,,,,,
+desk,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),PickUp,,,,,,,,,,,,,,,,,,,,,,,,,,,
 mound,s,Objet,,TRUE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,, ,,,,,,,,,,,,,,,,,,,,,,,,,,,,

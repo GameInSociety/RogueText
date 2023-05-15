@@ -31,8 +31,8 @@ input_noItem,VERB_QUESTION do you want to VERB_NAME VERB_PREPOSITION,,
 input_nothingRecognized,what do you mean,,
 input_noVerb,what do you want to do with &the dog&,,
 input_itemConfusion,which &dog (override)& do you want to VERB_NAME VERB_PREPOSITION,,
-interior_exteriorDescription_blocked,"the window leads some bushed, you don't see anything",,
-interior_exteriorDescription_visible,"by the window, you see ",,
+tile_blockedExterior,"the window leads some bushed, you don't see anything",,
+tile_describeExterior,"by the window, you see &the dog (override)&",,
 interior_getout_blocked,the window is blocked by wirings,,
 inventory_close,you close your bag,,
 inventory_PickUp,you took &the dog&,,
@@ -69,20 +69,19 @@ socket_tile_continue,"SOCKET_POS, &the dog (socket)& continues
 &the dog (socket)& continues SOCKET_POS","TARGET_ORIENTATION, &the dog (override)& continues
 &the dog (override)& continues TARGET_ORIENTATION","TARGET_ORIENTATION, &the dog (override)& continue
 &the dog (override)& continue TARGET_ORIENTATION"
-socket_tile_discover,"SOCKET_POS, &a dog (socket)& appears
-&a dog (socket)& appears SOCKET_POS","&a dog (override)& TARGET_ORIENTATION
+socket_tile_discover,"SOCKET_POS, &a dog (socket)&","&a dog (override)& TARGET_ORIENTATION
 TARGET_ORIENTATION, &a dog (override)&","you see &a dog (override)& TARGET_ORIENTATION
 &a dog (override)& is TARGET_ORIENTATION
 TARGET_ORIENTATION, you see &a dog (override)&
 you see, TARGET_ORIENTATION, &a dog (override)&
 &a dog (override)& TARGET_ORIENTATION"
-socket_tile_visited,"SOCKET_POS, you see &the dog (socket)& you've seen before","It's &the dog (override)& TARGET_ORIENTATION again
+socket_tile_visited,"SOCKET_POS, the dog (socket)&","It's &the dog (override)& TARGET_ORIENTATION again
 &the dog (override)& is TARGET_ORIENTATION","you're back &the dog (override)& TARGET_ORIENTATION
 &a dog (override)& is TARGET_ORIENTATION
 TARGET_ORIENTATION, you see &the dog (override)&
 you see, TARGET_ORIENTATION, &the dog (override)&
 &the dog (override)& can be seen TARGET_ORIENTATION"
-socket_default,"SOCKET_POS, you see &a dog (socket)&",,
+socket_default,"SOCKET_POS, &a dog (socket)&",,
 thirst_concerning,your throat is slighty dry,,
 thirst_critical,"you're completly dry and feel awful, drink something",,
 thirst_normal,you don't feel thirsty,,
@@ -90,13 +89,13 @@ thirst_problematic,you're starting to be thirsty,,
 tile_addItem,&a dog (override)& appears,,
 tile_continue,"you continue &on the dog (override)&
 you're still &on the dog (override)&",,
-tile_discover,you discover &a good dog (override)&,,
-tile_goback,"Back &on the good dog (override)& again
-It's &the good dog (override)&",,
-tile_locationPhrases,there's,,
-tile_positionPhrases,there's,,
+tile_discover,you are &on a dog (override)&,,
+tile_goback,"You're back &on the dog (override)&
+It's &the dog (override)& again",,
+tile_locationPhrases,EEEH,,
+tile_positionPhrases,EEEH,,
 tile_surrounding_description,TILE_SURROUNDING_DESCRIPTION,,
-tile_visionPhrases,there's,,
+tile_visionPhrases,EEEH,,
 time_Hour,It's TIMEOFDAY,,
 weather_afternoon,the afternoon is starting,,
 weather_dawn,the sun is just rising,,

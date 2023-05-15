@@ -45,10 +45,8 @@ public class Interior {
 
     public static void DescribeExterior()
     {
-        //Cardinal cardinal = Coords.GetCardinalFromString(InputInfo.Instance.GetItem(0).GetProperty("direction").value);
-        //Coords targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
-        
-        Coords targetCoords = TileSet.map.playerCoords;
+        Cardinal cardinal = Coords.GetCardinalFromString(InputInfo.Instance.GetItem(0).GetProperty("direction").value);
+        Coords targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
 
         Tile tile = TileSet.map.GetTile(targetCoords);
 
@@ -58,7 +56,7 @@ public class Interior {
         }
         else
         {
-            tile.DescribeSelf();
+            TextManager.WritePhrase("tile_describeExterior", tile);
         }
 
 

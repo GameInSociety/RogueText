@@ -168,12 +168,8 @@ public class TextManager
         DisplayDescription.Instance.AddToDescription(text);
     }
     #endregion
-    public static void Space()
-    {
-        DisplayDescription.Instance.Return();
-    }
     public static void Renew()
     {
-        DisplayDescription.Instance.Renew();
+        
     }
 }

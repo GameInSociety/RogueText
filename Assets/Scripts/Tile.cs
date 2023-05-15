@@ -21,6 +21,8 @@ public class Tile : Item
     // pas mal
     public void Describe( )
     {
+        DisplayDescription.Instance.Renew();
+
         if (Player.Instance.coords== coords)
         {
             // don't change orientation
@@ -33,7 +35,6 @@ public class Tile : Item
             Player.Instance.Orient(Movable.CardinalToOrientation(cardinal));
         }
 
-        TextManager.Renew();
 
         DescribeSelf();
 
@@ -42,9 +43,10 @@ public class Tile : Item
             return;
         }
 
+        WriteContainedItems();
+
         WriteSurroundingTileDescription();
 
-        WriteContainedItemDescription();
 
     }
 
@@ -58,11 +60,15 @@ public class Tile : Item
         SocketManager.Instance.DescribeItems(SurroundingTiles(), null);
     }
 
-
-
     public void DescribeSelf()
     {
-        if (stackable)
+        if ( SameAsPrevious() && stackable)
+        {
+            // on the same road, same hallway, don't write anything
+            return;
+        }
+
+        if (SameAsPrevious())
         {
             TextManager.WritePhrase("tile_continue", (Item)this);
         }
@@ -149,26 +155,30 @@ public class Tile : Item
         }
     }
 
-    public override void WriteContainedItemDescription()
+    public override void WriteContainedItems()
     {
         //base.WriteContainedItemDescription();
 
+        // i put "used" here because otherwise, the items woudl'nt generate
+        // because of items I put on load ( doors etc... )
         if (!used)
         {
             TryGenerateItems();
         }
 
-        Socket socket = new Socket();
-        socket.SetPosition("&on the dog (tile)&");
+        /*Socket socket = new Socket();
+        socket.SetPosition("&on the dog (tile)&");*/
 
-        SocketManager.Instance.DescribeItems(GetContainedItems, socket);
+        SocketManager.Instance.DescribeItems(GetContainedItems, null);
     }
 
     #region info
     public static bool SameAsPrevious()
     {
         if (GetPrevious == null)
+        {
             return false;
+        }
 
         return GetCurrent.SameTypeAs(GetPrevious);
     }

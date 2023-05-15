@@ -98,21 +98,15 @@ public class Item
     }
     public virtual void TryGenerateItems()
     {
-        if (used)
-        {
-            return;
-        }
-
-        used = true;
-
-
         foreach (var itemInfo in AppearInfo.GetAppearInfo(dataIndex).itemInfos)
         {
             for (int i = 0; i < itemInfo.amount; i++)
             {
-                if (Random.value * 100f < itemInfo.chanceAppear)
+                float f = Random.value * 100f;
+                if (f < itemInfo.chanceAppear)
                 {
                     ItemManager.Instance.CreateInItem(this, itemInfo.GetItemName());
+                    //Debug.Log("there's a " + itemInfo.GetItemName() + " in " + debug_name);
                 }
             }
         }
@@ -175,6 +169,11 @@ public class Item
     /// <summary>
     /// OPEN / CLOSE
     /// </summary>
+    /// 
+
+    /// rendered absolutely obsolete with proprieties, and contained items
+    // just put "open" and "closed" and checkprops in containers
+    // the container system is no more
     public void Open()
     {
         TryGenerateItems();
@@ -182,7 +181,7 @@ public class Item
         if (ContainsItems())
         {
             OpenedItem = this;
-            WriteContainedItemDescription();
+            WriteContainedItems();
             return;
         }
 
@@ -208,7 +207,7 @@ public class Item
     /// <summary>
     /// DESCRIPTION
     /// </summary>
-    public virtual void WriteContainedItemDescription()
+    public virtual void WriteContainedItems()
     {
         Socket socket = new Socket();
         socket.SetPosition("&on the dog&");
@@ -386,7 +385,7 @@ public class Item
         return count != 0;
     }
 
-    public string GetVerbsDescription()
+    public void WriteActions()
     {
         string str = "You can ";
 
@@ -412,42 +411,37 @@ public class Item
                 str += " " + verbList[i].GetPreposition;
             }
 
-            if (verbList.Count > 1)
-            {
-                if (i == verbList.Count - 2)
-                {
-                    str += " and ";
-                }
-                else if (i < verbList.Count - 2)
-                {
-                    str += ", ";
-                }
-            }
+            str += " it";
+
+            str += TextUtils.GetLink(i, verbList.Count);
 
         }
 
-        str += " &the dog&";
 
-        return str;
-       
+        TextManager.WritePhrase(str);
     }
     public void WritePropertiesDescription()
     {
-        TextManager.WritePhrase(GetPropertiesDescription(), this);
-
+        WriteProperties();
     }
-    public string GetDescription()
+
+    public void WriteDescription()
     {
         if (HasProperties())
         {
-            return GetPropertiesDescription();
+            WriteProperties();
         }
-        else
+
+        TryGenerateItems();
+
+        if ( ContainsItems())
         {
-            return GetVerbsDescription();
+            WriteContainedItems();
         }
+
+        WriteActions();
     }
-    public string GetPropertiesDescription()
+    public void WriteProperties()
     {
         string str = "";
 
@@ -463,21 +457,12 @@ public class Item
 
                 str += property.GetDescription();
 
-                if (enabledPropCount > 1)
-                {
-                    if (i == enabledPropCount - 2)
-                    {
-                        str += " and ";
-                    }
-                    else if (i <enabledPropCount - 2)
-                    {
-                        str += ", ";
-                    }
-                }
+                str += TextUtils.GetLink(i, enabledPropCount);
             }
-        }
 
-        return str = TextUtils.FirstLetterCap(str);
+            TextManager.WritePhrase(str, this);
+
+        }
     }
     #endregion
 

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.Networking.UnityWebRequest;
 
 public class PropertyManager : MonoBehaviour
 {
@@ -87,6 +88,7 @@ public class PropertyManager : MonoBehaviour
     }
     public void Action_ChangeProperty()
     {
+
         Item targetItem;
 
         if (PlayerAction.GetCurrent.GetContent(0).StartsWith('*'))
@@ -114,7 +116,6 @@ public class PropertyManager : MonoBehaviour
     }
     public void Action_ChangeProperty(Item targetItem, string targetProp, string line)
     {
-
         // in the function type is not reffered, so go for part 0
         Property property = targetItem.GetProperty(targetProp);
 
@@ -170,18 +171,13 @@ public class PropertyManager : MonoBehaviour
 
         if (property_line.StartsWith('!'))
         {
-            Debug.Log("start with !");
             property_line = property_line.Remove(0, 1);
-            
+
             if (targetItem.HasEnabledProperty(property_line))
             {
-                Debug.Log("property is there and enabled");
                 TextManager.WritePhrase("It's " + property_line);
                 PlayerActionManager.Instance.BreakAction();
                 return;
-            }
-            else{
-                Debug.Log("doesnt have property, so move on");
             }
 
             return;

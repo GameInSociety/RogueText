@@ -16,7 +16,10 @@ public class Sound : MonoBehaviour {
 	public AudioSource correctSource;
 	public AudioClip correctBip;
 
-	void Awake () {
+	public float minPitch = 0.9f;
+	public float maxPitch = 1.0f;
+
+    void Awake () {
 		Instance = this;
 	}
 
@@ -27,6 +30,7 @@ public class Sound : MonoBehaviour {
 	
 	public void PlayRandomTypeSound() {
 		typeSource.clip = typeSounds [Random.Range (0, typeSounds.Length)];
+		typeSource.pitch = Random.Range(minPitch, maxPitch);
 		typeSource.Play ();
 	}
 	public void PlayRandomComputerSound () {

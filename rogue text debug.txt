@@ -1,0 +1,48 @@
+
+STABILIZE THE BUILD :
+
+x - simpler phrases in the thing que "there's"
+x - "you continue in the hallway"
+x - less chance locked
+x - "appears" : non
+x - "look at" doesn't go nowheres
+x - "still in the hallway" alors qu'on vient d'y arriver
+x - “Back and on your left” : fix back
+x - “Back behind and backwards", 
+x - Vision for window
+x - second item sustain
+x - unlock door with key
+
+////
+searching for available sockets
+you need available sockets ....
+////
+
+
+///
+carrot / car
+same with bathroom shelf and bathroom
+///
+
+Playful2022*
+
+Sockets in rooms
+
+ON THE TABLE / SHELF
+IN THE BASKET / CUPBOARD
+
+Stairs, cellars, basements, garages
+
+look like the carrot appear with the table not on it
+
+- trop d'objet dans une salle
+
+
+stackables devrait s'appeller "continued" ( comme y'a mille ptn )
+pour faire en sorte qu'il dise "you see THE PATH ou THE HILL" alors que c'est pas des tiles que t'as vu mais t'as déjà vu la colilne
+faudrait leur donner des ids quoi ( mtn c'est possible que ce soit les ajdectives 
+
+If the preposition of the item is “on”, display right away
+
+PlayerAction => do "=> open window" pour simplifier les actions
+

@@ -160,8 +160,10 @@ public class InventoryManager : MonoBehaviour
         // RequireProp(canCharge) // RequireProp(waterSource) pour les seaux, arrosoir, gourde etc.. 
         // là c'est dans une fonction alors que ça pourrait être dans la case !!!!!!
 
+
         if (PlayerAction.GetCurrent.HasContent(0))
         {
+
             string item_name = PlayerAction.GetCurrent.GetContent(0);
             Item targetItem = ItemManager.Instance.FindInWorld(item_name);
 
@@ -174,8 +176,13 @@ public class InventoryManager : MonoBehaviour
                 PlayerActionManager.Instance.BreakAction();
                 return;
             }
+
+            TextManager.WritePhrase("you use &the dog (override)&", targetItem);
+            return;
         }
 
+
+        Debug.Log("action require any item ?");
         // no target item, just ask for a second item
         if ( !InputInfo.Instance.HasItem(1) )
         {

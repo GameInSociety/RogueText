@@ -221,10 +221,16 @@ public class ItemManager : MonoBehaviour {
         // common to all
         Item newItem = new Item();
 
+        if (newItem.debug_name == "carrot")
+        {
+            Debug.LogError("Pourquoi y'a une carrote ma parole");
+        }
+
         newItem.debug_name = copy.debug_name;
         newItem.dataIndex = copy.dataIndex;
         newItem.weight = copy.weight;
         newItem.usableAnytime = copy.usableAnytime;
+
 
         // the word never changes, non ? pourquoi en copy
         newItem.words = copy.words;
@@ -236,6 +242,9 @@ public class ItemManager : MonoBehaviour {
         {
             newItem.CreateProperty(prop_copy);
         }
+
+        
+
 
         return newItem;
     }

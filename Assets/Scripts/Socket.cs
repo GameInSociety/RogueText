@@ -84,6 +84,8 @@ public class Socket
             case "right":
                 return "on your right";
             case "behind":
+            case "back":
+            case "backwards":
                 return "behind you";
             case "left":
                 return "on your left";

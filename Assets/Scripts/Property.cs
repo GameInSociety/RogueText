@@ -71,14 +71,53 @@ public class Property
             enabled = true;
         }
 
+        // the choice between many names
+        // tomato?apple?carot
         if (name.Contains('?'))
         {
-            string[] strs = name.Split('?');
-            name = strs[Random.Range(0, strs.Length)];
+            string[] parts = name.Split('?');
+
+            if (name.Contains('%'))
+            {
+                // fucked up , trouver mieux ou mettre dans une autre fonction
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    string part = parts[i];
+
+                    if (part.Contains("%"))
+                    {
+                        int percentIndex = part.IndexOf('%');
+                        string parseTarget = part.Remove(percentIndex);
+
+
+                        int percent = int.Parse(parseTarget);
+
+                        float result = Random.value * 100;
+                        if (result < percent)
+                        {
+                            name = part.Remove(0,percentIndex+1);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        name = part;
+                        break;
+                    }
+
+                }
+
+            }
+            else
+            {
+                name = parts[Random.Range(0, parts.Length)];
+            }
+
             return;
         }
 
-       
+        // a percent of chance
+
 
         if (!string.IsNullOrEmpty(value))
         {
@@ -203,17 +242,17 @@ public class Property
             return;
         }
 
-        if ( value != line)
+        if (string.IsNullOrEmpty(value))
+        {
+            name = line;
+        }
+        else if ( value != line)
         {
             value = line;
             return;
         }
 
-        if (string.IsNullOrEmpty(value))
-        {
-        Debug.Log("changing name of " + name + " to " + line);
-            name = line;
-        }
+        
 
     }
     #endregion

@@ -50,7 +50,7 @@ public class DisplayInput : MonoBehaviour {
     }
 
     public void OnValueChanged () {
-		//Sound.Instance.PlayRandomTypeSound ();
+		Sound.Instance.PlayRandomTypeSound ();
 	}
 
 	void Clear ()

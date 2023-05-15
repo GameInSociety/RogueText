@@ -121,7 +121,7 @@ public class PlayerAction
     }
     public bool HasContent(int i)
     {
-        return contents.Count < i;
+        return i < contents.Count;
     }
 
     public int GetContentCount()

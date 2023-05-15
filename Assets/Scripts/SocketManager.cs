@@ -208,13 +208,22 @@ public class SocketManager : MonoBehaviour
             }
         }
 
+        Socket tmpSocket;
+
         if (possibleSockets.Count == 0)
         {
+            tmpSocket = new Socket();
+            tmpSocket.SetPosition("&on the dog (tile)&");
 
-            return PhraseManager.Instance.genericSockets[Random.Range(0, PhraseManager.Instance.genericSockets.Length)];
+            return tmpSocket;
         }
 
-        return possibleSockets[Random.Range(0, possibleSockets.Count)];
+
+
+        tmpSocket = possibleSockets[Random.Range(0, possibleSockets.Count)];
+
+
+        return tmpSocket;
     }
 
     public Item GetSocketItemInText(string text)
@@ -237,10 +246,4 @@ public class SocketManager : MonoBehaviour
         return null;
     }
 
-    public Socket GetSocketInText(string text)
-    {
-        
-
-        return null;
-    }
 }

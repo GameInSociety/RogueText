@@ -33,6 +33,10 @@ public class InputInfo : MonoBehaviour
 
     public bool itemConfusion = false;
 
+    public bool sustainVerb = false;
+    public bool sustainItem = false;
+
+
     private void Awake()
     {
         Instance = this;
@@ -134,7 +138,6 @@ public class InputInfo : MonoBehaviour
         }
     }
 
-    public bool sustainVerb = false;
 
     public void FindVerb()
     {
@@ -168,7 +171,6 @@ public class InputInfo : MonoBehaviour
         }
     }
 
-    public bool sustainItem = false;
 
     public void FindItems()
     {
@@ -193,7 +195,6 @@ public class InputInfo : MonoBehaviour
         if (sustainItem)
         {
             sustainItem = false;
-            return;
         }
         else
         {
@@ -224,7 +225,7 @@ public class InputInfo : MonoBehaviour
                 if ( HasVerb())
                 {
                     TextManager.WritePhrase("input_itemConfusion", tmpItems[0]);
-                    InputInfo.Instance.sustainVerb = true;
+                    sustainVerb = true;
                 }
                 else
                 {
