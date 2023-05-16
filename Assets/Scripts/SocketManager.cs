@@ -7,11 +7,6 @@ public class SocketManager : MonoBehaviour
 {
     public static SocketManager Instance;
 
-    public List<Socket> itemSockets = new List<Socket>();
-    public List<Socket> tileSockets = new List<Socket>();
-
-
-
     public List<SocketGroup> socketGroups = new List<SocketGroup>();
     [System.Serializable]
     public class SocketGroup
@@ -93,7 +88,7 @@ public class SocketManager : MonoBehaviour
 
                 // didn't find socket, fetching new
                 socketGroup.sockets.Add(socket);
-                socket.itemGroups.Clear();
+                //socket.itemGroups.Clear();
             }
 
             socket.AddItem(item);
@@ -104,7 +99,7 @@ public class SocketManager : MonoBehaviour
         foreach (var socket in socketGroup.sockets)
         {
             KeyWords.socket = socket;
-            TextManager.WritePhrase(GetTextType(socket));
+            //TextManager.WritePhrase(GetTextType(socket));
         }
 
         socketGroups.Add(socketGroup);
@@ -155,7 +150,7 @@ public class SocketManager : MonoBehaviour
             else
             {
                 // ici
-                if (((Tile)targetItem).used)
+                if (((Tile)targetItem).generatedItems)
                 {
                     // tu vois es près d'une maison
                     return "socket_tile_visited";
@@ -179,50 +174,8 @@ public class SocketManager : MonoBehaviour
     // STATIC //
     public Socket GetRandomSocket(Item item)
     {
-        List<Socket> possibleSockets = new List<Socket>();
-
-        // has the item a socket ?
-        foreach (var socket in itemSockets)
-        {
-            foreach (var itemIndex in socket.itemIndexes)
-            {
-                if (itemIndex == item.dataIndex)
-                {
-                    possibleSockets.Add(socket);
-                }
-            }
-        }
-
-        // does the tile have any socket ?
-        if (possibleSockets.Count == 0)
-        {
-            foreach (var socket in tileSockets)
-            {
-                foreach (var itemIndex in socket.itemIndexes)
-                {
-                    if (itemIndex == Tile.GetCurrent.dataIndex)
-                    {
-                        possibleSockets.Add(socket);
-                    }
-                }
-            }
-        }
-
-        Socket tmpSocket;
-
-        if (possibleSockets.Count == 0)
-        {
-            tmpSocket = new Socket();
-            tmpSocket.SetPosition("&on the dog (tile)&");
-
-            return tmpSocket;
-        }
-
-
-
-        tmpSocket = possibleSockets[Random.Range(0, possibleSockets.Count)];
-
-
+        Socket tmpSocket = new Socket();
+        tmpSocket.SetPosition("&on the dog (tile)&"); ;
         return tmpSocket;
     }
 

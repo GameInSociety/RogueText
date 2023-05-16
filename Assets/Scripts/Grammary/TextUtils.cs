@@ -4,6 +4,27 @@ using UnityEngine;
 
 public class TextUtils
 {
+    // a lot of apples, an apple, 4 apples etc...
+    public static string GetItemCountText(Item item, int count, string key)
+    {
+        if (count > 5)
+        {
+            return "a lot " + item.word.GetContent("of dogs");
+        }
+        else if (count > 3)
+        {
+            return "a few " + item.word.GetContent("dogs");
+        }
+        else if (count > 1)
+        {
+            return count + " " + item.word.GetContent("dogs");
+        }
+        else
+        {
+            return item.word.GetContent(key);
+        }
+    }
+
     public static string GetLink(int index, int lenght)
     {
         if ( index == lenght - 1)

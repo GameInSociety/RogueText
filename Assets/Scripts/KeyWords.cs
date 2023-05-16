@@ -6,7 +6,6 @@ using UnityEngine;
 public static class KeyWords
 {
     public enum KeyWord {
-        CONTAINER_LIST,
         ITEM_DESCRIPTION,
         ITEM_VERBS,
         ITEM_PROPERTIES,
@@ -16,7 +15,6 @@ public static class KeyWords
         TILE_CURRENT_DESCRIPTION,
         TIME_OF_DAY,
         SOCKET_POS,
-        SOCKET_ITEMS,
 
         TARGET_ORIENTATION
     }
@@ -40,8 +38,6 @@ public static class KeyWords
     {
         switch (keyWord)
         {
-            case KeyWord.CONTAINER_LIST:
-                return Item.ItemListString(Item.OpenedItem.GetContainedItems, Item.ListSeparator.Commas, true);
             case KeyWord.TIME_OF_DAY:
                 return TimeManager.GetInstance().GetTimeOfDayDescription();
             case KeyWord.TARGET_ORIENTATION:

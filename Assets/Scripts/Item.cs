@@ -20,37 +20,14 @@ public class Item
     /// </summary>
     public int dataIndex;
     // maybe should be a property ?
-    public int weight = 0;
     public bool usableAnytime = false;
 
     // nom à changer
     // concept à changer
     // vie à changer
-    public bool used = false;
+    public bool generatedItems = false;
 
-    /// <summary>
-    /// exemples :
-    /// dans une forêt : "derrière l'arbre", ou "dans un buisson"
-    /// dans un sac : (donc autre objet) au fond du sac, etc...
-    /// </summary>
-    /// Je crois qu'il vaut mieux que ces trucs soient dans les sockets
-    /// ( liste d'int dans le socket parce quand y'a pas de copy dans les sockets )
-    ///c'est déjàle cas maisc'estpar rapport aux tiles
-    // pareil
-    public List<Item> GetContainedItems
-    {
-        get
-        {
-            if (mContainedItems == null)
-            {
-                mContainedItems = new List<Item>();
-            }
-
-            return mContainedItems;
-        }
-    }
-    [SerializeField]
-    private List<Item> mContainedItems;
+    
 
     /// <summary>
     /// WORD
@@ -68,6 +45,7 @@ public class Item
 
     /// <summary>
     /// container
+    /// will change and become obsolete with socket / item fusion
     /// </summary>
     public static Item OpenedItem;
     public static bool AnItemIsOpened
@@ -78,7 +56,7 @@ public class Item
         }
     }
     public bool opened = false;
-    public bool emptied = false;
+    ///
 
     /// <summary>
     /// properties
@@ -98,6 +76,13 @@ public class Item
     }
     public virtual void TryGenerateItems()
     {
+        if ( generatedItems)
+        {
+            return;
+        }
+
+        generatedItems = true;
+
         foreach (var itemInfo in AppearInfo.GetAppearInfo(dataIndex).itemInfos)
         {
             for (int i = 0; i < itemInfo.amount; i++)
@@ -105,7 +90,8 @@ public class Item
                 float f = Random.value * 100f;
                 if (f < itemInfo.chanceAppear)
                 {
-                    ItemManager.Instance.CreateInItem(this, itemInfo.GetItemName());
+                    string itemName = itemInfo.GetItemName();
+                    CreateInItem(itemName);
                     //Debug.Log("there's a " + itemInfo.GetItemName() + " in " + debug_name);
                 }
             }
@@ -113,11 +99,18 @@ public class Item
 
     }
 
+    public Item CreateInItem(string itemName)
+    {
+        Item item = ItemManager.Instance.CreateFromData(itemName);
+        AddItem(item);
+        item.TryGenerateItems();
+        return item;
+    }
+
+
     public void AddItem(Item item)
     {
-
         GetContainedItems.Add(item);
-
     }
 
     // remove item
@@ -132,37 +125,29 @@ public class Item
     }
     //
 
-    public Item FindItem(string str)
-    {
-        Item item = GetContainedItems.Find(x => x.HasWord(str));
-
-        if (item == null)
-            return null;
-
-        return item;
-    }
-
     public Item GetItem(string itemName)
     {
-        return GetContainedItems.Find(x => x.word.text == itemName);
+        Item tmpItem = GetContainedItems.Find(x => x.word.text == itemName);
+        if( tmpItem == null)
+        {
+            Debug.LogError("no " + itemName + " in " + debug_name);
+            foreach (var item in GetContainedItems)
+            {
+                Debug.Log(item.debug_name);
+            }
+        }
+
+        return tmpItem;
     }
 
-    public bool ContainsItem( Item item)
+    public bool HasItem(string itemName)
+    {
+        return GetContainedItems.Find(x => x.word.text == itemName) != null;
+    }
+
+    public bool HasItem( Item item)
     {
         return GetContainedItems.Contains(item);
-    }
-
-    /// <summary>
-    ///  WEIGHT
-    /// </summary>
-    public int GetContainedItemWeight()
-    {
-        int w = 0;
-        foreach (var item in GetContainedItems)
-        {
-            w += item.weight;
-        }
-        return w;
     }
     ///
 
@@ -176,7 +161,7 @@ public class Item
     // the container system is no more
     public void Open()
     {
-        TryGenerateItems();
+       // TryGenerateItems();
 
         if (ContainsItems())
         {
@@ -186,7 +171,7 @@ public class Item
         }
 
         Debug.Log(debug_name + " is empty");
-        TextManager.WritePhrase("container_empty");
+        TextManager.Write("container_empty", this);
     }
 
     public void Close()
@@ -194,26 +179,15 @@ public class Item
         // toujours dans la classe inventory.cs pour l'intsant
         if (!AnItemIsOpened)
         {
-            TextManager.WritePhrase("container_alreadyClosed");
+            TextManager.Write("container_alreadyClosed", this);
             return;
         }
 
-        TextManager.WritePhrase("container_clsose", Item.OpenedItem);
+        TextManager.Write("container_clsose", Item.OpenedItem);
 
         OpenedItem = null;
     }
     ///
-
-    /// <summary>
-    /// DESCRIPTION
-    /// </summary>
-    public virtual void WriteContainedItems()
-    {
-        Socket socket = new Socket();
-        socket.SetPosition("&on the dog&");
-
-        SocketManager.Instance.DescribeItems(GetContainedItems, socket);
-    }
 
     public bool SameTypeAs(Item otherItem)
     {
@@ -235,17 +209,18 @@ public class Item
 
     public void PickUp()
     {
-        if (Inventory.Instance.GetContainedItemWeight() + weight > Inventory.Instance.maxWeight)
+        // weight paused for clarity and because may become a property
+        /*if (Inventory.Instance.GetContainedItemWeight() + weight > Inventory.Instance.maxWeight)
         {
             TextManager.WritePhrase("inventory_TooHeavy");
             return;
-        }
+        }*/
 
         Item.Remove(this);
 
         Inventory.Instance.AddItem(this);
 
-        TextManager.WritePhrase("inventory_PickUp");
+        TextManager.Write("inventory_PickUp", this);
     }
 
     #region remove & destroy
@@ -275,7 +250,7 @@ public class Item
         }
 
         // then in inventory
-        if (Inventory.Instance.ContainsItem(targetItem))
+        if (Inventory.Instance.HasItem(targetItem))
         {
             Inventory.Instance.RemoveItem(targetItem);
             return;
@@ -288,7 +263,8 @@ public class Item
     #region search
     public bool HasWord (string _text)
     {
-        currentWordIndex = words.FindIndex(x => x.Compare(_text));
+        //currentWordIndex = words.FindIndex(x => x.Compare(_text));
+        currentWordIndex = words.FindIndex(x => x.text == _text);
 
         if ( currentWordIndex < 0)
         {
@@ -306,62 +282,7 @@ public class Item
     
     #endregion
 
-    #region list
-    public enum ListSeparator
-    {
-        Return,
-        Commas,
-    }
-    public static string ItemListString(List<Item> _items, ListSeparator listSeparator, bool displayWeight)
-    {
-        string text = "";
-
-        int i = 0;
-
-        foreach (var item in _items)
-        {
-            text += item.word.GetContent("a dog");
-
-            // pour l'instant en pause parce que pas forcément besoin, et systeme de poids un peu laissé de côté
-            /*if (displayWeight)
-            {
-                text += " (w:" + (item.weight) + ")";
-            }*/
-
-            if (_items.Count > 1 && i < _items.Count - 1)
-            {
-                if (listSeparator == ListSeparator.Return)
-                {
-                    text += "\n";
-                }
-                else
-                {
-                    if (_items.Count > 2)
-                    {
-                        if (i == _items.Count - 2)
-                        {
-                            text += " and ";
-                        }
-                        else
-                        {
-                            text += ", ";
-                        }
-                    }
-                    else
-                    {
-                        text += " and ";
-                    }
-                }
-
-            }
-
-            ++i;
-        }
-
-        return text;
-    }
-    #endregion
-
+   
     #region actions
     public bool CanBeDescribed()
     {
@@ -418,7 +339,7 @@ public class Item
         }
 
 
-        TextManager.WritePhrase(str);
+        TextManager.Write(str);
     }
     public void WritePropertiesDescription()
     {
@@ -432,12 +353,11 @@ public class Item
             WriteProperties();
         }
 
-        TryGenerateItems();
+        //TryGenerateItems();
 
-        if ( ContainsItems())
-        {
-            WriteContainedItems();
-        }
+        WriteContainedItems();
+
+        
 
         WriteActions();
     }
@@ -460,7 +380,7 @@ public class Item
                 str += TextUtils.GetLink(i, enabledPropCount);
             }
 
-            TextManager.WritePhrase(str, this);
+            TextManager.Write(str, this);
 
         }
     }
@@ -584,14 +504,96 @@ public class Item
         return item;
     }
 
+    #region socket
     public string GetRelativePosition()
     {
-
         Cardinal cardinal = Coords.GetCardinalFromString(GetProperty("direction").value);
 
         Movable.Orientation orientation = Movable.CardinalToOrientation(cardinal);
 
         return Coords.GetOrientationWord(orientation);
     }
+
+
+    /// <summary>
+    /// DESCRIPTION
+    /// </summary>
+
+    [SerializeField]
+    private List<Item> mContainedItems;
+    public List<Item> GetContainedItems
+    {
+        get
+        {
+            if (mContainedItems == null)
+            {
+                mContainedItems = new List<Item>();
+            }
+
+            return mContainedItems;
+        }
+    }
+
+    public virtual void WriteContainedItems()
+    {
+        // fait ailleur mais test
+        //TryGenerateItems();
+
+        Debug.Log("writing items description for " + debug_name);
+
+        if (!ContainsItems())
+        {
+            return;
+        }
+
+        TextManager.Write("&on the dog&, ", this);
+
+        int index = 0;
+        foreach (var item in GetContainedItems)
+        {
+
+            if (item.ContainsItems())
+            {
+                item.WriteContainedItems();
+            }
+            else
+            {
+                TextManager.Add("&a dog&", item);
+                TextManager.Add(TextUtils.GetLink(index, GetContainedItems.Count));
+            }
+
+            ++index;
+        }
+
+
+        //SocketManager.Instance.DescribeItems(GetContainedItems, socket);
+    }
+
+    public List<Item> GetItemsRecursive()
+    {
+        List<Item> tmpItems = new List<Item>();
+
+        foreach (var item in GetContainedItems)
+        {
+            tmpItems.Add(item);
+            if (item.ContainsItems())
+            {
+                tmpItems.AddRange(item.GetItemsRecursive());
+            }
+        }
+
+        return tmpItems;
+    }
+
+    /// <summary>
+    /// exemples :
+    /// dans une forêt : "derrière l'arbre", ou "dans un buisson"
+    /// dans un sac : (donc autre objet) au fond du sac, etc...
+    /// </summary>
+    /// Je crois qu'il vaut mieux que ces trucs soient dans les sockets
+    /// ( liste d'int dans le socket parce quand y'a pas de copy dans les sockets )
+    ///c'est déjàle cas maisc'estpar rapport aux tiles
+    // pareil
+    #endregion
 
 }

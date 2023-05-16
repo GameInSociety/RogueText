@@ -130,12 +130,12 @@ public class CraftManager : MonoBehaviour {
 
                 Inventory.Instance.AddItem(InputInfo.Instance.GetItem(0));
 
-                TextManager.WritePhrase("craft_sucess");
+                TextManager.Write("craft_sucess");
 
             }
             else
             {
-                TextManager.WritePhrase("craft_unable");
+                TextManager.Write("craft_unable");
             }
         }
         

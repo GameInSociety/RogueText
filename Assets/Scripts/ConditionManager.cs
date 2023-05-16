@@ -117,7 +117,7 @@ public class ConditionManager : MonoBehaviour
             }
         }
 
-        TextManager.WritePhrase(text);
+        TextManager.Write(text);
     }
 
     public Condition GetCondition(Condition.Type conditionType)

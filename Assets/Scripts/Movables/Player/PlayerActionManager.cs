@@ -42,7 +42,7 @@ public class PlayerActionManager : MonoBehaviour
                 Coords.WriteDirectionToNorth();
                 break;
             case PlayerAction.Type.Write:
-                TextManager.WritePhrase(PlayerAction.GetCurrent.GetContent(0));
+                TextManager.Write(PlayerAction.GetCurrent.GetContent(0));
                 break;
             default:
                 break;
@@ -63,7 +63,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("no verb, no items");
             }
 
-            TextManager.WritePhrase("input_nothingRecognized");
+            TextManager.Write("input_nothingRecognized");
             return;
         }
 
@@ -76,7 +76,7 @@ public class PlayerActionManager : MonoBehaviour
             }
 
 
-            TextManager.WritePhrase("input_noVerb");
+            TextManager.Write("input_noVerb", InputInfo.Instance.GetItem(0));
             return;
         }
 
@@ -90,7 +90,7 @@ public class PlayerActionManager : MonoBehaviour
 
             inputInfo.sustainVerb = true;
 
-            TextManager.WritePhrase("input_noItem");
+            TextManager.Write("input_noItem");
             return;
         }
 
@@ -102,7 +102,7 @@ public class PlayerActionManager : MonoBehaviour
                 Debug.LogError("Fail : no combination between verb : " + inputInfo.verb.names[0] + " and item : " + inputInfo.GetItem(0).word.text);
             }
 
-            TextManager.WritePhrase("input_noCombination");
+            TextManager.Write("input_noCombination", inputInfo.GetItem(0));
             return;
         }
 
@@ -198,7 +198,7 @@ public class PlayerActionManager : MonoBehaviour
 
     public void BreakAction(string text)
     {
-        TextManager.WritePhrase(text);
+        TextManager.Write(text);
 
         BreakAction();
     }

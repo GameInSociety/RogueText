@@ -214,6 +214,11 @@ public class InputInfo : MonoBehaviour
             if (tmpItems.Count > 1) {
 
 
+                foreach (var e in tmpItems)
+                {
+                    Debug.Log(e.debug_name);
+                }
+
                 Item item = SocketManager.Instance.GetSocketItemInText(inputText);
 
                 if (item != null)
@@ -224,12 +229,12 @@ public class InputInfo : MonoBehaviour
 
                 if ( HasVerb())
                 {
-                    TextManager.WritePhrase("input_itemConfusion", tmpItems[0]);
+                    TextManager.Write("input_itemConfusion", tmpItems[0]);
                     sustainVerb = true;
                 }
                 else
                 {
-                    TextManager.WritePhrase("Which &dog (override)&", tmpItems[0]);
+                    TextManager.Write("Which &dog (override)&", tmpItems[0]);
                 }
                 itemConfusion = true;
             }

@@ -70,7 +70,7 @@ public class Equipment {
 
         Item.Remove(InputInfo.Instance.GetItem(0));
 
-        TextManager.WritePhrase("/_bag_equip/" + part.ToString());
+        TextManager.Write("/_bag_equip/" + part.ToString());
 
     }
 
@@ -80,13 +80,13 @@ public class Equipment {
 
         if ( GetEquipement(part) != InputInfo.Instance.GetItem(0))
         {
-            TextManager.WritePhrase("bag_nothingToEquip");
+            TextManager.Write("bag_nothingToEquip");
             return;
         }
 
         Inventory.Instance.AddItem(InputInfo.Instance.GetItem(0));
 
-        TextManager.WritePhrase("bag_unequip");
+        TextManager.Write("bag_unequip");
 
         SetEquipment(part, null);
     }

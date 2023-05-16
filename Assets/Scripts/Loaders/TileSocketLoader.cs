@@ -22,7 +22,7 @@ public class TileSocketLoader : TextParser
             {
                 Socket newSocket = new Socket();
                 newSocket.SetPosition(cells[cellIndex]);
-                SocketManager.Instance.tileSockets.Add(newSocket);
+                //SocketManager.Instance.tileSockets.Add(newSocket);
             }
         }
         else
@@ -41,8 +41,8 @@ public class TileSocketLoader : TextParser
                     }
 
                     Item item = ItemManager.Instance.dataItems[itemIndex];
-                    Socket socket = SocketManager.Instance.tileSockets[tileSocketIndex];
-                    socket.itemIndexes.Add(itemIndex);
+                    //Socket socket = SocketManager.Instance.tileSockets[tileSocketIndex];
+                    //socket.itemIndexes.Add(itemIndex);
                 }
 
                 tileSocketIndex++;

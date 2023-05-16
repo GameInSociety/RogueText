@@ -17,9 +17,9 @@ public struct Coords
     {
         Vector2 v = (Vector2)coords;
 
-        Cardinal direction = Cardinal.North;
+        Cardinal direction = Cardinal.north;
 
-        Cardinal closestDirection = Cardinal.North;
+        Cardinal closestDirection = Cardinal.north;
 
         while (direction != Cardinal.None)
         {
@@ -140,13 +140,13 @@ public struct Coords
         switch (str)
         {
             case "north":
-                return Cardinal.North;
+                return Cardinal.north;
             case "south":
-                return Cardinal.South;
+                return Cardinal.south;
             case "east":
-                return Cardinal.East;
+                return Cardinal.east;
             case "west":
-                return Cardinal.West;
+                return Cardinal.west;
         }
 
         Debug.LogError("no cardinal found in " + str);
@@ -159,7 +159,7 @@ public struct Coords
     {
         Movable.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
         TextManager.SetOverrideOrientation(orientation);
-        TextManager.WritePhrase("compas_giveNorth");
+        TextManager.Write("compas_giveNorth");
     }
 
     public bool OutOfMap()
@@ -261,19 +261,19 @@ public struct Coords
     {
         switch (dir)
         {
-            case Cardinal.North:
+            case Cardinal.north:
                 return new Coords(0, 1);
             case Cardinal.NorthEast:
                 return new Coords(1, 1);
-            case Cardinal.East:
+            case Cardinal.east:
                 return new Coords(1, 0);
             case Cardinal.SouthEast:
                 return new Coords(1, -1);
-            case Cardinal.South:
+            case Cardinal.south:
                 return new Coords(0, -1);
             case Cardinal.SouthWest:
                 return new Coords(-1, -1);
-            case Cardinal.West:
+            case Cardinal.west:
                 return new Coords(-1, 0);
             case Cardinal.NorthWest:
                 return new Coords(-1, 1);
@@ -293,7 +293,7 @@ public struct Coords
                 case -1:
                     return Cardinal.SouthWest;
                 case 0:
-                    return Cardinal.West;
+                    return Cardinal.west;
                 case 1:
                     return Cardinal.NorthWest;
             }
@@ -305,7 +305,7 @@ public struct Coords
                 case -1:
                     return Cardinal.SouthEast; ;
                 case 0:
-                    return Cardinal.East;
+                    return Cardinal.east;
                 case 1:
                     return Cardinal.NorthEast;
             }
@@ -315,7 +315,7 @@ public struct Coords
             switch (c.y)
             {
                 case -1:
-                    return Cardinal.South;
+                    return Cardinal.south;
                 case 0:
                     return Cardinal.None;
                 case 1:
@@ -345,19 +345,19 @@ public struct Coords
     {
         switch (direction)
         {
-            case Cardinal.North:
+            case Cardinal.north:
                 return Movable.Orientation.Front;
             case Cardinal.NorthEast:
                 break;
-            case Cardinal.East:
+            case Cardinal.east:
                 return Movable.Orientation.Left;
             case Cardinal.SouthEast:
                 break;
-            case Cardinal.South:
+            case Cardinal.south:
                 return Movable.Orientation.Back;
             case Cardinal.SouthWest:
                 break;
-            case Cardinal.West:
+            case Cardinal.west:
                 return Movable.Orientation.Right;
             case Cardinal.NorthWest:
                 break;

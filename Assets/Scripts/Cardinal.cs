@@ -1,13 +1,13 @@
 public enum Cardinal
 {
 
-	North,
+	north,
 	NorthEast,
-	East,
+	east,
 	SouthEast,
-	South,
+	south,
 	SouthWest,
-	West,
+	west,
 	NorthWest,
 
 	None

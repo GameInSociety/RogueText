@@ -24,7 +24,7 @@ public class ItemSocketLoader : TextParser
                 Socket newSocket = new Socket();
                 newSocket.SetPosition(cells[cellIndex]);
 
-                SocketManager.Instance.itemSockets.Add(newSocket);
+                //SocketManager.Instance.itemSockets.Add(newSocket);
 
                 //phrases.Add(cells[cellIndex]);
             }
@@ -47,7 +47,7 @@ public class ItemSocketLoader : TextParser
                 {
                     Item item = ItemManager.Instance.dataItems[itemIndex];
 
-                    SocketManager.Instance.itemSockets[socketIndex].itemIndexes.Add(item.dataIndex);
+                    //SocketManager.Instance.itemSockets[socketIndex].itemIndexes.Add(item.dataIndex);
                     //Debug.Log("adding item : " + item.word.text + " (index:"+item.dataIndex+") in socket " + Socket.itemSockets[socketIndex]._text);
                 }
 

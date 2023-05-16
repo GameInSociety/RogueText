@@ -1186,8 +1186,8 @@ MonoBehaviour:
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
   m_Text: 
-  m_CaretBlinkRate: 0.85
-  m_CaretWidth: 1
+  m_CaretBlinkRate: 2
+  m_CaretWidth: 5
   m_ReadOnly: 0
   m_ShouldActivateOnSelect: 1
 --- !u!114 &348016907
@@ -2138,20 +2138,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de4c293e08cd4394388c51f9ca4ee4c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemSockets:
-  - itemIndexes: 
-    _positions: []
-    itemGroups: []
-  - itemIndexes: 
-    _positions: []
-    itemGroups: []
-  - itemIndexes: 
-    _positions: []
-    itemGroups: []
-  - itemIndexes: 
-    _positions: []
-    itemGroups: []
-  tileSockets: []
   socketGroups: []
 --- !u!1 &815016655
 GameObject:
@@ -3767,9 +3753,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   genericSockets:
-  - itemIndexes: 
-    _positions: []
-    itemGroups: []
+  - _positions: []
 --- !u!4 &1578065325
 Transform:
   m_ObjectHideFlags: 0
@@ -4569,16 +4553,14 @@ MonoBehaviour:
   tile:
     debug_name: debug name
     dataIndex: 0
-    weight: 0
     usableAnytime: 0
-    used: 0
-    mContainedItems: []
+    generatedItems: 0
     currentWordIndex: 0
     words: []
     stackable: 0
     opened: 0
-    emptied: 0
     properties: []
+    mContainedItems: []
     coords:
       x: 0
       y: 0
@@ -4586,16 +4568,14 @@ MonoBehaviour:
   inventory:
     debug_name: debug name
     dataIndex: 0
-    weight: 0
     usableAnytime: 0
-    used: 0
-    mContainedItems: []
+    generatedItems: 0
     currentWordIndex: 0
     words: []
     stackable: 0
     opened: 0
-    emptied: 0
     properties: []
+    mContainedItems: []
   inputInfo: {fileID: 0}
   colorWords: 1
   itemsOnTile: []
@@ -5085,6 +5065,7 @@ MonoBehaviour:
   text_current: 
   text_target: 
   rate: 0.02
+  voiceDelay: 0.1
 --- !u!222 &2032537942
 CanvasRenderer:
   m_ObjectHideFlags: 0

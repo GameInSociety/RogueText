@@ -29,6 +29,11 @@ public class DisplayDescription : MonoBehaviour {
     float timer = 0f;
     public float rate = 0.2f;
 
+    bool playVoice = false;
+    float voiceTimer;
+    public float voiceDelay = 0.1f;
+    string voice_Text = "";
+
 	void Awake () {
 		Instance = this;
 	}
@@ -44,6 +49,17 @@ public class DisplayDescription : MonoBehaviour {
 
     private void Update()
     {
+        if ( playVoice )
+        {
+            voiceTimer += Time.deltaTime;
+            if ( voiceTimer >= voiceDelay)
+            {
+                AudioInteraction.Instance.StartSpeaking(voice_Text);
+                voice_Text = "";
+                playVoice = false;
+            }
+        }
+
         if (timer >= rate)
         {
             timer = 0f;
@@ -56,9 +72,15 @@ public class DisplayDescription : MonoBehaviour {
 
     void Type()
     {
+
         if (typeIndex >= text_target.Length)
         {
             return;
+        }
+
+        if (uiText.text.EndsWith("■"))
+        {
+            uiText.text = uiText.text.Remove(uiText.text.Length - 1);
         }
 
         Sound.Instance.PlayRandomTypeSound();
@@ -71,7 +93,7 @@ public class DisplayDescription : MonoBehaviour {
                 typeIndex = uiText.text.Length;
                 return;
             }
-            uiText.text = uiText.text.Insert(typeIndex, text_target[typeIndex].ToString());
+
         }
         else
         {
@@ -84,9 +106,11 @@ public class DisplayDescription : MonoBehaviour {
                 return;
             }
 
-            uiText.text += text_target[typeIndex];
         }
 
+        uiText.text = uiText.text.Insert(typeIndex, text_target[typeIndex].ToString()) + "■";
+
+        //
 
         ++typeIndex;
     }
@@ -101,10 +125,9 @@ public class DisplayDescription : MonoBehaviour {
 
     public void ClearDescription()
     {
-        text_current = "";
+        uiText.text = "";
         text_target = "";
         uiText_Old.text = "";
-        uiText.text = "";
     }
 
     public void UpdateDescription()
@@ -115,9 +138,6 @@ public class DisplayDescription : MonoBehaviour {
         SocketManager.Instance.socketGroups.Clear();
 
         Tile.GetCurrent.Describe();
-
-        // SURROUNDING TILES
-        
 
         // display tile items
         
@@ -135,8 +155,8 @@ public class DisplayDescription : MonoBehaviour {
     {
         typeIndex = 0;
         uiText_Old.text += uiText.text;
-
         text_target = "";
+
         uiText.text = "";
 
 
@@ -146,16 +166,25 @@ public class DisplayDescription : MonoBehaviour {
         uiText.text += "\n";*/
     }
 
-    public void AddToDescription(string str)
+    public void AddToDescription(string str, bool doReturn)
     {
-
         // majuscule
         str = TextUtils.FirstLetterCap(str);
 
         // add
-        text_target += "\n" + str;
+        if (doReturn)
+        {
+            text_target += "\n" + str;
+        }
+        else
+        {
+            text_target += str;
+        }
 
-        AudioInteraction.Instance.StartSpeaking(str);
+        voice_Text += str;
+
+        playVoice = true;
+        voiceTimer = 0f;
 
         //uiText.text += "\n____________________\n";
         scrollRect.verticalNormalizedPosition = 0f;

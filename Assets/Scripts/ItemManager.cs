@@ -62,52 +62,24 @@ public class ItemManager : MonoBehaviour {
         }
     }
 
-    public List<Item> FindItemsInWorld(string str)
+
+    public List<Item> GetAvailableItems()
     {
         List<Item> tmpItems = new List<Item>();
 
-        Item tmpItem;
+        tmpItems.Add(Inventory.Instance);
 
-        // dans un container
-        if (Item.AnItemIsOpened)
-        {
-            tmpItem = Item.OpenedItem.FindItem(str);
-            if (tmpItem != null)
-            {
-                tmpItems.Add(tmpItem);
-            }
-        }
+        tmpItems.Add(Tile.GetCurrent);
 
+        tmpItems.AddRange(Tile.GetCurrent.GetItemsRecursive());
 
-        // chercher une premiere fois dans l'inventaire s'il est ouvert
-        if (Inventory.Instance.opened)
-        {
-            tmpItem = Inventory.Instance.FindItem(str);
-            if (tmpItem != null)
-            {
-                tmpItems.Add(tmpItem);
-            }
-        }
-
-        foreach (var item in FindInTile(str))
-        {
-            tmpItems.Add(item);
-        }
-
-        tmpItem = Inventory.Instance.FindItem(str);
-        // et en dernier s'il est fermé
-        if (tmpItem != null)
-        {
-            tmpItems.Add(tmpItem);
-        }
-
-        tmpItem = ItemManager.Instance.FindUsableAnytime(str);
-        if (tmpItem != null)
-        {
-            tmpItems.Add(tmpItem);
-        }
+        tmpItems.AddRange(Inventory.Instance.GetItemsRecursive());
 
         return tmpItems;
+    }
+    public List<Item> FindItemsInWorld(string str)
+    {
+        return GetAvailableItems().FindAll(x => x.word.text == str);
     }
 
     public Tile CreateTile(Coords _coords, string tileName)
@@ -118,6 +90,7 @@ public class ItemManager : MonoBehaviour {
         Tile newTile = JsonConvert.DeserializeObject<Tile>(serializedParent);
         newTile.coords = _coords;
 
+
         return newTile;
     }
 
@@ -125,18 +98,6 @@ public class ItemManager : MonoBehaviour {
     private static List<Item> FindInTile(string str)
     {
         List<Item> tmpItems = new List<Item>();
-
-        // first of all, look at surrounding tiles, that way no confusing if your on a road
-        // and you wanna look the continuing road
-        // to change, because you need to be able to differenciate the both
-        foreach (var tile in Tile.GetCurrent.SurroundingTiles())
-        {
-            if (tile.HasWord(str))
-            {
-        // for now, add each surr tile, so that we can say "go to road on the left, or on the right
-                tmpItems.Add(tile);
-            }
-        }
 
         // than return them direclty
         if( tmpItems.Count > 0)
@@ -177,23 +138,6 @@ public class ItemManager : MonoBehaviour {
 
     }
 
-    public Item FindUsableAnytime(string str)
-    {
-        if ( str == "inventory")
-        {
-            return Inventory.Instance;
-        }
-
-        return dataItems.Find(x => x.HasWord(str) && x.usableAnytime);
-    }
-
-    public Item CreateInTile(Tile tile, Item item)
-    {
-        Item newItem = CreateFromData(item);
-        tile.AddItem(newItem);
-        return newItem;
-    }
-
     public Item CreateInTile(Tile tile, string itemName)
     {
         Item newItem = CreateFromData(itemName);
@@ -221,16 +165,9 @@ public class ItemManager : MonoBehaviour {
         // common to all
         Item newItem = new Item();
 
-        if (newItem.debug_name == "carrot")
-        {
-            Debug.LogError("Pourquoi y'a une carrote ma parole");
-        }
-
         newItem.debug_name = copy.debug_name;
         newItem.dataIndex = copy.dataIndex;
-        newItem.weight = copy.weight;
         newItem.usableAnytime = copy.usableAnytime;
-
 
         // the word never changes, non ? pourquoi en copy
         newItem.words = copy.words;
@@ -242,9 +179,6 @@ public class ItemManager : MonoBehaviour {
         {
             newItem.CreateProperty(prop_copy);
         }
-
-        
-
 
         return newItem;
     }

@@ -18,13 +18,13 @@ craft",turn on,turn off,unlock,plant,unearth,water,dig,wait,empty,charge,yes
 verbe seul,s,Objet,,FALSE,,DisplayHelp,,,CloseContainer,,"Write(you sleep on the floor)
 SetState(sleep, +1)
 SetState(health, -1)",,,,,MoveRel(0),,,,,,,,,GOOUT,MoveRel(4),,,,,,,,,,,WAIT(1),,,
-north,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+north,s,Objet,to,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 north east,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-east,s, ,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+east,s, ,to,FALSE,,,,,,,,Write(ITEM_DESCRIPTION),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 south east,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-south,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+south,s,Objet,to,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 south west,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-west,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+west,s,Objet,to,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 north west,s,Objet,,FALSE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "front
 forward

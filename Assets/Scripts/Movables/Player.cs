@@ -101,12 +101,12 @@ public class Player : Movable {
         {
             if (Inventory.Instance.HasItemWithProperty("source of light"))
             {
-                TextManager.WritePhrase("lamp_on");
+                TextManager.Write("lamp_on");
                 return true;
             }
             else
             {
-                TextManager.WritePhrase("lamp_off");
+                TextManager.Write("lamp_off");
                 return false;
             }
         }
@@ -150,7 +150,7 @@ public class Player : Movable {
         {
             if ( tile.coords == Player.Instance.coords)
             {
-                TextManager.WritePhrase("You are already &on the dog&");
+                TextManager.Write("You are already &on the dog&", tile);
                 return;
             }
 
@@ -168,26 +168,26 @@ public class Player : Movable {
 
         if (targetTile == null)
         {
-            TextManager.WritePhrase("blocked_void");
+            TextManager.Write("blocked_void");
             return;
         }
 
         switch (targetTile.debug_name)
         {
             case "hill":
-                TextManager.WritePhrase("blocked_hill");
+                TextManager.Write("blocked_hill");
                 break;
             case "mountain":
-                TextManager.WritePhrase("blocked_mountain");
+                TextManager.Write("blocked_mountain");
                 break;
             case "sea":
-                TextManager.WritePhrase("blocked_sea");
+                TextManager.Write("blocked_sea");
                 break;
             case "lake":
-                TextManager.WritePhrase("blocked_lake");
+                TextManager.Write("blocked_lake");
                 break;
             case "river":
-                TextManager.WritePhrase("blocked_river");
+                TextManager.Write("blocked_river");
                 break;
             default:
                 break;
@@ -197,7 +197,7 @@ public class Player : Movable {
     public override void Orient(Orientation orientation)
     {
         TextManager.SetOverrideOrientation(orientation);
-        TextManager.WritePhrase("position_orientPlayer");
+        TextManager.Write("position_orientPlayer");
 
         base.Orient(orientation);
     }

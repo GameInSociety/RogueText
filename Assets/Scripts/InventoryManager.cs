@@ -66,7 +66,7 @@ public class InventoryManager : MonoBehaviour
 
         if (item == null)
         {
-            TextManager.WritePhrase("inventory_throw_nothing");
+            TextManager.Write("inventory_throw_nothing");
             return;
         }
 
@@ -74,7 +74,7 @@ public class InventoryManager : MonoBehaviour
         Inventory.Instance.RemoveItem(item);
         Tile.GetCurrent.AddItem(InputInfo.Instance.GetItem(0));
 
-        TextManager.WritePhrase("inventory_throw_sucess");
+        TextManager.Write("inventory_throw_sucess", InputInfo.Instance.GetItem(0));
     }
 
     void Action_PickUp()
@@ -93,9 +93,9 @@ public class InventoryManager : MonoBehaviour
 
         foreach (var item in targetItems)
         {
-            if (Inventory.Instance.ContainsItem(item))
+            if (Inventory.Instance.HasItem(item))
             {
-                TextManager.WritePhrase("inventory_pickUp_already");
+                TextManager.Write("inventory_pickUp_already", InputInfo.Instance.GetItem(0));
             }
             else
             {
@@ -146,7 +146,7 @@ public class InventoryManager : MonoBehaviour
         for (int i = 0; i < amount; i++)
         {
             Item item = ItemManager.Instance.CreateInTile(Tile.GetCurrent, item_name);
-            TextManager.WritePhrase("tile_addItem", item);
+            TextManager.Write("tile_addItem", item);
         }
 
     }
@@ -172,12 +172,12 @@ public class InventoryManager : MonoBehaviour
                 // found no item in container, inventory or tile
                 // break flow of actions
                 targetItem = ItemManager.Instance.GetDataItem(item_name);
-                TextManager.WritePhrase("item_require", targetItem);
+                TextManager.Write("item_require", targetItem);
                 PlayerActionManager.Instance.BreakAction();
                 return;
             }
 
-            TextManager.WritePhrase("you use &the dog (override)&", targetItem);
+            TextManager.Write("you use &the dog (override)&", targetItem);
             return;
         }
 
@@ -186,7 +186,7 @@ public class InventoryManager : MonoBehaviour
         // no target item, just ask for a second item
         if ( !InputInfo.Instance.HasItem(1) )
         {
-            TextManager.WritePhrase("item_noSecondItem");
+            TextManager.Write("item_noSecondItem", InputInfo.Instance.GetItem(0));
             InputInfo.Instance.sustainVerb = true;
             InputInfo.Instance.sustainItem = true;
             PlayerActionManager.Instance.BreakAction();

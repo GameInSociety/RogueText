@@ -135,6 +135,7 @@ public class TextManager
     }
     static Item GetItemFromCode(string itemCode)
     {
+        return overrideItem;
         switch (itemCode)
         {
             case "main":
@@ -157,15 +158,25 @@ public class TextManager
         return overrideOrientations;
     }
     #region write phrase
-    public static void WritePhrase(string str, Item _overrideItem)
+    public static void Write(string str, Item _overrideItem)
     {
         overrideItem = _overrideItem;
-        WritePhrase(str);
+        Write(str);
     }
-    public static void WritePhrase(string str)
+    public static void Write(string str)
     {
         string text = GetPhrase(str);
-        DisplayDescription.Instance.AddToDescription(text);
+        DisplayDescription.Instance.AddToDescription(text, true);
+    }
+    public static void Add(string str, Item _overrideItem)
+    {
+        overrideItem = _overrideItem;
+        Add(str);
+    }
+    public static void Add (string str)
+    {
+        string text = GetPhrase(str);
+        DisplayDescription.Instance.AddToDescription(text, false);
     }
     #endregion
     public static void Renew()

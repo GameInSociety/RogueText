@@ -43,54 +43,20 @@ public class Tile : Item
             return;
         }
 
+        TryGetSurroundingTiles();
+
         WriteContainedItems();
 
-        WriteSurroundingTileDescription();
 
 
     }
 
-    public void WriteSurroundingTileDescription()
+    public void TryGetSurroundingTiles()
     {
         if (enclosed)
         {
             return;
         }
-
-        SocketManager.Instance.DescribeItems(SurroundingTiles(), null);
-    }
-
-    public void DescribeSelf()
-    {
-        if ( SameAsPrevious() && stackable)
-        {
-            // on the same road, same hallway, don't write anything
-            return;
-        }
-
-        if (SameAsPrevious())
-        {
-            TextManager.WritePhrase("tile_continue", (Item)this);
-        }
-        else if (!used)
-        {
-            TextManager.WritePhrase("tile_discover", (Item)this);
-        }
-        else
-        {
-            TextManager.WritePhrase("tile_goback", (Item)this);
-        }
-
-
-    }
-
-    // with the reference cardinal
-    // player dir if move
-    // window dir if look...
-    // and coming others
-    public List<Item> SurroundingTiles()
-    {
-        List<Item> result = new List<Item>();
 
         List<Movable.Orientation> orientations = new List<Movable.Orientation>
         {
@@ -101,6 +67,10 @@ public class Tile : Item
 
         foreach (var orientation in orientations)
         {
+            Cardinal cardinal = Movable.OrientationToCardinal(orientation);
+            string cardinalItemName = cardinal.ToString();
+            Debug.Log(cardinalItemName);
+
             Tile targetTile = GetTile(orientation);
 
             if (targetTile == null)
@@ -113,21 +83,50 @@ public class Tile : Item
                 continue;
             }
 
-            if (!targetTile.HasProperty("direction"))
+            if (!HasItem(cardinalItemName))
             {
+                CreateInItem(cardinalItemName);
 
-                targetTile.CreateProperty("dir / direction / none");
+                if (!GetItem(cardinalItemName).HasItem(targetTile))
+                {
+                    GetItem(cardinalItemName).AddItem(targetTile);
+                }
             }
-
-            Cardinal dir = Movable.OrientationToCardinal( orientation);
-            targetTile.GetProperty("direction").Update(dir.ToString().ToLower());
-
-
-            result.Add(targetTile);
+            else
+            {
+            }
         }
 
-        return result;
+        //SocketManager.Instance.DescribeItems(SurroundingTiles(), null);
     }
+
+    public void DescribeSelf()
+    {
+        TryGenerateItems();
+
+        if ( SameAsPrevious() && stackable)
+        {
+            // on the same road, same hallway, don't write anything
+            return;
+        }
+
+        if (SameAsPrevious())
+        {
+            TextManager.Write("tile_continue", (Item)this);
+        }
+        else if (!generatedItems)
+        {
+            TextManager.Write("tile_discover", (Item)this);
+        }
+        else
+        {
+            TextManager.Write("tile_goback", (Item)this);
+        }
+
+
+    }
+
+    
 
     public Tile GetTile( Movable.Orientation orientation)
     {
@@ -155,7 +154,7 @@ public class Tile : Item
         }
     }
 
-    public override void WriteContainedItems()
+    /*public override void WriteContainedItems()
     {
         //base.WriteContainedItemDescription();
 
@@ -167,10 +166,10 @@ public class Tile : Item
         }
 
         /*Socket socket = new Socket();
-        socket.SetPosition("&on the dog (tile)&");*/
+        socket.SetPosition("&on the dog (tile)&");
 
         SocketManager.Instance.DescribeItems(GetContainedItems, null);
-    }
+    }*/
 
     #region info
     public static bool SameAsPrevious()
@@ -193,17 +192,6 @@ public class Tile : Item
         return orientation;
     }
     #endregion
-
-    /// <summary>
-    /// INTERIOR
-    /// </summary>
-    public bool HasDoor (string direction)
-    {
-        return GetContainedItems.Find(x =>
-        x.HasWord("door") &&
-        x.HasProperty("direction") &&
-        x.GetProperty("direction").value == direction) != null;
-    }
 
     /// <summary>
     /// TOOLS
