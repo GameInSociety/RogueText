@@ -12,8 +12,6 @@ public class Tile : Item
     // location of tile in world
     public Coords coords;
 
-    public bool enclosed = false;
-
     public static bool itemsChanged = false;
 
     #region tile description
@@ -22,6 +20,8 @@ public class Tile : Item
     public void Describe( )
     {
         DisplayDescription.Instance.Renew();
+
+        AvailableItems.Clear();
 
         if (Player.Instance.coords== coords)
         {
@@ -45,7 +45,7 @@ public class Tile : Item
 
         TryGetSurroundingTiles();
 
-        WriteContainedItems();
+        WriteContainedItems(true);
 
 
 
@@ -53,47 +53,62 @@ public class Tile : Item
 
     public void TryGetSurroundingTiles()
     {
-        if (enclosed)
-        {
-            return;
-        }
-
         List<Movable.Orientation> orientations = new List<Movable.Orientation>
         {
-            Movable.Orientation.Front,
-            Movable.Orientation.Right,
-            Movable.Orientation.Left
+            Movable.Orientation.front,
+            Movable.Orientation.right,
+            Movable.Orientation.left,
+            Movable.Orientation.back
         };
 
         foreach (var orientation in orientations)
         {
-            Cardinal cardinal = Movable.OrientationToCardinal(orientation);
-            string cardinalItemName = cardinal.ToString();
-            Debug.Log(cardinalItemName);
+            /*Cardinal cardinal = Movable.OrientationToCardinal(orientation);
+            string cardinalItemName = cardinal.ToString();*/
 
-            Tile targetTile = GetTile(orientation);
+            Tile adjacentTile = GetTile(orientation);
 
-            if (targetTile == null)
+            if (adjacentTile == null)
             {
                 continue;
             }
 
-            if (targetTile.enclosed)
-            {
-                continue;
-            }
+            
 
-            if (!HasItem(cardinalItemName))
-            {
-                CreateInItem(cardinalItemName);
+            string orientation_itemName = orientation.ToString();
+            string opposite_itemName = Movable.GetOpposite(orientation).ToString();
 
-                if (!GetItem(cardinalItemName).HasItem(targetTile))
+            if (!HasItem(orientation_itemName))
+            {
+                Item item = CreateInItem(orientation_itemName);
+
+                // if in interior, create door
+                if (adjacentTile.HasProperty("enclosed"))
                 {
-                    GetItem(cardinalItemName).AddItem(targetTile);
+                    Debug.Log(adjacentTile.debug_name + " is enclosed");
+
+                    item.CreateInItem("door");
+
+                    if (!adjacentTile.HasItem(opposite_itemName))
+                    {
+                        adjacentTile.CreateInItem(opposite_itemName);
+                        adjacentTile.GetItem(opposite_itemName).CreateInItem("door");
+                        continue;
+                    }
                 }
-            }
-            else
-            {
+                else
+                {
+                    if (orientation == Movable.Orientation.back)
+                    {
+                        item.info.hide = true;
+                    }
+
+                    if (!GetItem(orientation_itemName).HasItem(adjacentTile))
+                    {
+                        GetItem(orientation_itemName).AddItem(adjacentTile);
+                    }
+                }
+                
             }
         }
 
@@ -104,7 +119,7 @@ public class Tile : Item
     {
         TryGenerateItems();
 
-        if ( SameAsPrevious() && stackable)
+        if ( SameAsPrevious() && info.stackable)
         {
             // on the same road, same hallway, don't write anything
             return;
@@ -114,7 +129,7 @@ public class Tile : Item
         {
             TextManager.Write("tile_continue", (Item)this);
         }
-        else if (!generatedItems)
+        else if (!info.discovered)
         {
             TextManager.Write("tile_discover", (Item)this);
         }
@@ -206,6 +221,30 @@ public class Tile : Item
     public static void SetPrevious(Tile tile)
     {
         _previous = tile;
+
+        if ( tile == null)
+        {
+            return;
+        }
+
+
+        // delete cardinals, to prevent recursive stack overflow
+        List<Cardinal> cards = new List<Cardinal>() { Cardinal.east, Cardinal.north, Cardinal.south , Cardinal.west};
+
+
+        foreach (var cardinal in cards)
+        {
+            string cardinalItemName = cardinal.ToString();
+
+            if (tile.HasItem(cardinalItemName))
+            {
+                Item cardinalItem = tile.GetItem(cardinalItemName);
+
+                tile.RemoveItem(cardinalItem);
+            }
+        }
+
+       
     }
 
     private static Tile _current;

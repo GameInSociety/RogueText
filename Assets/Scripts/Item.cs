@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEditor.Progress;
@@ -11,6 +12,26 @@ public class Item
 {
     public string debug_name = "debug name";
 
+    // pas encore utilisé mais à faire 
+    public Info info;
+    public struct Info
+    {
+        public Info(Info copy)
+        {
+            generatedItems = copy.generatedItems;
+            discovered= copy.discovered;
+            usableAnytime= copy.usableAnytime;
+            stackable = copy.stackable;
+            hide = copy.hide;
+        }
+
+        public bool hide;
+        public bool generatedItems;
+        public bool discovered;
+        public bool usableAnytime;
+        public bool stackable;
+    }
+
     // va rendre les liste d'items obsolètes
     // void "no item list" dans la feuille de routes
     //public List<Socket> sockets = new List<Socket>();
@@ -19,15 +40,6 @@ public class Item
     /// declaration
     /// </summary>
     public int dataIndex;
-    // maybe should be a property ?
-    public bool usableAnytime = false;
-
-    // nom à changer
-    // concept à changer
-    // vie à changer
-    public bool generatedItems = false;
-
-    
 
     /// <summary>
     /// WORD
@@ -41,22 +53,6 @@ public class Item
         }
     }
     public List<Word> words = new List<Word>();
-    public bool stackable = false;
-
-    /// <summary>
-    /// container
-    /// will change and become obsolete with socket / item fusion
-    /// </summary>
-    public static Item OpenedItem;
-    public static bool AnItemIsOpened
-    {
-        get
-        {
-            return OpenedItem!= null;
-        }
-    }
-    public bool opened = false;
-    ///
 
     /// <summary>
     /// properties
@@ -76,12 +72,12 @@ public class Item
     }
     public virtual void TryGenerateItems()
     {
-        if ( generatedItems)
+        if ( info.generatedItems)
         {
             return;
         }
 
-        generatedItems = true;
+        info.generatedItems = true;
 
         foreach (var itemInfo in AppearInfo.GetAppearInfo(dataIndex).itemInfos)
         {
@@ -117,6 +113,7 @@ public class Item
     public void RemoveItem(Item item)
     {
         GetContainedItems.Remove(item);
+        AvailableItems.Remove(item);
     }
     // item row : wtf ? le craft system est pas ouf
     public void RemoveItem(int itemRow)
@@ -128,14 +125,6 @@ public class Item
     public Item GetItem(string itemName)
     {
         Item tmpItem = GetContainedItems.Find(x => x.word.text == itemName);
-        if( tmpItem == null)
-        {
-            Debug.LogError("no " + itemName + " in " + debug_name);
-            foreach (var item in GetContainedItems)
-            {
-                Debug.Log(item.debug_name);
-            }
-        }
 
         return tmpItem;
     }
@@ -149,45 +138,6 @@ public class Item
     {
         return GetContainedItems.Contains(item);
     }
-    ///
-
-    /// <summary>
-    /// OPEN / CLOSE
-    /// </summary>
-    /// 
-
-    /// rendered absolutely obsolete with proprieties, and contained items
-    // just put "open" and "closed" and checkprops in containers
-    // the container system is no more
-    public void Open()
-    {
-       // TryGenerateItems();
-
-        if (ContainsItems())
-        {
-            OpenedItem = this;
-            WriteContainedItems();
-            return;
-        }
-
-        Debug.Log(debug_name + " is empty");
-        TextManager.Write("container_empty", this);
-    }
-
-    public void Close()
-    {
-        // toujours dans la classe inventory.cs pour l'intsant
-        if (!AnItemIsOpened)
-        {
-            TextManager.Write("container_alreadyClosed", this);
-            return;
-        }
-
-        TextManager.Write("container_clsose", Item.OpenedItem);
-
-        OpenedItem = null;
-    }
-    ///
 
     public bool SameTypeAs(Item otherItem)
     {
@@ -230,30 +180,15 @@ public class Item
     }
     public static void Remove(Item targetItem)
     {
-        // first search thing in opened container
-        if (AnItemIsOpened)
-        {
-            if (Item.OpenedItem.GetContainedItems.Contains(targetItem))
-            {
-                Item.OpenedItem.RemoveItem(targetItem);
-            }
-            return;
-        }
-
         // then in tile
-        if (Tile.GetCurrent.GetContainedItems.Contains(targetItem))
+        foreach (var item in AvailableItems.List)
         {
-            Tile.GetCurrent.RemoveItem(targetItem);
-
-            //DisplayDescription.Instance.UpdateDescription();
-            return;
-        }
-
-        // then in inventory
-        if (Inventory.Instance.HasItem(targetItem))
-        {
-            Inventory.Instance.RemoveItem(targetItem);
-            return;
+            if (item.HasItem(targetItem))
+            {
+                item.RemoveItem(targetItem);
+                Debug.Log("removed item from " + item.debug_name);
+                return;
+            }
         }
 
         Debug.LogError("removing item : " + targetItem.word.text + " failed : not in container, tile or inventory");
@@ -341,10 +276,6 @@ public class Item
 
         TextManager.Write(str);
     }
-    public void WritePropertiesDescription()
-    {
-        WriteProperties();
-    }
 
     public void WriteDescription()
     {
@@ -356,8 +287,6 @@ public class Item
         //TryGenerateItems();
 
         WriteContainedItems();
-
-        
 
         WriteActions();
     }
@@ -534,44 +463,88 @@ public class Item
         }
     }
 
-    public virtual void WriteContainedItems()
+    public virtual void WriteContainedItems(bool describeContainers = false)
     {
-        // fait ailleur mais test
-        //TryGenerateItems();
-
-        Debug.Log("writing items description for " + debug_name);
+        AvailableItems.Add(this);
 
         if (!ContainsItems())
         {
             return;
         }
 
-        TextManager.Write("&on the dog&, ", this);
+        if (info.discovered)
+        {
+            TextManager.Write("&on the dog&, ", this);
+        }
+        else
+        {
+            TextManager.Write("&on a dog&, ", this);
+        }
 
-        int index = 0;
+        // Get Groups for description
+        List<Group> groups = new List<Group>();
         foreach (var item in GetContainedItems)
         {
+            AvailableItems.Add(item);
+        
+            Group group = groups.Find(x => x.item.dataIndex == item.dataIndex);
 
-            if (item.ContainsItems())
+            if ( group != null )
             {
-                item.WriteContainedItems();
+                // Found group, adding amount
+                ++group.amount;
             }
             else
             {
-                TextManager.Add("&a dog&", item);
-                TextManager.Add(TextUtils.GetLink(index, GetContainedItems.Count));
+                // Create new group
+                Group newGroup = new Group();
+                newGroup.amount = 1;
+                newGroup.item = item;
+                groups.Add(newGroup);
             }
 
+        }
+
+        // Describe groups
+        int index = 0;
+        foreach (var group in groups)
+        {
+            if (group.item.info.hide)
+            {
+                continue;
+            }
+
+            if (describeContainers && group.item.ContainsItems())
+            {
+                group.item.WriteContainedItems();
+            }
+            else
+            {
+                group.item.word.currentInfo.amount = group.amount;
+                TextManager.Add("&a dog&", group.item);
+            }
+
+                TextManager.Add(TextUtils.GetLink(index, groups.Count));
             ++index;
         }
 
+        info.discovered = true;
 
         //SocketManager.Instance.DescribeItems(GetContainedItems, socket);
     }
 
+    public class Group
+    {
+        public Item item;
+        public int amount;
+    }
+
     public List<Item> GetItemsRecursive()
     {
-        List<Item> tmpItems = new List<Item>();
+        return null;
+        /*List<Item> tmpItems = new List<Item>();
+
+        int b = 0;
 
         foreach (var item in GetContainedItems)
         {
@@ -582,7 +555,7 @@ public class Item
             }
         }
 
-        return tmpItems;
+        return tmpItems;*/
     }
 
     /// <summary>

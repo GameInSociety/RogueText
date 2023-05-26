@@ -8,6 +8,11 @@ public class ItemManager : MonoBehaviour {
 
     public List<Item> dataItems = new List<Item>();
 
+    public void DescribeItem()
+    {
+        InputInfo.Instance.GetItem(0).WriteDescription();
+    }
+
     public Item TryGetItem(string _name)
     {
         _name = _name.ToLower();
@@ -62,24 +67,9 @@ public class ItemManager : MonoBehaviour {
         }
     }
 
-
-    public List<Item> GetAvailableItems()
+    public List<Item> FindItemsInWorld(string item_name)
     {
-        List<Item> tmpItems = new List<Item>();
-
-        tmpItems.Add(Inventory.Instance);
-
-        tmpItems.Add(Tile.GetCurrent);
-
-        tmpItems.AddRange(Tile.GetCurrent.GetItemsRecursive());
-
-        tmpItems.AddRange(Inventory.Instance.GetItemsRecursive());
-
-        return tmpItems;
-    }
-    public List<Item> FindItemsInWorld(string str)
-    {
-        return GetAvailableItems().FindAll(x => x.word.text == str);
+        return AvailableItems.Find(item_name);
     }
 
     public Tile CreateTile(Coords _coords, string tileName)
@@ -167,12 +157,11 @@ public class ItemManager : MonoBehaviour {
 
         newItem.debug_name = copy.debug_name;
         newItem.dataIndex = copy.dataIndex;
-        newItem.usableAnytime = copy.usableAnytime;
+
+        newItem.info = new Item.Info(copy.info);
 
         // the word never changes, non ? pourquoi en copy
         newItem.words = copy.words;
-
-        newItem.stackable = copy.stackable;
 
         // unique
         foreach (var prop_copy in copy.properties)

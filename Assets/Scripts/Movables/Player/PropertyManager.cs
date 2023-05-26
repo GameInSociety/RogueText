@@ -292,7 +292,7 @@ public class PropertyManager : MonoBehaviour
     void UpdateDescriptionDelay()
     {
         updateDescription = false;
-        describedItem.WritePropertiesDescription();
+        describedItem.WriteProperties();
     }
 
     private static PropertyManager _instance;

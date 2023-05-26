@@ -42,14 +42,6 @@ public class SocketManager : MonoBehaviour
         // get item item AND item counts
         foreach (var item in items)
         {
-            // A REMETTRE
-            // j'ai mis de côté quand j'ai enlevé la classe "ItemPhrase" et "ItemGroup" qui ne servaient à rien
-            // mais important et à remettre
-            if (item.stackable)
-            {
-
-            }
-
             Socket socket;
             if (item.HasProperty("direction"))
             {
@@ -127,7 +119,7 @@ public class SocketManager : MonoBehaviour
 
             if (Tile.GetCurrent.SameTypeAs(targetItem))
             {
-                if (Tile.GetCurrent.stackable)
+                if (Tile.GetCurrent.info.stackable)
                 {
                     // tu es dans une forêt, la forêt continue
                     return "socket_tile_continue";
@@ -150,7 +142,7 @@ public class SocketManager : MonoBehaviour
             else
             {
                 // ici
-                if (((Tile)targetItem).generatedItems)
+                if (targetItem.info.discovered)
                 {
                     // tu vois es près d'une maison
                     return "socket_tile_visited";
@@ -179,22 +171,28 @@ public class SocketManager : MonoBehaviour
         return tmpSocket;
     }
 
-    public Item GetSocketItemInText(string text)
+    public Item CheckSpecificInput(Item targetItem, string targetText)
     {
-        foreach (var socketGroup in socketGroups)
-        {
-            foreach (var socket in socketGroup.sockets)
-            {
-                for (int i = 0; i < socket._positions.Count; i++)
-                {
-                    if (text.Contains(socket._positions[i]))
-                    {
-                        return socket.GetItem(i);
-                    }
-                }
 
+        foreach (var item in AvailableItems.List)
+        {
+            if (targetText.Contains(item.word.text))
+            {
+                Debug.Log("found item " + item.debug_name + " for " + targetText);
+                Item tmpItem = item.GetItem(targetItem.word.text);
+                if (tmpItem != null)
+                {
+                    Debug.LogError("found the item "+tmpItem.debug_name +" in : " + targetText);
+                    return tmpItem;
+                }
+                else
+                {
+                    Debug.Log("but no specification");
+                }
             }
         }
+
+        Debug.Log("found nothing for " + targetText);
 
         return null;
     }

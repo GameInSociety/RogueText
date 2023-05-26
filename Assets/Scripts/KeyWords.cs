@@ -43,7 +43,7 @@ public static class KeyWords
             case KeyWord.TARGET_ORIENTATION:
                 return Coords.GetOrientationText(TextManager.GetOverrideOrientations());
             case KeyWord.ITEM_DESCRIPTION:
-                InputInfo.Instance.GetItem(0).WriteDescription();
+                
                 return "";
             case KeyWord.VERB_NAME:
                 return InputInfo.Instance.verb.GetName;

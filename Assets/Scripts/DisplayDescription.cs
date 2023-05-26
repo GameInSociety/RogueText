@@ -132,11 +132,6 @@ public class DisplayDescription : MonoBehaviour {
 
     public void UpdateDescription()
     {
-
-        // je vide les sockets ici, mais à terme, il faut que les sockets restent dans la tile
-        // à regarder "no item list" dans la feuille de route
-        SocketManager.Instance.socketGroups.Clear();
-
         Tile.GetCurrent.Describe();
 
         // display tile items

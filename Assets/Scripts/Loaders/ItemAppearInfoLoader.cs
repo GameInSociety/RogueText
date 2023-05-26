@@ -33,13 +33,17 @@ public class ItemAppearInfoLoader : TextParser
             }
             return;
         }
+        if ( rowIndex == 1)
+        {
+            return;
+        }
 
         if (string.IsNullOrEmpty(cells[0]))
         {
             return;
         }
 
-        int itemToAddIndex = rowIndex - 1;
+        int itemToAddIndex = rowIndex - 2;
 
         if ( itemToAddIndex >= ItemManager.Instance.dataItems.Count)
         {
@@ -53,7 +57,7 @@ public class ItemAppearInfoLoader : TextParser
 
         if ( cells[1] == "TRUE")
         {
-            itemToAdd.usableAnytime = true;  
+            itemToAdd.info.usableAnytime = true;  
             return;
         }
 
@@ -117,7 +121,6 @@ public class ItemAppearInfoLoader : TextParser
             if (debug)
             {
                 Debug.Log(itemInfo.chanceAppear + " chance to find " + ItemManager.Instance.dataItems[itemInfo.itemIndex].debug_name + " in " + ItemManager.Instance.dataItems[itemIndex].debug_name);
-
             }
 
         }

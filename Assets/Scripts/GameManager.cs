@@ -24,11 +24,15 @@ public class GameManager : MonoBehaviour
         VerbLoader.Instance.Load();
         ItemLoader.Instance.Load();
 
+        CombinationLoader.Instance.Load();
+
         ItemAppearInfoLoader.Instance.Load();
         ItemSocketLoader.Instance.Load();
         TileSocketLoader.Instance.Load();
 
         MapTexture.Instance.CreateMapFromTexture();
+
+        Inventory.Init();
 
         Player.Instance = new Player();
         Player.Instance.Init();

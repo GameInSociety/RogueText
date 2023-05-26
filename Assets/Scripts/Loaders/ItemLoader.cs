@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.PackageManager;
+using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
-
+using UnityEngine.Analytics;
 
 public class ItemLoader : TextParser {
 
@@ -57,8 +58,6 @@ public class ItemLoader : TextParser {
             // can't continue, parce que sinon ça décale tout donc juste on fait rien
         }
 
-        
-
         // create new item
         Item newItem = new Item();
 
@@ -79,25 +78,34 @@ public class ItemLoader : TextParser {
             // pour synonym autre ligne aussi dans les genre
             newWord.UpdateNumber(cells[1]);
 
-            // estce que le poids peut être une  ?
-            newItem.word.adjectiveType = cells[2].ToLower();
-
-            if (cells[3].Length > 1)
+            if (cells[2].Length > 1)
             {
                 // ainsi que les locations peut être
-                newItem.word.SetLocationPrep(cells[3]);
+                newItem.word.SetLocationPrep(cells[2]);
             }
         }
 
         //newItem.index = rowIndex-1;
         newItem.dataIndex = itemIndex;
+        // add to item list
+        ItemManager.Instance.dataItems.Add(newItem);
 
-        
+        newItem.info.stackable = cells[3].Contains("stackable");
 
-        newItem.stackable = cells[4] == "TRUE";
+        if ( cells.Count > 4)
+        {
+            InitProperties(newItem, cells[4]);
+        }
 
-        // property 
-        string[] property_lines = cells[5].Split('\n');
+        ++itemIndex;
+
+
+    }
+
+    void InitProperties(Item item, string cell)
+    {
+        /// PROPERTIES
+        string[] property_lines = cell.Split('\n');
 
         if (string.IsNullOrEmpty(property_lines[0]))
         {
@@ -118,7 +126,7 @@ public class ItemLoader : TextParser {
                     string eventName = property_line;
                     Property.Event propertyEvent = new Property.Event();
                     propertyEvent.name = eventName.Remove(0, 1);
-                    Property lastProp = newItem.properties[newItem.properties.Count - 1];
+                    Property lastProp = item.properties[item.properties.Count - 1];
                     lastProp.AddEvent(propertyEvent);
                     continue;
                 }
@@ -126,8 +134,7 @@ public class ItemLoader : TextParser {
                 if (property_line.StartsWith('#'))
                 {
                     string _event = property_line;
-
-                    Property lastProp = newItem.properties[newItem.properties.Count - 1];
+                    Property lastProp = item.properties[item.properties.Count - 1];
 
                     Property.Event.Action newAction = new Property.Event.Action();
                     int contentIndex = _event.IndexOf('(');
@@ -140,7 +147,7 @@ public class ItemLoader : TextParser {
                     newAction.content = content;
 
                     // it's an event, 
-                    lastProp.events[lastProp.events.Count-1].AddAction(newAction);
+                    lastProp.events[lastProp.events.Count - 1].AddAction(newAction);
                     continue;
                 }
 
@@ -154,52 +161,16 @@ public class ItemLoader : TextParser {
                     Debug.LogError(property_line + " is not well formated");
                 }
                 newProperty.name = parts[1];
-                if ( parts.Count> 2 )
+                if (parts.Count > 2)
                 {
                     newProperty.value = parts[2];
                 }
-                
-                newItem.properties.Add(newProperty);
+
+                item.properties.Add(newProperty);
 
                 //newItem.CreateProperty(property_line);
             }
         }
         //
-
-        // add to item list
-        ItemManager.Instance.dataItems.Add(newItem);
-
-        // actions
-        int verbIndex = 0;
-
-        for (int cellIndex = 6; cellIndex < cells.Count; cellIndex++)
-        {
-            if (verbIndex >= Verb.GetVerbs.Count)
-            {
-                //Debug.LogError(verbIndex + " / " + Verb.GetVerbs.Count);
-                continue;
-            }
-
-            Verb verb = Verb.GetVerbs[verbIndex];
-
-            string cell = cells[cellIndex];
-
-            if (cell.Length >= 2)
-            {
-                // verb out of range
-                Combination newCombination = new Combination();
-                newCombination.content = cell;
-                newCombination.itemIndex = newItem.dataIndex;
-
-                verb.AddCombination(newCombination);
-            }
-
-            ++verbIndex;
-
-        }
-
-        ++itemIndex;
-
-
     }
 }

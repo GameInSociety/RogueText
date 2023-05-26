@@ -64,25 +64,18 @@ public class TextManager
             // le chien sage (main) => main
             string itemInfo = GetKey(wordInfo);
 
-            if ( itemInfo == "socket")
-            {
-                // socket is a group of words, so petite fainte là ( pas ouf )
-                text = text.Replace(targetPart, KeyWords.socket.GetItemsText(wordInfo));
-            }
-            else
-            {
-                Item targetItem = GetItemFromCode(itemInfo);
+            // getting the item
+            Item targetItem = GetItemFromCode(itemInfo);
 
-                if (targetItem == null)
-                {
-                    Debug.LogError("target item is null " + itemInfo + " text : " + text);
-                }
-
-                // get word from item
-                string word = targetItem.word.GetContent(wordInfo);
-                // replace target part with word, and continue
-                text = text.Replace(targetPart, word);
+            if (targetItem == null)
+            {
+                Debug.LogError("target item is null " + itemInfo + " text : " + text);
             }
+
+            // get word from item
+            string word = targetItem.word.GetInfo(wordInfo);
+            // replace target part with word, and continue
+            text = text.Replace(targetPart, word);
 
             // safety break
             ++safetyBreak;
@@ -135,23 +128,12 @@ public class TextManager
     }
     static Item GetItemFromCode(string itemCode)
     {
-        return overrideItem;
-        switch (itemCode)
+        if ( overrideItem == null)
         {
-            case "main":
-                return InputInfo.Instance.GetItem(0);
-            case "tile":
-                return Tile.GetCurrent;
-            case "override":
-                if (overrideItem == null)
-                {
-                    Debug.LogError("trying override, but null");
-                }
-                return overrideItem;
-            default:
-                Debug.LogError(itemCode + " doesnt go in any item category, returning input main");
-                return InputInfo.Instance.GetItem(0);
+            Debug.LogError("override item is null");
         }
+
+        return overrideItem;
     }
     public static List<Movable.Orientation> GetOverrideOrientations()
     {
@@ -168,6 +150,7 @@ public class TextManager
         string text = GetPhrase(str);
         DisplayDescription.Instance.AddToDescription(text, true);
     }
+
     public static void Add(string str, Item _overrideItem)
     {
         overrideItem = _overrideItem;

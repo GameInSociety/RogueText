@@ -9,11 +9,11 @@ public class Word
     public string locationPrep = "";
     public string text = "";
     public Number defaultNumber = Number.Singular;
+    public bool defaultDefined = false;
 
     // ADJECTIVE
     // more logic if word have adjectives, and not items or location or tiles. fuck s
     private Adjective adjective;
-    public string adjectiveType;
 
     public Info currentInfo;
 
@@ -27,11 +27,6 @@ public class Word
         this.locationPrep = copy.locationPrep;
         this.text = copy.text;
         this.defaultNumber = copy.defaultNumber;
-        /*if (adjective != null)
-        {
-            this.adjective = new Adjective(copy.adjective);
-        }*/
-        this.adjectiveType = copy.adjectiveType;
         this.currentInfo = copy.currentInfo;
     }
     
@@ -56,7 +51,9 @@ public class Word
     #region genre
     public void UpdateNumber(string str)
     {
-        switch (str)
+        string[] parts = str.Split('\n');
+
+        switch (parts[0])
         {
             case "s":
                 defaultNumber = Number.Singular;
@@ -68,6 +65,14 @@ public class Word
                 Debug.LogError("pas trouvé de nombre pour l'item : " + text + " ( content : " + str + ")");
                 break;
         }
+
+        if ( parts.Length > 1)
+        {
+            if (parts[1] == "d")
+            {
+                defaultDefined = true;
+            }
+        }
     }
     #endregion
 
@@ -78,6 +83,12 @@ public class Word
         if (defaultNumber == Number.Plural)
         {
             currentInfo.plural = true;
+        }
+
+        if (currentInfo.amount > 1)
+        {
+            currentInfo.plural = true;
+            return "some ";
         }
 
         // NUMBER
@@ -100,11 +111,11 @@ public class Word
                 case Preposition.Of:
                     // there's no water
                     if (currentInfo.defined)
-                        return "";
+                        return "the ";
                     else
                         return "";
                 case Preposition.To:
-                    return "to ";
+                    return "to the";
                 default:
                     break;
             }
@@ -181,6 +192,7 @@ public class Word
         public bool other;
         public bool location;
         public bool plural;
+        public int amount;
         public Preposition preposition;
     }
 
@@ -189,62 +201,61 @@ public class Word
     /// </summary>
     /// <param name="str"></param>
     /// <returns></returns>
-    public string GetContent(string str)
+    public string GetInfo(string str)
     {
-        Info info = new Info();
+        //Info currentInfo = this.currentInfo;
 
         // article
         if (str.Contains("the "))
         {
-            info.article = true;
-            info.defined = true;
+            currentInfo.article = true;
+            currentInfo.defined = true;
         }
 
         if (str.Contains("a ") || str.Contains("some "))
         {
-            info.article = true;
-            info.defined = false;
+            currentInfo.article = true;
+            currentInfo.defined = false;
         }
 
+        // PLURAL
         if (str.Contains("dogs"))
         {
-            info.plural = true;
+            currentInfo.plural = true;
         }
 
         if (str.Contains("to "))
         {
-            info.article = true;
-            info.preposition = Preposition.To;
+            currentInfo.article = true;
+            currentInfo.preposition = Preposition.To;
         }
 
         if (str.Contains("of "))
         {
-            info.article = true;
-            info.preposition = Preposition.Of;
-            info.defined = true;
+            currentInfo.article = true;
+            currentInfo.preposition = Preposition.Of;
+            currentInfo.defined = true;
         }
-
-        /*if (str.Contains("de") || str.Contains("des"))
-        {
-            info.article = true;
-            info.preposition = Preposition.Of;
-            info.defined = false;
-        }*/
 
         if (str.Contains("other "))
         {
-            info.other = true;
+            currentInfo.other = true;
         }
 
         if (str.Contains("good "))
         {
-            info.adjective = true;
+            currentInfo.adjective = true;
         }
 
         if (str.Contains("on "))
         {
-            info.article = true;
-            info.location = true;
+            currentInfo.article = true;
+            currentInfo.location = true;
+        }
+
+        if (defaultDefined)
+        {
+            currentInfo.defined = true;
         }
 
         /*Debug.Log("info input :");
@@ -255,7 +266,7 @@ public class Word
         
         Debug.Log("result : " + GetContent(info));*/
 
-        return GetContent(info);
+        return GetContent(currentInfo);
     }
 
     //public string GetContent(ContentType contentType, Definition _definition, Preposition _preposition, Number _number, bool location)
@@ -269,7 +280,7 @@ public class Word
         string str = text.ToLower();
 
         // set number
-        if (currentInfo.plural)
+        if (currentInfo.plural || currentInfo.amount > 1)
         {
             str = GetPlural();
         }
@@ -304,6 +315,9 @@ public class Word
 
             str = article + str;
         }
+
+        // reset info
+        currentInfo = new Info();
 
         if (DebugManager.Instance.colorWords)
         {
@@ -343,7 +357,7 @@ public class Word
         {
             if (adjective == null)
             {
-                SetAdjective(Adjective.GetRandom(adjectiveType));
+                SetAdjective(Adjective.GetRandom());
             }
 
             return adjective;

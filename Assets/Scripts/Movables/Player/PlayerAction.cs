@@ -51,10 +51,6 @@ public class PlayerAction
         EnableProp,
         DisableProp,
 
-        // container
-        OpenContainer,
-        CloseContainer,
-
         // equipment
         Equip,
         Unequip,

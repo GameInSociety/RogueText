@@ -142,6 +142,8 @@ public class Player : Movable {
 
     public void MoveToTargetItem()
     {
+        Debug.Log("move to target item ");
+
         Item targetItem = InputInfo.Instance.GetItem(0);
 
         Tile tile = targetItem as Tile;

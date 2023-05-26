@@ -95,15 +95,35 @@ public class Movable
         return (Orientation)a;
     }
 
+    public static Orientation GetOpposite(Orientation orientation)
+    {
+        switch (orientation)
+        {
+            case Orientation.front:
+                return Orientation.back;
+            case Orientation.right:
+                return Orientation.left;
+            case Orientation.back:
+                return Orientation.front;
+            case Orientation.left:
+                return Orientation.right;
+            default:
+                break;
+        }
+
+        Debug.LogError("couldn't find the opposite orientation of : " + orientation);
+        return Orientation.None;
+    }
+
     public enum Orientation
     {
-        Front,
+        front,
         FrontRight,
-        Right,
+        right,
         BackRight,
-        Back,
+        back,
         BackLeft,
-        Left,
+        left,
         FrontLeft,
 
         None,

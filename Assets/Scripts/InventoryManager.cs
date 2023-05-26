@@ -9,11 +9,6 @@ public class InventoryManager : MonoBehaviour
 
     void Start()
     {
-        Item item = ItemManager.Instance.GetDataItem("inventory");
-
-        var serializedParent = JsonConvert.SerializeObject(item);
-        Inventory.Instance = JsonConvert.DeserializeObject<Inventory>(serializedParent);
-
         PlayerActionManager.onPlayerAction += HandleOnAction;
 
         foreach (var itemName in startItems)
@@ -48,12 +43,6 @@ public class InventoryManager : MonoBehaviour
                 break;
             case PlayerAction.Type.Throw:
                 Action_Throw();
-                break;
-            case PlayerAction.Type.OpenContainer:
-                InputInfo.Instance.GetItem(0).Open();
-                break;
-            case PlayerAction.Type.CloseContainer:
-                InputInfo.Instance.GetItem(0).Close();
                 break;
         }
     }

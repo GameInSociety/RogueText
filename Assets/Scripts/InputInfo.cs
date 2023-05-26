@@ -72,7 +72,6 @@ public class InputInfo : MonoBehaviour
         inputText = inputText.TrimEnd(' ');
 
         // create action
-
         FindVerb();
 
         // separate text ( after verb in case phrase changing, verb is removed 
@@ -213,19 +212,21 @@ public class InputInfo : MonoBehaviour
 
             if (tmpItems.Count > 1) {
 
+                Debug.Log("confusion : " + tmpItems[0].debug_name);
 
-                foreach (var e in tmpItems)
-                {
-                    Debug.Log(e.debug_name);
-                }
+                // check here if they all come from the same "item socket"
 
-                Item item = SocketManager.Instance.GetSocketItemInText(inputText);
+                Item item = SocketManager.Instance.CheckSpecificInput(tmpItems[0], inputText);
 
                 if (item != null)
                 {
-                    items.Add(item);
+                    Debug.Log("SPECIFIC ITEM : " + item.debug_name);
+                    items.Insert(0, item);
                     return;
                 }
+
+                items.Add(tmpItems[0]);
+                return;
 
                 if ( HasVerb())
                 {
@@ -241,20 +242,6 @@ public class InputInfo : MonoBehaviour
             else if (tmpItems.Count == 1)
             {
                 items.Add(tmpItems[0]);
-            }
-        }
-
-        // if no items, search for mentionned sockets
-        // maybe temporary ou pas, c'est pour pouvoir ne pas avoir de confusion quand on met "open right door"
-        // il allait chercher le mot right, et à priori ça devrait se régler comme ça
-        if (items.Count==0)
-        {
-            Item item = SocketManager.Instance.GetSocketItemInText(inputText);
-
-            if (item != null)
-            {
-                items.Add(item);
-                return;
             }
         }
     }

@@ -10,10 +10,14 @@ public class DebugManager : MonoBehaviour
 
     public bool colorWords = true;
 
+    public List<Item> availableItems = new List<Item>();
+
     public List<string> itemsOnTile = new List<string>();
 
     private void Start()
     {
+        availableItems = AvailableItems.List;
+
         foreach (var item in itemsOnTile)
         {
             

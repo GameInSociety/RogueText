@@ -9,19 +9,19 @@ public class TextUtils
     {
         if (count > 5)
         {
-            return "a lot " + item.word.GetContent("of dogs");
+            return "some";
         }
         else if (count > 3)
         {
-            return "a few " + item.word.GetContent("dogs");
+            return "a few " + item.word.GetInfo("dogs");
         }
         else if (count > 1)
         {
-            return count + " " + item.word.GetContent("dogs");
+            return count + " " + item.word.GetInfo("dogs");
         }
         else
         {
-            return item.word.GetContent(key);
+            return item.word.GetInfo(key);
         }
     }
 

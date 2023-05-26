@@ -14,7 +14,6 @@ public class Interior {
     public TileSet tileSet;
 
     public static float chanceLockedInterior = 0f;
-    public static float chanceEnclosedRoom = 1f;
     //public static float chanceClosedDoor = 0.2f;
     public static float chanceCreateRoom = 1f;
     //public static float chanceCreateRoom = 0.65f;
@@ -167,9 +166,6 @@ public class Interior {
 
                 tileNames.Remove (tileName);
 
-                if (Random.value < chanceEnclosedRoom)
-                    newRoomTile.enclosed = true;
-
                 tileSet.Add ( coords, newRoomTile );
 			}
 
@@ -184,86 +180,5 @@ public class Interior {
 
         }
 
-        // ADDING DOORS
-        AddDoors();
-
 	}
-
-    void AddDoors()
-    {
-        // reseting adjectives
-
-        foreach (var tile in tileSet.tiles.Values)
-        {
-            AddDoors(tile);
-        }
-    }
-    void AddDoors(Tile tile)
-    {
-        Cardinal[] surr = new Cardinal[4] {
-                        Cardinal.north, Cardinal.west, Cardinal.south, Cardinal.east
-                    };
-
-        List<Adjective> adjectives = Adjective.GetAll("objet");
-
-        foreach (var dir in surr)
-        {
-            Coords c = tile.coords + (Coords)dir;
-            Tile adjacentTile = tileSet.GetTile(c);
-
-            string currentDoorDirection = "";
-            string adjacentDoorDirection = "";
-
-            if (adjacentTile != null && adjacentTile.enclosed)
-            {
-                switch (dir)
-                {
-                    case Cardinal.north:
-                        currentDoorDirection = "north";
-                        adjacentDoorDirection = "south";
-                        break;
-                    case Cardinal.east:
-                        currentDoorDirection = "east";
-                        adjacentDoorDirection = "west";
-                        break;
-                    case Cardinal.south:
-                        currentDoorDirection = "south";
-                        adjacentDoorDirection = "north";
-                        break;
-                    case Cardinal.west:
-                        currentDoorDirection = "west";
-                        adjacentDoorDirection = "east";
-                        break;
-                    case Cardinal.None:
-                        break;
-                    default:
-                        break;
-                }
-
-                // current tile door
-                if (!tile.HasItem(currentDoorDirection))
-                {
-                    tile.CreateInItem(currentDoorDirection);
-                    tile.GetItem(currentDoorDirection).CreateInItem("door");
-
-                    /*doorItem = ItemManager.Instance.CreateInTile(tile, "door");
-                    doorItem.CreateProperty("dir / direction / " + currentDoorDirection);*/
-
-                    // adjacent tile door
-                    if (!adjacentTile.HasItem(adjacentDoorDirection))
-                    {
-                        adjacentTile.CreateInItem(adjacentDoorDirection);
-                        adjacentTile.GetItem(adjacentDoorDirection).CreateInItem("door");
-                        /*Item ajdDoorItem = ItemManager.Instance.CreateInTile(adjacentTile, doorItem);
-                        ajdDoorItem.GetProperty("direction").Update(adjacentDoorDirection);*/
-                    }
-
-                }
-
-
-                //Debug.Log("door name : " + currentTileDoorItemName + " adjacent door name : " + adjTileDoorItemName);
-            }
-
-        }
-    }
 }

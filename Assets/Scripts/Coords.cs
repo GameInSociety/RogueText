@@ -29,7 +29,7 @@ public struct Coords
 
             float closestDirectionAngle = Vector2.Angle(v, (Vector2)((Coords)closestDirection));
 
-            string direction_str = Coords.GetWordsDirection(direction).GetContent("au chien");
+            string direction_str = Coords.GetWordsDirection(direction).GetInfo("au chien");
 
             if (angle < closestDirectionAngle)
             {
@@ -108,13 +108,13 @@ public struct Coords
     {
         switch (orientation)
         {
-            case Movable.Orientation.Front:
+            case Movable.Orientation.front:
                 return "front";
-            case Movable.Orientation.Right:
+            case Movable.Orientation.right:
                 return "right";
-            case Movable.Orientation.Back:
+            case Movable.Orientation.back:
                 return "back";
-            case Movable.Orientation.Left:
+            case Movable.Orientation.left:
                 return "left";
             case Movable.Orientation.None:
                 return "eeeeeeeeeh";
@@ -346,19 +346,19 @@ public struct Coords
         switch (direction)
         {
             case Cardinal.north:
-                return Movable.Orientation.Front;
+                return Movable.Orientation.front;
             case Cardinal.NorthEast:
                 break;
             case Cardinal.east:
-                return Movable.Orientation.Left;
+                return Movable.Orientation.left;
             case Cardinal.SouthEast:
                 break;
             case Cardinal.south:
-                return Movable.Orientation.Back;
+                return Movable.Orientation.back;
             case Cardinal.SouthWest:
                 break;
             case Cardinal.west:
-                return Movable.Orientation.Right;
+                return Movable.Orientation.right;
             case Cardinal.NorthWest:
                 break;
             case Cardinal.None:

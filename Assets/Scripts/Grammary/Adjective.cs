@@ -51,17 +51,9 @@ public class Adjective {
         return adjectives;
     }
 
-    public static Adjective GetRandom ( string _name ) {
+    public static Adjective GetRandom (  ) {
 
-        AdjectiveGroup adjectiveGroup = adjectiveGroups.Find(x => x.name == _name);
-
-        if ( adjectiveGroup == null)
-        {
-            //Debug.LogError("couldn't find adjective group : " + _name);
-            adjectiveGroup = adjectiveGroups[0];
-        }
-
-        return adjectiveGroup.adjectives[Random.Range(0, adjectiveGroup.adjectives.Count)];
+        return adjectiveGroups[0].adjectives[Random.Range(0, adjectiveGroups[0].adjectives.Count)];
 	}
 }
 
