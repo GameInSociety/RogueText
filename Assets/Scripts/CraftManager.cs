@@ -25,23 +25,6 @@ public class CraftManager : MonoBehaviour {
     void Start()
     {
         //LoadCraftables();
-
-        PlayerActionManager.onPlayerAction += HandleOnAction;
-    }
-
-    private void HandleOnAction(PlayerAction action)
-    {
-        switch (action.type)
-        {
-            case PlayerAction.Type.Craft:
-                Craft();
-                break;
-            case PlayerAction.Type.ReadRecipe:
-                ReadRecipe();
-                break;
-            default:
-                break;
-        }
     }
 
     private void ReadRecipe()

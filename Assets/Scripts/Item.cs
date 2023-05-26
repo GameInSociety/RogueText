@@ -230,7 +230,7 @@ public class Item
 
         foreach (var verb in Verb.GetVerbs)
         {
-            foreach (var combination in verb.combinations)
+            foreach (var combination in verb.cellEvents)
             {
                 if (combination.itemIndex == dataIndex)
                     ++count;
@@ -249,7 +249,7 @@ public class Item
 
         foreach (var verb in Verb.GetVerbs)
         {
-            foreach (var combination in verb.combinations)
+            foreach (var combination in verb.cellEvents)
             {
                 if (combination.itemIndex == dataIndex)
                 {

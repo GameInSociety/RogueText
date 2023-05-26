@@ -178,16 +178,10 @@ public class SocketManager : MonoBehaviour
         {
             if (targetText.Contains(item.word.text))
             {
-                Debug.Log("found item " + item.debug_name + " for " + targetText);
                 Item tmpItem = item.GetItem(targetItem.word.text);
                 if (tmpItem != null)
                 {
-                    Debug.LogError("found the item "+tmpItem.debug_name +" in : " + targetText);
                     return tmpItem;
-                }
-                else
-                {
-                    Debug.Log("but no specification");
                 }
             }
         }

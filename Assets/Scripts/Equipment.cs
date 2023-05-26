@@ -27,8 +27,6 @@ public class Equipment {
     {
         Instance = this;
 
-        PlayerActionManager.onPlayerAction += HandleOnAction;
-
         InitItems();
     }
 
@@ -42,24 +40,9 @@ public class Equipment {
         }
     }
 
-    void HandleOnAction(PlayerAction action)
+    public void Event_Equip()
     {
-        switch (action.type)
-        {
-            case PlayerAction.Type.Equip:
-                Action_Equip();
-                break;
-            case PlayerAction.Type.Unequip:
-                Action_Unequip();
-                break;
-            default:
-                break;
-        }
-    }
-
-    void Action_Equip()
-    {
-        Part part = GetPartFromString(PlayerAction.GetCurrent.GetContent(0));
+        Part part = GetPartFromString(CellEvent.GetContent(0));
 
         if ( GetEquipement(part) != null)
         {
@@ -74,9 +57,9 @@ public class Equipment {
 
     }
 
-    void Action_Unequip()
+    public void Event_Unequip()
     {
-        Part part = GetPartFromString(PlayerAction.GetCurrent.GetContent(0));
+        Part part = GetPartFromString(CellEvent.GetContent(0));
 
         if ( GetEquipement(part) != InputInfo.Instance.GetItem(0))
         {

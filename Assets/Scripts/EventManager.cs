@@ -43,11 +43,10 @@ public class EventManager : MonoBehaviour
     {
         TimeManager.GetInstance().onNextHour += HandleOnNextHour;
         TimeManager.GetInstance().onRaining += HandleOnRaining;
-        PropertyManager.Instance.onEmptyValue += HandleOnEmptyValue;
+        Property.onEmptyValue += HandleOnEmptyValue;
     }
 
     #region events
-    
     public void HandleOnNextHour()
     {
         foreach (var propertyGroup in FindPropertyEventGroup("subHours"))
@@ -100,7 +99,6 @@ public class EventManager : MonoBehaviour
         }
     }
     #endregion
-
 
     public void CallEvent(Property prop, string _event, Item _item)
     {
@@ -188,19 +186,19 @@ public class EventManager : MonoBehaviour
         // car la séparation se fait déjà dans input
         string[] parts = content.Split(", ");
 
-        PropertyManager.Instance.Action_ChangeProperty(currentItem, parts[0], parts[1]);
+        PropertyManager.Action_ChangeProperty(currentItem, parts[0], parts[1]);
     }
     public void Event_EnableProp(string content)
     {
-        PropertyManager.Instance.Action_EnableProperty(currentItem, content);
+        PropertyManager.Action_EnableProperty(currentItem, content);
     }
     public void Event_DisableProp(string content)
     {
-        PropertyManager.Instance.Action_DisableProperty(currentItem, content);
+        PropertyManager.Action_DisableProperty(currentItem, content);
     }
     public void Event_AddProp(string content)
     {
-        PropertyManager.Instance.Action_AddProperty(currentItem, content);
+        PropertyManager.Action_AddProperty(currentItem, content);
     }
     public void Event_RemoveProp(string content)
     {
@@ -209,7 +207,7 @@ public class EventManager : MonoBehaviour
             Debug.LogError("no linked item, vas à mazargues");
         }
 
-        PropertyManager.Instance.Action_RemoveProperty(currentItem, content);
+        PropertyManager.Action_RemoveProperty(currentItem, content);
     }
 
 }

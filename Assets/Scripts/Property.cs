@@ -26,6 +26,9 @@ public class Property
     // battery / 0 / 10
     public int value_max = -1;
 
+    public delegate void OnEmptyValue();
+    public static OnEmptyValue onEmptyValue;
+
     /// <summary>
     /// POURQUOI ENABLE LES PROPS AU LIEU DE LES DETRUIRE ET RECREER ?
     /// parce qu'elle contiennent des events, et que ça serait trop chiant de les remettre dans les cells d'action
@@ -219,7 +222,7 @@ public class Property
         if (line.StartsWith('*'))
         {
             line = line.Remove(0, 1);
-            Property pendingProp = PropertyManager.Instance.pendingProps.Find(x => x.name == line);
+            Property pendingProp = CellEvent.props.Find(x => x.name == line);
             line = pendingProp.value;
 
             int valueNeeded = pendingProp.value_max - pendingProp.GetInt();
@@ -349,10 +352,9 @@ public class Property
 
         if ( newValue <= 0)
         {
-
-            if (PropertyManager.Instance.onEmptyValue != null)
+            if (onEmptyValue != null)
             {
-                PropertyManager.Instance.onEmptyValue();
+                onEmptyValue();
             }
         }
 

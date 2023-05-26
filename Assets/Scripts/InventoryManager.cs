@@ -9,8 +9,6 @@ public class InventoryManager : MonoBehaviour
 
     void Start()
     {
-        PlayerActionManager.onPlayerAction += HandleOnAction;
-
         foreach (var itemName in startItems)
         {
             Item newItem = ItemManager.Instance.CreateFromData(itemName);
@@ -23,33 +21,9 @@ public class InventoryManager : MonoBehaviour
     void StartDelay()
     {
         DebugManager.Instance.inventory = Inventory.Instance;
-
-    }
-    void HandleOnAction(PlayerAction action)
-    {
-        switch (action.type)
-        {
-            case PlayerAction.Type.PickUp:
-                Action_PickUp();
-                break;
-            case PlayerAction.Type.CreateInTile:
-                CreateInTile();
-                break;
-            case PlayerAction.Type.DestroyItem:
-                Action_DesctroyItem();
-                break;
-            case PlayerAction.Type.RequireItem:
-                Action_RequireItem();
-                break;
-            case PlayerAction.Type.Throw:
-                Action_Throw();
-                break;
-        }
     }
 
-
-
-    private void Action_Throw()
+    public static void Event_Throw()
     {
         Item item = Inventory.Instance.GetItem(InputInfo.Instance.GetItem(0).word.text);
 
@@ -66,7 +40,7 @@ public class InventoryManager : MonoBehaviour
         TextManager.Write("inventory_throw_sucess", InputInfo.Instance.GetItem(0));
     }
 
-    void Action_PickUp()
+    public static void Event_PickUp()
     {
         List<Item> targetItems = new List<Item>();
 
@@ -95,13 +69,13 @@ public class InventoryManager : MonoBehaviour
     }
 
     #region remove item
-    void Action_DesctroyItem()
+    public static void Event_DestroyItem()
     {
         Item item;
 
-        if (PlayerAction.GetCurrent.HasContent())
+        if (CellEvent.HasContent())
         {
-            string item_name = PlayerAction.GetCurrent.GetContent(0);
+            string item_name = CellEvent.GetContent(0);
             item = ItemManager.Instance.FindInWorld(item_name);
         }
         else
@@ -111,7 +85,7 @@ public class InventoryManager : MonoBehaviour
 
         if (item == null)
         {
-            Debug.LogError("couldn't find item " + PlayerAction.GetCurrent.GetContent(0));
+            Debug.LogError("couldn't find item " + CellEvent.GetContent(0));
             return;
         }
 
@@ -121,16 +95,15 @@ public class InventoryManager : MonoBehaviour
     #endregion
 
     #region add
-
-    public void CreateInTile()
+    public static void Event_CreateInTile()
     {
         int amount = 1;
-        if (PlayerAction.GetCurrent.HasValue(1))
+        if (CellEvent.HasValue(1))
         {
-            amount = PlayerAction.GetCurrent.GetValue(1);
+            amount = CellEvent.GetValue(1);
         }
 
-        string item_name = PlayerAction.GetCurrent.GetContent(0);
+        string item_name = CellEvent.GetContent(0);
 
         for (int i = 0; i < amount; i++)
         {
@@ -142,7 +115,7 @@ public class InventoryManager : MonoBehaviour
     #endregion
 
     #region item requirements
-    void Action_RequireItem()
+    public static void Event_RequireItem()
     {
         // on peut faire en sorte qu'on ait besoin de quelque chose avec un certain PARAMETRE
         // type
@@ -150,10 +123,10 @@ public class InventoryManager : MonoBehaviour
         // là c'est dans une fonction alors que ça pourrait être dans la case !!!!!!
 
 
-        if (PlayerAction.GetCurrent.HasContent(0))
+        if (CellEvent.HasContent(0))
         {
 
-            string item_name = PlayerAction.GetCurrent.GetContent(0);
+            string item_name = CellEvent.GetContent(0);
             Item targetItem = ItemManager.Instance.FindInWorld(item_name);
 
             if (targetItem == null)
@@ -162,7 +135,7 @@ public class InventoryManager : MonoBehaviour
                 // break flow of actions
                 targetItem = ItemManager.Instance.GetDataItem(item_name);
                 TextManager.Write("item_require", targetItem);
-                PlayerActionManager.Instance.BreakAction();
+                CellEvent.Break();
                 return;
             }
 
@@ -178,7 +151,7 @@ public class InventoryManager : MonoBehaviour
             TextManager.Write("item_noSecondItem", InputInfo.Instance.GetItem(0));
             InputInfo.Instance.sustainVerb = true;
             InputInfo.Instance.sustainItem = true;
-            PlayerActionManager.Instance.BreakAction();
+            CellEvent.Break();
             return;
         }
 

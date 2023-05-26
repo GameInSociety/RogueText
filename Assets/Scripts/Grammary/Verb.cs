@@ -9,7 +9,9 @@ public class Verb {
 	public int col = 0;
 
     private static List<Verb> _verbs = new List<Verb>();
-	public static List<Verb> GetVerbs
+    public List<Combination> cellEvents = new List<Combination>();
+
+    public static List<Verb> GetVerbs
     {
         get
         {
@@ -51,11 +53,10 @@ public class Verb {
         }
     }
    
-    public List<Combination> combinations = new List<Combination>();
 
     public void AddCombination (Combination combination)
     {
-        this.combinations.Add(combination);
+        this.cellEvents.Add(combination);
     }
 
     

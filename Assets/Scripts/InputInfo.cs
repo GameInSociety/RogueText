@@ -92,13 +92,13 @@ public class InputInfo : MonoBehaviour
         {
             if (HasItems())
             {
-                FindCombination(verb, GetItem(0));
+                FindCellEvent(verb, GetItem(0));
             }
             else
             {
                 Item verbItem = ItemManager.Instance.GetDataItem("verbe seul");
 
-                FindCombination(verb, verbItem);
+                FindCellEvent(verb, verbItem);
 
                 if ( combination != null)
                 {
@@ -111,8 +111,36 @@ public class InputInfo : MonoBehaviour
             combination = null;
         }
 
+        // check if ANYTHING has been recognized
+        if (!HasItems() && !HasVerb())
+        {
+            TextManager.Write("input_nothingRecognized");
+            return;
+        }
 
-        PlayerActionManager.Instance.DisplayInputFeedback();
+        // check if verb has been recognized
+        if (!HasVerb())
+        {
+            TextManager.Write("input_noVerb", Instance.GetItem(0));
+            return;
+        }
+
+        // check if item has been recognized
+        if (HasVerb() && !HasItems())
+        {
+            sustainVerb = true;
+            TextManager.Write("input_noItem");
+            return;
+        }
+
+        // verb / item combinaison doesn't exist
+        if (combination == null)
+        {
+            TextManager.Write("input_noCombination", GetItem(0));
+            return;
+        }
+
+        CellEvent.CallEvents(combination.content);
     }
     private void FindNumber()
     {
@@ -140,7 +168,7 @@ public class InputInfo : MonoBehaviour
 
     public void FindVerb()
     {
-        //string str = InputInfo.parts[0];
+        //string str = parts[0];
 
         if ( !sustainVerb)
         {
@@ -321,7 +349,7 @@ public class InputInfo : MonoBehaviour
         return i < items.Count;
     }
 
-    public void FindCombination(Verb _verb, Item _item)
+    public void FindCellEvent(Verb _verb, Item _item)
     {
         if ( verb == null)
         {
@@ -333,6 +361,6 @@ public class InputInfo : MonoBehaviour
             return;
         }
 
-        combination = verb.combinations.Find(x => x.itemIndex == _item.dataIndex);
+        combination = verb.cellEvents.Find(x => x.itemIndex == _item.dataIndex);
     }
 }

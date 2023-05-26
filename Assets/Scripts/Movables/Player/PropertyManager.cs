@@ -6,54 +6,8 @@ using static UnityEngine.Networking.UnityWebRequest;
 
 public class PropertyManager : MonoBehaviour
 {
-    public List<Property> pendingProps = new List<Property>();
-    public List<Item> pendingItems = new List<Item>();
-
-    public delegate void OnEmptyValue();
-    public OnEmptyValue onEmptyValue;
-
-    private void Start()
-    {
-        // CENTRALISER LES ACTIONS !
-        PlayerActionManager.onPlayerAction += HandleOnPlayerAction;
-    }
-
-    private void HandleOnPlayerAction(PlayerAction action)
-    {
-        switch (action.type)
-        {
-            case PlayerAction.Type.ChangeProp:
-                Action_ChangeProperty();
-                break;
-            case PlayerAction.Type.AddProp:
-                Action_AddProperty();
-                break;
-            case PlayerAction.Type.RemoveProp:
-                Action_RemoveProperty();
-                break;
-            case PlayerAction.Type.CheckProp:
-                Action_CheckProp();
-                break;
-            case PlayerAction.Type.CheckPropValue:
-                Action_CheckPropertyValue();
-                break;
-            case PlayerAction.Type.EnableProp:
-                Action_EnableProperty();
-                break;
-            case PlayerAction.Type.DisableProp:
-                Action_DisableProperty();
-                break;
-            case PlayerAction.Type.RequireItemWithProp:
-                RequireItemWithProp();
-                break;
-            default:
-                break;
-        }
-    }
-
-
     #region actions
-    void RequireItemWithProp()
+    public static void Event_RequireItemWithProp()
     {
         if (InputInfo.Instance.items.Count < 2)
         {
@@ -63,16 +17,16 @@ public class PropertyManager : MonoBehaviour
             // so until je trouve quelque chose de mieux, je le mets partout
             InputInfo.Instance.sustainVerb = true;
             InputInfo.Instance.sustainItem = true;
-            PlayerActionManager.Instance.BreakAction("item_noSecondItem");
+            CellEvent.Break("item_noSecondItem");
             return;
         }
 
-        string prop_name = PlayerAction.GetCurrent.GetContent(0);
+        string prop_name = CellEvent.GetContent(0);
 
         if (!InputInfo.Instance.GetItem(1).HasProperty(prop_name))
         {
             TextManager.Write("&the dog (override)& has no " + prop_name, InputInfo.Instance.GetItem(1));
-            PlayerActionManager.Instance.BreakAction();
+            CellEvent.Break();
             return;
         }
 
@@ -80,41 +34,43 @@ public class PropertyManager : MonoBehaviour
             && InputInfo.Instance.GetItem(1).GetProperty(prop_name).GetInt() == 0)
         {
             TextManager.Write("No more " + prop_name + " in &the dog (override)&", InputInfo.Instance.GetItem(1));
-            PlayerActionManager.Instance.BreakAction();
+            CellEvent.Break();
             return;
         }
 
-        pendingProps.Add(InputInfo.Instance.GetItem(1).GetProperty(prop_name));
+        CellEvent.props.Add(InputInfo.Instance.GetItem(1).GetProperty(prop_name));
     }
-    public void Action_ChangeProperty()
+    
+    public static void Event_ChangeProperty()
     {
 
         Item targetItem;
 
-        if (PlayerAction.GetCurrent.GetContent(0).StartsWith('*'))
+        if (CellEvent.GetContent(0).StartsWith('*'))
         {
-            string itemName = PlayerAction.GetCurrent.GetContent(0).Remove(0,1);
+            string itemName = CellEvent.GetContent(0).Remove(0,1);
             targetItem = ItemManager.Instance.FindInWorld(itemName);
 
             if ( targetItem == null)
             {
                 Debug.Log("no " + itemName);
-                PlayerActionManager.Instance.BreakAction("No " + itemName);
+                CellEvent.Break("No " + itemName);
                 return;
             }
 
-            PlayerAction.GetCurrent.RemoveContent(0);
+            CellEvent.RemoveContent(0);
         }
         else
         {
             targetItem = InputInfo.Instance.GetItem(0);
         }
 
-        string targetProp = PlayerAction.GetCurrent.GetContent(0);
-        string line = PlayerAction.GetCurrent.GetContent(1);
+        string targetProp = CellEvent.GetContent(0);
+        string line = CellEvent.GetContent(1);
+
         Action_ChangeProperty(targetItem, targetProp, line);
     }
-    public void Action_ChangeProperty(Item targetItem, string targetProp, string line)
+    public static void Action_ChangeProperty(Item targetItem, string targetProp, string line)
     {
         // in the function type is not reffered, so go for part 0
         Property property = targetItem.GetProperty(targetProp);
@@ -127,15 +83,15 @@ public class PropertyManager : MonoBehaviour
     /// <summary>
     ///  ADD PROPERTY
     /// </summary>
-    public void Action_AddProperty()
+    public static void Event_AddProperty()
     {
         Item targetItem = InputInfo.Instance.GetItem(0);
 
-        string line = PlayerAction.GetCurrent.GetContent(0);
+        string line = CellEvent.GetContent(0);
 
         Action_AddProperty(targetItem, line);
     }
-    public void Action_AddProperty(Item targetItem, string property_line)
+    public static void Action_AddProperty(Item targetItem, string property_line)
     {
         Property newProperty = targetItem.CreateProperty(property_line);
 
@@ -145,15 +101,15 @@ public class PropertyManager : MonoBehaviour
     /// <summary>
     /// REMOVE PROPERTY
     /// </summary>
-    public void Action_RemoveProperty()
+    public static void Event_RemoveProperty()
     {
         Item targetItem = InputInfo.Instance.GetItem(0);
 
-        string propertyName = PlayerAction.GetCurrent.GetContent(0);
+        string propertyName = CellEvent.GetContent(0);
 
         Action_RemoveProperty(targetItem, propertyName);
     }
-    public void Action_RemoveProperty(Item targetItem, string line)
+    public static void Action_RemoveProperty(Item targetItem, string line)
     {
         targetItem.DeleteProperty(line);
 
@@ -163,11 +119,11 @@ public class PropertyManager : MonoBehaviour
     /// <summary>
     /// CHECK PROPERTY ON TARGET ITEM
     /// </summary>
-    public void Action_CheckProp()
+    public static void Event_CheckProp()
     {
         Item targetItem = InputInfo.Instance.GetItem(0);
 
-        string property_line = PlayerAction.GetCurrent.GetContent(0);
+        string property_line = CellEvent.GetContent(0);
 
         if (property_line.StartsWith('!'))
         {
@@ -176,7 +132,7 @@ public class PropertyManager : MonoBehaviour
             if (targetItem.HasEnabledProperty(property_line))
             {
                 TextManager.Write("It's " + property_line);
-                PlayerActionManager.Instance.BreakAction();
+                CellEvent.Break();
                 return;
             }
 
@@ -189,7 +145,7 @@ public class PropertyManager : MonoBehaviour
         if (!targetItem.HasEnabledProperty(parts[0]))
         {
             TextManager.Write("It's not " + parts[0]);
-            PlayerActionManager.Instance.BreakAction();
+            CellEvent.Break();
             return;
         }
 
@@ -200,7 +156,7 @@ public class PropertyManager : MonoBehaviour
             if ( property.GetInt() <= int.Parse(parts[1]))
             {
                 TextManager.Write("No " + property.name);
-                PlayerActionManager.Instance.BreakAction();
+                CellEvent.Break();
                 return;
             }
         }
@@ -216,37 +172,37 @@ public class PropertyManager : MonoBehaviour
             }*/
         }
     }
-    public void Action_CheckPropertyValue()
+    public static void Event_CheckPropertyValue()
     {
         Item targetItem = InputInfo.Instance.GetItem(0);
 
-        string propertyName = PlayerAction.GetCurrent.GetContent(0);
+        string propertyName = CellEvent.GetContent(0);
 
         Property property = targetItem.GetProperty(propertyName);
 
         if (property.GetInt() <= 0)
         {
             TextManager.Write("No " + property.name);
-            PlayerActionManager.Instance.BreakAction();
+            CellEvent.Break();
             return;
         }
 
-        pendingProps.Add(property);
+        CellEvent.props.Add(property);
     }
 
     /// <summary>
     /// ENABLE / DISABLE PROPERTIES
     /// </summary>
-    public void Action_EnableProperty()
+    public static void Event_EnableProperty()
     {
         Item targetItem = InputInfo.Instance.GetItem(0);
 
-        string line = PlayerAction.GetCurrent.GetContent(0);
+        string line = CellEvent.GetContent(0);
 
         Action_EnableProperty(targetItem, line);
 
     }
-    public void Action_EnableProperty(Item targetItem, string prop_name)
+    public static void Action_EnableProperty(Item targetItem, string prop_name)
     {
         Property property = targetItem.properties.Find(x => x.name == prop_name);
 
@@ -258,26 +214,27 @@ public class PropertyManager : MonoBehaviour
 
         property.Enable();
     }
-    public void Action_DisableProperty()
+    public static void Event_DisableProperty()
     {
         Item targetItem = InputInfo.Instance.GetItem(0);
 
-        string line = PlayerAction.GetCurrent.GetContent(0);
+        string line = CellEvent.GetContent(0);
         Action_DisableProperty(targetItem, line);
 
     }
-    public void Action_DisableProperty(Item targetItem, string prop_name)
+    public static void Action_DisableProperty(Item targetItem, string prop_name)
     {
         Property property = targetItem.properties.Find(x => x.name == prop_name);
         property.Disable();
     }
     #endregion
 
-    bool updateDescription = false;
-    Item describedItem;
-    void UpdateDescription(Item targetItem)
+    
+    public static void UpdateDescription(Item targetItem)
     {
-        if ( updateDescription)
+        targetItem.WriteDescription();
+
+        /*if ( updateDescription)
         {
             return;
         }
@@ -286,14 +243,14 @@ public class PropertyManager : MonoBehaviour
 
         updateDescription = true;
         CancelInvoke("UpdateDescriptionDelay");
-        Invoke("UpdateDescriptionDelay", 0f);
+        Invoke("UpdateDescriptionDelay", 0f);*/
     }
 
-    void UpdateDescriptionDelay()
+    /*void UpdateDescriptionDelay()
     {
         updateDescription = false;
         describedItem.WriteProperties();
-    }
+    }*/
 
     private static PropertyManager _instance;
     public static PropertyManager Instance

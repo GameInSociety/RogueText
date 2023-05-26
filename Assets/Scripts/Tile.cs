@@ -48,6 +48,13 @@ public class Tile : Item
         WriteContainedItems(true);
 
 
+        ConditionManager.GetInstance().WriteDescription();
+
+        // time of day
+        TimeManager.GetInstance().WriteDescription();
+
+        // weather
+        TimeManager.GetInstance().WriteWeatherDescription();
 
     }
 

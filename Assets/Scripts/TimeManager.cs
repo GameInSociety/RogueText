@@ -95,20 +95,6 @@ public class TimeManager : MonoBehaviour {
         ResetRain();
         UpdateStates();
 
-        PlayerActionManager.onPlayerAction += HandleOnAction;
-
-    }
-
-    private void HandleOnAction(PlayerAction action)
-    {
-        switch (action.type)
-        {
-            case PlayerAction.Type.Wait:
-                Action_Wait();
-                break;
-            default:
-                break;
-        }
     }
 
     public void AdvanceTime()
@@ -125,7 +111,7 @@ public class TimeManager : MonoBehaviour {
 
    
 
-    public void Action_Wait()
+    public void Event_Wait()
     {
         int hours;
 
@@ -146,7 +132,7 @@ public class TimeManager : MonoBehaviour {
         NextHour(hours);
 
         // pour l'instant un peu oblig� � cause des objets etc...
-        DisplayDescription.Instance.UpdateDescription();
+        Tile.GetCurrent.Describe();
     }
 
     public void ChangeMovesPerHour(int i)

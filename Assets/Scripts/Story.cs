@@ -20,28 +20,10 @@ public class Story : MonoBehaviour
         Instance = this;
     }
 
-    // Use this for initialization
-    void Start()
-    {
-        PlayerActionManager.onPlayerAction += HandleOnAction;
-    }
-
-    void HandleOnAction(PlayerAction action)
-    {
-        switch (action.type)
-        {
-            case PlayerAction.Type.SetParam:
-                HandleSetParam();
-                break;
-            default:
-                break;
-        }
-    }
-
     void HandleSetParam()
     {
-        bool b = PlayerAction.GetCurrent.GetContent(0) == "true";
-        SetParam(PlayerAction.GetCurrent.GetContent(0), b);
+        bool b = CellEvent.GetContent(0) == "true";
+        SetParam(CellEvent.GetContent(0), b);
     }
 
     public bool GetParam(string key)

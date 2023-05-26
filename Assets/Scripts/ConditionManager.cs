@@ -23,28 +23,11 @@ public class ConditionManager : MonoBehaviour
         _instance = this;
     }
 
-    private void Start()
+    public void Event_SetCondition()
     {
-        PlayerActionManager.onPlayerAction += HandleOnAction;
-    }
+        Condition.Type conditionType =  (Condition.Type)System.Enum.Parse(typeof(Condition.Type), CellEvent.GetContent(0), true);
 
-    private void HandleOnAction(PlayerAction action)
-    {
-        switch (action.type)
-        {
-            case PlayerAction.Type.SetState:
-                Action_SetCondition();
-                break;
-            default:
-                break;
-        }
-    }
-
-    void Action_SetCondition()
-    {
-        Condition.Type conditionType =  (Condition.Type)System.Enum.Parse(typeof(Condition.Type), PlayerAction.GetCurrent.GetContent(0), true);
-
-        string str = PlayerAction.GetCurrent.GetContent(1);
+        string str = CellEvent.GetContent(1);
 
         if (str.Contains("+"))
         {

@@ -41,8 +41,6 @@ public class DisplayDescription : MonoBehaviour {
     void Start()
     {
         ClearDescription();
-
-        PlayerActionManager.onPlayerAction += HandleOnAction;
     }
 
     bool taint = false;
@@ -115,35 +113,11 @@ public class DisplayDescription : MonoBehaviour {
         ++typeIndex;
     }
 
-    private void HandleOnAction(PlayerAction action)
-    {
-        if (action.type == PlayerAction.Type.LookAround)
-        {
-            UpdateDescription();
-        }
-    }
-
     public void ClearDescription()
     {
         uiText.text = "";
         text_target = "";
         uiText_Old.text = "";
-    }
-
-    public void UpdateDescription()
-    {
-        Tile.GetCurrent.Describe();
-
-        // display tile items
-        
-        // pas sûr que les choses d'état de santé, de temps et autre trucs divers doivent être là, pense à changer
-        ConditionManager.GetInstance().WriteDescription();
-
-        // time of day
-        TimeManager.GetInstance().WriteDescription();
-
-        // weather
-        TimeManager.GetInstance().WriteWeatherDescription();
     }
 
     public void Renew()

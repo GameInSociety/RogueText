@@ -35,43 +35,11 @@ public class Player : Movable {
         // stats
         stats = new Stats();
 
-        PlayerActionManager.onPlayerAction += HandleOnAction;
-
         coords = startCoords;
 
     }
 
-    void HandleOnAction(PlayerAction action)
-    {
-        switch (action.type) {
-            case PlayerAction.Type.Move:
-                Move((Cardinal)PlayerAction.GetCurrent.GetValue(0));
-                break;
-            case PlayerAction.Type.MoveRel:
-                Orientation moveOrientation = (Orientation)PlayerAction.GetCurrent.GetValue(0);
-                Move(OrientationToCardinal( moveOrientation));
-                break;
-            case PlayerAction.Type.OrientPlayer:
-                Orientation lookOrientation = (Orientation)PlayerAction.GetCurrent.GetValue(0);
-                Orient(lookOrientation);
-                break;
-            case PlayerAction.Type.MoveToTargetItem:
-                MoveToTargetItem();
-                break;
-            case PlayerAction.Type.Look:
-                break;
-            case PlayerAction.Type.UseDoor:
-                UseDoor();
-                break;
-            case PlayerAction.Type.Enter:
-                Interior.Get(coords).Enter();
-                break;
-            default:
-                break;
-        }
-    }
-
-    void UseDoor()
+    public void UseDoor()
     {
         Item targetItem = InputInfo.Instance.GetItem(0);
 
@@ -135,7 +103,7 @@ public class Player : Movable {
         Tile.SetCurrent(TileSet.current.GetTile(coords));
 
         // generate tile items
-        DisplayDescription.Instance.UpdateDescription();
+        Tile.GetCurrent.Describe();
 
         MapTexture.Instance.UpdateFeedbackMap();
     }
