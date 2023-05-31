@@ -1,211 +1,214 @@
-,,prep,info,properties
-verbe seul,s,,,
+,,prep,info,properties,,,,
+verbe seul,s,,,,,,,
 north,"s
-d",to,,
+d",to,,,,,,
 north east,"s
-d",,,
+d",,,,,,,
 east,"s
-d",to,,
+d",to,,,,,,
 south east,"s
-d",,,
+d",,,,,,,
 south,"s
-d",to,,
+d",to,,,,,,
 south west,"s
-d",,,
+d",,,,,,,
 west,"s
-d",to,,
+d",to,,,,,,
 north west,"s
-d",,,
+d",,,,,,,
 "front
 forward
 ahead","s
-d",on,,
+d",on,,,,,,
 right,"s
-d",on,,
+d",on,,,,,,
 "back
 backwards
 behind","s
-d",on,,
+d",on,,,,,,
 left,"s
-d",on,,
+d",on,,,,,,
 "inventory
 bag","s
-d",in,,
-*,s,,,
-around,s,,,
-placeholder,s,,,
-door,s,on,,state / 100%locked?open
-mushroom,s,,stackable,
+d",in,,,,,,
+*,s,,,,,,,
+around,s,,,,,,,
+placeholder,s,,,,,,,
+door,s,on,,state / 100%locked?open,,,,
+mushroom,s,,stackable,,,,,
 puddle,s,in,stackable,"container / water / 100
 %subEmpty
-#DestroyItem(puddle)"
-bed,s,on,,
+DestroyItem(puddle)",,,,
+bed,s,on,,,,,,
 "bottle
 water bottle
-flask",s,,stackable,"water / 0=5
-dirty / 10 / delay"
-sink,s,in,,container / water / 100
-shower,s,in,,container / water / 100
-* ,s,,,
-letter,s,,stackable,
-bush,s,in,,
-tree,s,near,stackable,
-log,s,near,stackable,
-stick,s,,stackable,
-tomato,s,,stackable,
-brocoli,s,,stackable,
-apple,s,,stackable,
-banana,s,,stackable,
-milk bottle,s,,stackable,"state / spoiled / 10
-container / milk / 0=5"
-* ,s,,stackable,
-piece of bread,s,,stackable,state / spoiled / 10
-* ,s,,stackable,
-* ,s,,stackable,
-carrot,s,,stackable,
-* ,s,,stackable,
-meat can,s,,stackable,
-tomato can,s,,stackable,
-tuna can,s,,stackable,
-soda,s,,stackable,
-knife,s,,stackable,
-mop,s,,,
-shovel,s,,,
-key,s,,stackable,
-book,s,,stackable,
-receipe,s,,stackable,
-manual,s,,stackable,
-newspaper,s,,stackable,
-magazine,s,,stackable,
-dollar,s,,stackable,
-mp3 player,s,,stackable,
-dollar,s,,stackable,
-pen,s,,stackable,
-spoon,s,,stackable,
-fork,s,,stackable,
-plate,s,in,stackable,
-bowl,s,in,stackable,
-glass,s,,stackable,
-sponge,s,,stackable,
-parfume,s,,stackable,
-plastic duck,s,,stackable,
-towel,s,,stackable,
-toothpaste,s,,stackable,
-toothbrush,s,,stackable,
-tv,s,on,,
-table,s,on,,
-sofa,s,on,,
-clock,s,,,
-window,s,on,,state / open?closed
-box,s,in,stackable,
-phone,s,,,
-computer,s,,,
-radio,s,,,
-camera,s,,,
-car,s,in,,
-boat,s,on,,
-pants,s,,stackable,
-t-shirt,s,,stackable,
-jacket,s,,stackable,
-coat,s,,stackable,
-shoes,s,,stackable,
-glasses,s,,stackable,
-watch,s,,stackable,
-calendar,s,,stackable,
-washing machine,s,in,,
-candle,s,,stackable,iValue / burning / 2
-flashlight,s,,stackable,"state / off
-
-$container / battery / 0=10
+flask",s,,stackable,water / 0=5,dirty / 10 / delay,,,
+sink,s,in,,container / water / 100,,,,
+shower,s,in,,container / water / 100,,,,
+* ,s,,,,,,,
+letter,s,,stackable,,,,,
+bush,s,in,,,,,,
+tree,s,near,stackable,,,,,
+log,s,near,stackable,,,,,
+stick,s,,stackable,,,,,
+tomato,s,,stackable,,,,,
+brocoli,s,,stackable,,,,,
+apple,s,,stackable,,,,,
+banana,s,,stackable,,,,,
+milk bottle,s,,stackable,state / spoiled / 10,container / milk / 0=5,,,
+* ,s,,stackable,,,,,
+piece of bread,s,,stackable,state / spoiled / 10,,,,
+* ,s,,stackable,,,,,
+* ,s,,stackable,,,,,
+carrot,s,,stackable,,,,,
+* ,s,,stackable,,,,,
+meat can,s,,stackable,,,,,
+tomato can,s,,stackable,,,,,
+tuna can,s,,stackable,,,,,
+soda,s,,stackable,,,,,
+knife,s,,stackable,,,,,
+mop,s,,,,,,,
+shovel,s,,,,,,,
+key,s,,stackable,,,,,
+book,s,,stackable,,,,,
+receipe,s,,stackable,,,,,
+manual,s,,stackable,,,,,
+newspaper,s,,stackable,,,,,
+magazine,s,,stackable,,,,,
+dollar,s,,stackable,,,,,
+mp3 player,s,,stackable,,,,,
+dollar,s,,stackable,,,,,
+pen,s,,stackable,,,,,
+spoon,s,,stackable,,,,,
+fork,s,,stackable,,,,,
+plate,s,in,stackable,,,,,
+bowl,s,in,stackable,,,,,
+glass,s,,stackable,,,,,
+sponge,s,,stackable,,,,,
+parfume,s,,stackable,,,,,
+plastic duck,s,,stackable,,,,,
+towel,s,,stackable,,,,,
+toothpaste,s,,stackable,,,,,
+toothbrush,s,,stackable,,,,,
+tv,s,on,,,,,,
+table,s,on,,,,,,
+sofa,s,on,,,,,,
+clock,s,,,,,,,
+window,s,on,,state / open?closed,,,,
+box,s,in,stackable,,,,,
+phone,s,,,,,,,
+computer,s,,,,,,,
+radio,s,,,,,,,
+camera,s,,,,,,,
+car,s,in,,,,,,
+boat,s,on,,,,,,
+pants,s,,stackable,,,,,
+t-shirt,s,,stackable,,,,,
+jacket,s,,stackable,,,,,
+coat,s,,stackable,,,,,
+shoes,s,,stackable,,,,,
+glasses,s,,stackable,,,,,
+watch,s,,stackable,,,,,
+calendar,s,,stackable,,,,,
+washing machine,s,in,,,,,,
+candle,s,,stackable,iValue / burning / 2,,,,
+flashlight,s,,stackable,state / off,"$container / battery / 0=10
 %subHours
-#RemoveProp(source of light)
-#ChangeProp(on, off)"
-screw,s,,stackable,
-scothtape,s,,stackable,
-nail,s,,stackable,
-paper,s,,stackable,
-berry,s,,stackable,
-basket,s,in,,
-compas,s,,stackable,
-plank,s,,stackable,
-piece of cloth,s,,stackable,
-scissors,s,,stackable,
-die,s,,stackable,
-thread,s,,stackable,
-battery,s,,stackable,
-fridge,s,in,,
-chest,s,in,,
-armory,s,in,,
-cupboard,s,in,,
-cabinet,s,on,,
-wallet,s,in,stackable,
-tool box,s,in,,
-shelf,s,on,,
-cardboard,s,in,stackable,
-seeds,p,,stackable,
-sprout,s,,stackable,"vegetableType / apple?brocoli?tomato?carrot
+ChangeProp(battery, -1)
 
-iValue / growing / 50
+%subEmpty
+RemoveProp(source of light)
+ChangeProp(on, off)
+DisableProp(battery)",,,
+screw,s,,stackable,,,,,
+scothtape,s,,stackable,,,,,
+nail,s,,stackable,,,,,
+paper,s,,stackable,,,,,
+berry,s,,stackable,,,,,
+basket,s,in,,,,,,
+compas,s,,stackable,,,,,
+plank,s,,stackable,,,,,
+piece of cloth,s,,stackable,,,,,
+scissors,s,,stackable,,,,,
+die,s,,stackable,,,,,
+thread,s,,stackable,,,,,
+battery,s,,stackable,,,,,
+fridge,s,in,,,,,,
+chest,s,in,,,,,,
+armory,s,in,,,,,,
+cupboard,s,in,,,,,,
+cabinet,s,on,,,,,,
+wallet,s,in,stackable,,,,,
+tool box,s,in,,,,,,
+shelf,s,on,,,,,,
+cardboard,s,in,stackable,,,,,
+seeds,p,,stackable,,,,,
+sprout,s,,stackable,type / itemName / apple?brocoli?tomato?carrot,"iValue / growing / 3
 %subHours
-#DestroyItem(sprout)
-#CreateItem(*vegetableType)
+ChangeProp(growing, -1)
 
-iValue / fine / 10
+%subEmpty
+DestroyItem(sprout)
+CreateInTile(*itemName)
+DisableProp(growing)","iValue / fine / 10
 %subHours
-#EnableProp(drying)
+ChangeProp(fine, -1)
+
+%subEmpty
+EnableProp(drying)
+DisableProp(fine)
 
 %subRain
-#ChangeProp(fine, +10)
-
-$iValue / drying / 10
+ChangeProp(fine, +10)","$iValue / drying / 10
 %subHours
-#DisableProp(growing)
-#EnableProp(dead)
+ChangeProp(drying, -1)
 
 %subRain
-#ChangeProp(drying, +10)
-#DisableProp(drying)
-#ChangeProp(fine, +10)
-#EnableProp(fine)
+ChangeProp(drying, +10)
+DisableProp(drying)
+ChangeProp(fine, +10)
+EnableProp(fine)
 
-
-$state / dead"
-plain,s,on,stackable,state / fertile
-field,s,in,stackable,state / fertile
-clearing,s,in,stackable,state / fertile
-hill,s,on,stackable,
-mountain,s,on,stackable,hidden / blocking
-forest,s,in,stackable,state / fertile
-wood,s,in,stackable,state / fertile
-sea,s,near,stackable,hidden / blocking
-lake,s,near,stackable,hidden / blocking
-river,s,along,stackable,hidden / blocking
-beach,s,on,stackable,
-road,s,on,stackable,
-village road,s,on,stackable,
-costal road,s,on,stackable,
-path,s,on,stackable,
-bridge,s,on,stackable,
-house,s,in front of,,hidden / interior
-farm,s,in front of,,hidden / interior
-cabin,s,in front of,,hidden / interior
-mansion,s,in front of,,hidden / interior
-hallway,s,in,stackable,
-stairs,s,on,stackable,
-living room,s,in,,hidden / enclosed
-kitchen,s,in,,hidden / enclosed
-dining room,s,in,,hidden / enclosed
-children's room,s,in,,hidden / enclosed
-bedroom,s,in,,hidden / enclosed
-bathroom,s,in,,hidden / enclosed
-toilets,p,in,,hidden / enclosed
-attic,s,in,,
-basement,s,in,,
-cellar,s,in,,
-office,s,in,,hidden / enclosed
-garage,s,in,,
-watering can,s,,stackable,container / water / 0=10
-floor,s,on,,
-hole,s,in,stackable,
-desk,s,,stackable,
-mound,s,,stackable,
+%subEmpty
+DisableProp(growing)
+DisableProp(drying)
+EnableProp(dead)",$state / dead
+plain,s,on,stackable,state / fertile,,,,
+field,s,in,stackable,state / fertile,,,,
+clearing,s,in,stackable,state / fertile,,,,
+hill,s,on,stackable,,,,,
+mountain,s,on,stackable,hidden / blocking,,,,
+forest,s,in,stackable,state / fertile,,,,
+wood,s,in,stackable,state / fertile,,,,
+sea,s,near,stackable,hidden / blocking,,,,
+lake,s,near,stackable,hidden / blocking,,,,
+river,s,along,stackable,hidden / blocking,,,,
+beach,s,on,stackable,,,,,
+road,s,on,stackable,,,,,
+village road,s,on,stackable,,,,,
+costal road,s,on,stackable,,,,,
+path,s,on,stackable,,,,,
+bridge,s,on,stackable,,,,,
+house,s,in front of,,hidden / interior,,,,
+farm,s,in front of,,hidden / interior,,,,
+cabin,s,in front of,,hidden / interior,,,,
+mansion,s,in front of,,hidden / interior,,,,
+hallway,s,in,stackable,,,,,
+stairs,s,on,stackable,,,,,
+living room,s,in,,hidden / enclosed,,,,
+kitchen,s,in,,hidden / enclosed,,,,
+dining room,s,in,,hidden / enclosed,,,,
+children's room,s,in,,hidden / enclosed,,,,
+bedroom,s,in,,hidden / enclosed,,,,
+bathroom,s,in,,hidden / enclosed,,,,
+toilets,p,in,,hidden / enclosed,,,,
+attic,s,in,,,,,,
+basement,s,in,,,,,,
+cellar,s,in,,,,,,
+office,s,in,,hidden / enclosed,,,,
+garage,s,in,,,,,,
+watering can,s,,stackable,container / water / 0=10,,,,
+floor,s,on,,,,,,
+hole,s,in,stackable,,,,,
+desk,s,,stackable,,,,,
+mound,s,,stackable,,,,,

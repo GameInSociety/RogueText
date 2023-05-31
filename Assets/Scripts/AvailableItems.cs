@@ -1,50 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 
 public static class AvailableItems
 {
-    private static List<Item> _items = new List<Item>();
 
-    public static void Clear()
+    public static Item Find(string name)
     {
-        _items.Clear();
-
-        _items.Add(Inventory.Instance);
-
-        _items.AddRange(Inventory.Instance.GetContainedItems);
+        return GetItems.Find(x=> x.HasWord(name));
+    }
+    public static List<Item> FindAll(string name)
+    {
+        return GetItems.FindAll(x=> x.HasWord(name));
     }
 
-    public static void Add(Item item)
+
+    public static List<Item> GetItems
     {
-        if (_items.Contains(item))
-        {
-            return;
+        get { 
+        
+            // old way, before add
+            // not used, but add isn't perfect so keep in around
+
+            List<Item> list = new List<Item>();
+
+            list.Add(Inventory.Instance);
+            list.AddRange(Inventory.Instance.GetContainedItems);
+
+            list.AddRange(Tile.GetCurrent.GetAllItems());
+
+            return list;
         }
-
-        _items.Add(item);
-    }
-
-    public static void Remove(Item item)
-    {
-        if (!_items.Contains(item))
-        {
-            UnityEngine.Debug.Log("no " + item.debug_name + " in available items");
-            return;
-        }
-
-        _items.Remove(item);
-
-    }
-
-    public static List<Item> List
-    {
-        get { return _items; }
-    }
-
-    public static List<Item> Find (string name)
-    {
-        return _items.FindAll(x=> x.HasWord(name));
     }
 }

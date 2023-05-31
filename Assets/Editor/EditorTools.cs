@@ -39,6 +39,8 @@ public class EditorTools : EditorWindow
 
         DrawStates();
 
+        GUILayout.Label("Time", EditorStyles.boldLabel);
+
         if (GUILayout.Button("Wait 1 hour"))
         {
             TimeManager.GetInstance().Wait(1);
@@ -101,6 +103,15 @@ public class EditorTools : EditorWindow
 
     void DrawMap()
     {
+        if (GameObject.Find("Map Texture").GetComponent<Image>().enabled)
+        {
+            mapVisible = true;
+        }
+        else
+        {
+            mapVisible = false;
+        }
+
         if (mapVisible)
         {
             if (GUILayout.Button("Hide Map"))

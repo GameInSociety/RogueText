@@ -16,9 +16,9 @@ go out
 exit","go back
 return",break,tear,"make
 craft",turn on,turn off,unlock,plant,unearth,water,dig,wait,empty,charge,yes
-verbe seul,DisplayHelp,,,CloseContainer,,"Write(you sleep on the floor)
+verbe seul,DisplayHelp,,,,,"Write(you sleep on the floor)
 SetState(sleep, +1)
-SetState(health, -1)",,,,,MoveRel(0),,,,,,,,,GOOUT,MoveRel(4),,,,,,,,,,,WAIT(1),,,
+SetState(health, -1)",,,,,MoveRel(0),,,,,,,,,GOOUT,MoveRel(4),,,,,,,,,,,Wait(1),,,
 north,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 north east,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 east,,,,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -36,7 +36,7 @@ backwards
 behind",,MoveRel(4),,,,,OrientPlayer(4),,,,MoveRel(4),,,,,,,,,,MoveRel(4),,,,,,,,,,,,,,
 left,,MoveRel(6),,,,,OrientPlayer(6),,,,MoveRel(6),,,,,,,,,,MoveRel(6),,,,,,,,,,,,,,
 "inventory
-bag",,,OpenContainer,CloseContainer,,,OpenContainer,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+bag",,,Describe,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 *,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 around,,,,,,,LookAround,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 placeholder,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -127,7 +127,7 @@ UseDoor","CheckProp(closed)
 ChangeProp(closed, open)","CheckProp(open)
 ChangeProp(open, closed)", ,,DescribeExterior,,,,CheckProp(,,,Enter,,,,,,"CheckProp(open)
 UseDoor",,,,,,,,,,,,,,,
-box,,,,CloseContainer,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+box,,,,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 phone,,,,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 computer,,,,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 radio,,,,,,,Describe,PickUp,,,,,,,Throw,,,GiveClue,,,,,,Craft,,,,,,,,,,,
@@ -177,15 +177,15 @@ thread,,,,,,,Describe,PickUp,,,,,,,Throw,,,,,,,,,,,,,,,,,,,,
 battery,,,,,,,Describe,PickUp,,,,,,,Throw,,,,"RequireItem(flashlight)
 ChangeProp(*flashlight, battery, +10)
 DestroyItem",,,,,,,,,,,,,,,,
-fridge,,,OpenContainer,CloseContainer,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-chest,,,OpenContainer,CloseContainer,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-armory,,,OpenContainer,CloseContainer,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-cupboard,,,OpenContainer,CloseContainer,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-cabinet,,,OpenContainer,CloseContainer,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-wallet,,,OpenContainer,CloseContainer,,,Describe,PickUp,,,,,,,,,,,,,,,,,,,,,,,,,,,
-tool box,,,OpenContainer,CloseContainer,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-shelf,,,OpenContainer,CloseContainer,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-cardboard,,,OpenContainer,CloseContainer,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+fridge,,,Describe,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+chest,,,Describe,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+armory,,,Describe,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+cupboard,,,Describe,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+cabinet,,,Describe,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+wallet,,,Describe,,,,Describe,PickUp,,,,,,,,,,,,,,,,,,,,,,,,,,,
+tool box,,,Describe,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+shelf,,,Describe,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+cardboard,,,Describe,,,,Describe,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 seeds,,,,,"SetState(thirst, -2)
 SetState(hunger, +1)",,Describe,PickUp,,,,,,,Throw,,,,,,,,,,,,,"DestroyItem
 CreateInTile(sprout)

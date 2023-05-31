@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UI;
@@ -135,6 +136,7 @@ public class DisplayDescription : MonoBehaviour {
         uiText.text += "\n";*/
     }
 
+    List<string> newPhrases = new List<string>();
     public void AddToDescription(string str, bool doReturn)
     {
         // majuscule
@@ -143,20 +145,33 @@ public class DisplayDescription : MonoBehaviour {
         // add
         if (doReturn)
         {
-            text_target += "\n" + str;
+            str = "\n" + str;
         }
-        else
+
+
+        /*if (newPhrases.Contains(str))
         {
-            text_target += str;
-        }
+            Debug.Log("the phrase " + str + " is already contained ?");
+            return;
+        }*/
 
+        newPhrases.Add(str);
+
+        text_target += str;
         voice_Text += str;
-
         playVoice = true;
         voiceTimer = 0f;
 
         //uiText.text += "\n____________________\n";
         scrollRect.verticalNormalizedPosition = 0f;
+
+        CancelInvoke("Delay");
+        Invoke("Delay", 0f);
+    }
+
+    public void Delay()
+    {
+        newPhrases.Clear();
     }
 
 }

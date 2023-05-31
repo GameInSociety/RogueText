@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using DG.Tweening.Core.Easing;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -72,11 +74,17 @@ public class Item
     }
     public virtual void TryGenerateItems()
     {
+
         if ( info.generatedItems)
         {
             return;
         }
 
+        GenerateItems();
+    }
+
+    public virtual void GenerateItems()
+    {
         info.generatedItems = true;
 
         foreach (var itemInfo in AppearInfo.GetAppearInfo(dataIndex).itemInfos)
@@ -88,16 +96,15 @@ public class Item
                 {
                     string itemName = itemInfo.GetItemName();
                     CreateInItem(itemName);
-                    //Debug.Log("there's a " + itemInfo.GetItemName() + " in " + debug_name);
                 }
             }
         }
-
     }
 
     public Item CreateInItem(string itemName)
     {
         Item item = ItemManager.Instance.CreateFromData(itemName);
+
         AddItem(item);
         item.TryGenerateItems();
         return item;
@@ -112,8 +119,8 @@ public class Item
     // remove item
     public void RemoveItem(Item item)
     {
+        Debug.Log("removing " + item.debug_name +"  from : " + debug_name);
         GetContainedItems.Remove(item);
-        AvailableItems.Remove(item);
     }
     // item row : wtf ? le craft system est pas ouf
     public void RemoveItem(int itemRow)
@@ -122,6 +129,10 @@ public class Item
     }
     //
 
+    public Item GetItem(Item item)
+    {
+        return GetContainedItems.Find(x=> x== item);
+    }
     public Item GetItem(string itemName)
     {
         Item tmpItem = GetContainedItems.Find(x => x.word.text == itemName);
@@ -166,7 +177,7 @@ public class Item
             return;
         }*/
 
-        Item.Remove(this);
+        Remove(this);
 
         Inventory.Instance.AddItem(this);
 
@@ -175,22 +186,25 @@ public class Item
 
     #region remove & destroy
     public static void Destroy(Item item){
-        
+
+        foreach (var property in item.properties)
+        {
+            property.RemoveEvents();
+        }
+
         Remove(item);
     }
     public static void Remove(Item targetItem)
     {
         // then in tile
-        foreach (var item in AvailableItems.List)
+        foreach (var item in AvailableItems.GetItems)
         {
             if (item.HasItem(targetItem))
             {
                 item.RemoveItem(targetItem);
-                Debug.Log("removed item from " + item.debug_name);
                 return;
             }
         }
-
         Debug.LogError("removing item : " + targetItem.word.text + " failed : not in container, tile or inventory");
     }
     #endregion
@@ -198,16 +212,26 @@ public class Item
     #region search
     public bool HasWord (string _text)
     {
-        //currentWordIndex = words.FindIndex(x => x.Compare(_text));
-        currentWordIndex = words.FindIndex(x => x.text == _text);
+        // find singular
+        int index = words.FindIndex(x => x.text == _text);
 
-        if ( currentWordIndex < 0)
+        if (index >= 0)
         {
-            currentWordIndex = 0;
-            return false;
+            currentWordIndex = index;
+            return true;
         }
 
-        return true;
+        // find plural
+        /*index = words.FindIndex(x => x.GetPlural() == _text);
+
+        if ( index >= 0)
+        {
+            currentWordIndex = index;
+            return true;
+        }*/
+       
+
+        return false;
     }
     
     public bool IsAnItem(string item_name)
@@ -283,12 +307,15 @@ public class Item
         {
             WriteProperties();
         }
+        else
+        {
+            //WriteActions();
+        }
 
         //TryGenerateItems();
 
         WriteContainedItems();
 
-        WriteActions();
     }
     public void WriteProperties()
     {
@@ -296,20 +323,22 @@ public class Item
 
         int enabledPropCount = GetEnabledProperties().Count;
 
+        Debug.Log("on item : " + debug_name + " property count : " + enabledPropCount);
+
         if (enabledPropCount > 0)
         {
-            str += "&the dog (override)& is ";
+            TextManager.Write("&the dog& is ", this);
 
             for (int i = 0; i < enabledPropCount; i++)
             {
                 Property property = GetEnabledProperties()[i];
 
-                str += property.GetDescription();
+                property.WriteDescription();
 
-                str += TextUtils.GetLink(i, enabledPropCount);
+                TextManager.Add(TextUtils.GetLink(i, enabledPropCount));
+
             }
 
-            TextManager.Write(str, this);
 
         }
     }
@@ -327,7 +356,7 @@ public class Item
         newProperty.name = parts[1];
         if ( parts.Length > 2)
         {
-            newProperty.value = parts[2];
+            newProperty.SetValue(parts[2]);
         }
 
         newProperty.Init();
@@ -349,7 +378,10 @@ public class Item
 
         if ( newProperty.events != null)
         {
-            EventManager.instance.AddPropertyEvent(newProperty, this);
+            foreach (var e in newProperty.events)
+            {
+                WorldEvent.Add(e.name, this, newProperty, Tile.GetCurrent);
+            }
         }
 
         properties.Add(newProperty);
@@ -465,8 +497,6 @@ public class Item
 
     public virtual void WriteContainedItems(bool describeContainers = false)
     {
-        AvailableItems.Add(this);
-
         if (!ContainsItems())
         {
             return;
@@ -485,88 +515,102 @@ public class Item
         List<Group> groups = new List<Group>();
         foreach (var item in GetContainedItems)
         {
-            AvailableItems.Add(item);
-        
-            Group group = groups.Find(x => x.item.dataIndex == item.dataIndex);
+            Group group = groups.Find(x => x.item.dataIndex == item.dataIndex && !x.item.ContainsItems());
 
-            if ( group != null )
+        
+
+            if ( group == null )
             {
-                // Found group, adding amount
-                ++group.amount;
-            }
-            else
-            {
+
                 // Create new group
                 Group newGroup = new Group();
                 newGroup.amount = 1;
                 newGroup.item = item;
                 groups.Add(newGroup);
+                continue;
+                
             }
+
+            // Found group, adding amount
+            ++group.amount;
 
         }
 
+        List<Group> itemGroups = groups.FindAll(x => !x.item.info.hide && !x.item.ContainsItems());
+
         // Describe groups
         int index = 0;
-        foreach (var group in groups)
+        foreach (var group in itemGroups)
         {
-            if (group.item.info.hide)
-            {
-                continue;
-            }
+            group.item.word.currentInfo.amount = group.amount;
+            TextManager.Add("&a dog&", group.item);
+            TextManager.Add(TextUtils.GetLink(index, itemGroups.Count));
 
+            ++index;
+        }
+
+
+        List<Group> containerGroups = groups.FindAll(x => !x.item.info.hide && describeContainers && x.item.ContainsItems());
+
+        foreach (var group in containerGroups)
+        {
             if (describeContainers && group.item.ContainsItems())
             {
                 group.item.WriteContainedItems();
             }
-            else
-            {
-                group.item.word.currentInfo.amount = group.amount;
-                TextManager.Add("&a dog&", group.item);
-            }
-
-                TextManager.Add(TextUtils.GetLink(index, groups.Count));
-            ++index;
         }
 
         info.discovered = true;
-
-        //SocketManager.Instance.DescribeItems(GetContainedItems, socket);
     }
 
+    [System.Serializable]
     public class Group
     {
         public Item item;
         public int amount;
     }
+    #endregion
 
-    public List<Item> GetItemsRecursive()
+    public List<Item> GetAllItems()
     {
-        return null;
-        /*List<Item> tmpItems = new List<Item>();
+        List<Item> items = new List<Item>();
 
-        int b = 0;
+        items.Add(this);
 
         foreach (var item in GetContainedItems)
         {
-            tmpItems.Add(item);
-            if (item.ContainsItems())
+            items.AddRange(item.GetAllItems());
+
+            /*if ( item.info.available)
             {
-                tmpItems.AddRange(item.GetItemsRecursive());
+                items.AddRange(item.GetAllItems());
+            }*/
+        }
+
+        return items;
+    }
+
+    public bool ContainedInText(string text)
+    {
+        foreach (var word in words)
+        {
+            // find singular
+            string bound = @$"\b{word.text}\b";
+            if (Regex.IsMatch(text, bound))
+            {
+                word.defaultNumber = Word.Number.Singular;
+                return true;
+            }
+
+            bound = @$"\b{word.GetPlural()}\b";
+            if (Regex.IsMatch(text, bound))
+            {
+                word.defaultNumber = Word.Number.Plural;
+                return true;
             }
         }
 
-        return tmpItems;*/
+
+        return false;
     }
-
-    /// <summary>
-    /// exemples :
-    /// dans une forêt : "derrière l'arbre", ou "dans un buisson"
-    /// dans un sac : (donc autre objet) au fond du sac, etc...
-    /// </summary>
-    /// Je crois qu'il vaut mieux que ces trucs soient dans les sockets
-    /// ( liste d'int dans le socket parce quand y'a pas de copy dans les sockets )
-    ///c'est déjàle cas maisc'estpar rapport aux tiles
-    // pareil
-    #endregion
-
 }

@@ -281,7 +281,7 @@ RectTransform:
   - {fileID: 667825935}
   - {fileID: 1529932469}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -494,7 +494,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.41830805
+  m_Size: 0.45376518
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1575,7 +1575,7 @@ Transform:
   - {fileID: 1732690161}
   - {fileID: 1356986850}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &500605527
 GameObject:
@@ -1877,7 +1877,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 14
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &590356673
 MonoBehaviour:
@@ -1892,28 +1892,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputText: 
-  parts: []
   verb:
     col: 0
+    cellEvents: []
     question: 
     prepositions: []
     helpPhrase: 
     universal: 0
     names: []
     currentNameIndex: 0
-    cellEvents: []
-  items: []
-  cellEvent:
+  combination:
     content: 
     itemIndex: 0
-  orientation: 8
-  cardinal: 8
+  potentialItems: []
   hasValueInText: 0
   valueInText: 0
-  actionOnAll: 0
   itemConfusion: 0
-  sustainVerb: 0
-  sustainItem: 0
+  waitForVerb: 0
+  waitForItem: 0
 --- !u!1 &667825934
 GameObject:
   m_ObjectHideFlags: 0
@@ -2094,51 +2090,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 776565818}
   m_CullTransparentMesh: 0
---- !u!1 &812726506
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 812726507}
-  - component: {fileID: 812726508}
-  m_Layer: 0
-  m_Name: SocketManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &812726507
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 812726506}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1155866337}
-  m_RootOrder: 15
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &812726508
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 812726506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de4c293e08cd4394388c51f9ca4ee4c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  socketGroups: []
 --- !u!1 &815016655
 GameObject:
   m_ObjectHideFlags: 0
@@ -2183,8 +2134,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b887fa8a5f96b4ae589134115adc0d7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pendingProps: []
-  pendingItems: []
+  describedItem:
+    debug_name: debug name
+    dataIndex: 0
+    currentWordIndex: 0
+    words: []
+    properties: []
+    mContainedItems: []
 --- !u!1 &827571054
 GameObject:
   m_ObjectHideFlags: 0
@@ -2613,7 +2569,7 @@ GameObject:
   - component: {fileID: 1010163074}
   - component: {fileID: 1010163075}
   m_Layer: 0
-  m_Name: Item Appear Info
+  m_Name: Appear Info
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2687,7 +2643,7 @@ Transform:
   - {fileID: 1379487688}
   - {fileID: 417817032}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1016588174
 GameObject:
@@ -2733,7 +2689,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1394f3413b8e382419a9815b1f8ddae3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  propertyGroups: []
+  eventGroups: []
 --- !u!1 &1040175694
 GameObject:
   m_ObjectHideFlags: 0
@@ -3102,8 +3058,8 @@ Transform:
   - {fileID: 1988128025}
   - {fileID: 255872040}
   - {fileID: 995658947}
+  - {fileID: 590356672}
   - {fileID: 1655582910}
-  - {fileID: 1675485243}
   - {fileID: 109545162}
   - {fileID: 1578065325}
   - {fileID: 815016656}
@@ -3111,11 +3067,9 @@ Transform:
   - {fileID: 1718442643}
   - {fileID: 1209840572}
   - {fileID: 1016588175}
-  - {fileID: 590356672}
-  - {fileID: 812726507}
   - {fileID: 2065804044}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1169447288
 GameObject:
@@ -3224,8 +3178,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   daysPasted: 0
   timeOfDay: 8
-  rainRate_Max: 40
-  rainRate_Min: 10
+  rainRate_Max: 3000
+  rainRate_Min: 3000
   hoursLeftToRain: 0
   rainDuration_Max: 10
   rainDuration_Min: 4
@@ -3300,7 +3254,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1275752590
 GameObject:
@@ -3859,56 +3813,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1675485241
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1675485243}
-  - component: {fileID: 1675485244}
-  m_Layer: 0
-  m_Name: Inventory
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1675485243
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1675485241}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1155866337}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1675485244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1675485241}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce2c19ba60d45bb45857d10f995c3709, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startItems:
-  - key
-  - flashlight
-  - battery
 --- !u!1 &1697249105
 GameObject:
   m_ObjectHideFlags: 0
@@ -4563,7 +4469,7 @@ GameObject:
   - component: {fileID: 1967984056}
   - component: {fileID: 1967984057}
   m_Layer: 0
-  m_Name: DebugManager
+  m_Name: '[DEBUG]'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4582,7 +4488,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1967984057
 MonoBehaviour:
@@ -4613,7 +4519,9 @@ MonoBehaviour:
     words: []
     properties: []
     mContainedItems: []
-  inputInfo: {fileID: 0}
+  function_Items: []
+  function_Params: []
+  function_Properties: []
   colorWords: 1
   availableItems: []
   itemsOnTile: []
@@ -5172,7 +5080,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1155866337}
-  m_RootOrder: 16
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2065804045
 MonoBehaviour:

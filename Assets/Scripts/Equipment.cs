@@ -42,16 +42,16 @@ public class Equipment {
 
     public void Event_Equip()
     {
-        Part part = GetPartFromString(CellEvent.GetContent(0));
+        Part part = GetPartFromString(FunctionManager.GetParam(0));
 
         if ( GetEquipement(part) != null)
         {
             Inventory.Instance.AddItem(GetEquipement(part));
         }
 
-        SetEquipment(part, InputInfo.Instance.GetItem(0));
+        SetEquipment(part, FunctionManager.GetCurrentItem());
 
-        Item.Remove(InputInfo.Instance.GetItem(0));
+        Item.Remove(FunctionManager.GetCurrentItem());
 
         TextManager.Write("/_bag_equip/" + part.ToString());
 
@@ -59,15 +59,15 @@ public class Equipment {
 
     public void Event_Unequip()
     {
-        Part part = GetPartFromString(CellEvent.GetContent(0));
+        Part part = GetPartFromString(FunctionManager.GetParam(0));
 
-        if ( GetEquipement(part) != InputInfo.Instance.GetItem(0))
+        if ( GetEquipement(part) != FunctionManager.GetCurrentItem())
         {
             TextManager.Write("bag_nothingToEquip");
             return;
         }
 
-        Inventory.Instance.AddItem(InputInfo.Instance.GetItem(0));
+        Inventory.Instance.AddItem(FunctionManager.GetCurrentItem());
 
         TextManager.Write("bag_unequip");
 

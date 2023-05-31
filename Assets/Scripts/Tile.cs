@@ -21,8 +21,6 @@ public class Tile : Item
     {
         DisplayDescription.Instance.Renew();
 
-        AvailableItems.Clear();
-
         if (Player.Instance.coords== coords)
         {
             // don't change orientation
@@ -38,15 +36,31 @@ public class Tile : Item
 
         DescribeSelf();
 
-        if (!Player.Instance.CanSee())
+        if (Player.Instance.CanSee())
         {
-            return;
+            TryGetSurroundingTiles();
         }
-
-        TryGetSurroundingTiles();
 
         WriteContainedItems(true);
 
+        foreach (var worldEvent in WorldEvent.list)
+        {
+            if (!worldEvent.changed)
+            {
+                continue;
+            }
+            if (worldEvent.tile == this )
+            {
+                TextManager.Write("&the dog& is ", worldEvent.item);
+                worldEvent.property.WriteDescription();
+
+                worldEvent.changed = false;
+            }
+            else
+            {
+                //Debug.Log("(worldevent:" + worldEvent.eventName + "/" + worldEvent.property.name + ")" + worldEvent.item.debug_name + " is not on tile : " + debug_name);
+            }
+        }
 
         ConditionManager.GetInstance().WriteDescription();
 
@@ -56,6 +70,9 @@ public class Tile : Item
         // weather
         TimeManager.GetInstance().WriteWeatherDescription();
 
+        
+
+        
     }
 
     public void TryGetSurroundingTiles()
@@ -108,6 +125,11 @@ public class Tile : Item
                     if (orientation == Movable.Orientation.back)
                     {
                         item.info.hide = true;
+                    }
+
+                    if (GetItem(orientation_itemName) == null)
+                    {
+                        Debug.LogError("no " + orientation_itemName + " in " + debug_name);
                     }
 
                     if (!GetItem(orientation_itemName).HasItem(adjacentTile))
@@ -165,17 +187,6 @@ public class Tile : Item
         return TileSet.current.GetTile(targetCoords);
     }
     #endregion
-
-    public override void TryGenerateItems()
-    {
-        base.TryGenerateItems();
-
-        foreach (var item in DebugManager.Instance.itemsOnTile)
-        {
-            ItemManager.Instance.CreateInItem(this, item);
-        }
-    }
-
     /*public override void WriteContainedItems()
     {
         //base.WriteContainedItemDescription();
@@ -225,29 +236,31 @@ public class Tile : Item
             return _previous;
         }
     }
-    public static void SetPrevious(Tile tile)
+    public void SetPrevious()
     {
-        _previous = tile;
-
-        if ( tile == null)
-        {
-            return;
-        }
-
+        _previous = this;
 
         // delete cardinals, to prevent recursive stack overflow
         List<Cardinal> cards = new List<Cardinal>() { Cardinal.east, Cardinal.north, Cardinal.south , Cardinal.west};
 
-
-        foreach (var cardinal in cards)
+        List<Movable.Orientation> orientations = new List<Movable.Orientation>
         {
-            string cardinalItemName = cardinal.ToString();
+            Movable.Orientation.front,
+            Movable.Orientation.right,
+            Movable.Orientation.left,
+            Movable.Orientation.back
+        };
 
-            if (tile.HasItem(cardinalItemName))
+        foreach (var orientation in orientations)
+        {
+            string str = orientation.ToString();
+
+            if (HasItem(str))
             {
-                Item cardinalItem = tile.GetItem(cardinalItemName);
+                Item orientationItem = GetItem(str);
 
-                tile.RemoveItem(cardinalItem);
+                RemoveItem(orientationItem);
+
             }
         }
 

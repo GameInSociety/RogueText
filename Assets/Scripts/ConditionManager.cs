@@ -25,9 +25,9 @@ public class ConditionManager : MonoBehaviour
 
     public void Event_SetCondition()
     {
-        Condition.Type conditionType =  (Condition.Type)System.Enum.Parse(typeof(Condition.Type), CellEvent.GetContent(0), true);
+        Condition.Type conditionType =  (Condition.Type)System.Enum.Parse(typeof(Condition.Type), FunctionManager.GetParam(0), true);
 
-        string str = CellEvent.GetContent(1);
+        string str = FunctionManager.GetParam(1);
 
         if (str.Contains("+"))
         {

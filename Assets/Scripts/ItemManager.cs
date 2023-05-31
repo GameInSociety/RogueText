@@ -10,7 +10,7 @@ public class ItemManager : MonoBehaviour {
 
     public void DescribeItem()
     {
-        InputInfo.Instance.GetItem(0).WriteDescription();
+        FunctionManager.GetCurrentItem().WriteDescription();
     }
 
     public Item TryGetItem(string _name)
@@ -32,9 +32,6 @@ public class ItemManager : MonoBehaviour {
 
             if (item != null)
             {
-                // found the plural
-                //Debug.Log("found plural");
-                InputInfo.Instance.actionOnAll = true;
                 return item;
             }
         }
@@ -69,17 +66,17 @@ public class ItemManager : MonoBehaviour {
 
     public List<Item> FindItemsInWorld(string item_name)
     {
-        return AvailableItems.Find(item_name);
+        return AvailableItems.FindAll(item_name);
     }
 
     public Tile CreateTile(Coords _coords, string tileName)
     {
+
         Item item = CreateFromData(tileName);
 
         var serializedParent = JsonConvert.SerializeObject(item);
         Tile newTile = JsonConvert.DeserializeObject<Tile>(serializedParent);
         newTile.coords = _coords;
-
 
         return newTile;
     }
@@ -146,6 +143,8 @@ public class ItemManager : MonoBehaviour {
     public Item CreateFromData(string name)
     {
         Item copy = GetDataItem(name);
+        
+
         return CreateFromData(copy);
     }
 

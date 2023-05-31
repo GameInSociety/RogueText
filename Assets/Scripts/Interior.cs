@@ -44,7 +44,7 @@ public class Interior {
 
     public static void DescribeExterior()
     {
-        Cardinal cardinal = Coords.GetCardinalFromString(InputInfo.Instance.GetItem(0).GetProperty("direction").value);
+        Cardinal cardinal = Coords.GetCardinalFromString(FunctionManager.GetCurrentItem().GetProperty("direction").value);
         Coords targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
 
         Tile tile = TileSet.map.GetTile(targetCoords);

@@ -1,31 +1,15 @@
 using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
-public class InventoryManager : MonoBehaviour
+public class InventoryManager
 {
-    public string[] startItems;
-
-    void Start()
-    {
-        foreach (var itemName in startItems)
-        {
-            Item newItem = ItemManager.Instance.CreateFromData(itemName);
-            Inventory.Instance.AddItem(newItem);
-        }
-
-        Invoke("StartDelay", 0f);
-    }
-
-    void StartDelay()
-    {
-        DebugManager.Instance.inventory = Inventory.Instance;
-    }
-
     public static void Event_Throw()
     {
-        Item item = Inventory.Instance.GetItem(InputInfo.Instance.GetItem(0).word.text);
+        Item item = Inventory.Instance.GetItem(FunctionManager.GetCurrentItem().word.text);
 
         if (item == null)
         {
@@ -35,36 +19,20 @@ public class InventoryManager : MonoBehaviour
 
         // remove && add
         Inventory.Instance.RemoveItem(item);
-        Tile.GetCurrent.AddItem(InputInfo.Instance.GetItem(0));
+        Tile.GetCurrent.AddItem(FunctionManager.GetCurrentItem());
 
-        TextManager.Write("inventory_throw_sucess", InputInfo.Instance.GetItem(0));
+        TextManager.Write("inventory_throw_sucess", FunctionManager.GetCurrentItem());
     }
 
     public static void Event_PickUp()
     {
-        List<Item> targetItems = new List<Item>();
-
-        if (InputInfo.Instance.actionOnAll)
+        if (Inventory.Instance.HasItem(FunctionManager.GetCurrentItem()))
         {
-            Debug.Log("trying action on all items");
-            targetItems = Tile.GetCurrent.GetContainedItems.FindAll(x => x.word.text == InputInfo.Instance.GetItem(0).word.text);
+            TextManager.Write("inventory_pickUp_already", FunctionManager.GetCurrentItem());
         }
         else
         {
-            targetItems.Add(InputInfo.Instance.GetItem(0));
-        }
-
-        foreach (var item in targetItems)
-        {
-            if (Inventory.Instance.HasItem(item))
-            {
-                TextManager.Write("inventory_pickUp_already", InputInfo.Instance.GetItem(0));
-            }
-            else
-            {
-                item.PickUp();
-            }
-
+            FunctionManager.GetCurrentItem().PickUp();
         }
     }
 
@@ -73,19 +41,19 @@ public class InventoryManager : MonoBehaviour
     {
         Item item;
 
-        if (CellEvent.HasContent())
+        if (FunctionManager.HasParams())
         {
-            string item_name = CellEvent.GetContent(0);
+            string item_name = FunctionManager.GetParam(0);
             item = ItemManager.Instance.FindInWorld(item_name);
         }
         else
         {
-            item = InputInfo.Instance.GetItem(0);
+            item = FunctionManager.GetCurrentItem();
         }
 
         if (item == null)
         {
-            Debug.LogError("couldn't find item " + CellEvent.GetContent(0));
+            Debug.LogError("couldn't find item " + FunctionManager.GetParam(0));
             return;
         }
 
@@ -98,18 +66,29 @@ public class InventoryManager : MonoBehaviour
     public static void Event_CreateInTile()
     {
         int amount = 1;
-        if (CellEvent.HasValue(1))
+        if (FunctionManager.HasValue(1))
         {
-            amount = CellEvent.GetValue(1);
+            amount = FunctionManager.GetValue(1);
         }
 
-        string item_name = CellEvent.GetContent(0);
-
-        for (int i = 0; i < amount; i++)
+        // if the target item starts with '*', getting the value of an other property
+        // sprout gets value "vegetableType" pour savoir en quoi elle va pousser
+        string item_name = FunctionManager.GetParam(0);
+        if (item_name.StartsWith('*'))
         {
-            Item item = ItemManager.Instance.CreateInTile(Tile.GetCurrent, item_name);
-            TextManager.Write("tile_addItem", item);
+            string targetPropertyName = item_name.Remove(0, 1);
+            item_name = FunctionManager.GetCurrentItem().GetProperty(targetPropertyName).value;
+            Debug.Log("getting " + targetPropertyName + " on " + FunctionManager.GetCurrentItem().debug_name);
         }
+
+        Item item = ItemManager.Instance.CreateInTile(Tile.GetCurrent, item_name);
+
+        for (int i = 1; i < amount; i++)
+        {
+            ItemManager.Instance.CreateInTile(Tile.GetCurrent, item_name);
+        }
+
+        TextManager.Write("tile_addItem", item);
 
     }
     #endregion
@@ -123,10 +102,10 @@ public class InventoryManager : MonoBehaviour
         // là c'est dans une fonction alors que ça pourrait être dans la case !!!!!!
 
 
-        if (CellEvent.HasContent(0))
+        if (FunctionManager.HasParam(0))
         {
 
-            string item_name = CellEvent.GetContent(0);
+            string item_name = FunctionManager.GetParam(0);
             Item targetItem = ItemManager.Instance.FindInWorld(item_name);
 
             if (targetItem == null)
@@ -135,7 +114,7 @@ public class InventoryManager : MonoBehaviour
                 // break flow of actions
                 targetItem = ItemManager.Instance.GetDataItem(item_name);
                 TextManager.Write("item_require", targetItem);
-                CellEvent.Break();
+                FunctionManager.Break();
                 return;
             }
 
@@ -146,12 +125,11 @@ public class InventoryManager : MonoBehaviour
 
         Debug.Log("action require any item ?");
         // no target item, just ask for a second item
-        if ( !InputInfo.Instance.HasItem(1) )
+        if ( !FunctionManager.HasItem(1) )
         {
-            TextManager.Write("item_noSecondItem", InputInfo.Instance.GetItem(0));
-            InputInfo.Instance.sustainVerb = true;
-            InputInfo.Instance.sustainItem = true;
-            CellEvent.Break();
+            TextManager.Write("item_noSecondItem", FunctionManager.GetCurrentItem());
+            InputInfo.Instance.WaitForItem();
+            FunctionManager.Break();
             return;
         }
 

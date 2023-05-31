@@ -10,14 +10,14 @@ public class FunctionList
         switch (function)
         {
             case "Move":
-                Player.Instance.Move((Cardinal)CellEvent.GetValue(0));
+                Player.Instance.Move((Cardinal)FunctionManager.GetValue(0));
                 break;
             case "MoveRel":
-                Player.Orientation moveOrientation = (Player.Orientation)CellEvent.GetValue(0);
+                Player.Orientation moveOrientation = (Player.Orientation)FunctionManager.GetValue(0);
                 Player.Instance.Move(Player.OrientationToCardinal(moveOrientation));
                 break;
             case "OrientPlayer":
-                Player.Orientation lookOrientation = (Player.Orientation)CellEvent.GetValue(0);
+                Player.Orientation lookOrientation = (Player.Orientation)FunctionManager.GetValue(0);
                 Player.Instance.Orient(lookOrientation);
                 break;
             case "MoveToTargetItem":
@@ -39,7 +39,7 @@ public class FunctionList
                 Coords.WriteDirectionToNorth();
                 break;
             case "Write":
-                TextManager.Write(CellEvent.GetContent(0));
+                TextManager.Write(FunctionManager.GetParam(0));
                 break;
             case "SetState":
                 ConditionManager.GetInstance().Event_SetCondition();
@@ -63,7 +63,7 @@ public class FunctionList
                 InventoryManager.Event_Throw();
                 break;
             case "ChangeProp":
-                PropertyManager.Event_ChangeProperty();
+                PropertyManager.ChangeProperty();
                 break;
             case "AddProp":
                 PropertyManager.Event_AddProperty();
@@ -96,7 +96,7 @@ public class FunctionList
                 Tile.GetCurrent.Describe();
                 break;
             case "Describe":
-                InputInfo.Instance.GetItem(0).WriteDescription();
+                FunctionManager.GetCurrentItem().WriteDescription();
                 break;
             default:
                 Debug.LogError("couldn't find function : " + function);

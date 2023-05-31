@@ -94,7 +94,16 @@ public class ItemLoader : TextParser {
 
         if ( cells.Count > 4)
         {
-            InitProperties(newItem, cells[4]);
+            for (int i = 4; i < cells.Count; i++)
+            {
+                if (string.IsNullOrEmpty(cells[i]))
+                {
+                    // no properties in the item, continue
+                    break;
+                }
+
+                InitProperty(newItem, cells[i]);
+            }
         }
 
         ++itemIndex;
@@ -102,74 +111,81 @@ public class ItemLoader : TextParser {
 
     }
 
-    void InitProperties(Item item, string cell)
+    void InitProperty(Item item, string cell)
     {
         /// PROPERTIES
-        string[] property_lines = cell.Split('\n');
+        string[] lines = cell.Split('\n');
 
-        if (string.IsNullOrEmpty(property_lines[0]))
+        /// CREATE PROPERTY ///
+        Property newProperty = new Property();
+
+        List<string> parts = lines[0].Split(" / ").ToList();
+        newProperty.type = parts[0];
+
+        if ( parts.Count < 2)
         {
-
+            Debug.LogError("couldn't parse property : " + cell);
+            return;
         }
-        else
+
+        newProperty.name = parts[1];
+        if (parts.Count > 2)
         {
-            foreach (var property_line in property_lines)
+            newProperty.SetValue(parts[2]);
+        }
+
+        item.properties.Add(newProperty);
+
+
+        /// GET EVENTS AND FUNCTIONS
+        bool getFunctions = false;
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string line = lines[i];
+
+            if (string.IsNullOrEmpty(line))
             {
-                if (string.IsNullOrEmpty(property_line))
+                // pour séparer les evenements
+                if(getFunctions)
                 {
-                    // just an empty line, pour aérer la cellule
-                    continue;
-                }
-
-                if (property_line.StartsWith('%'))
-                {
-                    string eventName = property_line;
-                    Property.Event propertyEvent = new Property.Event();
-                    propertyEvent.name = eventName.Remove(0, 1);
                     Property lastProp = item.properties[item.properties.Count - 1];
-                    lastProp.AddEvent(propertyEvent);
-                    continue;
+                    Property.Event lastEvent = lastProp.events[lastProp.events.Count - 1];
+                    lastEvent.functionList = lastEvent.functionList.Trim(new char[1] {'\n'});
+                    
+                    /*Debug.Log("<b>" + lastEvent.name + "</b>\n" +
+                        lastEvent.content);*/
+
+                    getFunctions = false;
                 }
 
-                if (property_line.StartsWith('#'))
-                {
-                    string _event = property_line;
-                    Property lastProp = item.properties[item.properties.Count - 1];
-
-                    Property.Event.Action newAction = new Property.Event.Action();
-                    int contentIndex = _event.IndexOf('(');
-
-                    string function = _event.Remove(contentIndex).Remove(0, 1);
-                    newAction.function = function;
-
-                    string content = _event.Remove(0, contentIndex + 1);
-                    content = content.Remove(content.Length - 1);
-                    newAction.content = content;
-
-                    // it's an event, 
-                    lastProp.events[lastProp.events.Count - 1].AddAction(newAction);
-                    continue;
-                }
-
-
-                Property newProperty = new Property();
-
-                List<string> parts = property_line.Split(" / ").ToList();
-                newProperty.type = parts[0];
-                if (parts.Count < 2)
-                {
-                    Debug.LogError(property_line + " is not well formated");
-                }
-                newProperty.name = parts[1];
-                if (parts.Count > 2)
-                {
-                    newProperty.value = parts[2];
-                }
-
-                item.properties.Add(newProperty);
-
-                //newItem.CreateProperty(property_line);
+                continue;
             }
+
+            // an event line, subscribes the property to an event
+            if (line.StartsWith('%'))
+            {
+                string eventName = line;
+                Property.Event propertyEvent = new Property.Event();
+                propertyEvent.name = eventName.Remove(0, 1);
+                Property lastProp = item.properties[item.properties.Count - 1];
+                lastProp.AddEvent(propertyEvent);
+                getFunctions = true;
+                continue;
+            }
+
+            // getting the function of it
+            if (getFunctions)
+            {
+                Property lastProp = item.properties[item.properties.Count - 1];
+                Property.Event lastEvent = lastProp.events[lastProp.events.Count - 1];
+                lastEvent.functionList += line + '\n';
+                continue;
+            }
+
+
+            
+
+            //newItem.CreateProperty(property_line);
         }
         //
     }

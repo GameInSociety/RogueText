@@ -41,7 +41,7 @@ public class Player : Movable {
 
     public void UseDoor()
     {
-        Item targetItem = InputInfo.Instance.GetItem(0);
+        Item targetItem = FunctionManager.GetCurrentItem();
 
         if (!targetItem.HasProperty("direction")){
             Interior.GetCurrent.Exit();
@@ -99,8 +99,14 @@ public class Player : Movable {
         base.Move(targetCoords);
 
         // set preivous & current tile
-        Tile.SetPrevious(Tile.GetCurrent);
+        
+        if ( Tile.GetCurrent != null)
+        {
+            Tile.GetCurrent.SetPrevious();
+        }
+
         Tile.SetCurrent(TileSet.current.GetTile(coords));
+
 
         // generate tile items
         Tile.GetCurrent.Describe();
@@ -110,9 +116,8 @@ public class Player : Movable {
 
     public void MoveToTargetItem()
     {
-        Debug.Log("move to target item ");
 
-        Item targetItem = InputInfo.Instance.GetItem(0);
+        Item targetItem = FunctionManager.GetCurrentItem();
 
         Tile tile = targetItem as Tile;
 

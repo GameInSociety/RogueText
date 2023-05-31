@@ -205,6 +205,11 @@ public class Word
     {
         //Info currentInfo = this.currentInfo;
 
+        if ( defaultNumber == Number.Plural)
+        {
+            currentInfo.plural = true;
+        }
+
         // article
         if (str.Contains("the "))
         {

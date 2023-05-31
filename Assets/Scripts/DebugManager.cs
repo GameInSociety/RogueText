@@ -4,24 +4,36 @@ using UnityEngine;
 
 public class DebugManager : MonoBehaviour
 {
+    [Header("[TILE]")]
+    [Space]
     public Tile tile;
+    [Space]
+    [Header("[INVENTORY]")]
+    [Space]
     public Item inventory;
-    public InputInfo inputInfo;
 
+    [Space]
+    [Header("[FUNCTION]")]
+    [Space]
+    public List<Item> function_Items;
+    public List<string> function_Params;
+    public List<Property> function_Properties;
+
+    [Header("[TEXT]")]
     public bool colorWords = true;
 
+    [Header("[AVAILABLE ITEMS]")]
     public List<Item> availableItems = new List<Item>();
 
-    public List<string> itemsOnTile = new List<string>();
+    [Header("[WORLD EVENTS]")]
+    public List<WorldEvent> worldEvents = new List<WorldEvent>();
 
     private void Start()
     {
-        availableItems = AvailableItems.List;
-
-        foreach (var item in itemsOnTile)
-        {
-            
-        }
+        worldEvents = WorldEvent.list;
+        availableItems = AvailableItems.GetItems;
+        function_Params = FunctionManager.GetParams();
+        function_Properties = FunctionManager.pendingProps;
     }
 
     private static DebugManager _instance;

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Runtime.ConstrainedExecution;
 using System.Text;
+using System.Data;
+using System.Reflection;
 
 [System.Serializable]
 public class InputInfo : MonoBehaviour
@@ -13,140 +14,153 @@ public class InputInfo : MonoBehaviour
 
     // static
     public string inputText;
-    public List<string> parts = new List<string>();
 
     // phrase content
     public Verb verb;
 
-    public List<Item> items = new List<Item>();
-
     public Combination combination;
 
-    public Movable.Orientation orientation = Movable.Orientation.None;
-    public Cardinal cardinal = Cardinal.None;
+    public List<Item> potentialItems = new List<Item>();
 
     public bool hasValueInText = false;
 
     public int valueInText = 0;
 
-    public bool actionOnAll = false;
-
     public bool itemConfusion = false;
 
-    public bool sustainVerb = false;
-    public bool sustainItem = false;
-
+    public bool waitForVerb = false;
+    public bool waitForItem = false;
 
     private void Awake()
     {
         Instance = this;
     }
 
-    public Item GetItem(int index)
+    public void WaitForVerb()
     {
-        if (items.Count == 0)
-        {
-            return null;
-        }
-
-        if (index >= items.Count)
-        {
-            Debug.LogError("index " + index + " out of list of input items ( " + items.Count + " )");
-            return GetItem(0);
-        }
-
-        return items[index];
+        waitForVerb = true;
     }
 
+    public void WaitForItem()
+    {
+        waitForItem = true;
+    }
 
     public void ParseText(string str)
     {
         inputText = str;
 
-        if (inputText.Length == 0)
+        if (string.IsNullOrEmpty(inputText))
         {
-            Debug.LogError("input text : is empty");
+            Debug.Log("input is empty");
             return;
         }
 
         inputText = inputText.TrimEnd(' ');
 
-        // create action
-        FindVerb();
 
-        // separate text ( after verb in case phrase changing, verb is removed 
-        parts = inputText.Split(new char[3] { ' ', '\'', '\'' }).ToList<string>();
+        if (waitForVerb)
+        {
+            FindVerb();
+            if ( !VerbInInput())
+            {
+                ClearItems();
+            }
+            waitForVerb = false;
+        } else if (waitForItem)
+        {
+            FindItems();
+            if (!ItemsInInput())
+            {
+                ClearVerb();
+            }
+            waitForItem = false;
+        }
+        else
+        {
+            FindAll();
+        }
 
-        FindNumber();
+        DisplayInputFeedback();
 
-        FindOrientation();
-
-        FindItems();
-
-        if ( itemConfusion)
+        if ( !VerbInInput() || !ItemsInInput())
         {
             return;
         }
 
-        if (HasVerb())
+        FunctionManager.CallFunctions();
+    }
+
+    private void FindAll()
+    {
+        FindNumber();
+
+        FindVerb();
+
+        FindItems();
+
+    }
+
+
+    void ClearItems()
+    {
+        potentialItems.Clear();
+    }
+
+    void ClearVerb()
+    {
+        verb = null;
+    }
+
+    void DisplayInputFeedback()
+    {
+        if (itemConfusion)
         {
-            if (HasItems())
+            if (VerbInInput())
             {
-                FindCellEvent(verb, GetItem(0));
+                TextManager.Write("input_itemConfusion", potentialItems[0]);
+                //WaitForVerb();
             }
             else
             {
-                Item verbItem = ItemManager.Instance.GetDataItem("verbe seul");
-
-                FindCellEvent(verb, verbItem);
-
-                if ( combination != null)
-                {
-                    items.Add(verbItem);
-                }
+                TextManager.Write("Which &dog (override)&", potentialItems[0]);
             }
-        }
-        else
-        {
-            combination = null;
+            return;
         }
 
         // check if ANYTHING has been recognized
-        if (!HasItems() && !HasVerb())
+        if (!ItemsInInput() && !VerbInInput())
         {
             TextManager.Write("input_nothingRecognized");
             return;
         }
 
         // check if verb has been recognized
-        if (!HasVerb())
+        if (!VerbInInput())
         {
-            TextManager.Write("input_noVerb", Instance.GetItem(0));
+            WaitForVerb();
+            TextManager.Write("input_noVerb", potentialItems[0]);
             return;
         }
-
+        
         // check if item has been recognized
-        if (HasVerb() && !HasItems())
+        if (VerbInInput() && !ItemsInInput())
         {
-            sustainVerb = true;
+            WaitForItem();
             TextManager.Write("input_noItem");
             return;
         }
 
-        // verb / item combinaison doesn't exist
-        if (combination == null)
-        {
-            TextManager.Write("input_noCombination", GetItem(0));
-            return;
-        }
 
-        CellEvent.CallEvents(combination.content);
+
+        
     }
+
     private void FindNumber()
     {
         hasValueInText = false;
 
-        foreach (var part in parts)
+        foreach (var part in inputText.Split(' '))
         {
             if (part.All(char.IsDigit))
             {
@@ -168,15 +182,8 @@ public class InputInfo : MonoBehaviour
 
     public void FindVerb()
     {
-        //string str = parts[0];
 
-        if ( !sustainVerb)
-        {
-            verb = null;
-        }
-
-        sustainVerb = false;
-
+        ClearVerb();
 
         Verb tmpVerb = Verb.Find(inputText);
 
@@ -201,155 +208,127 @@ public class InputInfo : MonoBehaviour
 
     public void FindItems()
     {
-        actionOnAll = false;
-
-        if (inputText.Contains(" all ") )
+        if (!waitForItem)
         {
-            Debug.Log("actions on all !!!!");
-            actionOnAll = true;
+            ClearItems();
         }
 
         itemConfusion = false;
 
-        foreach (var input_part in parts)
+        List<Item> availableItems = AvailableItems.GetItems.FindAll(x => x.ContainedInText(inputText));
+        potentialItems.AddRange(availableItems);
+
+        if (potentialItems.Count > 1)
         {
-            if (inputText == "it" || inputText == "them")
+            // there is more than one item detected in the input text
+
+            if (SameContainer())
             {
-                sustainItem = true;
-            }
-        }
 
-        if (sustainItem)
-        {
-            sustainItem = false;
-        }
-        else
-        {
-            items.Clear();
-        }
-
-        foreach (var input_part in parts)
-        {
-            // ici c'est la longueur minimale de chaine de character pour la detection
-            // ( pour éviter que " l' " soit détécté comme n'importe quel mot commençant par " l " dans l'inventaire*
-            // la tile ou les mots utilisables n'importe ou
-            if (input_part.Length < 3)
-                continue;
-            
-            List<Item> tmpItems = ItemManager.Instance.FindItemsInWorld(input_part);
-
-            if (tmpItems.Count > 1) {
-
-                Debug.Log("confusion : " + tmpItems[0].debug_name);
-
-                // check here if they all come from the same "item socket"
-
-                Item item = SocketManager.Instance.CheckSpecificInput(tmpItems[0], inputText);
-
-                if (item != null)
+                // check if all items are the same
+                if (potentialItems.TrueForAll(x => x.debug_name == potentialItems.First().debug_name))
                 {
-                    Debug.Log("SPECIFIC ITEM : " + item.debug_name);
-                    items.Insert(0, item);
+                    if (potentialItems[0].word.defaultNumber == Word.Number.Plural)
+                    {
+                        FunctionManager.SetItems(potentialItems);
+                    }
+                    else
+                    {
+            // the items all come from the same container, so take first one
+                        FunctionManager.SetItem(potentialItems.First());
+                    }
+
                     return;
                 }
 
-                items.Add(tmpItems[0]);
+                FunctionManager.SetItems(potentialItems);
+                //Function.AddItem(potentialItems[0]);
                 return;
+            }
 
-                if ( HasVerb())
-                {
-                    TextManager.Write("input_itemConfusion", tmpItems[0]);
-                    sustainVerb = true;
-                }
-                else
-                {
-                    TextManager.Write("Which &dog (override)&", tmpItems[0]);
-                }
-                itemConfusion = true;
-            }
-            else if (tmpItems.Count == 1)
+            // they come from different containers
+            Item specItem = GetSpecificItem();
+            if ( specItem != null)
             {
-                items.Add(tmpItems[0]);
+                FunctionManager.AddItem(specItem);
+                return;
             }
+
+            // there are no specific item in the input, so throw item confusion
+
+            itemConfusion = true;
+            WaitForItem();
+            return;
+        }
+
+        if (potentialItems.Count == 1)
+        {
+            // no confusion, no need for specification
+            FunctionManager.SetItem(potentialItems[0]);
+        }
+
+        // try verb alone
+        if ( potentialItems.Count == 0 && VerbInInput())
+        {
+            Item verbItem = ItemManager.Instance.GetDataItem("verbe seul");
+            if (verb.HasFunctionList(verbItem))
+                FunctionManager.SetItem(verbItem);
         }
     }
 
-    public Item FindPreciseItem(List<Item> tmpItems)
+    Item GetSpecificItem()
     {
-        foreach (var item in tmpItems)
+        foreach (var containerItem in potentialItems)
         {
-            if (!item.word.HasAdjective())
+            foreach (var specificItem in potentialItems)
             {
-                continue;
-            }
-
-            string itemAdjective = item.word.GetAdjective.GetContent(false);
-
-            if (inputText.Contains(itemAdjective))
-            {
-                Debug.Log("found adjective " + itemAdjective + " for word " + item.debug_name);
-
-                return item;
+                if (containerItem.HasItem(specificItem))
+                {
+                    Debug.Log(containerItem.debug_name + " has item " + specificItem.debug_name);
+                    return specificItem;
+                }
             }
         }
-
-        // DONT SEARCH FOR ORIENTATIONS ( en tout cas pas pour les tile items )
-        // SEACH IN CURRENT SOCKETS
-
-        // search orientations
-        /*foreach (var item in tmpItems)
-        {
-            if (!item.word.HasAdjective())
-            {
-                continue;
-            }
-
-            string itemAdjective = item.word.GetAdjective.GetContent(false);
-
-            if (inputText.Contains(itemAdjective))
-            {
-                Debug.Log("found adjective " + itemAdjective + " for word " + item.debug_name);
-
-                return item;
-            }
-        }*/
 
         return null;
     }
 
-    public void FindOrientation()
+    bool SameContainer()
     {
-        orientation = Movable.Orientation.None;
-
-        for (int i = 0; i < 8; i+=2)
+        // check if items come from different container
+        Item containedItem = null;
+        foreach (var item in AvailableItems.GetItems)
         {
-            Movable.Orientation tmpOrientation = (Movable.Orientation)i;
-
-            string orientationText = Coords.GetOrientationWord(tmpOrientation);
-
-
-            if (inputText.Contains(orientationText))
+            if ( potentialItems.Find(x=> item.HasItem(x) ) != null)
             {
-                orientation = tmpOrientation;
+                if (containedItem == null)
+                {
+                    containedItem = item;
+                }
+                else
+                {
+                    if (containedItem != item)
+                    {
+                        return false;
+                    }
+                }
             }
         }
+
+        return true;
     }
 
-    public bool HasVerb()
+    public bool VerbInInput()
     {
         return verb != null && verb.names.Length > 0 && !string.IsNullOrEmpty(verb.GetName);
     }
 
-    public bool HasItems()
+    public bool ItemsInInput()
     {
-        return items.Count != 0;
-    }
-    public bool HasItem(int i)
-    {
-        return i < items.Count;
+        return potentialItems.Count > 0;
     }
 
-    public void FindCellEvent(Verb _verb, Item _item)
+    public void FindFunctionList(Verb _verb, Item _item)
     {
         if ( verb == null)
         {

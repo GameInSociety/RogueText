@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 [System.Serializable]
@@ -10,6 +11,16 @@ public class Verb {
 
     private static List<Verb> _verbs = new List<Verb>();
     public List<Combination> cellEvents = new List<Combination>();
+
+    public bool HasFunctionList(Item item)
+    {
+        return cellEvents.Find(x => x.itemIndex == item.dataIndex) != null;
+    }
+
+    public string GetFunctionList(Item item)
+    {
+        return cellEvents.Find(x => x.itemIndex == item.dataIndex).content;
+    }
 
     public static List<Verb> GetVerbs
     {
@@ -65,7 +76,27 @@ public class Verb {
 		//
 	}
 
-	public static Verb Find ( string fullPhrase ) {
+    public bool FoundInText(string text)
+    {
+        int _nameIndex = 0;
+        foreach (var verb_Name in names)
+        {
+            string boundedVerb = @$"\b{verb_Name}\b";
+            // get all the verbs
+            if (Regex.IsMatch(text, boundedVerb))
+            {
+                currentNameIndex = _nameIndex;
+                return true;
+            }
+
+            ++_nameIndex;
+        }
+
+        return false;
+    }
+
+	public static Verb Find ( string input_text ) {
+
 
         List<Verb> possibleVerbs = new List<Verb>();
 
@@ -73,27 +104,18 @@ public class Verb {
 
         foreach (var verb in GetVerbs) {
 
-            int currentNameIndex = 0;
-			foreach (var verb_Name in verb.names) {
-                // get all the verbs
-                if (fullPhrase.Contains(verb_Name))
+            // get all the verbs
+            if (verb.FoundInText(input_text))
+            {
+                int index = input_text.IndexOf(verb.GetName);
+                if (index < smallestIndex)
                 {
-                    int index = fullPhrase.IndexOf(verb_Name);
-
-                    if (index < smallestIndex)
-                    {
-                        possibleVerbs.Clear();
-                        smallestIndex = index;
-                    }
-
-                    verb.currentNameIndex = currentNameIndex;
-                    possibleVerbs.Add(verb);
-                    goto NextVerb;
-				}
-
-                ++currentNameIndex;
-
-			}
+                    possibleVerbs.Clear();
+                    smallestIndex = index;
+                }
+                possibleVerbs.Add(verb);
+                goto NextVerb;
+            }
 
             NextVerb:
             continue;

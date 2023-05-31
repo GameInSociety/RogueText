@@ -27,7 +27,7 @@ public class Property
     public int value_max = -1;
 
     public delegate void OnEmptyValue();
-    public static OnEmptyValue onEmptyValue;
+    public OnEmptyValue onEmptyValue;
 
     /// <summary>
     /// POURQUOI ENABLE LES PROPS AU LIEU DE LES DETRUIRE ET RECREER ?
@@ -71,7 +71,7 @@ public class Property
         }
         else
         {
-            enabled = true;
+            Enable();
         }
 
         // the choice between many names
@@ -127,7 +127,7 @@ public class Property
             if (value.Contains('?'))
             {
                 string[] strs = value.Split('?');
-                value = strs[Random.Range(0, strs.Length)];
+                SetValue(strs[Random.Range(0, strs.Length)]);
                 return;
             }
 
@@ -147,7 +147,16 @@ public class Property
         }
     }
 
+    public void SetValue(string str)
+    {
+        value = str;
+    }
+
     #region description
+    public void WriteDescription()
+    {
+        TextManager.Add(GetDescription());
+    }
     public string GetDescription()
     {
         // get prop type
@@ -180,22 +189,7 @@ public class Property
     }
     #endregion
 
-    #region time handle
-
-    /// <summary>
-    /// �a a pas grand chose � foutre l� quand on y pense
-    /// effectivement, on peut mettre cette fonction dans l'Item en lui meme
-    /// pour ne pas avoir le lien avec l'item DANS la property, déjà
-    /// et aussi, lire plus loin dans la fonctin handonnexthour, mais faire ce truc de dif du temps
-    /// </summary>
-    public void HandleOnNextHour()
-    {
-        
-    }
-    public bool ContainsEvent(string eventName)
-    {
-        return events.Find(x => x.name == eventName) != null;
-    }
+    #region events
     public Event FindEvent(string eventName)
     {
         Event propEvent = events.Find(x => x.name == eventName);
@@ -212,6 +206,7 @@ public class Property
     public void Update(string line)
     {
         bool add = false;
+        bool remove = false;
 
         if (line.StartsWith('+'))
         {
@@ -219,10 +214,16 @@ public class Property
             add = true;
         }
 
+        if (line.StartsWith('-'))
+        {
+            line = line.Remove(0, 1);
+            remove = true;
+        }
+
         if (line.StartsWith('*'))
         {
             line = line.Remove(0, 1);
-            Property pendingProp = CellEvent.props.Find(x => x.name == line);
+            Property pendingProp = FunctionManager.pendingProps.Find(x => x.name == line);
             line = pendingProp.value;
 
             int valueNeeded = pendingProp.value_max - pendingProp.GetInt();
@@ -240,6 +241,10 @@ public class Property
             {
                 newValue = GetInt() + dif;
             }
+            if ( remove)
+            {
+                newValue= GetInt() - dif;
+            }
 
             SetInt(newValue);
             return;
@@ -251,7 +256,7 @@ public class Property
         }
         else if ( value != line)
         {
-            value = line;
+            SetValue(line);
             return;
         }
 
@@ -268,42 +273,31 @@ public class Property
     public void Disable()
     {
         enabled = false;
+
+        
     }
 
-    /// <summary>
-    /// il faut donc à terme que les events soient appelé depuis la class "objet"
-    /// comme ça, l'abonnement à "OnNextHour" se fait que dans l'objet
-    /// et aussi pour ne pas faire passer "linkedItem" en pointeur
-    /// ce qui est horrible pour la documentation
-    /// et pas dans toutes les props
-    /// gros chantier mais à faire à un moment donné
-    /// </summary>
-    /// <param name="str"></param>
+    public void RemoveEvents()
+    {
+        if (events == null)
+        {
+            return;
+        }
+
+        foreach (var e in events)
+        {
+            WorldEvent.Remove(e.name, FunctionManager.GetCurrentItem(), this, Tile.GetCurrent);
+        }
+    }
 
     #region events
     /// THIS CLASS WILL NEVER BE A COPY BECAUSE IT WILL NEVER CHANGE
+    
     [System.Serializable]
     public class Event
     {
         public string name;
-        public List<Action> _actions;
-        public bool subbed = false;
-        public void AddAction(Action action)
-        {
-            if ( _actions == null)
-            {
-                _actions = new List<Action>();
-            }
-
-            _actions.Add(action);
-        }
-
-        [System.Serializable]
-        public class Action
-        {
-            public string function;
-            public string content;
-        }
+        public string functionList;
     }
     public void AddEvent(Event propertyEvent)
     {
@@ -348,7 +342,7 @@ public class Property
     {
         newValue = Mathf.Clamp(newValue, 0, value_max);
 
-        value = newValue.ToString();
+        SetValue(newValue.ToString());
 
         if ( newValue <= 0)
         {

@@ -15,6 +15,8 @@ public class Inventory : Item {
         Item item = ItemManager.Instance.GetDataItem("inventory");
         var serializedParent = JsonConvert.SerializeObject(item);
         Instance = JsonConvert.DeserializeObject<Inventory>(serializedParent);
+
+        DebugManager.Instance.inventory = Inventory.Instance;
     }
 
 }
