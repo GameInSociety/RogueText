@@ -12,8 +12,6 @@ public class Word
     public bool defaultDefined = false;
 
     // ADJECTIVE
-    // more logic if word have adjectives, and not items or location or tiles. fuck s
-    private Adjective adjective;
 
     public Info currentInfo;
 
@@ -290,13 +288,6 @@ public class Word
             str = GetPlural();
         }
 
-        if (info.adjective)
-        {
-            // adjective
-            string adjective_str = GetAdjective.GetContent(currentInfo.plural);
-            str = adjective_str + " " + str;
-        }
-
         if (info.other)
         {
             str = "other " + str;
@@ -351,29 +342,6 @@ public class Word
         return plural;
     }
 
-    #region adjective
-    public bool HasAdjective()
-    {
-        return adjective != null;
-    }
-    public Adjective GetAdjective
-    {
-        get
-        {
-            if (adjective == null)
-            {
-                SetAdjective(Adjective.GetRandom());
-            }
-
-            return adjective;
-        }
-    }
-
-    public void SetAdjective(Adjective adj)
-    {
-        adjective = adj;
-    }
-    #endregion
 
     public bool Compare(string input_part)
     {

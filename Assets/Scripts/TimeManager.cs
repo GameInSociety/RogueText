@@ -5,14 +5,17 @@ using UnityEngine;
 public class TimeManager : MonoBehaviour {
 
     private static TimeManager _instance;
-    public static TimeManager GetInstance()
+    public static TimeManager Instance
     {
-        if (_instance == null)
+        get
         {
-            _instance = GameObject.FindObjectOfType<TimeManager>();
-        }
+            if (_instance == null)
+            {
+                _instance = GameObject.FindObjectOfType<TimeManager>();
+            }
 
-        return _instance;
+            return _instance;
+        }
     }
     public int daysPasted = 0;
 
@@ -109,30 +112,12 @@ public class TimeManager : MonoBehaviour {
         }
     }
 
-   
-
-    public void Event_Wait()
-    {
-        int hours;
-
-        if (InputInfo.Instance.hasValueInText)
-        {
-            hours = InputInfo.Instance.valueInText;
-        }
-        else
-        {
-            hours = 1;
-        }
-
-        Wait(hours);        
-    }
-
     public void Wait(int hours)
     {
         NextHour(hours);
 
         // pour l'instant un peu oblig� � cause des objets etc...
-        Tile.GetCurrent.Describe();
+        Tile.Current.Describe();
     }
 
     public void ChangeMovesPerHour(int i)
@@ -185,21 +170,21 @@ public class TimeManager : MonoBehaviour {
 
     public string GetTimeOfDayDescription()
     {
-        if (TimeManager.GetInstance().timeOfDay == 12)
+        if (timeOfDay == 12)
         {
             return "noon";
         }
-        else if (TimeManager.GetInstance().timeOfDay == 0)
+        else if (timeOfDay == 0)
         {
             return "midnight";
         }
-        else if (TimeManager.GetInstance().timeOfDay < 12)
+        else if (timeOfDay < 12)
         {
-            return TimeManager.GetInstance().timeOfDay + " in the morning";
+            return timeOfDay + " in the morning";
         }
         else
         {
-            return TimeManager.GetInstance().timeOfDay + " at night";
+            return timeOfDay + " at night";
         }
     }
 

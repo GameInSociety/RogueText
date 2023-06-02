@@ -17,7 +17,9 @@ public class Player : Movable {
     public Stats stats;
 
     // COORDS
-    private Coords startCoords = new Coords(9,9);
+    private Coords startCoords = new Coords(9,3);
+    // beach 9 3
+    // farm 9 9
 
     public Player()
     {
@@ -39,33 +41,10 @@ public class Player : Movable {
 
     }
 
-    public void UseDoor()
-    {
-        Item targetItem = FunctionManager.GetCurrentItem();
-
-        if (!targetItem.HasProperty("direction")){
-            Interior.GetCurrent.Exit();
-            return;
-        }
-
-        Property prop = targetItem.GetProperty("direction");
-        Cardinal cardinal = Coords.GetCardinalFromString(targetItem.GetProperty("direction").value);
-
-        if ( Tile.GetCurrent.GetAdjacentTile(cardinal) == null)
-        {
-            // no tile, so exit interior
-            Interior.GetCurrent.Exit();
-        }
-        else
-        {
-            Move(cardinal);
-        }
-    }
-
     #region vision
     public bool CanSee()
     {
-        if (TimeManager.GetInstance().currentPartOfDay == TimeManager.PartOfDay.Night)
+        if (TimeManager.Instance.currentPartOfDay == TimeManager.PartOfDay.Night)
         {
             if (Inventory.Instance.HasItemWithProperty("source of light"))
             {
@@ -94,36 +73,32 @@ public class Player : Movable {
         }
 
         // first of all, advance time ( and items states etc... )
-        TimeManager.GetInstance().AdvanceTime();
+        TimeManager.Instance.AdvanceTime();
 
         base.Move(targetCoords);
 
         // set preivous & current tile
         
-        if ( Tile.GetCurrent != null)
+        if ( Tile.Current != null)
         {
-            Tile.GetCurrent.SetPrevious();
+            Tile.Current.SetPrevious();
         }
 
         Tile.SetCurrent(TileSet.current.GetTile(coords));
 
-
         // generate tile items
-        Tile.GetCurrent.Describe();
+        Tile.Current.Describe();
 
         MapTexture.Instance.UpdateFeedbackMap();
     }
 
-    public void MoveToTargetItem()
+    public void MoveToTile(Tile tile)
     {
-
-        Item targetItem = FunctionManager.GetCurrentItem();
-
-        Tile tile = targetItem as Tile;
-
         if ( tile != null)
         {
-            if ( tile.coords == Player.Instance.coords)
+            Debug.Log("moving to tile : " + tile.debug_name + " / " +  tile.debug_randomID);
+
+            if ( tile.coords == coords)
             {
                 TextManager.Write("You are already &on the dog&", tile);
                 return;

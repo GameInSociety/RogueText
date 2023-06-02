@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenAI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,15 @@ public class DisplayDescription : MonoBehaviour {
 	public static DisplayDescription Instance;
     public RectTransform verticalLayoutGroup;
 
-    public ScrollRect scrollRect; 
+    public ScrollRect scrollRect;
+
+    public bool enableAI = false;
+    public bool useAIForNextText = false;
+
+    public bool AI_Enabled()
+    {
+        return DebugManager.Instance.AI_Enabled;
+    }
 
     public Text uiText;
     public Text uiText_Old;
@@ -42,6 +51,11 @@ public class DisplayDescription : MonoBehaviour {
     void Start()
     {
         ClearDescription();
+
+        if (AI_Enabled())
+        {
+            ChatGPT.Instance.onSendReply += HandleOnSendReply;
+        }
     }
 
     bool taint = false;
@@ -121,13 +135,18 @@ public class DisplayDescription : MonoBehaviour {
         uiText_Old.text = "";
     }
 
-    public void Renew()
+    public void Reset()
     {
         typeIndex = 0;
-        uiText_Old.text += uiText.text;
         text_target = "";
-
         uiText.text = "";
+    }
+
+    public void Renew()
+    {
+        uiText_Old.text += uiText.text;
+
+        Reset();
 
 
         /*uiText.text += "\n";
@@ -148,7 +167,6 @@ public class DisplayDescription : MonoBehaviour {
             str = "\n" + str;
         }
 
-
         /*if (newPhrases.Contains(str))
         {
             Debug.Log("the phrase " + str + " is already contained ?");
@@ -156,11 +174,6 @@ public class DisplayDescription : MonoBehaviour {
         }*/
 
         newPhrases.Add(str);
-
-        text_target += str;
-        voice_Text += str;
-        playVoice = true;
-        voiceTimer = 0f;
 
         //uiText.text += "\n____________________\n";
         scrollRect.verticalNormalizedPosition = 0f;
@@ -171,7 +184,38 @@ public class DisplayDescription : MonoBehaviour {
 
     public void Delay()
     {
+        string str = "";
+        foreach (var item in newPhrases)
+        {
+            str += item.ToString();
+        }
+
+        if (useAIForNextText && AI_Enabled())
+        {
+            ChatGPT.Instance.SendReply(str);
+        }
+        else
+        {
+            UpdateDescription(str);
+        }
+
         newPhrases.Clear();
     }
+
+    void HandleOnSendReply(string text)
+    {
+        UpdateDescription(text);   
+    }
+
+    public void UpdateDescription(string text)
+    {
+        Renew();
+        text_target = text;
+        voice_Text = text;
+        playVoice = true;
+        voiceTimer = 0f;
+    }
+
+
 
 }

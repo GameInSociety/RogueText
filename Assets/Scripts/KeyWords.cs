@@ -39,7 +39,7 @@ public static class KeyWords
         switch (keyWord)
         {
             case KeyWord.TIME_OF_DAY:
-                return TimeManager.GetInstance().GetTimeOfDayDescription();
+                return TimeManager.Instance.GetTimeOfDayDescription();
             case KeyWord.TARGET_ORIENTATION:
                 return Coords.GetOrientationText(TextManager.GetOverrideOrientations());
             case KeyWord.ITEM_DESCRIPTION:

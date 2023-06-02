@@ -10,7 +10,7 @@ public class ItemManager : MonoBehaviour {
 
     public void DescribeItem()
     {
-        FunctionManager.GetCurrentItem().WriteDescription();
+        WorldEvent.current.GetCurrentItem().WriteDescription();
     }
 
     public Item TryGetItem(string _name)
@@ -93,13 +93,13 @@ public class ItemManager : MonoBehaviour {
         }
 
         // is the item the exact same tile as the one we're in ?
-        if (Tile.GetCurrent.HasWord(str))
+        if (WorldEvent.current.tile.HasWord(str))
         {
-            tmpItems.Add(Tile.GetCurrent);
+            tmpItems.Add(WorldEvent.current.tile);
             return tmpItems;
         }
 
-        foreach (var item in Tile.GetCurrent.GetContainedItems.FindAll(x => x.word.Compare(str)))
+        foreach (var item in WorldEvent.current.tile.GetContainedItems.FindAll(x => x.word.Compare(str)))
         {
             tmpItems.Add(item);
         }
@@ -155,6 +155,7 @@ public class ItemManager : MonoBehaviour {
         Item newItem = new Item();
 
         newItem.debug_name = copy.debug_name;
+        newItem.debug_randomID = Random.Range(0, 10000);
         newItem.dataIndex = copy.dataIndex;
 
         newItem.info = new Item.Info(copy.info);

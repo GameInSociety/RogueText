@@ -155,13 +155,6 @@ public struct Coords
 
     }
 
-    public static void WriteDirectionToNorth()
-    {
-        Movable.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
-        TextManager.SetOverrideOrientation(orientation);
-        TextManager.Write("compas_giveNorth");
-    }
-
     public bool OutOfMap()
     {
         return

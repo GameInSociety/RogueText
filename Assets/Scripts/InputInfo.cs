@@ -18,8 +18,6 @@ public class InputInfo : MonoBehaviour
     // phrase content
     public Verb verb;
 
-    public Combination combination;
-
     public List<Item> potentialItems = new List<Item>();
 
     public bool hasValueInText = false;
@@ -30,6 +28,8 @@ public class InputInfo : MonoBehaviour
 
     public bool waitForVerb = false;
     public bool waitForItem = false;
+
+    bool canCallFunction = false;
 
     private void Awake()
     {
@@ -81,14 +81,22 @@ public class InputInfo : MonoBehaviour
             FindAll();
         }
 
+
         DisplayInputFeedback();
 
-        if ( !VerbInInput() || !ItemsInInput())
+        if ( !canCallFunction)
         {
             return;
         }
 
-        FunctionManager.CallFunctions();
+        string cell = verb.GetCell(potentialItems[0]);
+        WorldEvent functionList = WorldEvent.New(
+            "input",
+            cell,
+            potentialItems,
+            Tile.Current
+            );
+        functionList.Call();
     }
 
     private void FindAll()
@@ -114,16 +122,18 @@ public class InputInfo : MonoBehaviour
 
     void DisplayInputFeedback()
     {
+        canCallFunction = false;
+
         if (itemConfusion)
         {
             if (VerbInInput())
             {
-                TextManager.Write("input_itemConfusion", potentialItems[0]);
+                TextManager.WriteST("input_itemConfusion", potentialItems[0]);
                 //WaitForVerb();
             }
             else
             {
-                TextManager.Write("Which &dog (override)&", potentialItems[0]);
+                TextManager.WriteST("Which &dog (override)&", potentialItems[0]);
             }
             return;
         }
@@ -131,7 +141,7 @@ public class InputInfo : MonoBehaviour
         // check if ANYTHING has been recognized
         if (!ItemsInInput() && !VerbInInput())
         {
-            TextManager.Write("input_nothingRecognized");
+            TextManager.WriteST("input_nothingRecognized");
             return;
         }
 
@@ -139,7 +149,7 @@ public class InputInfo : MonoBehaviour
         if (!VerbInInput())
         {
             WaitForVerb();
-            TextManager.Write("input_noVerb", potentialItems[0]);
+            TextManager.WriteST("input_noVerb", potentialItems[0]);
             return;
         }
         
@@ -147,13 +157,17 @@ public class InputInfo : MonoBehaviour
         if (VerbInInput() && !ItemsInInput())
         {
             WaitForItem();
-            TextManager.Write("input_noItem");
+            TextManager.WriteST("input_noItem");
             return;
         }
 
+        if (!verb.HasCell(potentialItems[0]))
+        {
+            TextManager.WriteST("input_noCombination", potentialItems[0]);
+            return;
+        }
 
-
-        
+        canCallFunction = true;
     }
 
     private void FindNumber()
@@ -215,7 +229,7 @@ public class InputInfo : MonoBehaviour
 
         itemConfusion = false;
 
-        List<Item> availableItems = AvailableItems.GetItems.FindAll(x => x.ContainedInText(inputText));
+        List<Item> availableItems = AvailableItems.Get.FindAll(x => x.ContainedInText(inputText));
         potentialItems.AddRange(availableItems);
 
         if (potentialItems.Count > 1)
@@ -225,23 +239,23 @@ public class InputInfo : MonoBehaviour
             if (SameContainer())
             {
 
-                // check if all items are the same
+            // check if all items are the same
                 if (potentialItems.TrueForAll(x => x.debug_name == potentialItems.First().debug_name))
                 {
+            // the word is plural, so add all
                     if (potentialItems[0].word.defaultNumber == Word.Number.Plural)
                     {
-                        FunctionManager.SetItems(potentialItems);
+                        // do nothing, we're just adding the potential items to the function list
                     }
                     else
                     {
             // the items all come from the same container, so take first one
-                        FunctionManager.SetItem(potentialItems.First());
+                        potentialItems = new List<Item> { potentialItems[0] };
                     }
 
                     return;
                 }
 
-                FunctionManager.SetItems(potentialItems);
                 //Function.AddItem(potentialItems[0]);
                 return;
             }
@@ -250,7 +264,7 @@ public class InputInfo : MonoBehaviour
             Item specItem = GetSpecificItem();
             if ( specItem != null)
             {
-                FunctionManager.AddItem(specItem);
+                potentialItems = new List<Item>() { specItem };
                 return;
             }
 
@@ -261,18 +275,12 @@ public class InputInfo : MonoBehaviour
             return;
         }
 
-        if (potentialItems.Count == 1)
-        {
-            // no confusion, no need for specification
-            FunctionManager.SetItem(potentialItems[0]);
-        }
-
         // try verb alone
         if ( potentialItems.Count == 0 && VerbInInput())
         {
             Item verbItem = ItemManager.Instance.GetDataItem("verbe seul");
-            if (verb.HasFunctionList(verbItem))
-                FunctionManager.SetItem(verbItem);
+            if (verb.HasCell(verbItem))
+                potentialItems.Add(verbItem);
         }
     }
 
@@ -297,7 +305,7 @@ public class InputInfo : MonoBehaviour
     {
         // check if items come from different container
         Item containedItem = null;
-        foreach (var item in AvailableItems.GetItems)
+        foreach (var item in AvailableItems.Get)
         {
             if ( potentialItems.Find(x=> item.HasItem(x) ) != null)
             {
@@ -328,18 +336,4 @@ public class InputInfo : MonoBehaviour
         return potentialItems.Count > 0;
     }
 
-    public void FindFunctionList(Verb _verb, Item _item)
-    {
-        if ( verb == null)
-        {
-            return;
-        }
-
-        if ( _item == null)
-        {
-            return;
-        }
-
-        combination = verb.cellEvents.Find(x => x.itemIndex == _item.dataIndex);
-    }
 }

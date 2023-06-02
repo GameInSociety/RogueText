@@ -44,7 +44,7 @@ public class Interior {
 
     public static void DescribeExterior()
     {
-        Cardinal cardinal = Coords.GetCardinalFromString(FunctionManager.GetCurrentItem().GetProperty("direction").value);
+        Cardinal cardinal = Coords.GetCardinalFromString(WorldEvent.current.GetCurrentItem().GetProperty("direction").value);
         Coords targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
 
         Tile tile = TileSet.map.GetTile(targetCoords);
@@ -81,7 +81,7 @@ public class Interior {
         Player.Instance.Move(Cardinal.None);
         //DisplayDescription.Instance.UpdateDescription();
 
-        TimeManager.GetInstance().ChangeMovesPerHour(4);
+        TimeManager.Instance.ChangeMovesPerHour(4);
 
     }
 
@@ -95,7 +95,7 @@ public class Interior {
 
         Player.Instance.Move(Cardinal.None);
 
-        TimeManager.GetInstance().ChangeMovesPerHour(10);
+        TimeManager.Instance.ChangeMovesPerHour(10);
     }
     #endregion
 

@@ -6,13 +6,14 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.Networking.Types;
 using UnityEngine.UIElements;
-using static UnityEditor.Progress;
 
 [System.Serializable]
 public class Item
 {
     public string debug_name = "debug name";
+    public int debug_randomID;
 
     // pas encore utilisé mais à faire 
     public Info info;
@@ -21,8 +22,8 @@ public class Item
         public Info(Info copy)
         {
             generatedItems = copy.generatedItems;
-            discovered= copy.discovered;
-            usableAnytime= copy.usableAnytime;
+            discovered = copy.discovered;
+            usableAnytime = copy.usableAnytime;
             stackable = copy.stackable;
             hide = copy.hide;
         }
@@ -75,7 +76,7 @@ public class Item
     public virtual void TryGenerateItems()
     {
 
-        if ( info.generatedItems)
+        if (info.generatedItems)
         {
             return;
         }
@@ -119,7 +120,6 @@ public class Item
     // remove item
     public void RemoveItem(Item item)
     {
-        Debug.Log("removing " + item.debug_name +"  from : " + debug_name);
         GetContainedItems.Remove(item);
     }
     // item row : wtf ? le craft system est pas ouf
@@ -131,7 +131,7 @@ public class Item
 
     public Item GetItem(Item item)
     {
-        return GetContainedItems.Find(x=> x== item);
+        return GetContainedItems.Find(x => x == item);
     }
     public Item GetItem(string itemName)
     {
@@ -145,7 +145,7 @@ public class Item
         return GetContainedItems.Find(x => x.word.text == itemName) != null;
     }
 
-    public bool HasItem( Item item)
+    public bool HasItem(Item item)
     {
         return GetContainedItems.Contains(item);
     }
@@ -160,7 +160,7 @@ public class Item
     }
     #endregion
 
-    
+
     ///
     /// <summary>
     /// TOOLS
@@ -185,11 +185,17 @@ public class Item
     }
 
     #region remove & destroy
-    public static void Destroy(Item item){
-
-        foreach (var property in item.properties)
+    public static void Destroy(Item item)
+    {
+        foreach (var prop in item.properties)
         {
-            property.RemoveEvents();
+            foreach (var pEvent in PropertyEvent.events)
+            {
+                if (pEvent.property == prop)
+                {
+                    pEvent.Unsubscribe();
+                }
+            }
         }
 
         Remove(item);
@@ -197,7 +203,7 @@ public class Item
     public static void Remove(Item targetItem)
     {
         // then in tile
-        foreach (var item in AvailableItems.GetItems)
+        foreach (var item in AvailableItems.Get)
         {
             if (item.HasItem(targetItem))
             {
@@ -210,7 +216,7 @@ public class Item
     #endregion
 
     #region search
-    public bool HasWord (string _text)
+    public bool HasWord(string _text)
     {
         // find singular
         int index = words.FindIndex(x => x.text == _text);
@@ -229,19 +235,19 @@ public class Item
             currentWordIndex = index;
             return true;
         }*/
-       
+
 
         return false;
     }
-    
+
     public bool IsAnItem(string item_name)
     {
         return ItemManager.Instance.TryGetItem(item_name) != null;
     }
-    
+
     #endregion
 
-   
+
     #region actions
     public bool CanBeDescribed()
     {
@@ -254,9 +260,9 @@ public class Item
 
         foreach (var verb in Verb.GetVerbs)
         {
-            foreach (var combination in verb.cellEvents)
+            foreach (var cell in verb.cells)
             {
-                if (combination.itemIndex == dataIndex)
+                if (cell.id == dataIndex)
                     ++count;
 
             }
@@ -273,9 +279,9 @@ public class Item
 
         foreach (var verb in Verb.GetVerbs)
         {
-            foreach (var combination in verb.cellEvents)
+            foreach (var cell in verb.cells)
             {
-                if (combination.itemIndex == dataIndex)
+                if (cell.id == dataIndex)
                 {
                     verbList.Add(verb);
                 }
@@ -333,8 +339,7 @@ public class Item
             {
                 Property property = GetEnabledProperties()[i];
 
-                property.WriteDescription();
-
+                TextManager.Add(property.GetDescription());
                 TextManager.Add(TextUtils.GetLink(i, enabledPropCount));
 
             }
@@ -345,7 +350,7 @@ public class Item
     #endregion
 
     /// properties ///
-    
+
     #region properties
     // adds whole new, simple property
     public Property CreateProperty(string line)
@@ -354,7 +359,7 @@ public class Item
         string[] parts = line.Split(" / ");
         newProperty.type = parts[0];
         newProperty.name = parts[1];
-        if ( parts.Length > 2)
+        if (parts.Length > 2)
         {
             newProperty.SetValue(parts[2]);
         }
@@ -376,11 +381,21 @@ public class Item
 
         newProperty.Init();
 
-        if ( newProperty.events != null)
+        if (newProperty.eventDatas != null)
         {
-            foreach (var e in newProperty.events)
+            foreach (var e in newProperty.eventDatas)
             {
-                WorldEvent.Add(e.name, this, newProperty, Tile.GetCurrent);
+                // il faut pas assigner la tile actuelle ici, trouver un autre moyen
+                string cell = newProperty.FindEvent(e.name).functionListContent;
+
+                WorldEvent f = WorldEvent.New(
+                    e.name,
+                    cell,
+                    new List<Item>() { this },
+                    Tile.Current
+                    );
+
+                PropertyEvent.New(e.name, f, newProperty);
             }
         }
 
@@ -391,7 +406,7 @@ public class Item
     public void DeleteProperty(string propertyName)
     {
         Property property = GetProperty(propertyName);
-        if ( property == null)
+        if (property == null)
         {
             Debug.LogError("DeleteProperty : property " + propertyName + " does not exist in " + debug_name);
             return;
@@ -400,13 +415,14 @@ public class Item
     }
     public bool HasProperties()
     {
-        return properties.FindAll(x=>x.enabled).Count > 0;
+        return properties.FindAll(x => x.enabled).Count > 0;
     }
     public bool HasVisibleProperties()
     {
         return properties.FindAll(x => x.enabled && x.type != "hidden").Count > 0;
     }
-    public bool HasEnabledProperty(string name){
+    public bool HasEnabledProperty(string name)
+    {
         Property property = properties.Find(x => x.name == name && x.enabled);
 
         return property != null;
@@ -423,7 +439,17 @@ public class Item
         // ici "type == container" veut dire que la battery ou water des items est décrite meme si le truc est disabled,
         // à terme, mettre un parametre qui fait que la prop est décrite meme quand l'item est disabled
         // ou un autre truc mieux
-        return properties.FindAll(x => x.enabled||x.type == "container");
+        return properties.FindAll(x => x.enabled || x.type == "container");
+    }
+
+    public void EnableProperty(string propertyName)
+    {
+        properties.Find(x => x.name == propertyName).enabled = true;
+    }
+
+    public void DisableProperty(string propertyName)
+    {
+        properties.Find(x => x.name == propertyName).enabled = false;
     }
 
     public Property GetProperty(string name)
@@ -450,9 +476,9 @@ public class Item
 
         return property;
     }
-    public bool HasItemWithProperty( string propertyName)
+    public bool HasItemWithProperty(string propertyName)
     {
-        return GetContainedItems.Find(x=> x.HasProperty(propertyName)) != null;
+        return GetContainedItems.Find(x => x.HasProperty(propertyName)) != null;
     }
     #endregion
 
@@ -502,14 +528,7 @@ public class Item
             return;
         }
 
-        if (info.discovered)
-        {
-            TextManager.Write("&on the dog&, ", this);
-        }
-        else
-        {
-            TextManager.Write("&on a dog&, ", this);
-        }
+        WriteContainedItems_Start();
 
         // Get Groups for description
         List<Group> groups = new List<Group>();
@@ -517,9 +536,7 @@ public class Item
         {
             Group group = groups.Find(x => x.item.dataIndex == item.dataIndex && !x.item.ContainsItems());
 
-        
-
-            if ( group == null )
+            if (group == null)
             {
 
                 // Create new group
@@ -528,7 +545,7 @@ public class Item
                 newGroup.item = item;
                 groups.Add(newGroup);
                 continue;
-                
+
             }
 
             // Found group, adding amount
@@ -544,6 +561,15 @@ public class Item
         {
             group.item.word.currentInfo.amount = group.amount;
             TextManager.Add("&a dog&", group.item);
+
+            List<Property> properties = group.item.properties.FindAll(x => x.changed);
+            foreach (var property in properties)
+            {
+                Debug.Log("property " + property.name + " of " + group.item.debug_name + " changed, desribing it");
+                TextManager.Write("It's " + property.GetDescription());
+                property.changed = false;
+            }
+
             TextManager.Add(TextUtils.GetLink(index, itemGroups.Count));
 
             ++index;
@@ -561,6 +587,18 @@ public class Item
         }
 
         info.discovered = true;
+    }
+
+    public virtual void WriteContainedItems_Start()
+    {
+        if (info.discovered)
+        {
+            TextManager.Write("&on the dog&, ", this);
+        }
+        else
+        {
+            TextManager.Write("&on a dog&, ", this);
+        }
     }
 
     [System.Serializable]
@@ -613,4 +651,5 @@ public class Item
 
         return false;
     }
+
 }

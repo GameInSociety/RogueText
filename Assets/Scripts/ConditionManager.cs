@@ -23,44 +23,6 @@ public class ConditionManager : MonoBehaviour
         _instance = this;
     }
 
-    public void Event_SetCondition()
-    {
-        Condition.Type conditionType =  (Condition.Type)System.Enum.Parse(typeof(Condition.Type), FunctionManager.GetParam(0), true);
-
-        string str = FunctionManager.GetParam(1);
-
-        if (str.Contains("+"))
-        {
-            // add
-            str = str.Remove(0,1);
-            int value = 0;
-            value = int.Parse(str);
-
-            GetCondition(conditionType).Change((int)GetCondition(conditionType).progress+ value);
-        }
-        else if (str.Contains("-"))
-        {
-            // substract
-            str = str.Remove(0, 1);
-
-            int value = 0;
-            value = int.Parse(str);
-
-            GetCondition(conditionType).Change((int)GetCondition(conditionType).progress- value);
-
-        }
-        else
-        {
-            int value = 0;
-            value = int.Parse(str);
-
-            GetCondition(conditionType).Change(value);
-        }
-
-        WriteDescription();
-
-        //Item.Remove(InputInfo.GetCurrent.GetItem(0));
-    }
 
     public void AdvanceCondition()
     {

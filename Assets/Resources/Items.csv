@@ -38,7 +38,7 @@ door,s,on,,state / 100%locked?open,,,,
 mushroom,s,,stackable,,,,,
 puddle,s,in,stackable,"container / water / 100
 %subEmpty
-DestroyItem(puddle)",,,,
+Item(destroy, puddle)",,,,
 bed,s,on,,,,,,
 "bottle
 water bottle
@@ -101,7 +101,7 @@ computer,s,,,,,,,
 radio,s,,,,,,,
 camera,s,,,,,,,
 car,s,in,,,,,,
-boat,s,on,,,,,,
+rowboat,s,on,,hidden / interior,,,,
 pants,s,,stackable,,,,,
 t-shirt,s,,stackable,,,,,
 jacket,s,,stackable,,,,,
@@ -114,12 +114,12 @@ washing machine,s,in,,,,,,
 candle,s,,stackable,iValue / burning / 2,,,,
 flashlight,s,,stackable,state / off,"$container / battery / 0=10
 %subHours
-ChangeProp(battery, -1)
+Prop(update, battery, -1)
 
 %subEmpty
-RemoveProp(source of light)
-ChangeProp(on, off)
-DisableProp(battery)",,,
+Prop(remove, source of light)
+Prop(update, on, off)
+Prop(disable, battery)",,,
 screw,s,,stackable,,,,,
 scothtape,s,,stackable,,,,,
 nail,s,,stackable,,,,,
@@ -145,45 +145,50 @@ cardboard,s,in,stackable,,,,,
 seeds,p,,stackable,,,,,
 sprout,s,,stackable,type / itemName / apple?brocoli?tomato?carrot,"iValue / growing / 3
 %subHours
-ChangeProp(growing, -1)
+Prop(update, growing, -1)
 
 %subEmpty
-DestroyItem(sprout)
-CreateInTile(*itemName)
-DisableProp(growing)","iValue / fine / 10
+Item(create, *itemName)
+Item(destroy, sprout)","iValue / fine / 10
 %subHours
-ChangeProp(fine, -1)
+Prop(update, fine, -1)
 
 %subEmpty
-EnableProp(drying)
-DisableProp(fine)
+Prop(enable, drying)
+Prop(disable, fine)
 
 %subRain
-ChangeProp(fine, +10)","$iValue / drying / 10
+Prop(update, fine, +10)","$iValue / drying / 10
 %subHours
-ChangeProp(drying, -1)
+Prop(update, drying, -1)
 
 %subRain
-ChangeProp(drying, +10)
-DisableProp(drying)
-ChangeProp(fine, +10)
-EnableProp(fine)
+Prop(update, drying, +10)
+Prop(disable, drying)
+Prop(update, fine, +10)
+Prop(enable, fine)
 
 %subEmpty
-DisableProp(growing)
-DisableProp(drying)
-EnableProp(dead)",$state / dead
+Prop(disable, growing)
+Prop(disable, drying)
+Prop(enable, dead)",$state / dead
 plain,s,on,stackable,state / fertile,,,,
 field,s,in,stackable,state / fertile,,,,
 clearing,s,in,stackable,state / fertile,,,,
 hill,s,on,stackable,,,,,
 mountain,s,on,stackable,hidden / blocking,,,,
 forest,s,in,stackable,state / fertile,,,,
-wood,s,in,stackable,state / fertile,,,,
+"boscage
+bushy area
+shrub
+greenery",s,in,stackable,state / fertile,,,,
 sea,s,near,stackable,hidden / blocking,,,,
 lake,s,near,stackable,hidden / blocking,,,,
 river,s,along,stackable,hidden / blocking,,,,
-beach,s,on,stackable,,,,,
+"beach
+shore
+seaside
+shoreline",s,on,stackable,,,,,
 road,s,on,stackable,,,,,
 village road,s,on,stackable,,,,,
 costal road,s,on,stackable,,,,,
@@ -212,3 +217,4 @@ floor,s,on,,,,,,
 hole,s,in,stackable,,,,,
 desk,s,,stackable,,,,,
 mound,s,,stackable,,,,,
+sailing ship,s,,stackable,,,,,

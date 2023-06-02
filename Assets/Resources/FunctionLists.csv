@@ -1,0 +1,250 @@
+,help,"go
+go to","open
+look inside",close,eat,sleep,"look
+look at
+observe","take
+pick up",fill,drink,"move
+advance
+walk
+continue
+keep going",read,cut,"go in
+enter",throw,"equip
+put on","unequip
+take off",listen,"put
+place","leave
+go out
+exit","go back
+return",break,tear,"make
+craft",turn on,turn off,unlock,plant,unearth,water,dig,wait,empty,charge,yes
+verbe seul,DisplayHelp,,,,,"Write(you sleep on the floor)
+Condition(sleep, +1)
+Condition(health, -1)",,,,,"Player(move, relative, 0)",,,,,,,,,GOOUT,"Player(move, relative, 4)",,,,,,,,,,,Wait(1),,,
+north,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+north east,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+east,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+south east,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+south,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+south west,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+west,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+north west,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"front
+forward
+ahead",,"Player(move, relative, 0)",,,,,"Player(orient, 0)",,,,"Player(move, relative, 0)",,,,,,,,,,"Player(move, relative, 0)",,,,,,,,,,,,,,
+right,,"Player(move, relative, 2)",,,,,"Player(orient, 2)",,,,"Player(move, relative, 2)",,,,,,,,,,"Player(move, relative, 2)",,,,,,,,,,,,,,
+"back
+backwards
+behind",,"Player(move, relative, 4)",,,,,"Player(orient, 4)",,,,"Player(move, relative, 4)",,,,,,,,,,"Player(move, relative, 4)",,,,,,,,,,,,,,
+left,,"Player(move, relative, 6)",,,,,"Player(orient, 6)",,,,"Player(move, relative, 6)",,,,,,,,,,"Player(move, relative, 6)",,,,,,,,,,,,,,
+"inventory
+bag",,,Item(describe),,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+*,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+around,,,,,,,Write(_tile),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+placeholder,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+door,,"Prop(check, !locked)
+Player(move, door)","Prop(check, !locked)
+Player(move, door)",,,,Item(describe),"Prop(check, unlocked)
+Player(move, door)",,,,,,"Prop(check, unlocked)
+Player(move, door)",,,,,,"Prop(check, unlocked)
+Player(move, door)",,,,,,,"Prop(check, locked)
+Item(require, key)
+Prop(update, locked, open)
+Item(destroy, key)",,,,,,,,
+mushroom,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+puddle,,,,,,,Item(describe),,,"Condition(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
+bed,,,,,,"Condition(sleep, +1)",Item(describe),,,,,,,,,,,,,,,,,Craft,,,,,,,,,,,
+"bottle
+water bottle
+flask",,,,,,,Item(describe),Item(pick up),"Prop(require, water)
+Prop(update, water, +*water)","Condition(thirst, -1)
+Prop(update, water, -1)",,,,,Item(throw),,,,,,,,,,,,,,,,,,"Prop(update, water, 0)",,
+sink,,,,,,,Item(describe),,,"Condition(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
+shower,,,,,,,Item(describe),,,"Condition(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,
+* ,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+letter,,,,,,,Item(describe),"Take
+SetParam(retrieved_letter, true)",,,,"GiveClue
+SetParam(retrieved_letter, true)",,,,,,,,,,,,,,,,,,,,,,,
+bush,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+tree,,,,,,,Item(describe),,,,MoveAWAY,,"Write(the tree falls down)
+Item(destroy)
+Item(create, bûche, 5)
+Item(create, petit bois, 10)",,,,,,,,,,,,,,,,,,,,,,
+log,,,,,,,Item(describe),Item(pick up),,,,,"Write(""you cut the log into sticks)
+Item(create, stick, 3)
+Item(destroy)",,Item(throw),,,,,,,,,,,,,,,,,,,,
+stick,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+tomato,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+brocoli,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+apple,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+banana,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+milk bottle,,,,,,,Item(describe),Item(pick up),,"Condition(thirst, +3)
+Item(destroy)",,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+* ,,,,,,,Item(describe),Item(pick up),,"Condition(thirst, +3)
+Item(destroy)",,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+piece of bread,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+* ,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+* ,,,,,,,Item(describe),Item(pick up),,"Condition(thirst+1)
+Item(destroy)",,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+carrot,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+* ,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+meat can,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+tomato can,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+tuna can,,,,,"Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+soda,,,,,,,Item(describe),Item(pick up),,"Condition(thirst+1)
+Item(destroy)",,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+knife,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,Craft,,,,,,,,,,,
+mop,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, weapon)",,,,,,,,,,,,,,,,,,,
+shovel,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, weapon)",,,,,,,,,,,,,,,,,,,
+key,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+book,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+receipe,,,,,,,Item(describe),Item(pick up),,,,ReadRecipe,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+manual,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+newspaper,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+magazine,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+dollar,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+mp3 player,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+dollar,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,Craft,,,,,,,,,,,
+pen,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+spoon,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+fork,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, weapon)",,,,,,,,,,,,,,,,,,,
+plate,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+bowl,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+glass,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+sponge,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+parfume,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+plastic duck,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+towel,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+toothpaste,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+toothbrush,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, weapon)",,,,,,,,,,,,,,,,,,,
+tv,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+table,,,,,,,Item(describe),,,,,,,,,,,,,,,"Write(the table breaks)
+Item(destroy)
+Item(create, stick, 4)
+Item(create, plank, 1)",,Craft,,,,,,,,,,,
+sofa,,,,,,"Condition(sleep, +5)",Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+clock,,,,,,,Time(display),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+window,,"Prop(check, open)
+Player(move, door)","Prop(check, closed)
+Prop(update, closed, open)","Prop(check, open)
+Prop(update, open, closed)", ,,Interior(Item(describe)Out),,,,"Prop(check, ",,,Interior(enter),,,,,,"Prop(check, open)
+Player(move, door)",,,,,,,,,,,,,,,
+box,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+phone,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+computer,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+radio,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,GiveClue,,,,,,Craft,,,,,,,,,,,
+camera,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+car,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+rowboat,,,,,,,Item(describe),,,,,,,Interior(enter),,,,,,,,,,,,,,,,,,,,,
+pants,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, bottom)",,,,,,,"Write(you tear the pants into pieces)
+Item(create, piece of cloth, 5)
+Item(destroy)",Craft,,,,,,,,,,,
+t-shirt,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, body)",,,,,,,"Write(you tear the pants into pieces)
+Item(create, piece of cloth, 5)
+Item(destroy)",Craft,,,,,,,,,,,
+jacket,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, body)",,,,,,,"Write(you tear the pants into pieces)
+Item(create, piece of cloth, 5)
+Item(destroy)",Craft,,,,,,,,,,,
+coat,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, body)",,,,,,,"Write(you tear the pants into pieces)
+Item(create, piece of cloth, 5)
+Item(destroy)",Craft,,,,,,,,,,,
+shoes,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, feet)",,,,,,,,Craft,,,,,,,,,,,
+glasses,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, head)",,,,,,,,Craft,,,,,,,,,,,
+watch,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, head)",,,,,,,,,,,,,,,,,,,
+calendar,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, head)",,,,,,,,,,,,,,,,,,,
+washing machine,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+candle,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+flashlight,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),"Player(equip, misc)",,,,,,,,Craft,"Prop(check, off)
+Prop(check value, battery)
+Prop(enable, battery)
+Prop(create, type / source of light)
+Prop(update, off, on)","Prop(check, on)
+Prop(remove, source of light)
+Prop(disable, battery)
+Prop(update, on, off)",,,,,,,,"Item(require, battery)
+Prop(update, battery, +10)
+Item(destroy, battery)",
+screw,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+scothtape,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+nail,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+paper,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+berry,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+basket,,,,,,,Item(describe),,,"Condition(thirst, +1)",,,,,,,,,,,,,,,,,,,,,,,,,
+compas,,,,,,,Write(_north),Item(pick up),,,,,,,Item(throw),,,,,,,,,Craft,,,,,,,,,,,
+plank,,,,,,,Item(describe),,,,,,,,Item(throw),,,,,,,,,Craft,,,,,,,,,,,
+piece of cloth,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,Write(the piece is too small...),,,,,,,,,,,,
+scissors,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+die,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+thread,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,,,,,,,
+battery,,,,,,,Item(describe),Item(pick up),,,,,,,Item(throw),,,,"Item(require, flashlight)
+Prop(update, *flashlight, battery, +10)
+Item(destroy)",,,,,,,,,,,,,,,,
+fridge,,,Item(describe),,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+chest,,,Item(describe),,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+armory,,,Item(describe),,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+cupboard,,,Item(describe),,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+cabinet,,,Item(describe),,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+wallet,,,Item(describe),,,,Item(describe),Item(pick up),,,,,,,,,,,,,,,,,,,,,,,,,,,
+tool box,,,Item(describe),,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+shelf,,,Item(describe),,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+cardboard,,,Item(describe),,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+seeds,,,,,"Condition(thirst, -2)
+Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,"Item(destroy)
+Item(create, sprout)
+Prop(check, fertile)",,,,,,,
+sprout,,,,,"Condition(thirst, -2)
+Condition(hunger, +1)",,Item(describe),Item(pick up),,,,,,,Item(throw),,,,,,,,,,,,,,"Item(destroy)
+Write(the dog& is gone)","Prop(check, !dead)
+Prop(require, water)
+Prop(update, drying, +*water)
+Prop(disable, drying)
+Prop(update, fine, +*water)
+Prop(enable, fine)",,,,,
+plain,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+field,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+clearing,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+hill,,"Player(move, tile)",,,,,Item(describe),,,,,,,,,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+mountain,,"Player(move, tile)",,,,,Item(describe),,,,,,,,,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+forest,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+"boscage
+bushy area
+shrub
+greenery",,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+sea,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+lake,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+river,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+"beach
+shore
+seaside
+shoreline",,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,,,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+road,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,,,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+village road,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,,,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+costal road,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,,,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+path,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,,,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+bridge,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,,,,,,,"Player(move, relative, 0)","Player(move, tile)",,,,,,,,,,,,,,
+house,,"Player(move, tile)",,,,,Item(describe),,,,Interior(enter),,,Interior(enter),,,,,,Interior(enter),"Player(move, tile)",,,,,,,,,,,,,,
+farm,,"Player(move, tile)",,,,,Item(describe),,,,Interior(enter),,,Interior(enter),,,,,,Interior(enter),"Player(move, tile)",,,,,,,,,,,,,,
+cabin,,"Player(move, tile)",,,,,Item(describe),,,,Interior(enter),,,Interior(enter),,,,,,Interior(enter),"Player(move, tile)",,,,,,,,,,,,,,
+mansion,,"Player(move, tile)",,,,,Item(describe),,,,Interior(enter),,,Interior(enter),,,,,,Interior(enter),"Player(move, tile)",,,,,,,,,,,,,,
+hallway,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+stairs,,"Player(move, tile)",,,,,Item(describe),,,,,,,,,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+living room,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+kitchen,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+dining room,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+children's room,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,t,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+bedroom,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+bathroom,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+toilets,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+attic,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+basement,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+cellar,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+office,,"Player(move, tile)",,,,,Item(describe),,,,"Player(move, tile)",,,"Player(move, tile)",,,,,,"Player(move, relative, 4)","Player(move, tile)",,,,,,,,,,,,,,
+garage,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+watering can,,,,,,,Item(describe),Item(pick up),"Prop(require, water)
+Prop(update, water, +*water)","Condition(thirst, -1)
+Prop(update, water, -1)",,,,,Item(throw),,,,,,,,,,,,,,,,,,"Prop(check value, water)
+Item(create, puddle)
+Prop(update, *puddle, water, *water)",,
+floor,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,"Item(create, trou)",,,,
+hole,,,,,,,Item(describe),,"Item(destroy, hole)",,,,,,,,,,,,,,,,,,,,,,"Item(create, trou)",,,,
+desk,,,,,,,Item(describe),Item(pick up),,,,,,,,,,,,,,,,,,,,,,,,,,,
+mound,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,
+sailing ship,,,,,,, ,,,,,,,,,,,,,,,,,,,,,,,,,,,,

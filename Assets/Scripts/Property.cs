@@ -21,6 +21,10 @@ public class Property
     // is a string or a numeric
     public string value;
 
+    public string eventContent;
+
+    public bool changed = false;
+
     //  the max of the potential value, set when  (0=10) 10 = max
     // MAX VALUE SHOULD BE IN THE PARTS
     // battery / 0 / 10
@@ -39,14 +43,7 @@ public class Property
     ///  LES EVENTS EN QUESTION
     ///  ils donnent lieu à discorde dans le studio, mais on a pas trouvé mieux pour l'instant
     /// </summary>
-    public List<Event> events;
-
-    // l'objet � laquelle la propri�t� est attach�e,
-    // trouver un autre moyen parce que niveau m�moire et serialization c'est pas ouf
-    // bien dit, le moyen se serait de regarder si on peut pas gérer certaine chose dans l'objet pour avoir le lien
-    // ( et pour ça regarder "growing" de Gardening )
-    
-    //private Item linkedItem;
+    public List<Event> eventDatas;
 
    
     /// <summary>
@@ -60,7 +57,7 @@ public class Property
         name = copy.name;
         type = copy.type;
         value = copy.value;
-        events = copy.events;
+        eventDatas = copy.eventDatas;
     }
     public void Init ()
     {
@@ -71,7 +68,7 @@ public class Property
         }
         else
         {
-            Enable();
+            enabled = true;
         }
 
         // the choice between many names
@@ -153,15 +150,17 @@ public class Property
     }
 
     #region description
-    public void WriteDescription()
-    {
-        TextManager.Add(GetDescription());
-    }
     public string GetDescription()
     {
         // get prop type
         switch (type)
         {
+            case "type":
+                if (string.IsNullOrEmpty(value))
+                {
+                    return "a " + name;
+                }
+                return "a " + value;
             case "state":
                 return name;
             case "iValue": // invisible value, not added in decription
@@ -192,7 +191,7 @@ public class Property
     #region events
     public Event FindEvent(string eventName)
     {
-        Event propEvent = events.Find(x => x.name == eventName);
+        Event propEvent = eventDatas.Find(x => x.name == eventName);
         if ( propEvent == null)
         {
             Debug.LogError("couldn't find event : " + eventName + " on property " + name);
@@ -223,7 +222,7 @@ public class Property
         if (line.StartsWith('*'))
         {
             line = line.Remove(0, 1);
-            Property pendingProp = FunctionManager.pendingProps.Find(x => x.name == line);
+            Property pendingProp = WorldEvent.current.pendingProps.Find(x => x.name == line);
             line = pendingProp.value;
 
             int valueNeeded = pendingProp.value_max - pendingProp.GetInt();
@@ -260,35 +259,8 @@ public class Property
             return;
         }
 
-        
-
     }
     #endregion
-
-    public void Enable()
-    {
-        enabled = true;
-    }
-
-    public void Disable()
-    {
-        enabled = false;
-
-        
-    }
-
-    public void RemoveEvents()
-    {
-        if (events == null)
-        {
-            return;
-        }
-
-        foreach (var e in events)
-        {
-            WorldEvent.Remove(e.name, FunctionManager.GetCurrentItem(), this, Tile.GetCurrent);
-        }
-    }
 
     #region events
     /// THIS CLASS WILL NEVER BE A COPY BECAUSE IT WILL NEVER CHANGE
@@ -297,16 +269,17 @@ public class Property
     public class Event
     {
         public string name;
-        public string functionList;
+        public string functionListContent;
+        public List<WorldEvent> functions;
     }
     public void AddEvent(Event propertyEvent)
     {
-        if (events == null)
+        if (eventDatas == null)
         {
-            events = new List<Event>();
+            eventDatas = new List<Event>();
         }
 
-        events.Add(propertyEvent);
+        eventDatas.Add(propertyEvent);
     }
     #endregion
 
@@ -346,6 +319,7 @@ public class Property
 
         if ( newValue <= 0)
         {
+
             if (onEmptyValue != null)
             {
                 onEmptyValue();
@@ -354,5 +328,29 @@ public class Property
 
     }
     #endregion
+
+
+    public static List<Property> propertiesToDescribe= new List<Property>();
+    public static void DescribeProperties()
+    {
+        if (!propertiesToDescribe.Any())
+        {
+            return;
+        }
+        TextManager.Write("It's ");
+        int index = 0;
+        for (int i = 0; i < propertiesToDescribe.Count; i++)
+        {
+            TextManager.Add(propertiesToDescribe[i].GetDescription());
+            string link = TextUtils.GetLink(index, propertiesToDescribe.Count);
+            TextManager.Add(link);
+            index++;
+        }
+
+        propertiesToDescribe.Clear();
+
+    }
+
+
 }
 

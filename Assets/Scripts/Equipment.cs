@@ -40,41 +40,38 @@ public class Equipment {
         }
     }
 
-    public void Event_Equip()
+    public void Equip(Part part, Item item)
     {
-        Part part = GetPartFromString(FunctionManager.GetParam(0));
-
         if ( GetEquipement(part) != null)
         {
             Inventory.Instance.AddItem(GetEquipement(part));
         }
 
-        SetEquipment(part, FunctionManager.GetCurrentItem());
+        SetEquipment(part, WorldEvent.current.GetCurrentItem());
 
-        Item.Remove(FunctionManager.GetCurrentItem());
+        Item.Remove(WorldEvent.current.GetCurrentItem());
 
         TextManager.Write("/_bag_equip/" + part.ToString());
 
     }
 
-    public void Event_Unequip()
+    public void Unequip(Part part)
     {
-        Part part = GetPartFromString(FunctionManager.GetParam(0));
 
-        if ( GetEquipement(part) != FunctionManager.GetCurrentItem())
+        if ( GetEquipement(part) != WorldEvent.current.GetCurrentItem())
         {
             TextManager.Write("bag_nothingToEquip");
             return;
         }
 
-        Inventory.Instance.AddItem(FunctionManager.GetCurrentItem());
+        Inventory.Instance.AddItem(WorldEvent.current.GetCurrentItem());
 
         TextManager.Write("bag_unequip");
 
         SetEquipment(part, null);
     }
 
-    public Part GetPartFromString (string str)
+    public static Part GetPartFromString (string str)
     {
         Part part = Part.None;
 

@@ -147,6 +147,7 @@ public class TextManager
     }
     public static void Write(string str)
     {
+        DisplayDescription.Instance.useAIForNextText = true;
         string text = GetPhrase(str);
         DisplayDescription.Instance.AddToDescription(text, true);
     }
@@ -158,9 +159,36 @@ public class TextManager
     }
     public static void Add (string str)
     {
+        DisplayDescription.Instance.useAIForNextText = true;
         string text = GetPhrase(str);
         DisplayDescription.Instance.AddToDescription(text, false);
     }
+
+    // STRAIGHT FORWARD
+    public static void WriteST(string str, Item _overrideItem)
+    {
+        overrideItem = _overrideItem;
+        WriteST(str);
+    }
+    public static void WriteST(string str)
+    {
+        DisplayDescription.Instance.useAIForNextText = false;
+        string text = GetPhrase(str);
+        DisplayDescription.Instance.AddToDescription(text, true);
+    }
+
+    public static void AddST(string str, Item _overrideItem)
+    {
+        overrideItem = _overrideItem;
+        AddST(str);
+    }
+    public static void AddST(string str)
+    {
+        DisplayDescription.Instance.useAIForNextText = false;
+        string text = GetPhrase(str);
+        DisplayDescription.Instance.AddToDescription(text, false);
+    }
+
     #endregion
     public static void Renew()
     {

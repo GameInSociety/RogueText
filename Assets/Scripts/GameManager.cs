@@ -17,18 +17,15 @@ public class GameManager : MonoBehaviour
     void Start()
     {
 
-        AdjectiveLoader.Instance.Load();
 
         PhraseLoader.Instance.Load();
 
         VerbLoader.Instance.Load();
         ItemLoader.Instance.Load();
 
-        CombinationLoader.Instance.Load();
+        FunctionListLoader.Instance.Load();
 
         ItemAppearInfoLoader.Instance.Load();
-        ItemSocketLoader.Instance.Load();
-        TileSocketLoader.Instance.Load();
 
         MapTexture.Instance.CreateMapFromTexture();
 

@@ -22,8 +22,8 @@ public class Story : MonoBehaviour
 
     void HandleSetParam()
     {
-        bool b = FunctionManager.GetParam(0) == "true";
-        SetParam(FunctionManager.GetParam(0), b);
+        bool b = Function.current.GetParam(0) == "true";
+        SetParam(Function.current.GetParam(0), b);
     }
 
     public bool GetParam(string key)

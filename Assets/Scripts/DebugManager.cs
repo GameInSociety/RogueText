@@ -12,12 +12,13 @@ public class DebugManager : MonoBehaviour
     [Space]
     public Item inventory;
 
+    public bool AI_Enabled = false;
+
     [Space]
     [Header("[FUNCTION]")]
     [Space]
-    public List<Item> function_Items;
-    public List<string> function_Params;
-    public List<Property> function_Properties;
+    public Function currentFunction;
+    public WorldEvent currentFunctionList;
 
     [Header("[TEXT]")]
     public bool colorWords = true;
@@ -25,15 +26,11 @@ public class DebugManager : MonoBehaviour
     [Header("[AVAILABLE ITEMS]")]
     public List<Item> availableItems = new List<Item>();
 
-    [Header("[WORLD EVENTS]")]
-    public List<WorldEvent> worldEvents = new List<WorldEvent>();
 
     private void Start()
     {
-        worldEvents = WorldEvent.list;
-        availableItems = AvailableItems.GetItems;
-        function_Params = FunctionManager.GetParams();
-        function_Properties = FunctionManager.pendingProps;
+        currentFunction = Function.current;
+        currentFunctionList = WorldEvent.current;
     }
 
     private static DebugManager _instance;

@@ -72,7 +72,7 @@ public class CraftManager : MonoBehaviour {
 
     private void Craft()
     {
-        CraftInfo craftInfo = craftInfos[FunctionManager.GetCurrentItem().dataIndex];
+        CraftInfo craftInfo = craftInfos[WorldEvent.current.GetCurrentItem().dataIndex];
         if ( craftInfo.requiredToolItemRows == null)
         {
             //Phrase.Write("vous ne pouvez pas fabriquer de " + Action.last.primaryItem.word.GetDescription(Word.Def.Undefined,Word.Preposition.De));
@@ -111,7 +111,7 @@ public class CraftManager : MonoBehaviour {
                     }
                 }
 
-                Inventory.Instance.AddItem(FunctionManager.GetCurrentItem());
+                Inventory.Instance.AddItem(WorldEvent.current.GetCurrentItem());
 
                 TextManager.Write("craft_sucess");
 

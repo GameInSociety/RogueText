@@ -29,7 +29,7 @@ public class ZombieManager : MonoBehaviour
 
         MapTexture.Instance.UpdateFeedbackMap();
 
-        TimeManager.GetInstance().onNextHour += HandleOnNextHour;
+        TimeManager.Instance.onNextHour += HandleOnNextHour;
     }
 
     private void HandleOnNextHour()

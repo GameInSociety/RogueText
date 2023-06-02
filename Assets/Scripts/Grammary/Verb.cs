@@ -10,16 +10,21 @@ public class Verb {
 	public int col = 0;
 
     private static List<Verb> _verbs = new List<Verb>();
-    public List<Combination> cellEvents = new List<Combination>();
-
-    public bool HasFunctionList(Item item)
+    public class Cell
     {
-        return cellEvents.Find(x => x.itemIndex == item.dataIndex) != null;
+        public int id;
+        public string content;
+    }
+    public List<Cell> cells = new List<Cell>();
+
+    public bool HasCell(Item item)
+    {
+        return cells.Find(x => x.id == item.dataIndex) != null;
     }
 
-    public string GetFunctionList(Item item)
+    public string GetCell(Item item)
     {
-        return cellEvents.Find(x => x.itemIndex == item.dataIndex).content;
+        return cells.Find(x => x.id == item.dataIndex).content;
     }
 
     public static List<Verb> GetVerbs
@@ -65,11 +70,13 @@ public class Verb {
     }
    
 
-    public void AddCombination (Combination combination)
+    public void AddCell (int id, string content)
     {
-        this.cellEvents.Add(combination);
+        Cell cell = new Cell();
+        cell.id = id;
+        cell.content = content;
+        cells.Add(cell);
     }
-
     
 
 	public Verb() {

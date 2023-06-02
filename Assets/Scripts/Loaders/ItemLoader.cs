@@ -149,8 +149,8 @@ public class ItemLoader : TextParser {
                 if(getFunctions)
                 {
                     Property lastProp = item.properties[item.properties.Count - 1];
-                    Property.Event lastEvent = lastProp.events[lastProp.events.Count - 1];
-                    lastEvent.functionList = lastEvent.functionList.Trim(new char[1] {'\n'});
+                    Property.Event lastEvent = lastProp.eventDatas[lastProp.eventDatas.Count - 1];
+                    lastEvent.functionListContent = lastEvent.functionListContent.Trim(new char[1] {'\n'});
                     
                     /*Debug.Log("<b>" + lastEvent.name + "</b>\n" +
                         lastEvent.content);*/
@@ -177,8 +177,8 @@ public class ItemLoader : TextParser {
             if (getFunctions)
             {
                 Property lastProp = item.properties[item.properties.Count - 1];
-                Property.Event lastEvent = lastProp.events[lastProp.events.Count - 1];
-                lastEvent.functionList += line + '\n';
+                Property.Event lastEvent = lastProp.eventDatas[lastProp.eventDatas.Count - 1];
+                lastEvent.functionListContent += line + '\n';
                 continue;
             }
 

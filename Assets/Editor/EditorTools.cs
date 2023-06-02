@@ -43,12 +43,12 @@ public class EditorTools : EditorWindow
 
         if (GUILayout.Button("Wait 1 hour"))
         {
-            TimeManager.GetInstance().Wait(1);
+            TimeManager.Instance.Wait(1);
         }
 
         if (GUILayout.Button("Wait 10 hours"))
         {
-            TimeManager.GetInstance().Wait(10);
+            TimeManager.Instance.Wait(10);
         }
     }
 
@@ -62,20 +62,20 @@ public class EditorTools : EditorWindow
             return;
         }
 
-        GUILayout.Label("Moves to next hours : " + TimeManager.GetInstance().currentMove + "/" + TimeManager.GetInstance().movesToNextHour, EditorStyles.label);
-        GUILayout.Label("Heure : " + TimeManager.GetInstance().timeOfDay, EditorStyles.label);
-        GUILayout.Label("Partie de la journée : " + TimeManager.GetInstance().currentPartOfDay, EditorStyles.label);
+        GUILayout.Label("Moves to next hours : " + TimeManager.Instance.currentMove + "/" + TimeManager.Instance.movesToNextHour, EditorStyles.label);
+        GUILayout.Label("Heure : " + TimeManager.Instance.timeOfDay, EditorStyles.label);
+        GUILayout.Label("Partie de la journée : " + TimeManager.Instance.currentPartOfDay, EditorStyles.label);
 
-        if (!TimeManager.GetInstance().raining)
+        if (!TimeManager.Instance.raining)
         {
-            GUILayout.Label("Il va pleuvoir dans " + TimeManager.GetInstance().hoursLeftToRain + " heures", EditorStyles.label);
+            GUILayout.Label("Il va pleuvoir dans " + TimeManager.Instance.hoursLeftToRain + " heures", EditorStyles.label);
         }
         else
         {
-            GUILayout.Label("Il va s'arrêter de pleuvoir dans " + TimeManager.GetInstance().hoursLeftToRain + " heures", EditorStyles.label);
+            GUILayout.Label("Il va s'arrêter de pleuvoir dans " + TimeManager.Instance.hoursLeftToRain + " heures", EditorStyles.label);
         }
 
-        GUILayout.Label("Jours passés : " + TimeManager.GetInstance().daysPasted, EditorStyles.label    );
+        GUILayout.Label("Jours passés : " + TimeManager.Instance.daysPasted, EditorStyles.label    );
 
         EditorGUILayout.EndToggleGroup();
     }

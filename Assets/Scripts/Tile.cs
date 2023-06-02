@@ -43,36 +43,22 @@ public class Tile : Item
 
         WriteContainedItems(true);
 
-        foreach (var worldEvent in WorldEvent.list)
-        {
-            if (!worldEvent.changed)
-            {
-                continue;
-            }
-            if (worldEvent.tile == this )
-            {
-                TextManager.Write("&the dog& is ", worldEvent.item);
-                worldEvent.property.WriteDescription();
-
-                worldEvent.changed = false;
-            }
-            else
-            {
-                //Debug.Log("(worldevent:" + worldEvent.eventName + "/" + worldEvent.property.name + ")" + worldEvent.item.debug_name + " is not on tile : " + debug_name);
-            }
-        }
 
         ConditionManager.GetInstance().WriteDescription();
 
         // time of day
-        TimeManager.GetInstance().WriteDescription();
+        TimeManager.Instance.WriteDescription();
 
         // weather
-        TimeManager.GetInstance().WriteWeatherDescription();
+        TimeManager.Instance.WriteWeatherDescription();
 
-        
+    }
 
-        
+    public override void WriteContainedItems_Start()
+    {
+        //base.WriteContainedItems_Start();
+
+        TextManager.Write("There's ");
     }
 
     public void TryGetSurroundingTiles()
@@ -166,8 +152,6 @@ public class Tile : Item
         {
             TextManager.Write("tile_goback", (Item)this);
         }
-
-
     }
 
     
@@ -212,7 +196,7 @@ public class Tile : Item
             return false;
         }
 
-        return GetCurrent.SameTypeAs(GetPrevious);
+        return Current.SameTypeAs(GetPrevious);
     }
     public Movable.Orientation OrientationToPlayer()
     {
@@ -268,7 +252,7 @@ public class Tile : Item
     }
 
     private static Tile _current;
-    public static Tile GetCurrent {
+    public static Tile Current {
         get
         {
             return _current;

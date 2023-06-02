@@ -4,12 +4,11 @@ using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class CombinationLoader : TextParser
+public class FunctionListLoader : TextParser
 {
-    public static CombinationLoader Instance;
+    public static FunctionListLoader Instance;
 
     int itemIndex = 0;
-
 
     private void Awake()
     {
@@ -46,16 +45,11 @@ public class CombinationLoader : TextParser
 
             Verb verb = Verb.GetVerbs[verbIndex];
 
-            string cell = cells[cellIndex];
+            string cellContent = cells[cellIndex];
 
-            if (cell.Length >= 2)
+            if (cellContent.Length >= 2)
             {
-                // verb out of range
-                Combination newCombination = new Combination();
-                newCombination.content = cell;
-                newCombination.itemIndex = item.dataIndex;
-
-                verb.AddCombination(newCombination);
+                verb.AddCell(item.dataIndex, cellContent);
             }
 
             ++verbIndex;
