@@ -10,7 +10,15 @@ public class Function_Interior : Function
 
         if ( GetParam(0) == "enter")
         {
-            Interior.Get(Player.Instance.coords).Enter();
+            Interior interior = WorldEvent.current.GetCurrentItem().interior;
+
+            if ( interior == null)
+            {
+                interior = new Interior();
+                interior.Genererate(WorldEvent.current.GetCurrentItem());
+            }
+
+            interior.Enter();
             return;
         }
 

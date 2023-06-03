@@ -132,10 +132,10 @@ public class MapTexture : MonoBehaviour {
                         // get tile type from color
                         TileSet.map.Add(coords, newTile);
 
-                        if (newTile.HasProperty("interior"))
+                        /*if (newTile.HasProperty("interior"))
                         {
                             Interior.NewInterior(newTile);
-                        }
+                        }*/
                         break;
                     }
                 }

@@ -58,6 +58,8 @@ public class Tile : Item
     {
         //base.WriteContainedItems_Start();
 
+
+
         TextManager.Write("There's ");
     }
 
@@ -140,7 +142,11 @@ public class Tile : Item
             return;
         }
 
-        if (SameAsPrevious())
+        if (ExactSameAs(GetPrevious))
+        {
+            TextManager.Write("tile_wait", (Item)this);
+        }
+        if (SameTypeAs(GetPrevious))
         {
             TextManager.Write("tile_continue", (Item)this);
         }
@@ -171,22 +177,6 @@ public class Tile : Item
         return TileSet.current.GetTile(targetCoords);
     }
     #endregion
-    /*public override void WriteContainedItems()
-    {
-        //base.WriteContainedItemDescription();
-
-        // i put "used" here because otherwise, the items woudl'nt generate
-        // because of items I put on load ( doors etc... )
-        if (!used)
-        {
-            TryGenerateItems();
-        }
-
-        /*Socket socket = new Socket();
-        socket.SetPosition("&on the dog (tile)&");
-
-        SocketManager.Instance.DescribeItems(GetContainedItems, null);
-    }*/
 
     #region info
     public static bool SameAsPrevious()

@@ -114,8 +114,6 @@ public class Function_Prop : Function
 
         targetItem.EnableProperty(prop_name);
 
-        Property.propertiesToDescribe.Add(property);
-
     }
 
     void CheckValue()
@@ -196,8 +194,6 @@ public class Function_Prop : Function
         string line = GetParam(1);
 
         Property newProperty = targetItem.CreateProperty(line);
-
-        Property.propertiesToDescribe.Add(newProperty);
     }
 
     void UpdateProp()
@@ -231,6 +227,5 @@ public class Function_Prop : Function
 
         property.Update(line);
 
-        Property.propertiesToDescribe.Add(property);
     }
 }

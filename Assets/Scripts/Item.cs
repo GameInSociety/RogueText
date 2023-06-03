@@ -15,6 +15,9 @@ public class Item
     public string debug_name = "debug name";
     public int debug_randomID;
 
+    // interior
+    public Interior interior = null;
+
     // pas encore utilisé mais à faire 
     public Info info;
     public struct Info
@@ -152,10 +155,20 @@ public class Item
 
     public bool SameTypeAs(Item otherItem)
     {
+        if ( otherItem == null)
+        {
+            return false;
+        }
+
         return otherItem.dataIndex == dataIndex;
     }
     public bool ExactSameAs(Item otherItem)
     {
+        if (otherItem == null)
+        {
+            return false;
+        }
+
         return otherItem == this;
     }
     #endregion
@@ -189,7 +202,7 @@ public class Item
     {
         foreach (var prop in item.properties)
         {
-            foreach (var pEvent in PropertyEvent.events)
+            foreach (var pEvent in PropertyEvent.list)
             {
                 if (pEvent.property == prop)
                 {
@@ -555,21 +568,13 @@ public class Item
 
         List<Group> itemGroups = groups.FindAll(x => !x.item.info.hide && !x.item.ContainsItems());
 
+      
         // Describe groups
         int index = 0;
         foreach (var group in itemGroups)
         {
             group.item.word.currentInfo.amount = group.amount;
             TextManager.Add("&a dog&", group.item);
-
-            List<Property> properties = group.item.properties.FindAll(x => x.changed);
-            foreach (var property in properties)
-            {
-                Debug.Log("property " + property.name + " of " + group.item.debug_name + " changed, desribing it");
-                TextManager.Write("It's " + property.GetDescription());
-                property.changed = false;
-            }
-
             TextManager.Add(TextUtils.GetLink(index, itemGroups.Count));
 
             ++index;

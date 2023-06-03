@@ -7,9 +7,7 @@ public class Interior {
 
 	public Coords coords;
 
-    public static Interior GetCurrent;
-
-	public static Dictionary<Coords, Interior> interiors= new Dictionary<Coords, Interior>();
+    public static Interior Current;
 
     public TileSet tileSet;
 
@@ -24,23 +22,8 @@ public class Interior {
 
     public static bool InsideInterior()
     {
-        return GetCurrent != null;
+        return Current != null;
     }
-
-    public static void NewInterior ( Tile tile)
-    {
-        Interior newInterior = new Interior();
-
-        newInterior.coords = tile.coords;
-        interiors.Add(tile.coords, newInterior);
-
-        //Debug.Log("addid interior of tile : " + tile.GetName() + " at " + tile.coords.ToString());
-    }
-
-	public static Interior Get (Coords coords)
-	{
-		return interiors[coords];
-	}
 
     public static void DescribeExterior()
     {
@@ -66,12 +49,7 @@ public class Interior {
     {
         TileSet.map.playerCoords = Player.Instance.coords;
 
-        GetCurrent = this;
-
-        if (tileSet == null)
-        {
-            Genererate();
-        }
+        Current = this;
 
         TileSet.SetCurrent(tileSet);
 
@@ -89,7 +67,7 @@ public class Interior {
     {
         Player.Instance.coords = TileSet.map.playerCoords;
 
-        GetCurrent = null;
+        Current = null;
 
         TileSet.SetCurrent(TileSet.map);
 
@@ -99,12 +77,19 @@ public class Interior {
     }
     #endregion
 
-    public void Genererate() {
+    public void Genererate(Item item) {
 
         /// create tile set 
 		tileSet = new TileSet();
         tileSet.width = TileSet.map.width;
         tileSet.height = TileSet.map.height;
+
+        List<Property> rooms = item.properties.FindAll(x => x.type == "room");
+
+        foreach (var room in rooms)
+        {
+            Debug.Log("room : " + room.name);
+        }
 
         // create room types
         List<string> tileNames = new List<string>

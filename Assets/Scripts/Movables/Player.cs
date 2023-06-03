@@ -17,7 +17,7 @@ public class Player : Movable {
     public Stats stats;
 
     // COORDS
-    private Coords startCoords = new Coords(9,3);
+    private Coords startCoords = new Coords(9,9);
     // beach 9 3
     // farm 9 9
 

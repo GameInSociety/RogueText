@@ -71,7 +71,7 @@ public class Function_Player : Function
 
         if (!targetItem.HasProperty("direction"))
         {
-            Interior.GetCurrent.Exit();
+            Interior.Current.Exit();
             return;
         }
 
@@ -81,7 +81,7 @@ public class Function_Player : Function
         if (Tile.Current.GetAdjacentTile(cardinal) == null)
         {
             // no tile, so exit interior
-            Interior.GetCurrent.Exit();
+            Interior.Current.Exit();
         }
         else
         {

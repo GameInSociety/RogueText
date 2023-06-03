@@ -72,12 +72,17 @@ public class WorldEvent
     public void Call()
     {
 
+
         if ( function_OnGoing)
         {
-            Debug.Log("a function is going, addinh to stack");
+            Debug.Log("stack function : " + name + " " + lines[0]);
+
             list.Add(this);
             return;
         }
+
+
+        Debug.Log("call function : " + name + " " + lines[0]);
 
         current = this;
 
@@ -104,12 +109,13 @@ public class WorldEvent
 
                 if (_break)
                 {
-                    Debug.Log("world event break");
-                    return;
+                    goto End;
                 }
             }
 
         }
+        
+        End:
 
         function_OnGoing = false;
         
@@ -121,7 +127,7 @@ public class WorldEvent
             return;
         }
 
-        Property.DescribeProperties();
+        PropertyEvent.DescribeProperties();
     }
 
     public void Parse(string cell)

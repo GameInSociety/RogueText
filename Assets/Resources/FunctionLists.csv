@@ -18,7 +18,7 @@ return",break,tear,"make
 craft",turn on,turn off,unlock,plant,unearth,water,dig,wait,empty,charge,yes
 verbe seul,DisplayHelp,,,,,"Write(you sleep on the floor)
 Condition(sleep, +1)
-Condition(health, -1)",,,,,"Player(move, relative, 0)",,,,,,,,,GOOUT,"Player(move, relative, 4)",,,,,,,,,,,Wait(1),,,
+Condition(health, -1)",,,,,"Player(move, relative, 0)",,,,,,,,,GOOUT,"Player(move, relative, 4)",,,,,,,,,,,"Time(wait, 1)",,,
 north,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 north east,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 east,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,

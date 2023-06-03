@@ -26,11 +26,14 @@ public class DebugManager : MonoBehaviour
     [Header("[AVAILABLE ITEMS]")]
     public List<Item> availableItems = new List<Item>();
 
+    public List<PropertyEvent> propertyEvents = new List<PropertyEvent>();
+
 
     private void Start()
     {
         currentFunction = Function.current;
         currentFunctionList = WorldEvent.current;
+        propertyEvents = PropertyEvent.list;
     }
 
     private static DebugManager _instance;

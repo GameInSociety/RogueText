@@ -23,8 +23,6 @@ public class Property
 
     public string eventContent;
 
-    public bool changed = false;
-
     //  the max of the potential value, set when  (0=10) 10 = max
     // MAX VALUE SHOULD BE IN THE PARTS
     // battery / 0 / 10
@@ -330,26 +328,7 @@ public class Property
     #endregion
 
 
-    public static List<Property> propertiesToDescribe= new List<Property>();
-    public static void DescribeProperties()
-    {
-        if (!propertiesToDescribe.Any())
-        {
-            return;
-        }
-        TextManager.Write("It's ");
-        int index = 0;
-        for (int i = 0; i < propertiesToDescribe.Count; i++)
-        {
-            TextManager.Add(propertiesToDescribe[i].GetDescription());
-            string link = TextUtils.GetLink(index, propertiesToDescribe.Count);
-            TextManager.Add(link);
-            index++;
-        }
-
-        propertiesToDescribe.Clear();
-
-    }
+    
 
 
 }
