@@ -1,7 +1,9 @@
+using Newtonsoft.Json.Bson;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 [System.Serializable]
 public class Function
@@ -14,17 +16,67 @@ public class Function
     private List<string> parameters = new List<string>();
     // the pending props of the function list
 
+    private List<Item> items = new List<Item>();
+
+    public List<Item> GetItems
+    {
+        get { return items; }
+    }
+    public Item GetItem(int i = 0)
+    {
+        if (i >= items.Count)
+        {
+            Debug.LogError("Function GetItem : outside range ");
+            return null;
+        }
+
+        return items[i];
+    }
+    public bool HasItem(int i)
+    {
+        return i < items.Count;
+    }
+
     public static string GetName(string line)
     {
+        Debug.Log("function : " + line);
+
         if (line.Contains("("))
         {
             return line.Remove(line.IndexOf('('));
         }
 
+
         return line;
     }
 
-    public virtual void Call()
+    public virtual void TryCall(List<Item> tmpItems)
+    {
+        items = new List<Item>(tmpItems);
+
+        if (GetParam(0).StartsWith('*'))
+        {
+            // targeting specific item
+            SetParam(0, GetParam(0).Remove(0, 1));
+
+            CurrentItems.FindAll(GetParam(0));
+
+            if (!CurrentItems.foundItem)
+            {
+                FunctionSequence.current.Break();
+                return;
+            }
+
+            TextManager.Write("You VERB_NAME &the dog&", GetItem());
+            items[0] = AvailableItems.Find(GetParam(0));
+            TextManager.Add(" &on the dog&", GetItem());
+            RemoveParam(0);
+        }
+
+        Call(tmpItems);
+    }
+
+    public virtual void Call(List<Item> tmpItems)
     {
         current = this;
     }
@@ -56,6 +108,17 @@ public class Function
         }
 
         parameters.RemoveAt(i);
+    }
+
+    public void SetParam(int i, string param)
+    {
+        if (i >= parameters.Count)
+        {
+            Debug.LogError("setting function params : out of range (" + i + "/" + parameters.Count + ")");
+            return;
+        }
+
+        parameters[i] = param;
     }
 
     public string GetParam(int i)

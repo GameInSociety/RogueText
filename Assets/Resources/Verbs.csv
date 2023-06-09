@@ -1,7 +1,5 @@
 help,how,,
-"go
-go to",where,"
-to",
+go,where,to,
 "open
 look inside",what,"*
 *",
@@ -57,4 +55,5 @@ dig,where or what,,
 wait,how long,,
 empty,what,,
 charge,what,,
+use,what,with,
 yes,no,maybe,

@@ -12,7 +12,7 @@ public class CoroutineManager : MonoBehaviour
 
             if (_instance == null)
             {
-                _instance = new CoroutineManager();
+                _instance = GameObject.FindObjectOfType <CoroutineManager>();
             }
 
             return _instance;
@@ -21,9 +21,15 @@ public class CoroutineManager : MonoBehaviour
 
     public delegate void OnWait();
     public OnWait onWait;
-    public void Wait(string func, float d)
+    public void Wait()
     {
-        CancelInvoke(func);
-        Invoke(func, d);
+        Invoke("Delay", 0f);
+    }
+    void Delay()
+    {
+        if (onWait != null)
+        {
+            onWait();
+        }
     }
 }

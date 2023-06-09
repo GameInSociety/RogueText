@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Function_Write : Function
 {
-    public override void Call()
+    public override void Call(List<Item> items)
     {
-        base.Call();
+        base.Call(items);
 
         if ( GetParam(0) == "_north")
         {
@@ -18,7 +18,7 @@ public class Function_Write : Function
 
         if ( GetParam(0) == "_tile")
         {
-            Tile.Current.Describe();
+            Tile.GetCurrent.Describe();
             return;
         }
 

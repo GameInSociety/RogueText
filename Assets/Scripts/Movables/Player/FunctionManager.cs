@@ -8,8 +8,8 @@ using UnityEngine;
 
 public class FunctionManager
 {
-    public List<WorldEvent> functionLists;
-    public WorldEvent CurrentFunctionList;
+    public List<FunctionSequence> functionLists;
+    public FunctionSequence CurrentFunctionList;
 
     public List<Function> functions = new List<Function>();
     public Function CurrentFunction

@@ -6,6 +6,9 @@ using UnityEngine;
 public class AppearInfo
 {
     public string name; // for debug porposes ( the inspector )
+
+    public bool usableAnytime = false;
+
     public List<ItemInfo> itemInfos= new List<ItemInfo>();
 
     [System.Serializable]

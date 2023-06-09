@@ -155,7 +155,6 @@ public class DisplayDescription : MonoBehaviour {
         uiText.text += "\n";*/
     }
 
-    List<string> newPhrases = new List<string>();
     public void AddToDescription(string str, bool doReturn)
     {
         // majuscule
@@ -167,13 +166,7 @@ public class DisplayDescription : MonoBehaviour {
             str = "\n" + str;
         }
 
-        /*if (newPhrases.Contains(str))
-        {
-            Debug.Log("the phrase " + str + " is already contained ?");
-            return;
-        }*/
-
-        newPhrases.Add(str);
+        text_target += str;
 
         //uiText.text += "\n____________________\n";
         scrollRect.verticalNormalizedPosition = 0f;
@@ -182,24 +175,28 @@ public class DisplayDescription : MonoBehaviour {
         Invoke("Delay", 0f);
     }
 
+    public void UseAI()
+    {
+        if (AI_Enabled())
+        {
+            useAIForNextText = true;
+        }
+    }
+
     public void Delay()
     {
-        string str = "";
-        foreach (var item in newPhrases)
+        if (useAIForNextText )
         {
-            str += item.ToString();
-        }
+            useAIForNextText = false;
 
-        if (useAIForNextText && AI_Enabled())
-        {
-            ChatGPT.Instance.SendReply(str);
+            DallE.Instance.SendImageRequest(text_target);
+
+            ChatGPT.Instance.SendReply(text_target);
         }
         else
         {
-            UpdateDescription(str);
+            UpdateDescription(text_target);
         }
-
-        newPhrases.Clear();
     }
 
     void HandleOnSendReply(string text)
@@ -209,7 +206,6 @@ public class DisplayDescription : MonoBehaviour {
 
     public void UpdateDescription(string text)
     {
-        Renew();
         text_target = text;
         voice_Text = text;
         playVoice = true;

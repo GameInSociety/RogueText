@@ -52,7 +52,7 @@ public class TextParser : MonoBehaviour
         UnityWebRequest www = UnityWebRequest.Get(tmpUrl);
         yield return www.SendWebRequest();
 
-        if (www.isNetworkError || www.isHttpError)
+        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
         {
             Debug.LogError("Error when requesting CSV file (responseCode:" + www.responseCode + ")");
             Debug.LogError(www.error);
@@ -113,7 +113,6 @@ public class TextParser : MonoBehaviour
         return new string(charArray);
     }
 
-    string alphabet = "abcdefghijklmnolqrsyuvwxyz";
     public string GetCellName (int row, int cell)
     {
         return GetCollumnName(cell) + (row+1);

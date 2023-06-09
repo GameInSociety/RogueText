@@ -7,6 +7,8 @@ public class DebugManager : MonoBehaviour
     [Header("[TILE]")]
     [Space]
     public Tile tile;
+    [Header("[VERB]")]
+    public Verb verb;
     [Space]
     [Header("[INVENTORY]")]
     [Space]
@@ -18,7 +20,7 @@ public class DebugManager : MonoBehaviour
     [Header("[FUNCTION]")]
     [Space]
     public Function currentFunction;
-    public WorldEvent currentFunctionList;
+    public FunctionSequence currentFunctionList;
 
     [Header("[TEXT]")]
     public bool colorWords = true;
@@ -26,14 +28,21 @@ public class DebugManager : MonoBehaviour
     [Header("[AVAILABLE ITEMS]")]
     public List<Item> availableItems = new List<Item>();
 
-    public List<PropertyEvent> propertyEvents = new List<PropertyEvent>();
+    [Header("[CURRENT ITEMS]")]
+    public List<Item> currentItems;
+
+    [Header("[ITEM EVENTS]")]
+    public List<ItemEvent> propertyEvents = new List<ItemEvent>();
 
 
     private void Start()
     {
         currentFunction = Function.current;
-        currentFunctionList = WorldEvent.current;
-        propertyEvents = PropertyEvent.list;
+        currentFunctionList = FunctionSequence.current;
+        propertyEvents = ItemEvent.list;
+        currentItems = CurrentItems.list;
+        availableItems = AvailableItems.list;
+        verb = Verb.GetCurrent;
     }
 
     private static DebugManager _instance;

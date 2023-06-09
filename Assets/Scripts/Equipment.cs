@@ -47,9 +47,9 @@ public class Equipment {
             Inventory.Instance.AddItem(GetEquipement(part));
         }
 
-        SetEquipment(part, WorldEvent.current.GetCurrentItem());
+        SetEquipment(part, item);
 
-        Item.Remove(WorldEvent.current.GetCurrentItem());
+        Item.Remove(item);
 
         TextManager.Write("/_bag_equip/" + part.ToString());
 
@@ -58,13 +58,15 @@ public class Equipment {
     public void Unequip(Part part)
     {
 
-        if ( GetEquipement(part) != WorldEvent.current.GetCurrentItem())
+        Item item = GetEquipement(part);
+
+        if ( item == null)
         {
             TextManager.Write("bag_nothingToEquip");
             return;
         }
 
-        Inventory.Instance.AddItem(WorldEvent.current.GetCurrentItem());
+        Inventory.Instance.AddItem(item);
 
         TextManager.Write("bag_unequip");
 

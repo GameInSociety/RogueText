@@ -90,7 +90,8 @@ public class ItemLoader : TextParser {
         // add to item list
         ItemManager.Instance.dataItems.Add(newItem);
 
-        newItem.info.stackable = cells[3].Contains("stackable");
+        newItem.info.differenciate = cells[3].Contains("differenciate");
+        newItem.info.invisible = cells[3].Contains("invisible");
 
         if ( cells.Count > 4)
         {
@@ -149,8 +150,8 @@ public class ItemLoader : TextParser {
                 if(getFunctions)
                 {
                     Property lastProp = item.properties[item.properties.Count - 1];
-                    Property.Event lastEvent = lastProp.eventDatas[lastProp.eventDatas.Count - 1];
-                    lastEvent.functionListContent = lastEvent.functionListContent.Trim(new char[1] {'\n'});
+                    Property.EventData lastEvent = lastProp.eventDatas[lastProp.eventDatas.Count - 1];
+                    lastEvent.cellContent = lastEvent.cellContent.Trim(new char[1] {'\n'});
                     
                     /*Debug.Log("<b>" + lastEvent.name + "</b>\n" +
                         lastEvent.content);*/
@@ -165,10 +166,10 @@ public class ItemLoader : TextParser {
             if (line.StartsWith('%'))
             {
                 string eventName = line;
-                Property.Event propertyEvent = new Property.Event();
-                propertyEvent.name = eventName.Remove(0, 1);
+                Property.EventData propertyEvent = new Property.EventData();
+                propertyEvent.eventName = eventName.Remove(0, 1);
                 Property lastProp = item.properties[item.properties.Count - 1];
-                lastProp.AddEvent(propertyEvent);
+                lastProp.AddEventData(propertyEvent);
                 getFunctions = true;
                 continue;
             }
@@ -177,8 +178,8 @@ public class ItemLoader : TextParser {
             if (getFunctions)
             {
                 Property lastProp = item.properties[item.properties.Count - 1];
-                Property.Event lastEvent = lastProp.eventDatas[lastProp.eventDatas.Count - 1];
-                lastEvent.functionListContent += line + '\n';
+                Property.EventData lastEvent = lastProp.eventDatas[lastProp.eventDatas.Count - 1];
+                lastEvent.cellContent += line + '\n';
                 continue;
             }
 

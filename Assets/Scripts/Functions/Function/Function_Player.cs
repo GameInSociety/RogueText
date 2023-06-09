@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Function_Player : Function
 {
-    public override void Call()
+    public override void Call(List<Item> items)
     {
-        base.Call();
+        base.Call(items);
 
         if ( GetParam(0) == "move")
         {
@@ -54,12 +54,11 @@ public class Function_Player : Function
     {
         Player.Orientation moveOrientation = (Player.Orientation)ParseParam(2);
         Player.Instance.Move(Player.OrientationToCardinal(moveOrientation));
-        Debug.Log("moving relative");
     }
 
     void ToTile()
     {
-        Item targetItem = WorldEvent.current.GetCurrentItem();
+        Item targetItem = GetItem();
         Tile tile = targetItem as Tile;
 
         Player.Instance.MoveToTile(tile);
@@ -67,25 +66,23 @@ public class Function_Player : Function
 
     void ToDoor()
     {
-        Item targetItem = WorldEvent.current.GetCurrentItem();
+        Item targetItem = GetItem();
 
-        if (!targetItem.HasProperty("direction"))
+        Property prop = targetItem.GetPropertyOfType("direction");
+        Movable.Orientation orientation = Coords.GetOrientationFromString(prop.name);
+
+        Debug.Log("target orientation = " + orientation);
+
+        if (Tile.GetCurrent.GetAdjacent(orientation) == null)
         {
-            Interior.Current.Exit();
-            return;
-        }
+            Debug.Log("exiting because no tile after");
 
-        Property prop = targetItem.GetProperty("direction");
-        Cardinal cardinal = Coords.GetCardinalFromString(targetItem.GetProperty("direction").value);
-
-        if (Tile.Current.GetAdjacentTile(cardinal) == null)
-        {
             // no tile, so exit interior
             Interior.Current.Exit();
         }
         else
         {
-            Player.Instance.Move(cardinal);
+            Player.Instance.Move(orientation);
         }
     }
 
@@ -98,7 +95,7 @@ public class Function_Player : Function
     void Equip()
     {
         Equipment.Part part = Equipment.GetPartFromString(GetParam(1));
-        Equipment.Instance.Equip(part, WorldEvent.current.GetCurrentItem());
+        Equipment.Instance.Equip(part, GetItem());
     }
 
     void Unequip()

@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
 
         FunctionListLoader.Instance.Load();
 
-        ItemAppearInfoLoader.Instance.Load();
+        AppearInfoLoader.Instance.Load();
 
         MapTexture.Instance.CreateMapFromTexture();
 

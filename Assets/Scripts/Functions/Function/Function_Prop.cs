@@ -1,106 +1,74 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 public class Function_Prop : Function
 {
-    public override void Call()
+    public override void Call(List<Item> items)
     {
-        base.Call();
+        base.Call(items);
 
-        if (GetParam(0) == "update")
+        string methodName = GetParam(0);
+        MethodInfo mi = this.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+        if ( mi == null)
         {
-            UpdateProp();
+            Debug.LogError("no function " + methodName + " in " + GetType().Name);
         }
 
-        if ( GetParam(0) == "create")
-        {
-            CreateProp();
-        }
-
-        if ( GetParam(0) == "remove")
-        {
-            RemoveProp();
-        }
-
-        if ( GetParam(0) == "check")
-        {
-            CheckProp();
-        }
-
-        if ( GetParam(0) == "check value")
-        {
-            CheckValue();
-        }
-
-        if ( GetParam(0) == "enable")
-        {
-            Enable();
-        }
+        mi.Invoke(this, null);
         
-        if (GetParam(0) == "disable")
-        {
-            Disable();
-        }
-
-        if ( GetParam(0) == "require")
-        {
-            Require();
-        }
-
     }
 
-    void Require()
+    void require()
     {
-        if (!WorldEvent.current.HasItem(1))
+        if (!HasItem(1))
         {
             // this will display a phrase "what do you want to charge the flashlight with"
             // hence, sustain verb and all so input follows
             // but many actions require to sustain things
             // so until je trouve quelque chose de mieux, je le mets partout
-            InputInfo.Instance.WaitForItem();
-            TextManager.Write("item_noSecondItem", WorldEvent.current.GetCurrentItem());
-            WorldEvent.current.Break();
+            CurrentItems.AskForSpecificItem("item_noSecondItem");
+            FunctionSequence.current.Break();
             return;
         }
 
         string prop_name = GetParam(1);
 
-        Item item = WorldEvent.current.GetItems().Find(x => x.HasProperty(prop_name));
+        Item item = GetItems.Find(x => x.HasProperty(prop_name));
 
         if (item == null)
         {
-            TextManager.Write("&the dog (override)& has no " + prop_name, WorldEvent.current.GetItem(1));
-            WorldEvent.current.Break();
+            TextManager.Write("&the dog (override)& has no " + prop_name, GetItem(1));
+            FunctionSequence.current.Break();
             return;
         }
 
         if (item.GetProperty(prop_name).HasInt())
         {
-            if (WorldEvent.current.GetItem(1).GetProperty(prop_name).GetInt() == 0)
+            if (GetItem(1).GetProperty(prop_name).GetInt() == 0)
             {
                 TextManager.Write("No more " + prop_name + " in &the dog (override)&", item);
-                WorldEvent.current.Break();
+                FunctionSequence.current.Break();
                 return;
             }
         }
 
-        WorldEvent.current.pendingProps.Add(item.GetProperty(prop_name));
-        WorldEvent.current.RemoveItem(item);
+        FunctionSequence.current.pendingProps.Add(item.GetProperty(prop_name));
     }
 
-    void Disable()
+    void disable()
     {
-        Item targetItem = WorldEvent.current.GetCurrentItem();
+        Item targetItem = GetItem();
 
         string line = GetParam(1);
         Property property = targetItem.properties.Find(x => x.name == line);
         targetItem.DisableProperty(line);
     }
 
-    void Enable()
+    void enable()
     {
-        Item targetItem = WorldEvent.current.GetCurrentItem();
+        Item targetItem = GetItem();
 
         string prop_name = GetParam(1);
 
@@ -116,9 +84,9 @@ public class Function_Prop : Function
 
     }
 
-    void CheckValue()
+    void checkValue()
     {
-        Item targetItem = WorldEvent.current.GetCurrentItem();
+        Item targetItem = GetItem();
 
         string propertyName = GetParam(1);
 
@@ -127,16 +95,18 @@ public class Function_Prop : Function
         if (property.GetInt() <= 0)
         {
             TextManager.Write("No " + property.name);
-            WorldEvent.current.Break();
+            FunctionSequence.current.Break();
             return;
         }
 
-        WorldEvent.current.pendingProps.Add(property);
+        FunctionSequence.current.pendingProps.Add(property);
     }
 
-    void CheckProp()
+    void check()
     {
-        Item targetItem = WorldEvent.current.GetCurrentItem();
+        Item targetItem = GetItem();
+
+        Debug.Log("check item : " + targetItem.debug_name);
 
         string property_line = GetParam(1);
 
@@ -147,7 +117,7 @@ public class Function_Prop : Function
             if (targetItem.HasEnabledProperty(property_line))
             {
                 TextManager.Write("It's " + property_line);
-                WorldEvent.current.Break();
+                FunctionSequence.current.Break();
                 return;
             }
 
@@ -159,8 +129,10 @@ public class Function_Prop : Function
 
         if (!targetItem.HasEnabledProperty(parts[0]))
         {
+            Debug.Log(targetItem.debug_name + " id : " + targetItem.debug_randomID + " dont have the prop " + parts[0]);
+
             TextManager.Write("It's not " + parts[0]);
-            WorldEvent.current.Break();
+            FunctionSequence.current.Break();
             return;
         }
 
@@ -171,61 +143,44 @@ public class Function_Prop : Function
             if (property.GetInt() <= int.Parse(parts[1]))
             {
                 TextManager.Write("No " + property.name);
-                WorldEvent.current.Break();
+                FunctionSequence.current.Break();
                 return;
             }
         }
     }
 
-    void RemoveProp()
+    void remove()
     {
-        Item targetItem = WorldEvent.current.GetCurrentItem();
+        Item targetItem = GetItem();
 
         string propertyName = GetParam(1);
 
         targetItem.DeleteProperty(propertyName);
 
+
     }
 
-    void CreateProp()
+    void create()
     {
-        Item targetItem = WorldEvent.current.GetCurrentItem();
+        Item targetItem = GetItem();
 
         string line = GetParam(1);
 
         Property newProperty = targetItem.CreateProperty(line);
     }
 
-    void UpdateProp()
+    void update()
     {
         Item targetItem;
-
-        // if starts with "*", change property of another item in tile, not the function item
-        if (GetParam(1).StartsWith('*'))
-        {
-            string itemName = GetParam(1).Remove(0, 1);
-            targetItem = ItemManager.Instance.FindInWorld(itemName);
-
-            if (targetItem == null)
-            {
-                WorldEvent.current.Break("No " + itemName);
-                return;
-            }
-
-            RemoveParam(1);
-        }
-        else
-        {
-            targetItem = WorldEvent.current.GetCurrentItem();
-        }
-
+      
         string targetProp = GetParam(1);
         string line = GetParam(2);
 
         // in the function type is not reffered, so go for part 0
-        Property property = targetItem.GetProperty(targetProp);
+        Property property = GetItem().GetProperty(targetProp);
 
         property.Update(line);
+
 
     }
 }

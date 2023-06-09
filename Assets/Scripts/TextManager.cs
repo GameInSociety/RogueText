@@ -26,7 +26,7 @@ public class TextManager
     }
     public static string GetPhrase(string key)
     {
-        // get random if no phrase return the key
+        // check if there's a key phrase ( ex : item_pickUp )
         string str = GetPhraseKey(key);
         
         // ITEM ( il faut le faire ici AUSSI, pour la compil du display description
@@ -147,9 +147,13 @@ public class TextManager
     }
     public static void Write(string str)
     {
-        DisplayDescription.Instance.useAIForNextText = true;
         string text = GetPhrase(str);
         DisplayDescription.Instance.AddToDescription(text, true);
+    }
+
+    public static void AddLink (int index, int l)
+    {
+        Add(TextUtils.GetLink(index, l));
     }
 
     public static void Add(string str, Item _overrideItem)
@@ -159,36 +163,9 @@ public class TextManager
     }
     public static void Add (string str)
     {
-        DisplayDescription.Instance.useAIForNextText = true;
         string text = GetPhrase(str);
         DisplayDescription.Instance.AddToDescription(text, false);
     }
-
-    // STRAIGHT FORWARD
-    public static void WriteST(string str, Item _overrideItem)
-    {
-        overrideItem = _overrideItem;
-        WriteST(str);
-    }
-    public static void WriteST(string str)
-    {
-        DisplayDescription.Instance.useAIForNextText = false;
-        string text = GetPhrase(str);
-        DisplayDescription.Instance.AddToDescription(text, true);
-    }
-
-    public static void AddST(string str, Item _overrideItem)
-    {
-        overrideItem = _overrideItem;
-        AddST(str);
-    }
-    public static void AddST(string str)
-    {
-        DisplayDescription.Instance.useAIForNextText = false;
-        string text = GetPhrase(str);
-        DisplayDescription.Instance.AddToDescription(text, false);
-    }
-
     #endregion
     public static void Renew()
     {

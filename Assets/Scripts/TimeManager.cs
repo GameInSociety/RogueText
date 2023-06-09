@@ -32,9 +32,6 @@ public class TimeManager : MonoBehaviour {
     public bool raining = false;
     public bool displayRainDescription = false;
 
-    public delegate void OnRaining();
-    public OnRaining onRaining;
-
     /// <summary>
     /// HOURS
     /// </summary>
@@ -117,7 +114,7 @@ public class TimeManager : MonoBehaviour {
         NextHour(hours);
 
         // pour l'instant un peu oblig� � cause des objets etc...
-        Tile.Current.Describe();
+        Tile.GetCurrent.Describe();
     }
 
     public void ChangeMovesPerHour(int i)
@@ -143,10 +140,7 @@ public class TimeManager : MonoBehaviour {
 
             if (raining)
             {
-                if (onRaining != null)
-                {
-                    onRaining();
-                }
+                ItemEvent.CallEvent("subRain");
             }
 
             if (timeOfDay == 24)
@@ -154,6 +148,8 @@ public class TimeManager : MonoBehaviour {
                 timeOfDay = 0;
                 NextDay();
             }
+
+            ItemEvent.CallEvent("subHours");
 
             if (onNextHour != null)
             {

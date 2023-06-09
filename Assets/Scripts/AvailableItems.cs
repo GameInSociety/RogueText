@@ -1,11 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public static class AvailableItems
 {
+    public static List<Item> list = new List<Item>();
 
+    public static Item FindInText(string text)
+    {
+        return Get.Find(x => x.ContainedInText(text));
+    }
     public static Item Find(string name)
     {
         return Get.Find(x=> x.HasWord(name));
@@ -27,22 +33,25 @@ public static class AvailableItems
 
     public static List<Item> Get
     {
-        get { 
-        
-            // old way, before add
-            // not used, but add isn't perfect so keep in around
+        get {
 
-            List<Item> list = new List<Item>();
+            list.Clear();
 
             list.Add(Inventory.Instance);
             list.AddRange(Inventory.Instance.GetContainedItems);
 
-            list.AddRange(Tile.Current.GetAllItems());
-            List<Item> functionItems = GetFunctionItems;
-            if (functionItems!= null)
+            if (FunctionSequence.current != null && FunctionSequence.current.tile != Tile.GetCurrent)
             {
-                list.AddRange(functionItems);
+                list.AddRange(FunctionSequence.current.tile.GetAllItems());
             }
+            else
+            {
+                list.AddRange(Tile.GetCurrent.GetAllItems());
+            }
+
+            list.AddRange(ItemManager.Instance.dataItems.FindAll(x => x.GetAppearInfo().usableAnytime));
+
+            //list.Remove(Tile.GetCurrent);
 
             DebugManager.Instance.availableItems = list;
 
@@ -54,12 +63,12 @@ public static class AvailableItems
     {
         get
         {
-            if (WorldEvent.current == null)
+            if (FunctionSequence.current == null)
             {
                 return null;
             }
 
-            return WorldEvent.current.tile.GetAllItems();
+            return FunctionSequence.current.tile.GetAllItems();
         }
     }
 }

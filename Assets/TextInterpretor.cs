@@ -6,7 +6,7 @@ public static class TextInterpretor
 {
     public static void InterpretText(string text)
     {
-        List<Item> list = ItemManager.Instance.dataItems.FindAll(x => x.ContainedInText(text));
+        /*List<Item> list = ItemManager.Instance.dataItems.FindAll(x => x.ContainedInText(text));
 
         List<Item> availableItems = AvailableItems.Get;
 
@@ -20,7 +20,7 @@ public static class TextInterpretor
         foreach (var item in uniqueList)
         {
             Debug.LogError("found item : " + item.debug_name + " and not in ai text");
-        }
+        }*/
 
     }
 }

@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Function_Time : Function
 {
-    public override void Call()
+    public override void Call(List<Item> items)
     {
-        base.Call();
+        base.Call(items);
 
         if ( GetParam(0) == "display")
         {

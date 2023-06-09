@@ -77,17 +77,8 @@ public class Player : Movable {
 
         base.Move(targetCoords);
 
-        // set preivous & current tile
-        
-        if ( Tile.Current != null)
-        {
-            Tile.Current.SetPrevious();
-        }
-
-        Tile.SetCurrent(TileSet.current.GetTile(coords));
-
         // generate tile items
-        Tile.Current.Describe();
+        TileSet.current.tiles[coords].Describe();
 
         MapTexture.Instance.UpdateFeedbackMap();
     }

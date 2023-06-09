@@ -8,12 +8,7 @@ public class ItemManager : MonoBehaviour {
 
     public List<Item> dataItems = new List<Item>();
 
-    public void DescribeItem()
-    {
-        WorldEvent.current.GetCurrentItem().WriteDescription();
-    }
-
-    public Item TryGetItem(string _name)
+    public Item GetDataItem(string _name)
     {
         _name = _name.ToLower();
 
@@ -38,36 +33,6 @@ public class ItemManager : MonoBehaviour {
 
         return item;
     }
-    public List<Item> FindAllByName(string str)
-    {
-        str = str.ToLower();
-
-        return dataItems.FindAll(x => x.word.text.StartsWith(str));
-    }
-    public Item FindByName(string str)
-    {
-        str = str.ToLower();
-        return dataItems.Find(x => x.word.text.StartsWith(str));
-
-    }
-    public Item FindInWorld(string str)
-    {
-        List<Item> items = FindItemsInWorld(str);
-
-        if ( items.Count == 0)
-        {
-            return null;
-        }
-        else
-        {
-            return items[0];
-        }
-    }
-
-    public List<Item> FindItemsInWorld(string item_name)
-    {
-        return AvailableItems.FindAll(item_name);
-    }
 
     public Tile CreateTile(Coords _coords, string tileName)
     {
@@ -79,50 +44,6 @@ public class ItemManager : MonoBehaviour {
         newTile.coords = _coords;
 
         return newTile;
-    }
-
-
-    private static List<Item> FindInTile(string str)
-    {
-        List<Item> tmpItems = new List<Item>();
-
-        // than return them direclty
-        if( tmpItems.Count > 0)
-        {
-            return tmpItems;
-        }
-
-        // is the item the exact same tile as the one we're in ?
-        if (WorldEvent.current.tile.HasWord(str))
-        {
-            tmpItems.Add(WorldEvent.current.tile);
-            return tmpItems;
-        }
-
-        foreach (var item in WorldEvent.current.tile.GetContainedItems.FindAll(x => x.word.Compare(str)))
-        {
-            tmpItems.Add(item);
-        }
-
-        /// ADJECTIVES ///
-        return tmpItems;
-    }
-
-
-    public Item GetDataItem(string _name)
-    {
-        Item item = TryGetItem(_name);
-
-        if (item == null)
-        {
-            Debug.LogError("couldn't find item : " + _name);
-        }
-        else
-        {
-        }
-
-        return item;
-
     }
 
     public Item CreateInTile(Tile tile, string itemName)

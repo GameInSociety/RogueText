@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class Function_Interior : Function
 {
-    public override void Call()
+    public override void Call(List<Item> items)
     {
-        base.Call();
+        base.Call(items);
 
         if ( GetParam(0) == "enter")
         {
-            Interior interior = WorldEvent.current.GetCurrentItem().interior;
+            Interior interior = GetItem().interior;
 
             if ( interior == null)
             {
                 interior = new Interior();
-                interior.Genererate(WorldEvent.current.GetCurrentItem());
+                interior.Genererate(GetItem());
             }
 
             interior.Enter();
@@ -24,7 +24,19 @@ public class Function_Interior : Function
 
         if ( GetParam(0) == "describeOut")
         {
-            Interior.DescribeExterior();
+            Cardinal cardinal = Coords.GetCardinalFromString(GetItem().GetProperty("direction").value);
+            Coords targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
+
+            Tile tile = TileSet.map.GetTile(targetCoords);
+
+            if (tile == null)
+            {
+                TextManager.Write("The view is blocked by some bushes");
+            }
+            else
+            {
+                TextManager.Write("tile_describeExterior", tile);
+            }
             return;
         }
     }

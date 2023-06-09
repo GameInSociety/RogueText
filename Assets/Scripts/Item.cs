@@ -1,9 +1,11 @@
 ﻿using DG.Tweening.Core.Easing;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Networking.Types;
@@ -18,29 +20,32 @@ public class Item
     // interior
     public Interior interior = null;
 
+    public AppearInfo GetAppearInfo()
+    {
+        return AppearInfo.GetAppearInfo(dataIndex);
+    }
+
     // pas encore utilisé mais à faire 
     public Info info;
+    [System.Serializable]
     public struct Info
     {
         public Info(Info copy)
         {
             generatedItems = copy.generatedItems;
             discovered = copy.discovered;
-            usableAnytime = copy.usableAnytime;
-            stackable = copy.stackable;
-            hide = copy.hide;
+            differenciate = copy.differenciate;
+            invisible = copy.invisible;
+            def = copy.def;
         }
 
-        public bool hide;
+        public bool invisible;
         public bool generatedItems;
         public bool discovered;
-        public bool usableAnytime;
-        public bool stackable;
-    }
+        public bool differenciate;
 
-    // va rendre les liste d'items obsolètes
-    // void "no item list" dans la feuille de routes
-    //public List<Socket> sockets = new List<Socket>();
+        public bool def;
+    }
 
     /// <summary>
     /// declaration
@@ -51,13 +56,6 @@ public class Item
     /// WORD
     /// </summary>
     public int currentWordIndex = 0;
-    public Word word
-    {
-        get
-        {
-            return words[currentWordIndex];
-        }
-    }
     public List<Word> words = new List<Word>();
 
     /// <summary>
@@ -65,15 +63,10 @@ public class Item
     /// </summary>
     public List<Property> properties = new List<Property>();
 
-    public Item()
-    {
-
-    }
-
-    #region container
+    #region contained items
     public bool ContainsItems()
     {
-        bool b = GetContainedItems != null && GetContainedItems.Count > 0;
+        bool b = mContainedItems != null && mContainedItems.Count > 0;
         return b;
     }
     public virtual void TryGenerateItems()
@@ -91,7 +84,7 @@ public class Item
     {
         info.generatedItems = true;
 
-        foreach (var itemInfo in AppearInfo.GetAppearInfo(dataIndex).itemInfos)
+        foreach (var itemInfo in GetAppearInfo().itemInfos)
         {
             for (int i = 0; i < itemInfo.amount; i++)
             {
@@ -114,43 +107,45 @@ public class Item
         return item;
     }
 
-
     public void AddItem(Item item)
     {
-        GetContainedItems.Add(item);
+        if ( mContainedItems == null)
+        {
+            mContainedItems = new List<Item>();
+        }
+
+        mContainedItems.Add(item);
     }
 
     // remove item
     public void RemoveItem(Item item)
     {
-        GetContainedItems.Remove(item);
-    }
-    // item row : wtf ? le craft system est pas ouf
-    public void RemoveItem(int itemRow)
-    {
-        RemoveItem(GetContainedItems.Find(x => x.dataIndex == itemRow));
-    }
-    //
-
-    public Item GetItem(Item item)
-    {
-        return GetContainedItems.Find(x => x == item);
+        mContainedItems.Remove(item);
     }
     public Item GetItem(string itemName)
     {
-        Item tmpItem = GetContainedItems.Find(x => x.word.text == itemName);
+       if (mContainedItems == null)
+            return null;
+
+        Item tmpItem = mContainedItems.Find(x => x.HasWord(itemName));
 
         return tmpItem;
     }
 
     public bool HasItem(string itemName)
     {
-        return GetContainedItems.Find(x => x.word.text == itemName) != null;
+        if (mContainedItems == null)
+            return false;
+
+        return mContainedItems.Find(x => x.word.text == itemName) != null;
     }
 
     public bool HasItem(Item item)
     {
-        return GetContainedItems.Contains(item);
+        if (mContainedItems == null)
+            return false;
+
+        return mContainedItems.Contains(item);
     }
 
     public bool SameTypeAs(Item otherItem)
@@ -166,69 +161,166 @@ public class Item
     {
         if (otherItem == null)
         {
+            Debug.Log("no previous tile");
             return false;
         }
 
         return otherItem == this;
     }
-    #endregion
-
-
-    ///
+    #region socket
     /// <summary>
-    /// TOOLS
+    /// DESCRIPTION
     /// </summary>
-    ///
-
-
-    public void PickUp()
+    [SerializeField]
+    private List<Item> mContainedItems;
+    public List<Item> GetContainedItems
     {
-        // weight paused for clarity and because may become a property
-        /*if (Inventory.Instance.GetContainedItemWeight() + weight > Inventory.Instance.maxWeight)
+        get
         {
-            TextManager.WritePhrase("inventory_TooHeavy");
-            return;
-        }*/
+            if (mContainedItems == null)
+            {
+                mContainedItems = new List<Item>();
+            }
 
-        Remove(this);
-
-        Inventory.Instance.AddItem(this);
-
-        TextManager.Write("inventory_PickUp", this);
+            return mContainedItems;
+        }
     }
 
-    #region remove & destroy
-    public static void Destroy(Item item)
+    static int depth = -1;
+    static int tDepth = 0;
+    public virtual void WriteContainedItems()
     {
-        foreach (var prop in item.properties)
+        // Get Groups for description
+        List<Group> allGroups = new List<Group>();
+        foreach (var item in mContainedItems)
         {
-            foreach (var pEvent in PropertyEvent.list)
+            Group group = allGroups.Find(x => x.item.dataIndex == item.dataIndex);
+
+            if (group == null)
             {
-                if (pEvent.property == prop)
+                // Create new group
+                Group newGroup = new Group();
+                newGroup.amount = 1;
+                newGroup.item = item;
+                allGroups.Add(newGroup);
+                item.info.def = false;
+                continue;
+
+            }
+
+            // Found group, adding amount
+            ++group.amount;
+
+        }
+
+        List<Group> containerGroups = allGroups.FindAll(x => x.item.ContainsItems());
+        List<Group> itemGroups = allGroups.FindAll(x => !x.item.ContainsItems() && !x.item.info.invisible);
+
+        if (containerGroups.Count > 0 && containerGroups.First().item.info.invisible == false)
+        {
+            itemGroups.Insert(0, containerGroups.First());
+        }
+
+        if (itemGroups.Count > 0)
+        {
+            if (!Tile.GetCurrent.saidTheres)
+            {
+                Tile.GetCurrent.saidTheres = true;
+                TextManager.Write("there's ", this);
+            }
+            else
+            {
+                TextManager.Write("");
+            }
+
+            // Describe groups
+            int index = 0;
+            foreach (var group in itemGroups)
+            {
+                group.item.word.currentInfo.amount = group.amount;
+                if (group.item.info.def)
                 {
-                    pEvent.Unsubscribe();
+                    TextManager.Add("&the dog&", group.item);
+                }
+                else
+                {
+                    TextManager.Add("&a dog&", group.item);
+                    group.item.info.def = true;
+                }
+                TextManager.AddLink(index, itemGroups.Count);
+
+                ++index;
+            }
+
+            if (this != Tile.GetCurrent && itemGroups.Count > 0)
+            {
+                if (info.def)
+                {
+                    TextManager.Add(" &on the dog&", this);
+                }
+                else
+                {
+                    TextManager.Add(" &on a dog&", this);
+                    info.def = true;
                 }
             }
         }
 
-        Remove(item);
-    }
-    public static void Remove(Item targetItem)
-    {
-        // then in tile
-        foreach (var item in AvailableItems.Get)
+        foreach (var group in containerGroups)
         {
-            if (item.HasItem(targetItem))
+            if (group.item.ContainsItems())
             {
-                item.RemoveItem(targetItem);
-                return;
+                group.item.WriteContainedItems();
             }
         }
-        Debug.LogError("removing item : " + targetItem.word.text + " failed : not in container, tile or inventory");
+
+        info.discovered = true;
+
+    }
+
+    [System.Serializable]
+    public class Group
+    {
+        public Item item;
+        public int amount;
+    }
+    // description depth here
+    public List<Item> GetAllItems()
+    {
+        List<Item> items = new List<Item>
+        {
+            this
+        };
+
+        if (mContainedItems == null)
+        {
+            return items;
+        }
+
+        foreach (var item in mContainedItems)
+        {
+            items.AddRange(item.GetAllItems());
+
+            /*if ( item.info.available)
+            {
+                items.AddRange(item.GetAllItems());
+            }*/
+        }
+
+        return items;
     }
     #endregion
+    #endregion
+
 
     #region search
+    public Word word
+    {
+        get
+        {
+            return words[currentWordIndex];
+        }
+    }
     public bool HasWord(string _text)
     {
         // find singular
@@ -252,119 +344,54 @@ public class Item
 
         return false;
     }
-
-    public bool IsAnItem(string item_name)
+    public bool ContainedInText(string text)
     {
-        return ItemManager.Instance.TryGetItem(item_name) != null;
-    }
+        foreach (var word in words)
+        {
+            // find singular
+            string bound = @$"\b{word.text}\b";
+            if (Regex.IsMatch(text, bound))
+            {
+                word.defaultNumber = Word.Number.Singular;
+                return true;
+            }
 
+            bound = @$"\b{word.GetPlural()}\b";
+            if (Regex.IsMatch(text, bound))
+            {
+                word.defaultNumber = Word.Number.Plural;
+                return true;
+            }
+        }
+
+
+        return false;
+    }
     #endregion
 
 
-    #region actions
-    public bool CanBeDescribed()
-    {
-        int count = 0;
-
-        if (HasProperties())
-        {
-            ++count;
-        }
-
-        foreach (var verb in Verb.GetVerbs)
-        {
-            foreach (var cell in verb.cells)
-            {
-                if (cell.id == dataIndex)
-                    ++count;
-
-            }
-
-        }
-        return count != 0;
-    }
-
-    public void WriteActions()
-    {
-        string str = "You can ";
-
-        List<Verb> verbList = new List<Verb>();
-
-        foreach (var verb in Verb.GetVerbs)
-        {
-            foreach (var cell in verb.cells)
-            {
-                if (cell.id == dataIndex)
-                {
-                    verbList.Add(verb);
-                }
-
-            }
-        }
-
-        for (int i = 0; i < verbList.Count; i++)
-        {
-            str += verbList[i].GetName;
-            if (!string.IsNullOrEmpty(verbList[i].GetPreposition))
-            {
-                str += " " + verbList[i].GetPreposition;
-            }
-
-            str += " it";
-
-            str += TextUtils.GetLink(i, verbList.Count);
-
-        }
-
-
-        TextManager.Write(str);
-    }
-
+    #region properties
+    /// properties /// <summary>
+    /// properties ///
+    /// </summary>
     public void WriteDescription()
     {
         if (HasProperties())
         {
             WriteProperties();
         }
-        else
+
+        if (ContainsItems())
         {
-            //WriteActions();
+            WriteContainedItems();
         }
 
-        //TryGenerateItems();
-
-        WriteContainedItems();
-
-    }
-    public void WriteProperties()
-    {
-        string str = "";
-
-        int enabledPropCount = GetEnabledProperties().Count;
-
-        Debug.Log("on item : " + debug_name + " property count : " + enabledPropCount);
-
-        if (enabledPropCount > 0)
+        if (!HasProperties() && !ContainsItems())
         {
-            TextManager.Write("&the dog& is ", this);
-
-            for (int i = 0; i < enabledPropCount; i++)
-            {
-                Property property = GetEnabledProperties()[i];
-
-                TextManager.Add(property.GetDescription());
-                TextManager.Add(TextUtils.GetLink(i, enabledPropCount));
-
-            }
-
-
+            TextManager.Write("It's just &a dog&", this);
         }
     }
-    #endregion
 
-    /// properties ///
-
-    #region properties
     // adds whole new, simple property
     public Property CreateProperty(string line)
     {
@@ -396,19 +423,15 @@ public class Item
 
         if (newProperty.eventDatas != null)
         {
-            foreach (var e in newProperty.eventDatas)
+            foreach (var eventData in newProperty.eventDatas)
             {
-                // il faut pas assigner la tile actuelle ici, trouver un autre moyen
-                string cell = newProperty.FindEvent(e.name).functionListContent;
+                // juste un objet par evetn en fait
+                ItemEvent itemEvent = ItemEvent.list.Find(x => x.item == this);
 
-                WorldEvent f = WorldEvent.New(
-                    e.name,
-                    cell,
-                    new List<Item>() { this },
-                    Tile.Current
-                    );
-
-                PropertyEvent.New(e.name, f, newProperty);
+                if (itemEvent == null)
+                {
+                    itemEvent = ItemEvent.New(this, Tile.GetCurrent);
+                }
             }
         }
 
@@ -443,6 +466,13 @@ public class Item
     public bool HasProperty(string name)
     {
         Property property = properties.Find(x => x.name == name);
+
+        return property != null;
+    }
+
+    public bool HasPropertyOfType(string type)
+    {
+        Property property = properties.Find(x => x.type == type);
 
         return property != null;
     }
@@ -493,168 +523,62 @@ public class Item
     {
         return GetContainedItems.Find(x => x.HasProperty(propertyName)) != null;
     }
+
+    public void WriteProperties()
+    {
+        int enabledPropCount = GetEnabledProperties().Count;
+
+        if (enabledPropCount > 0)
+        {
+            TextManager.Write("&the dog& is ", this);
+
+            for (int i = 0; i < enabledPropCount; i++)
+            {
+                Property property = GetEnabledProperties()[i];
+
+                TextManager.Add(property.GetDescription());
+                TextManager.AddLink(i, enabledPropCount);
+
+            }
+        }
+    }
     #endregion
 
-    public static Item GetItemOfType(string type)
-    {
-        Item[] items = ItemManager.Instance.dataItems.FindAll(x => x.HasProperty(type)).ToArray();
-
-        Item item = items[Random.Range(0, items.Length)];
-
-        return item;
-    }
-
-    #region socket
-    public string GetRelativePosition()
-    {
-        Cardinal cardinal = Coords.GetCardinalFromString(GetProperty("direction").value);
-
-        Movable.Orientation orientation = Movable.CardinalToOrientation(cardinal);
-
-        return Coords.GetOrientationWord(orientation);
-    }
-
-
+    ///
     /// <summary>
-    /// DESCRIPTION
+    /// TOOLS
     /// </summary>
+    ///
 
-    [SerializeField]
-    private List<Item> mContainedItems;
-    public List<Item> GetContainedItems
+    #region remove & destroy
+    public static void Destroy(Item item)
     {
-        get
-        {
-            if (mContainedItems == null)
-            {
-                mContainedItems = new List<Item>();
-            }
+        Debug.Log("destroying item : " + item.debug_name);
 
-            return mContainedItems;
+        ItemEvent.Remove(item);
+
+        foreach (var prop in item.properties)
+        {
+            prop.Destroy();
         }
+
+        Remove(item);
     }
-
-    public virtual void WriteContainedItems(bool describeContainers = false)
+    public static void Remove(Item targetItem)
     {
-        if (!ContainsItems())
+        // then in tile
+        foreach (var item in AvailableItems.Get)
         {
-            return;
-        }
-
-        WriteContainedItems_Start();
-
-        // Get Groups for description
-        List<Group> groups = new List<Group>();
-        foreach (var item in GetContainedItems)
-        {
-            Group group = groups.Find(x => x.item.dataIndex == item.dataIndex && !x.item.ContainsItems());
-
-            if (group == null)
+            if (item.HasItem(targetItem))
             {
-
-                // Create new group
-                Group newGroup = new Group();
-                newGroup.amount = 1;
-                newGroup.item = item;
-                groups.Add(newGroup);
-                continue;
-
-            }
-
-            // Found group, adding amount
-            ++group.amount;
-
-        }
-
-        List<Group> itemGroups = groups.FindAll(x => !x.item.info.hide && !x.item.ContainsItems());
-
-      
-        // Describe groups
-        int index = 0;
-        foreach (var group in itemGroups)
-        {
-            group.item.word.currentInfo.amount = group.amount;
-            TextManager.Add("&a dog&", group.item);
-            TextManager.Add(TextUtils.GetLink(index, itemGroups.Count));
-
-            ++index;
-        }
-
-
-        List<Group> containerGroups = groups.FindAll(x => !x.item.info.hide && describeContainers && x.item.ContainsItems());
-
-        foreach (var group in containerGroups)
-        {
-            if (describeContainers && group.item.ContainsItems())
-            {
-                group.item.WriteContainedItems();
+                item.RemoveItem(targetItem);
+                return;
             }
         }
-
-        info.discovered = true;
-    }
-
-    public virtual void WriteContainedItems_Start()
-    {
-        if (info.discovered)
-        {
-            TextManager.Write("&on the dog&, ", this);
-        }
-        else
-        {
-            TextManager.Write("&on a dog&, ", this);
-        }
-    }
-
-    [System.Serializable]
-    public class Group
-    {
-        public Item item;
-        public int amount;
+        Debug.LogError("removing item : " + targetItem.word.text + " failed : not in container, tile or inventory");
     }
     #endregion
 
-    public List<Item> GetAllItems()
-    {
-        List<Item> items = new List<Item>();
-
-        items.Add(this);
-
-        foreach (var item in GetContainedItems)
-        {
-            items.AddRange(item.GetAllItems());
-
-            /*if ( item.info.available)
-            {
-                items.AddRange(item.GetAllItems());
-            }*/
-        }
-
-        return items;
-    }
-
-    public bool ContainedInText(string text)
-    {
-        foreach (var word in words)
-        {
-            // find singular
-            string bound = @$"\b{word.text}\b";
-            if (Regex.IsMatch(text, bound))
-            {
-                word.defaultNumber = Word.Number.Singular;
-                return true;
-            }
-
-            bound = @$"\b{word.GetPlural()}\b";
-            if (Regex.IsMatch(text, bound))
-            {
-                word.defaultNumber = Word.Number.Plural;
-                return true;
-            }
-        }
-
-
-        return false;
-    }
+    
 
 }

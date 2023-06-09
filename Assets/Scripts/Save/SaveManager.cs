@@ -51,7 +51,6 @@ public class SaveManager : MonoBehaviour
 
 	public void LoadGame () {
 
-        int tileSetID = 0;
 
         /*for (int x = 0; x < WorldGeneration.Instance.mapScale; x++)
         {

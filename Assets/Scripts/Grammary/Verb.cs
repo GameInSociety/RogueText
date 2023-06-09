@@ -102,25 +102,44 @@ public class Verb {
         return false;
     }
 
-	public static Verb Find ( string input_text ) {
+    private static Verb current;
+    public static Verb GetCurrent
+    {
+        get
+        {
+            return current;
+        }
+    }
 
+    public static void FindVerbInText(string text)
+    {
+        Verb verb = Get(text);
+        SetCurrent(verb);
+    }
+    public static void SetCurrent(Verb verb)
+    {
+        DebugManager.Instance.verb = verb;
+        current = verb;
+    }
 
-        List<Verb> possibleVerbs = new List<Verb>();
+	public static Verb Get ( string str ) {
+
+        List<Verb> list = new List<Verb>();
 
         int smallestIndex = 300;
 
         foreach (var verb in GetVerbs) {
 
             // get all the verbs
-            if (verb.FoundInText(input_text))
+            if (verb.FoundInText(str))
             {
-                int index = input_text.IndexOf(verb.GetName);
+                int index = str.IndexOf(verb.GetName);
                 if (index < smallestIndex)
                 {
-                    possibleVerbs.Clear();
+                    list.Clear();
                     smallestIndex = index;
                 }
-                possibleVerbs.Add(verb);
+                list.Add(verb);
                 goto NextVerb;
             }
 
@@ -129,29 +148,25 @@ public class Verb {
 
 		}
 
-        // ne marche pas trop 
-        // exemple "look at watering can", il prend pense que c'est "water watering can"
-        // donc on passe à la position du mot dans la phrase
-
         // list of verb found in the phrase
-        if ( possibleVerbs.Count > 0)
+        if ( list.Count > 0)
         {
-            return possibleVerbs[0];
-
-            /*Verb longestVerb = possibleVerbs[0];
-
-            // find longest verb
-            foreach (var verb in possibleVerbs)
-            {
-                if ( verb.GetName.Length > longestVerb.GetName.Length)
-                {
-                    longestVerb = verb;
-                }
-            }
-
-            return longestVerb;*/
+            return list[0];
         }
 
         return null;
-	}
+    }
+
+    public static bool HasCurrent
+    {
+        get
+        {
+            return current != null;
+        }
+    }
+
+    public static void Clear()
+    {
+        current = null;
+    }
 }

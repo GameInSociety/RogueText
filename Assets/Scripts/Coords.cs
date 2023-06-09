@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [System.Serializable]
@@ -137,21 +138,26 @@ public struct Coords
             }
         }
 
-        switch (str)
-        {
-            case "north":
-                return Cardinal.north;
-            case "south":
-                return Cardinal.south;
-            case "east":
-                return Cardinal.east;
-            case "west":
-                return Cardinal.west;
-        }
-
         Debug.LogError("no cardinal found in " + str);
 
         return Cardinal.None;
+
+    }
+
+    public static Movable.Orientation GetOrientationFromString(string str)
+    {
+        foreach (var item in System.Enum.GetValues(typeof(Movable.Orientation)))
+        {
+            if (item.ToString() == str)
+            {
+                return (Movable.Orientation)item;
+            }
+        }
+
+
+        Debug.LogError("no orientation found in " + str);
+
+        return Movable.Orientation.None;
 
     }
 

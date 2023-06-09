@@ -25,25 +25,6 @@ public class Interior {
         return Current != null;
     }
 
-    public static void DescribeExterior()
-    {
-        Cardinal cardinal = Coords.GetCardinalFromString(WorldEvent.current.GetCurrentItem().GetProperty("direction").value);
-        Coords targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
-
-        Tile tile = TileSet.map.GetTile(targetCoords);
-
-        if ( tile == null)
-        {
-            TextManager.Write("The view is blocked by some bushes");
-        }
-        else
-        {
-            TextManager.Write("tile_describeExterior", tile);
-        }
-
-
-    }
-
     #region enter / exit
     public void Enter()
     {
@@ -128,8 +109,9 @@ public class Interior {
                 // pas ouf, ça changer avec la description des propriétes
                 doorItem.CreateProperty("dir / direction / south");*/
 
-                newHallwayTile.CreateInItem("south");
-                newHallwayTile.GetItem("south").CreateInItem("door");
+                Item dirItem = newHallwayTile.CreateInItem("back");
+                Item tileDoor = dirItem.CreateInItem("door");
+                tileDoor.CreateProperty("direction / back");
             }
 
             // check if room appears

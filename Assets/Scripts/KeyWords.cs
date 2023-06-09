@@ -19,8 +19,6 @@ public static class KeyWords
         TARGET_ORIENTATION
     }
 
-    public static Socket socket;
-
     public static string ReplaceKeyWords(string str)
     {
         foreach (KeyWord keyWord in Enum.GetValues(typeof(KeyWord)))
@@ -46,13 +44,26 @@ public static class KeyWords
                 
                 return "";
             case KeyWord.VERB_NAME:
-                return InputInfo.Instance.verb.GetName;
+
+                if ( Verb.GetCurrent == null)
+                {
+                    return "ERROR(NULLVERB)";
+                }
+
+                if (Verb.GetCurrent == null)
+                {
+                    return "ERROR(NULLVERB)";
+                }
+                return Verb.GetCurrent.GetName;
             case KeyWord.VERB_QUESTION:
-                return InputInfo.Instance.verb.question;
+                if (Verb.GetCurrent == null)
+                {
+                    return "ERROR(NULLVERB)";
+                }
+                return Verb.GetCurrent.question;
             case KeyWord.VERB_PREPOSITION:
-                return InputInfo.Instance.verb.GetPreposition;
-            case KeyWord.SOCKET_POS:
-                return socket.GetPositionText();
+                
+                return Verb.GetCurrent.GetPreposition;
 
             default:
                 Debug.LogError("no text for KEY WORD " + keyWord.ToString());

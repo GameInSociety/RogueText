@@ -28,8 +28,48 @@ public class Property
     // battery / 0 / 10
     public int value_max = -1;
 
-    public delegate void OnEmptyValue();
-    public OnEmptyValue onEmptyValue;
+    public static List<Property> updatedProperties = new List<Property>();
+
+    static Item describeItem;
+
+    public static void DescribeUpdated(Item item = null)
+    {
+        describeItem = item;
+        CoroutineManager.Instance.onWait += Delay;
+        CoroutineManager.Instance.Wait();
+    }
+
+    public static void Delay()
+    {
+        CoroutineManager.Instance.onWait -= Delay;
+
+        updatedProperties.RemoveAll(x => x.destroy);
+
+        if (updatedProperties.Count == 0)
+        {
+            return;
+        }
+
+        if (describeItem == null)
+        {
+            TextManager.Write("It's ");
+        }
+        else
+        {
+            TextManager.Write("&the dog& is ", describeItem);
+        }
+
+
+        int index = 0;
+        foreach (var prop in updatedProperties)
+        {
+            TextManager.Add(prop.GetDescription());
+            TextManager.AddLink(index, updatedProperties.Count);
+            ++index;
+        }
+
+        updatedProperties.Clear();
+    }
 
     /// <summary>
     /// POURQUOI ENABLE LES PROPS AU LIEU DE LES DETRUIRE ET RECREER ?
@@ -41,7 +81,7 @@ public class Property
     ///  LES EVENTS EN QUESTION
     ///  ils donnent lieu à discorde dans le studio, mais on a pas trouvé mieux pour l'instant
     /// </summary>
-    public List<Event> eventDatas;
+    public List<EventData> eventDatas;
 
    
     /// <summary>
@@ -180,16 +220,19 @@ public class Property
             return "a " + name;
         }
 
-        Debug.Log("default property description");
         return name;
 
     }
     #endregion
 
     #region events
-    public Event FindEvent(string eventName)
+    public bool HasEvent(string eventName)
     {
-        Event propEvent = eventDatas.Find(x => x.name == eventName);
+        return eventDatas != null && eventDatas.Find(x => x.eventName == eventName) != null;
+    }
+    public EventData GetEvent(string eventName)
+    {
+        EventData propEvent = eventDatas.Find(x => x.eventName == eventName);
         if ( propEvent == null)
         {
             Debug.LogError("couldn't find event : " + eventName + " on property " + name);
@@ -199,9 +242,31 @@ public class Property
     }
     #endregion
 
+    public void Describe()
+    {
+        if (!enabled)
+        {
+            return;
+        }
+
+        if (updatedProperties.Contains(this))
+        {
+            return;
+        }
+
+        updatedProperties.Add(this);
+    }
+    public bool destroy = false;
+    public void Destroy()
+    {
+        destroy = true;
+    }
+
     #region update
     public void Update(string line)
     {
+        Describe();
+
         bool add = false;
         bool remove = false;
 
@@ -220,7 +285,7 @@ public class Property
         if (line.StartsWith('*'))
         {
             line = line.Remove(0, 1);
-            Property pendingProp = WorldEvent.current.pendingProps.Find(x => x.name == line);
+            Property pendingProp = FunctionSequence.current.pendingProps.Find(x => x.name == line);
             line = pendingProp.value;
 
             int valueNeeded = pendingProp.value_max - pendingProp.GetInt();
@@ -263,18 +328,16 @@ public class Property
     #region events
     /// THIS CLASS WILL NEVER BE A COPY BECAUSE IT WILL NEVER CHANGE
     
-    [System.Serializable]
-    public class Event
+    public class EventData
     {
-        public string name;
-        public string functionListContent;
-        public List<WorldEvent> functions;
+        public string eventName;
+        public string cellContent;
     }
-    public void AddEvent(Event propertyEvent)
+    public void AddEventData(EventData propertyEvent)
     {
         if (eventDatas == null)
         {
-            eventDatas = new List<Event>();
+            eventDatas = new List<EventData>();
         }
 
         eventDatas.Add(propertyEvent);
@@ -317,11 +380,7 @@ public class Property
 
         if ( newValue <= 0)
         {
-
-            if (onEmptyValue != null)
-            {
-                onEmptyValue();
-            }
+            ItemEvent.CallEventOnProp("subEmpty", this);
         }
 
     }
