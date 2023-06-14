@@ -29,7 +29,8 @@ public class DebugManager : MonoBehaviour
     public List<Item> availableItems = new List<Item>();
 
     [Header("[CURRENT ITEMS]")]
-    public List<Item> currentItems;
+    public List<Item> currentItems_in;
+    public List<Item> currentItems_out;
 
     [Header("[ITEM EVENTS]")]
     public List<ItemEvent> propertyEvents = new List<ItemEvent>();
@@ -40,7 +41,6 @@ public class DebugManager : MonoBehaviour
         currentFunction = Function.current;
         currentFunctionList = FunctionSequence.current;
         propertyEvents = ItemEvent.list;
-        currentItems = CurrentItems.list;
         availableItems = AvailableItems.list;
         verb = Verb.GetCurrent;
     }

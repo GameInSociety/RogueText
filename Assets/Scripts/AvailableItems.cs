@@ -30,8 +30,36 @@ public static class AvailableItems
         return Get.FindAll(x=> x.HasWord(name));
     }
 
-
     public static List<Item> Get
+    {
+        get
+        {
+
+            list.Clear();
+
+            list.Add(Inventory.Instance);
+            list.AddRange(Inventory.Instance.GetContainedItems);
+
+            if (FunctionSequence.current != null && FunctionSequence.current.tile != Tile.GetCurrent)
+            {
+                list.AddRange(FunctionSequence.current.tile.GetAllItems());
+            }
+            else
+            {
+                list.AddRange(Tile.GetCurrent.GetAllItems().FindAll(x=> x.visible));
+            }
+
+            list.AddRange(ItemManager.Instance.dataItems.FindAll(x => x.GetAppearInfo().usableAnytime));
+
+            //list.Remove(Tile.GetCurrent);
+
+            DebugManager.Instance.availableItems = list;
+
+            return list;
+        }
+    }
+
+    /*public static List<Item> Get
     {
         get {
 
@@ -57,7 +85,7 @@ public static class AvailableItems
 
             return list;
         }
-    }
+    }*/
 
     public static List<Item> GetFunctionItems
     {

@@ -25,6 +25,11 @@ public class AppearInfo
         }
     }
 
+    public bool CanContainItems()
+    {
+        return itemInfos.Count > 0;
+    }
+
 
     public static AppearInfo GetAppearInfo(int itemIndex)
     {

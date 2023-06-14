@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,10 +70,9 @@ public static class CurrentItems
     {
         text = _text;
 
-        
-
         List<Item> availableItems = AvailableItems.Get;
         List<Item> tmpItems = new List<Item>(list);
+        
 
         List<Item> range = availableItems.FindAll(x => x.ContainedInText(text));
 
@@ -86,23 +86,7 @@ public static class CurrentItems
 
         list.AddRange(range);
 
-        /*if (waitForItem)
-        {
-            Debug.Log("search for more item");
-            List<Item> range = availableItems.FindAll(x => x.ContainedInText(text));
-
-            list.AddRange(range);
-
-        }
-        else
-        {
-            list = availableItems.FindAll(x => x.ContainedInText(text));
-        }*/
-
-
-        
-
-
+        DebugManager.Instance.currentItems_in = new List<Item>(list);
 
         // try verb alone
         if (list.Count == 0 && Verb.HasCurrent)
@@ -121,7 +105,7 @@ public static class CurrentItems
 
 
 
-        DebugManager.Instance.currentItems = new List<Item>(list);
+        DebugManager.Instance.currentItems_out = new List<Item>(list);
     }
 
     static void DiffenciateItems()
@@ -139,13 +123,13 @@ public static class CurrentItems
             if (list[0].word.defaultNumber == Word.Number.Plural)
             {
                 // leave because taking all plates
+                //return;
             }
             else
             {
                 // just the first plate if the word is singular
-                list.RemoveRange(1, list.Count - 1);
+                //list.RemoveRange(1, list.Count - 1);
             }
-            return;
         }
 
         // check for number items
@@ -305,6 +289,6 @@ public static class CurrentItems
 
     public static bool AllItemsAreSimilar(List<Item> items)
     {
-        return items.TrueForAll(x => x.debug_name == items.First().debug_name) && !items[0].info.differenciate;
+        return items.TrueForAll(x => x.debug_name == items.First().debug_name);
     }
 }

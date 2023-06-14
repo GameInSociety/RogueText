@@ -12,7 +12,6 @@ public class Tile : Item
 
     public static bool itemsChanged = false;
 
-    public bool saidTheres = false;
 
     #region tile description
     // describe from the target cardinal ( example : Player Direction if move, window direction if look at window )
@@ -52,7 +51,7 @@ public class Tile : Item
 
         TryGetSurroundingTiles();
 
-        WriteContainedItems();
+        WriteContainedItems(true);
 
 
         ConditionManager.GetInstance().WriteDescription();
@@ -64,6 +63,16 @@ public class Tile : Item
         TimeManager.Instance.WriteWeatherDescription();
 
         DisplayDescription.Instance.UseAI();
+    }
+
+    public override void WriteContainedItems(bool describeContainers = false)
+    {
+        foreach (var item in GetAllItems())
+        {
+            item.visible = false;
+        }
+
+        base.WriteContainedItems(describeContainers);
     }
 
 
@@ -134,11 +143,6 @@ public class Tile : Item
         //SocketManager.Instance.DescribeItems(SurroundingTiles(), null);
     }
 
-    public override void WriteContainedItems()
-    {
-        saidTheres = false;
-        base.WriteContainedItems();
-    }
     public void DescribeSelf()
     {
 

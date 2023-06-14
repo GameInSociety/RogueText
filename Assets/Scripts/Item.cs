@@ -25,6 +25,9 @@ public class Item
         return AppearInfo.GetAppearInfo(dataIndex);
     }
 
+
+    public bool visible = false;
+
     // pas encore utilisé mais à faire 
     public Info info;
     [System.Serializable]
@@ -34,7 +37,6 @@ public class Item
         {
             generatedItems = copy.generatedItems;
             discovered = copy.discovered;
-            differenciate = copy.differenciate;
             invisible = copy.invisible;
             def = copy.def;
         }
@@ -42,7 +44,6 @@ public class Item
         public bool invisible;
         public bool generatedItems;
         public bool discovered;
-        public bool differenciate;
 
         public bool def;
     }
@@ -186,15 +187,21 @@ public class Item
         }
     }
 
+    public bool IsTile()
+    {
+        return this as Tile != null;
+    }
+
     static int depth = -1;
     static int tDepth = 0;
-    public virtual void WriteContainedItems()
+    public virtual void WriteContainedItems(bool describeContainers =false)
     {
         // Get Groups for description
         List<Group> allGroups = new List<Group>();
         foreach (var item in mContainedItems)
         {
             Group group = allGroups.Find(x => x.item.dataIndex == item.dataIndex);
+            item.visible = true;
 
             if (group == null)
             {
@@ -213,19 +220,28 @@ public class Item
 
         }
 
-        List<Group> containerGroups = allGroups.FindAll(x => x.item.ContainsItems());
-        List<Group> itemGroups = allGroups.FindAll(x => !x.item.ContainsItems() && !x.item.info.invisible);
+        List<Group> containerGroups = new List<Group>();
+        List<Group> itemGroups = new List<Group>();
+
+        if (describeContainers)
+        {
+            containerGroups = allGroups.FindAll(x => x.item.ContainsItems() && x.item.info.invisible);
+            itemGroups = allGroups.FindAll(x =>  !x.item.info.invisible);
+        }
+        else
+        {
+            itemGroups = allGroups.FindAll(x =>  !x.item.info.invisible);
+        }
 
         if (containerGroups.Count > 0 && containerGroups.First().item.info.invisible == false)
         {
             itemGroups.Insert(0, containerGroups.First());
         }
 
-        if (itemGroups.Count > 0)
+        if (itemGroups.Count > 0 )
         {
-            if (!Tile.GetCurrent.saidTheres)
+            if (describeContainers)
             {
-                Tile.GetCurrent.saidTheres = true;
                 TextManager.Write("there's ", this);
             }
             else
@@ -383,12 +399,19 @@ public class Item
 
         if (ContainsItems())
         {
-            WriteContainedItems();
+            WriteContainedItems(true);
         }
 
         if (!HasProperties() && !ContainsItems())
         {
-            TextManager.Write("It's just &a dog&", this);
+            if (GetAppearInfo().CanContainItems())
+            {
+                TextManager.Write("It's empty");
+            }
+            else
+            {
+                TextManager.Write("It's just &a dog&", this);
+            }
         }
     }
 
