@@ -89,8 +89,6 @@ public class Tile : Item
                 continue;
             }
 
-
-
             string orientation_itemName = orientation.ToString();
             string opposite_itemName = Movable.GetOpposite(orientation).ToString();
 

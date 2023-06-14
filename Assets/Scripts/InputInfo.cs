@@ -106,17 +106,17 @@ public class InputInfo : MonoBehaviour
             return;
         }
 
-        if (!CurrentItems.Empty && !Verb.GetCurrent.HasCell(CurrentItems.Get.First()))
+        Verb.Sequence sequence = CurrentItems.GetSequence();
+
+        if (sequence == null)
         {
             TextManager.Write("input_noCombination", CurrentItems.Get.First());
             Reset();
             return;
         }
 
-        string cell = Verb.GetCurrent.GetCell(CurrentItems.Get.First());
-
         FunctionSequence functionList = FunctionSequence.New(
-            cell,
+            sequence.content,
             CurrentItems.Get,
             Tile.GetCurrent
             );

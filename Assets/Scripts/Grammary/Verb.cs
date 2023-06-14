@@ -10,21 +10,21 @@ public class Verb {
 	public int col = 0;
 
     private static List<Verb> _verbs = new List<Verb>();
-    public class Cell
+    public class Sequence
     {
         public int id;
         public string content;
     }
-    public List<Cell> cells = new List<Cell>();
+    public List<Sequence> cells = new List<Sequence>();
 
     public bool HasCell(Item item)
     {
         return cells.Find(x => x.id == item.dataIndex) != null;
     }
 
-    public string GetCell(Item item)
+    public Sequence GetSequence(Item item)
     {
-        return cells.Find(x => x.id == item.dataIndex).content;
+        return cells.Find(x => x.id == item.dataIndex);
     }
 
     public static List<Verb> GetVerbs
@@ -72,7 +72,7 @@ public class Verb {
 
     public void AddCell (int id, string content)
     {
-        Cell cell = new Cell();
+        Sequence cell = new Sequence();
         cell.id = id;
         cell.content = content;
         cells.Add(cell);

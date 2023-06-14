@@ -40,6 +40,31 @@ public static class CurrentItems
         waitForItem = false;
     }
 
+    public static Verb.Sequence GetSequence()
+    {
+        Item cellItem = null;
+
+        foreach (Item item in list)
+        {
+            if (Verb.GetCurrent.HasCell(item))
+            {
+                Debug.Log("found sequence with : " + item.debug_name);
+
+                cellItem = item;
+                break;
+            }
+        }
+
+        if ( cellItem == null)
+        {
+            return null;
+        }
+
+        list.Remove(cellItem);
+        list.Insert(0, cellItem);
+        return Verb.GetCurrent.GetSequence(cellItem);
+    }
+
     public static void FindAll(string _text)
     {
         text = _text;

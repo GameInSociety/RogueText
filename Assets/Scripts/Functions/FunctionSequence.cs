@@ -204,10 +204,10 @@ public class FunctionSequence
             Debug.Log("didn't find item in " + line);
         }
 
-        string cell = verb.GetCell(item);
+        Verb.Sequence sequence = verb.GetSequence(item);
 
-        FunctionSequence functionList = FunctionSequence.New(
-            cell,
+        FunctionSequence functionList = New(
+            sequence.content,
             itemGroups,
             Tile.GetCurrent
             );
