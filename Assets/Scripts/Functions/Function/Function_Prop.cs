@@ -28,7 +28,7 @@ public class Function_Prop : Function
             // hence, sustain verb and all so input follows
             // but many actions require to sustain things
             // so until je trouve quelque chose de mieux, je le mets partout
-            CurrentItems.AskForSpecificItem("item_noSecondItem");
+            CurrentItems.WaitForSpecificItem("item_noSecondItem");
             FunctionSequence.current.Break();
             return;
         }
@@ -104,49 +104,7 @@ public class Function_Prop : Function
 
     void check()
     {
-        Item targetItem = GetItem();
-
-        Debug.Log("check item : " + targetItem.debug_name);
-
-        string property_line = GetParam(1);
-
-        if (property_line.StartsWith('!'))
-        {
-            property_line = property_line.Remove(0, 1);
-
-            if (targetItem.HasEnabledProperty(property_line))
-            {
-                TextManager.Write("It's " + property_line);
-                FunctionSequence.current.Break();
-                return;
-            }
-
-            return;
-
-        }
-
-        string[] parts = property_line.Split(" / ");
-
-        if (!targetItem.HasEnabledProperty(parts[0]))
-        {
-            Debug.Log(targetItem.debug_name + " id : " + targetItem.debug_randomID + " dont have the prop " + parts[0]);
-
-            TextManager.Write("It's not " + parts[0]);
-            FunctionSequence.current.Break();
-            return;
-        }
-
-        Property property = targetItem.GetProperty(parts[0]);
-
-        if (property.HasInt())
-        {
-            if (property.GetInt() <= int.Parse(parts[1]))
-            {
-                TextManager.Write("No " + property.name);
-                FunctionSequence.current.Break();
-                return;
-            }
-        }
+       
     }
 
     void remove()

@@ -83,6 +83,8 @@ public class FunctionSequence
 
         pendingProps.Clear();
 
+        Debug.Log("[SEQUENCE] : " + lines[0] + " on item " + itemGroups[0].items[0].debug_name);
+
         for (itemIndex = 0; itemIndex < itemGroups.Count; itemIndex++)
         {
             // separate all actions
@@ -93,11 +95,14 @@ public class FunctionSequence
 
                 if (_line.StartsWith('*'))
                 {
+                    Debug.LogError(_line + " starts with *");
+
                     // check if the line starts with '*'
                     if (_nextNode)
                     {
                         // remove * and call function
                         _line = line.Remove(0, 1);
+                        _nextNode = false;
                     }
                     else
                     {
@@ -118,7 +123,7 @@ public class FunctionSequence
                     }
                 }
 
-                if ( _line.StartsWith("=> "))
+                if ( _line.StartsWith("> "))
                 {
                     JumpToSequence(_line);
                     goto End;
@@ -128,6 +133,11 @@ public class FunctionSequence
                 string functionName = Function.GetName(_line);
                 functionName = TextUtils.FirstLetterCap(functionName);
                 var objectType = Type.GetType("Function_" + functionName);
+                if ( objectType == null)
+                {
+                    Debug.LogError("function " + functionName + " doesn't exist");
+                    return;
+                }
                 var function = Activator.CreateInstance(objectType) as Function;
 
                 function.InitParams(_line);
@@ -157,6 +167,14 @@ public class FunctionSequence
             return;
         }
 
+        if (CurrentItems.waitForItem)
+        {
+        }
+        else
+        {
+            InputInfo.Instance.Reset();
+        }
+
         Property.DescribeUpdated();
 
 
@@ -164,7 +182,7 @@ public class FunctionSequence
 
     void JumpToSequence(string line)
     {
-        line = line.Remove(0, 3);
+        line = line.Remove(0, 2);
 
         Verb verb = Verb.Get(line);
         if (verb != null)

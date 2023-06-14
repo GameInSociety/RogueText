@@ -25,7 +25,8 @@ public class InputInfo : MonoBehaviour
     public bool itemConfusion = false;
 
     public bool waitForVerb = false;
-    public bool waitForItem = false;
+    // bizarre, mais en soi wait for specific item est que pour les specs, pas pour le premier
+    public bool waitForFirstItem = false;
 
     private void Awake()
     {
@@ -34,6 +35,10 @@ public class InputInfo : MonoBehaviour
 
     public void Reset()
     {
+        Debug.Log("[RESETING INPUT]");
+
+        waitForFirstItem = false;
+        waitForVerb = false;
         CurrentItems.Clear();
         Verb.Clear();
     }
@@ -47,13 +52,11 @@ public class InputInfo : MonoBehaviour
             return;
         }
 
-
         inputText = inputText.TrimEnd(' ');
 
         if (!Verb.HasCurrent)
         {
             Verb verb = Verb.Get(inputText);
-
 
             if (waitForVerb && verb == null)
             {
@@ -68,28 +71,29 @@ public class InputInfo : MonoBehaviour
         }
 
 
-        if (CurrentItems.Empty|| !CurrentItems.foundItem)
+        if (CurrentItems.Empty|| CurrentItems.waitForItem)
         {
-            Debug.Log("find items");
             CurrentItems.FindAll(inputText);
 
         }
 
         if (CurrentItems.Empty)
         {
-            if (Verb.HasCurrent)
+            if (Verb.HasCurrent && !waitForFirstItem)
             {
+                waitForFirstItem = true;
                 TextManager.Write("input_noItem");
-                CurrentItems.AskForSpecificItem();
+                //CurrentItems.WaitForSpecificItem("input_noItem");
             }
             else
             {
+                Reset();
                 TextManager.Write("input_nothingRecognized");
             }
             return;
         }
 
-        if (!CurrentItems.foundItem)
+        if (CurrentItems.waitForItem)
         {
             Debug.Log("wait specific");
             return;
@@ -118,8 +122,7 @@ public class InputInfo : MonoBehaviour
             );
         functionList.Call();
 
-        Debug.Log("clearing verb");
-        Reset();
+        //Reset();
     }
 
 

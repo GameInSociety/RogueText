@@ -206,10 +206,10 @@ village road,s,on,differenciate,,,,,,
 costal road,s,on,differenciate,,,,,,
 path,s,on,differenciate,,,,,,
 bridge,s,on,differenciate,,,,,,
-house,s,in front of,,hidden / interior,room / bathroom,room / bedroom,room / children's room,room / kitchen,room / toilets
-farm,s,in front of,,hidden / interior,room / bathroom,room / bedroom,room / children's room,room / kitchen,room / toilets
-cabin,s,in front of,,hidden / interior,,,,,
-mansion,s,in front of,,hidden / interior,,,,,
+house,s,in front of,differenciate,hidden / interior,room / bathroom,room / bedroom,room / children's room,room / kitchen,room / toilets
+farm,s,in front of,differenciate,hidden / interior,room / bathroom,room / bedroom,room / children's room,room / kitchen,room / toilets
+cabin,s,in front of,differenciate,hidden / interior,,,,,
+mansion,s,in front of,differenciate,hidden / interior,,,,,
 hallway,s,in,differenciate,,,,,,
 stairs,s,on,differenciate,,,,,,
 living room,s,in,,hidden / enclosed,,,,,

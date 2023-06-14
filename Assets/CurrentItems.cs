@@ -2,18 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
+using System.Xml.Schema;
 using TMPro;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEditor.Progress;
 
 public static class CurrentItems
 {
     public static List<Item> list = new List<Item>();
-
     public static Item pendingItem;
 
-    public static bool foundItem = true;
+    public static bool waitForItem = false;
 
     static string text;
 
@@ -35,74 +36,48 @@ public static class CurrentItems
 
     public static void Clear()
     {
-        Debug.Log("clear current items");
         list.Clear();
-        foundItem = true;
+        waitForItem = false;
     }
 
     public static void FindAll(string _text)
     {
         text = _text;
 
-        List<Item> availableItems = AvailableItems.Get;
+        
 
-        if (!foundItem)
+        List<Item> availableItems = AvailableItems.Get;
+        List<Item> tmpItems = new List<Item>(list);
+
+        List<Item> range = availableItems.FindAll(x => x.ContainedInText(text));
+
+        if (Regex.IsMatch(text, @$"\bit\b") || Regex.IsMatch(text, @$"\bthem\b"))
+        {
+            if (pendingItem != null)
+            {
+                range = new List<Item>() { pendingItem };
+            }
+        }
+
+        list.AddRange(range);
+
+        /*if (waitForItem)
         {
             Debug.Log("search for more item");
             List<Item> range = availableItems.FindAll(x => x.ContainedInText(text));
 
             list.AddRange(range);
 
-            foreach (var item in range)
-            {
-                Debug.Log("adding : " + item.debug_name);
-            }
-            foundItem = true;
-
-
-            if ( range.Count == 0)
-            {
-                Clear();
-            }
-
         }
         else
         {
             list = availableItems.FindAll(x => x.ContainedInText(text));
-
-                Debug.Log("item are :");
-            foreach (var item in list)
-            {
-                Debug.Log(item.debug_name);
-            }
-        }
-
-        if (list.Count > 1 /*&& */)
-        {
-            if (HasSimilarItems(list))
-            {
-                Debug.Log("has duplicates");
-                if (AllItemsAreSimilar(list))
-                {
-                    // ex there are some plates
-                    if (list[0].word.defaultNumber == Word.Number.Plural)
-                    {
-                        // leave because taking all plates
-                    }
-                    else
-                    {
-                        // just the first plate if the word is singular
-                        list.RemoveRange(1, list.Count-1);
-                    }
+        }*/
 
 
-                }
-                else
-                {
-                    DifferenciateItems();
-                }
-            }
-        }
+        
+
+
 
         // try verb alone
         if (list.Count == 0 && Verb.HasCurrent)
@@ -114,55 +89,66 @@ public static class CurrentItems
             }
         }
 
-        DebugManager.Instance.currentItems = list;
+        if (list.Count > 1 /*&& */)
+        {
+            DiffenciateItems();
+        }
+
+
+
+        DebugManager.Instance.currentItems = new List<Item>(list);
     }
 
-    public static void DifferenciateItems()
+    static void DiffenciateItems()
     {
+        if (GetSimilarItems().Count == 0)
+        {
+            Debug.Log("no similar items in list");
+            // no similar items, keep all
+            return;
+        }
+
+        if (AllItemsAreSimilar(list))
+        {
+            // ex there are some plates
+            if (list[0].word.defaultNumber == Word.Number.Plural)
+            {
+                // leave because taking all plates
+            }
+            else
+            {
+                // just the first plate if the word is singular
+                list.RemoveRange(1, list.Count - 1);
+            }
+            return;
+        }
+
+        // check for number items
+        Item numberItem = GetNumberItem();
+
+        if (numberItem != null)
+        {
+            SetSpecificItem(numberItem);
+            return;
+        }
+
+        // look for item in containers
         Item containerItem = null;
         Item specItem = null;
-        
         foreach (var cItem in list)
         {
-            foreach (var sItem in list)
+            foreach (var item in list)
             {
-                if (cItem.HasItem(sItem))
+                if (cItem.HasItem(item))
                 {
-                    Debug.Log("[SPEC ITEM] item : " + sItem.debug_name);
-                    Debug.Log("[SPEC ITEM] container : " + cItem.debug_name);
                     containerItem = cItem;
-                    specItem = sItem;
+                    specItem = item;
                     break;
                 }
             }
         }
 
-        string[] nums = new string[5]
-        {
-            "first",
-            "second",
-            "third",
-            "fourth",
-            "fifth"
-        };
-
-        if (specItem == null)
-        {
-            int i = 0;
-            foreach (var num in nums)
-            {
-                if (text.Contains(num))
-                {
-                    Debug.Log("text contains " + num + " returning item " + list[i] + " id " + list[i].debug_randomID);
-                    SetSpecificItem(list[i]);
-                    return;
-                }
-                ++i;
-            }
-        }
-
-
-        if (specItem != null)
+        if ( specItem != null)
         {
             if ( containerItem != null)
             {
@@ -172,67 +158,124 @@ public static class CurrentItems
             return;
         }
 
+        // check if an item has been specified lately
         if (pendingItem != null)
         {
+            if (text.Contains("other"))
+            {
+                pendingItem = null;
+                return;
+            }
+
             if (list.Contains(pendingItem))
             {
-                Debug.Log("getting pending item");
+                Debug.Log("getting pending item : " + pendingItem.debug_name);
                 SetSpecificItem(pendingItem);
                 return;
             }
 
+            // no pending items found try find new
             pendingItem = null;
-            AskForSpecificItem("input_itemConfusion");
-            return;
         }
-        else
+
+        string message = "input_itemConfusion";
+        if (Verb.GetCurrent == null)
         {
-            AskForSpecificItem("input_itemConfusion");
-            return;
+            message = "Which &dog&";
         }
+        WaitForSpecificItem(message);
+
+    }
+
+    static Item GetNumberItem()
+    {
+        string[] nums = new string[5]
+        {
+            "first",
+            "second",
+            "third",
+            "fourth",
+            "fifth"
+        };
+
+        // get numbers
+        int i = 0;
+        foreach (var num in nums)
+        {
+            if (text.Contains(num))
+            {
+                return GetSimilarItems()[i];
+            }
+            ++i;
+        }
+
+        return null;
     }
 
     static void SetSpecificItem(Item item)
     {
         pendingItem = item;
 
+        waitForItem = false;
+
+        /*int specItemIndex = list.IndexOf(item);
+        Debug.Log("index of : " + item.debug_name + " is " +  specItemIndex);*/
+
         list.RemoveAll(x => x.SameTypeAs(item));
         list.Insert(0, item);
-        Debug.Log("setting spec item : " + item.debug_name);
     }
 
 
-    public static void AskForSpecificItem()
+    public static void WaitForSpecificItem(string message)
     {
-        Debug.Log("ask for specific");
-        foundItem = false;
-    }
-    public static void AskForSpecificItem(string message)
-    {
-
-        if( Verb.GetCurrent == null)
+        if (waitForItem)
         {
-            message = "Which &dog&";
-        }
-        TextManager.Write(message, list[0]);
-        AskForSpecificItem();
-    }
-
-    public static bool HasSimilarItems(List<Item> items)
-    {
-        if ( items.Count == 1) {
-            return false;
+            Debug.LogError("already waiting for an item");
+            InputInfo.Instance.Reset();
+            return;
         }
 
-        for (int i = 1; i < items.Count; i++)
+        if ( list.Count == 0 )
         {
-            if (items[i].SameTypeAs(items[0]))
+            TextManager.Write(message);
+        }
+        else
+        { 
+            TextManager.Write(message, GetSimilarItems()[0]);
+        }
+
+        waitForItem = true;
+    }
+
+    public static List<Item> GetSimilarItems()
+    {
+        List<Item> items = new List<Item>();
+
+        if ( list.Count == 1) {
+            return items;
+        }
+
+        foreach (var item in list)
+        {
+            List<Item> ts = list.FindAll(x => x.SameTypeAs(item));
+            if ( ts.Count > 1)
             {
-                return true;
+                items = ts;
+                break;
             }
         }
 
-        return false;
+        return items;
+    }
+
+    public static bool HasItem(string itemName)
+    {
+        return FindOfType(itemName) != null;
+    }
+
+    public static Item FindOfType(string itemName)
+    {
+        return list.Find(x => x.debug_name == itemName);
     }
 
     public static bool AllItemsAreSimilar(List<Item> items)

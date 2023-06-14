@@ -67,10 +67,10 @@ public class Interior {
 
         List<Property> rooms = item.properties.FindAll(x => x.type == "room");
 
-        foreach (var room in rooms)
+        /*foreach (var room in rooms)
         {
             Debug.Log("room : " + room.name);
-        }
+        }*/
 
         // create room types
         List<string> tileNames = new List<string>

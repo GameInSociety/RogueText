@@ -39,8 +39,6 @@ public class Function
 
     public static string GetName(string line)
     {
-        Debug.Log("function : " + line);
-
         if (line.Contains("("))
         {
             return line.Remove(line.IndexOf('('));
@@ -57,19 +55,26 @@ public class Function
         if (GetParam(0).StartsWith('*'))
         {
             // targeting specific item
-            SetParam(0, GetParam(0).Remove(0, 1));
+            string itemName = GetParam(0).Remove(0, 1);
 
-            CurrentItems.FindAll(GetParam(0));
-
-            if (!CurrentItems.foundItem)
+            if ( CurrentItems.HasItem(itemName) == false)
             {
+                Debug.Log("no item of type : " + itemName);
+                CurrentItems.FindAll(itemName);
+            }
+            
+            if (CurrentItems.waitForItem)
+            {
+                Debug.Log("waiting for item spec");
+                //TextManager.Write("There's no " + GetParam(0));
                 FunctionSequence.current.Break();
                 return;
             }
 
-            TextManager.Write("You VERB_NAME &the dog&", GetItem());
-            items[0] = AvailableItems.Find(GetParam(0));
-            TextManager.Add(" &on the dog&", GetItem());
+            //TextManager.Write("You VERB_NAME &the dog& with ", GetItem());
+            items[0] = CurrentItems.FindOfType(itemName);
+            Debug.Log("setting first item : " + items[0].debug_name);
+            //TextManager.Add("&the dog&", GetItem());
             RemoveParam(0);
         }
 

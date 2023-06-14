@@ -119,7 +119,7 @@ public class Function_Item : Function
                 return;
             }
 
-            TextManager.Write("you use &the dog (override)&", targetItem);
+            //TextManager.Write("you use &the dog (override)&", targetItem);
             return;
         }
 
@@ -128,7 +128,7 @@ public class Function_Item : Function
         // no target item, just ask for a second item
         if (!HasItem(1))
         {
-            CurrentItems.AskForSpecificItem("item_noSecondItem");
+            CurrentItems.WaitForSpecificItem("item_noSecondItem");
             FunctionSequence.current.Break();
             return;
         }

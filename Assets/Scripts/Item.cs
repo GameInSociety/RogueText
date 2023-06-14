@@ -553,7 +553,6 @@ public class Item
     #region remove & destroy
     public static void Destroy(Item item)
     {
-        Debug.Log("destroying item : " + item.debug_name);
 
         ItemEvent.Remove(item);
 

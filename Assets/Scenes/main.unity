@@ -494,7 +494,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.45376518
+  m_Size: 0.49578997
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1845,35 +1845,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputText: 
-  verb:
-    col: 0
-    question: 
-    prepositions: []
-    helpPhrase: 
-    universal: 0
-    names: []
-    currentNameIndex: 0
-  potentialItems: []
   hasValueInText: 0
   valueInText: 0
   itemConfusion: 0
   waitForVerb: 0
-  waitForItem: 0
-  canCallFunction: 0
-  pendingSpecificItem:
-    debug_name: debug name
-    debug_randomID: 0
-    info:
-      invisible: 0
-      generatedItems: 0
-      discovered: 0
-      differenciateInInput: 0
-      def: 0
-    dataIndex: 0
-    currentWordIndex: 0
-    words: []
-    properties: []
-    mContainedItems: []
+  waitForFirstItem: 0
 --- !u!1 &667825934
 GameObject:
   m_ObjectHideFlags: 0
@@ -4186,7 +4162,7 @@ MonoBehaviour:
       invisible: 0
       generatedItems: 0
       discovered: 0
-      differenciateInInput: 0
+      differenciate: 0
       def: 0
     dataIndex: 0
     currentWordIndex: 0
@@ -4197,6 +4173,14 @@ MonoBehaviour:
       x: 0
       y: 0
     saidTheres: 0
+  verb:
+    col: 0
+    question: 
+    prepositions: []
+    helpPhrase: 
+    universal: 0
+    names: []
+    currentNameIndex: 0
   inventory:
     debug_name: debug name
     debug_randomID: 0
@@ -4204,7 +4188,7 @@ MonoBehaviour:
       invisible: 0
       generatedItems: 0
       discovered: 0
-      differenciateInInput: 0
+      differenciate: 0
       def: 0
     dataIndex: 0
     currentWordIndex: 0
@@ -4216,7 +4200,6 @@ MonoBehaviour:
     lines: []
     pendingProps: []
     itemIndex: 0
-    targetItems: []
     tile:
       debug_name: debug name
       debug_randomID: 0
@@ -4224,7 +4207,7 @@ MonoBehaviour:
         invisible: 0
         generatedItems: 0
         discovered: 0
-        differenciateInInput: 0
+        differenciate: 0
         def: 0
       dataIndex: 0
       currentWordIndex: 0
@@ -4239,6 +4222,7 @@ MonoBehaviour:
     _nextNode: 0
   colorWords: 0
   availableItems: []
+  currentItems: []
   propertyEvents: []
 --- !u!1 &1998673411
 GameObject:

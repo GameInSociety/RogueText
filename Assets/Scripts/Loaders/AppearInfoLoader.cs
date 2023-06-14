@@ -47,7 +47,6 @@ public class AppearInfoLoader : TextParser
 
         for (int i = 2; i < cells.Count; i++)
         {
-
             string cell = cells[i];
 
             if (string.IsNullOrEmpty(cell))
@@ -67,29 +66,40 @@ public class AppearInfoLoader : TextParser
                 itemInfo.name = targetItem.debug_name;
 
                 itemInfo.chanceAppear = 100;
-
-                if ( parts.Length > 1 )
-                {
-                    // chance appear
-
-                    string chanceAppear_str = parts[1].Remove(parts[1].Length - 1);
-                    if (!int.TryParse(chanceAppear_str, out itemInfo.chanceAppear))
-                    {
-                        Debug.LogError("APPEAR INFO LOAD : couldn't parse chance appear : " + chanceAppear_str);
-                    }
-                }
-
                 itemInfo.amount = 1;
 
-                if (parts.Length > 2)
+                for (int j = 1; j < parts.Length; j++)
                 {
-                    string amount_str = parts[2].Remove(0, 1);
-                    // amount
-                    if (!int.TryParse(amount_str, out itemInfo.amount))
+                    string part = parts[j];
+
+                    if (part.Contains('%'))
                     {
-                        Debug.LogError("APPEAR INFO LOAD : couldn't parse amount : " + amount_str);
+                        string chanceAppear_str = parts[1].Remove(part.Length - 1);
+                        if (!int.TryParse(chanceAppear_str, out itemInfo.chanceAppear))
+                        {
+                            Debug.LogError("APPEAR INFO LOAD : couldn't parse chance appear : " + chanceAppear_str);
+                        }
+                    }
+                    else if ( part.Contains('x'))
+                    {
+                        string amount_str;
+                        if (part.StartsWith('x'))
+                        {
+                            amount_str = part.Remove(0, 1);
+                        }
+                        else
+                        {
+                            amount_str = part.Remove(part.Length -1);
+                        }
+
+                        // amount
+                        if (!int.TryParse(amount_str, out itemInfo.amount))
+                        {
+                            Debug.LogError("APPEAR INFO LOAD : couldn't parse amount : " + amount_str);
+                        }
                     }
                 }
+
 
                 appearInfo.itemInfos.Add(itemInfo);
 
