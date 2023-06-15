@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class Function_Condition : Function
 {
-    public override void Call(List<Item> items)
+    public override void TryCall()
     {
-        base.Call(items);
-
+        base.TryCall();
+        Call(this);
+    }
+    void MEMRDE()
+    {
         Condition.Type conditionType = (Condition.Type)System.Enum.Parse(typeof(Condition.Type), Function.current.GetParam(0), true);
 
         string str = Function.current.GetParam(1);

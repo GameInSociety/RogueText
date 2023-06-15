@@ -5,19 +5,10 @@ using UnityEngine;
 
 public class Function_Prop : Function
 {
-    public override void Call(List<Item> items)
+    public override void TryCall()
     {
-        base.Call(items);
-
-        string methodName = GetParam(0);
-        MethodInfo mi = this.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
-        if ( mi == null)
-        {
-            Debug.LogError("no function " + methodName + " in " + GetType().Name);
-        }
-
-        mi.Invoke(this, null);
-        
+        base.TryCall();
+        Call(this);
     }
 
     void require()
@@ -33,7 +24,7 @@ public class Function_Prop : Function
             return;
         }
 
-        string prop_name = GetParam(1);
+        string prop_name = GetParam(0);
 
         Item item = GetItems.Find(x => x.HasProperty(prop_name));
 
@@ -61,7 +52,7 @@ public class Function_Prop : Function
     {
         Item targetItem = GetItem();
 
-        string line = GetParam(1);
+        string line = GetParam(0);
         Property property = targetItem.properties.Find(x => x.name == line);
         targetItem.DisableProperty(line);
     }
@@ -70,7 +61,7 @@ public class Function_Prop : Function
     {
         Item targetItem = GetItem();
 
-        string prop_name = GetParam(1);
+        string prop_name = GetParam(0);
 
         Property property = targetItem.properties.Find(x => x.name == prop_name);
 
@@ -88,7 +79,7 @@ public class Function_Prop : Function
     {
         Item targetItem = GetItem();
 
-        string propertyName = GetParam(1);
+        string propertyName = GetParam(0);
 
         Property property = targetItem.GetProperty(propertyName);
 
@@ -111,7 +102,7 @@ public class Function_Prop : Function
     {
         Item targetItem = GetItem();
 
-        string propertyName = GetParam(1);
+        string propertyName = GetParam(0);
 
         targetItem.DeleteProperty(propertyName);
 
@@ -122,7 +113,7 @@ public class Function_Prop : Function
     {
         Item targetItem = GetItem();
 
-        string line = GetParam(1);
+        string line = GetParam(0);
 
         Property newProperty = targetItem.CreateProperty(line);
     }
@@ -131,8 +122,8 @@ public class Function_Prop : Function
     {
         Item targetItem;
       
-        string targetProp = GetParam(1);
-        string line = GetParam(2);
+        string targetProp = GetParam(0);
+        string line = GetParam(0);
 
         // in the function type is not reffered, so go for part 0
         Property property = GetItem().GetProperty(targetProp);

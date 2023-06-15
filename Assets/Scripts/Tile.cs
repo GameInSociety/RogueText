@@ -53,6 +53,8 @@ public class Tile : Item
 
         WriteContainedItems(true);
 
+        CheckHumanoids();
+
 
         ConditionManager.GetInstance().WriteDescription();
 
@@ -148,7 +150,7 @@ public class Tile : Item
 
         string str = "";
 
-        if (info.discovered)
+        if (HasInfo("discovered"))
         {
             if (GetPrevious != null && GetPrevious.coords == coords)
             {
@@ -191,6 +193,19 @@ public class Tile : Item
         return TileSet.current.GetTile(targetCoords);
     }
     #endregion
+
+    public void CheckHumanoids()
+    {
+        foreach (var item in GetHumanoids())
+        {
+
+            Zombie zombie = item as Zombie;
+            zombie.Sub();
+
+            TextManager.Return();
+            item.WriteDescription();
+        }
+    }
 
     #region info
     public static bool SameAsPrevious()
@@ -250,6 +265,22 @@ public class Tile : Item
             return;
         }
 
+        tile.DeleteDirectionItems();
+    }
+
+    public void UnsubHumanoids()
+    {
+        foreach (var item in GetHumanoids())
+        {
+            //Humanoid hum = item as Humanoid;
+            Zombie zombie = item as Zombie;
+            zombie.Unsub();
+
+        }
+    }
+
+    public void DeleteDirectionItems()
+    {
         // delete cardinals, to prevent recursive stack overflow
         List<Cardinal> cards = new List<Cardinal>() { Cardinal.east, Cardinal.north, Cardinal.south, Cardinal.west };
 
@@ -265,11 +296,11 @@ public class Tile : Item
         {
             string str = orientation.ToString();
 
-            if (tile.HasItem(str))
+            if (HasItem(str))
             {
-                Item orientationItem = tile.GetItem(str);
+                Item orientationItem = GetItem(str);
 
-                tile.RemoveItem(orientationItem);
+                RemoveItem(orientationItem);
 
             }
         }

@@ -5,19 +5,10 @@ using UnityEngine;
 
 public class Function_Item : Function
 {
-    public override void Call(List<Item> items)
+    public override void TryCall()
     {
-        base.Call(items);
-
-        string methodName = GetParam(0);
-        MethodInfo mi = this.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
-        if (mi == null)
-        {
-            Debug.LogError("no function " + methodName + " in " + GetType().Name);
-            return;
-        }
-
-        mi.Invoke(this, null);
+        base.TryCall();
+        Call(this);
     }
 
     void pickUp()
@@ -77,12 +68,12 @@ public class Function_Item : Function
         int amount = 1;
         if (HasValue(1))
         {
-            amount = ParseParam(2);
+            amount = ParseParam(1);
         }
 
         // if the target item starts with '*', getting the value of an other property
         // sprout gets value "vegetableType" pour savoir en quoi elle va pousser
-        string item_name = GetParam(1);
+        string item_name = GetParam(0);
         if (item_name.StartsWith('*'))
         {
             string targetPropertyName = item_name.Remove(0, 1);
@@ -106,7 +97,7 @@ public class Function_Item : Function
     {
         if (HasParam(1))
         {
-            string item_name = GetParam(1);
+            string item_name = GetParam(0);
             Item targetItem = AvailableItems.Find(item_name);
 
             if (targetItem == null)

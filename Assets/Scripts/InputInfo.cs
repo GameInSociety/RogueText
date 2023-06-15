@@ -28,6 +28,9 @@ public class InputInfo : MonoBehaviour
     // bizarre, mais en soi wait for specific item est que pour les specs, pas pour le premier
     public bool waitForFirstItem = false;
 
+    public delegate void OnAction();
+    public OnAction onAction;
+
     private void Awake()
     {
         Instance = this;
@@ -121,6 +124,9 @@ public class InputInfo : MonoBehaviour
             Tile.GetCurrent
             );
         functionList.Call();
+
+        if (onAction != null)
+            onAction();
 
         //Reset();
     }

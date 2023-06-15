@@ -15,14 +15,8 @@ public class AppearInfo
     public struct ItemInfo
     {
         public string name; // for debug purposes
-        public int itemIndex;
         public int chanceAppear;
         public int amount;
-
-        public string GetItemName()
-        {
-            return ItemManager.Instance.dataItems[itemIndex].debug_name;
-        }
     }
 
     public bool CanContainItems()

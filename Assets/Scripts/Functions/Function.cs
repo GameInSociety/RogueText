@@ -2,6 +2,7 @@ using Newtonsoft.Json.Bson;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -48,9 +49,9 @@ public class Function
         return line;
     }
 
-    public virtual void TryCall(List<Item> tmpItems)
+    public virtual void TryCall()
     {
-        items = new List<Item>(tmpItems);
+        items = CurrentItems.Get;
 
         if (GetParam(0).StartsWith('*'))
         {
@@ -70,22 +71,30 @@ public class Function
                 FunctionSequence.current.Break();
                 return;
             }
-
-            //TextManager.Write("You VERB_NAME &the dog& with ", GetItem());
+     //TextManager.Write("You VERB_NAME &the dog& with ", GetItem());
             items[0] = CurrentItems.FindOfType(itemName);
             Debug.Log("setting first item : " + items[0].debug_name);
             //TextManager.Add("&the dog&", GetItem());
             RemoveParam(0);
         }
 
-        Call(tmpItems);
     }
 
-    public virtual void Call(List<Item> tmpItems)
+    public virtual void Call(object obj)
     {
         current = this;
-    }
 
+        string methodName = GetParam(0);
+        Type type = obj.GetType();
+        MethodInfo mi = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+        if (mi == null)
+        {
+            Debug.LogError("no function " + methodName + " in " + type.Name);
+            return;
+        }
+        RemoveParam(0);
+        mi.Invoke(obj, null);
+    }
 
     #region parameters
     public void InitParams(string line)

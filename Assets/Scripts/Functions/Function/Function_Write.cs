@@ -1,27 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Function_Write : Function
 {
-    public override void Call(List<Item> items)
+    public override void TryCall()
     {
-        base.Call(items);
+        base.TryCall();
+        Call(this);
+    }
 
-        if ( GetParam(0) == "_north")
-        {
-            Humanoid.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
-            TextManager.SetOverrideOrientation(orientation);
-            TextManager.Write("compas_giveNorth");
-            return;
-        }
+    void north()
+    {
+        Humanoid.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
+        TextManager.SetOverrideOrientation(orientation);
+        TextManager.Write("compas_giveNorth");
+    }
 
-        if ( GetParam(0) == "_tile")
-        {
-            Tile.GetCurrent.Describe();
-            return;
-        }
+    void _tile()
+    {
+        Tile.GetCurrent.Describe();
+    }
 
+    void write()
+    {
         TextManager.Write(GetParam(0));
     }
 }

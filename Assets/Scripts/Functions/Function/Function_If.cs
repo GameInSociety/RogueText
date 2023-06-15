@@ -5,26 +5,16 @@ using UnityEngine;
 
 public class Function_If : Function
 {
-    public override void Call(List<Item> items)
+    public override void TryCall()
     {
-        base.Call(items);
-        string methodName = GetParam(0);
-        MethodInfo mi = this.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
-        if (mi == null)
-        {
-            Debug.LogError("no function " + methodName + " in " + GetType().Name);
-            return;
-        }
-
-        mi.Invoke(this, null);
+        base.TryCall();
+        Call(this);
     }
-
     void prop()
     {
         Item targetItem = GetItem();
 
-
-        string property_line = GetParam(1);
+        string property_line = GetParam(0);
 
         if (property_line.StartsWith('!'))
         {
@@ -67,9 +57,9 @@ public class Function_If : Function
 
     void has()
     {
-        if (CurrentItems.HasItem( GetParam(1)) )
+        if (CurrentItems.HasItem( GetParam(0)) )
         {
-            Debug.Log("has " + GetParam(1));
+            Debug.Log("has " + GetParam(0));
 
             // do stuff below until "*"
         }

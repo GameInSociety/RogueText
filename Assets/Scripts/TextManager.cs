@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using static UnityEditor.Progress;
-public class TextManager
+public static class TextManager
 {
     static Item overrideItem = null;
     static List<Humanoid.Orientation> overrideOrientations = new List<Humanoid.Orientation>();
@@ -140,6 +141,10 @@ public class TextManager
         return overrideOrientations;
     }
     #region write phrase
+    public static void Return()
+    {
+        DisplayDescription.Instance.text_target += "\n";
+    }
     public static void Write(string str, Item _overrideItem)
     {
         overrideItem = _overrideItem;
@@ -171,4 +176,20 @@ public class TextManager
     {
         
     }
+
+    public static string ToLowercaseNamingConvention(this string s, bool toLowercase)
+    {
+        if (toLowercase)
+        {
+            var r = new Regex(@"
+                (?<=[A-Z])(?=[A-Z][a-z]) |
+                 (?<=[^A-Z])(?=[A-Z]) |
+                 (?<=[A-Za-z])(?=[^A-Za-z])", RegexOptions.IgnorePatternWhitespace);
+
+            return r.Replace(s, " ").ToLower();
+        }
+        else
+            return s;
+    }
+
 }

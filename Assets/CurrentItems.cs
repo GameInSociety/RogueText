@@ -173,10 +173,8 @@ public static class CurrentItems
             if (text.Contains("other"))
             {
                 pendingItem = null;
-                return;
             }
-
-            if (list.Contains(pendingItem))
+            else if (list.Contains(pendingItem))
             {
                 Debug.Log("getting pending item : " + pendingItem.debug_name);
                 SetSpecificItem(pendingItem);

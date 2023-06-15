@@ -10,15 +10,21 @@ public class ItemManager : MonoBehaviour {
 
     public Item GetDataItem(string _name)
     {
-        _name = _name.ToLower();
+        Item item;
+        if (_name.StartsWith("type:"))
+        {
+            _name = _name.Remove(0, 5);
+            List<Item> items = dataItems.FindAll(x => x.HasInfo(_name));
 
-        // to find the word on ly
-        //Item item = dataItems.Find(x => x.word.text.ToLower() == _name);
+            item = items[Random.Range(0, items.Count)];
+            Debug.Log("random item of type : " + _name + " : " + item.debug_name);
 
-        // to search also in syonyms
-        Item item = dataItems.Find(x =>
-        x.HasWord(_name)
-            );
+            Debug.Log(item.debug_name);
+        }
+        else
+        {
+            item = dataItems.Find(x => x.debug_name == _name);
+        }
 
         if (item == null)
         {
@@ -66,7 +72,6 @@ public class ItemManager : MonoBehaviour {
     public Item CreateFromData(string name)
     {
         Item copy = GetDataItem(name);
-        
 
         return CreateFromData(copy);
     }
@@ -81,7 +86,7 @@ public class ItemManager : MonoBehaviour {
         newItem.debug_randomID = Random.Range(0, 10000);
         newItem.dataIndex = copy.dataIndex;
 
-        newItem.info = new Item.Info(copy.info);
+        newItem.infos = copy.infos;
 
         // the word never changes, non ? pourquoi en copy
         newItem.words = copy.words;

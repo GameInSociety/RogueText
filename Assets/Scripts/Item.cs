@@ -25,28 +25,25 @@ public class Item
         return AppearInfo.GetAppearInfo(dataIndex);
     }
 
+    public string infos;
+    public void AddInfo(string str)
+    {
+        if (infos.Contains(str))
+        {
+            Debug.Log(infos + " already contains " + str);
+        }
+
+        infos += "\n" + str;
+    }
+
+    public bool HasInfo(string str)
+    {
+        return infos.Contains(str);
+    }
 
     public bool visible = false;
 
     // pas encore utilisé mais à faire 
-    public Info info;
-    [System.Serializable]
-    public struct Info
-    {
-        public Info(Info copy)
-        {
-            generatedItems = copy.generatedItems;
-            discovered = copy.discovered;
-            invisible = copy.invisible;
-            def = copy.def;
-        }
-
-        public bool invisible;
-        public bool generatedItems;
-        public bool discovered;
-
-        public bool def;
-    }
 
     /// <summary>
     /// declaration
@@ -72,8 +69,7 @@ public class Item
     }
     public virtual void TryGenerateItems()
     {
-
-        if (info.generatedItems)
+        if (HasInfo("generated items"))
         {
             return;
         }
@@ -83,7 +79,7 @@ public class Item
 
     public virtual void GenerateItems()
     {
-        info.generatedItems = true;
+        AddInfo("generated items");
 
         foreach (var itemInfo in GetAppearInfo().itemInfos)
         {
@@ -92,8 +88,7 @@ public class Item
                 float f = Random.value * 100f;
                 if (f < itemInfo.chanceAppear)
                 {
-                    string itemName = itemInfo.GetItemName();
-                    CreateInItem(itemName);
+                    CreateInItem(itemInfo.name);
                 }
             }
         }
@@ -197,13 +192,23 @@ public class Item
         return this as Humanoid != null;
     }
 
-    static int depth = -1;
-    static int tDepth = 0;
+    public List<Item> GetUnanimatedItems()
+    {
+        return mContainedItems.FindAll(x =>
+            
+            !x.IsHumanoid()
+
+        );
+    }
+    public List<Item> GetHumanoids()
+    {
+        return mContainedItems.FindAll(x => x.IsHumanoid());
+    }
     public virtual void WriteContainedItems(bool describeContainers =false)
     {
         // Get Groups for description
         List<Group> allGroups = new List<Group>();
-        foreach (var item in mContainedItems)
+        foreach (var item in GetUnanimatedItems())
         {
             Group group = allGroups.Find(x => x.item.dataIndex == item.dataIndex);
             item.visible = true;
@@ -215,7 +220,8 @@ public class Item
                 newGroup.amount = 1;
                 newGroup.item = item;
                 allGroups.Add(newGroup);
-                item.info.def = false;
+
+                item.word.defaultDefined = false;
                 continue;
 
             }
@@ -230,15 +236,12 @@ public class Item
 
         if (describeContainers)
         {
-            containerGroups = allGroups.FindAll(x => x.item.ContainsItems() && x.item.info.invisible);
-            itemGroups = allGroups.FindAll(x =>  !x.item.info.invisible);
+            containerGroups = allGroups.FindAll(x => x.item.ContainsItems() && x.item.HasInfo("invisible"));
         }
-        else
-        {
-            itemGroups = allGroups.FindAll(x =>  !x.item.info.invisible);
-        }
+        itemGroups = allGroups.FindAll(x => !x.item.HasInfo("invisible"));
 
-        if (containerGroups.Count > 0 && containerGroups.First().item.info.invisible == false)
+
+        if (containerGroups.Count > 0 && !containerGroups.First().item.HasInfo("invisible"))
         {
             itemGroups.Insert(0, containerGroups.First());
         }
@@ -259,14 +262,14 @@ public class Item
             foreach (var group in itemGroups)
             {
                 group.item.word.currentInfo.amount = group.amount;
-                if (group.item.info.def)
+                if (group.item.word.defaultDefined)
                 {
                     TextManager.Add("&the dog&", group.item);
                 }
                 else
                 {
                     TextManager.Add("&a dog&", group.item);
-                    group.item.info.def = true;
+                    group.item.word.defaultDefined = true;
                 }
                 TextManager.AddLink(index, itemGroups.Count);
 
@@ -275,14 +278,14 @@ public class Item
 
             if (this != Tile.GetCurrent && itemGroups.Count > 0)
             {
-                if (info.def)
+                if (word.defaultDefined)
                 {
                     TextManager.Add(" &on the dog&", this);
                 }
                 else
                 {
                     TextManager.Add(" &on a dog&", this);
-                    info.def = true;
+                    word.defaultDefined = true;
                 }
             }
         }
@@ -295,7 +298,7 @@ public class Item
             }
         }
 
-        info.discovered = true;
+        AddInfo("discovered");
 
     }
 
@@ -395,7 +398,7 @@ public class Item
     /// properties /// <summary>
     /// properties ///
     /// </summary>
-    public void WriteDescription()
+    public virtual void WriteDescription()
     {
         if (HasProperties())
         {

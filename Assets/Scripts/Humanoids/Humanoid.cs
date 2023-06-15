@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,8 +19,141 @@ public class Humanoid : Item
     public Coords coords = new Coords(-1, -1);
     public Coords direction = new Coords(-1, -1);
 
+    public class Body
+    {
+
+        public void Init()
+        {
+            foreach (Part part in Enum.GetValues(typeof(Part)))
+            {
+                string itemName = TextManager.ToLowercaseNamingConvention(part.ToString(), true);
+                Item item = ItemManager.Instance.CreateFromData(itemName);
+                parts.Add(item);
+            }
+        }
+
+        public enum Part
+        {
+            Head,
+            Neck,
+            Chest,
+            LeftArm,
+            RightArm,
+            LeftHand,
+            RightHand,
+            LeftLeg,
+            RightLeg,
+            LeftFoot,
+            RightFoot,
+        }
+
+        private List<Item> parts = new List<Item>();
+
+        public Item GetPart(Part part)
+        {
+            return parts[(int)part];
+        }
+
+        public List<Item> GetParts()
+        {
+            return parts;
+        }
+    }
+
+    public class Equipment
+    {
+        public void Init()
+        {
+            foreach (Socket socket in Enum.GetValues(typeof(Socket)))
+            {
+                string itemName = TextManager.ToLowercaseNamingConvention(socket.ToString(), true);
+                Item item = ItemManager.Instance.CreateFromData(itemName);
+                Wearable wearable = new Wearable();
+                wearable.socket = socket;
+                wearables.Add(wearable);
+            }
+
+
+        }
+
+        public Item GetItem(Socket socket, int layer)
+        {
+            return Get(socket).items.Find(x => x.GetProperty(socket.ToString()).GetInt() == layer);
+        }
+
+        public bool HasItem(Socket socket, int layer)
+        {
+            return GetItem(socket, layer) != null;
+        }
+
+        public void RemoveItem(Socket socket, int layer)
+        {
+            Get(socket).items.Remove(GetItem(socket, layer));
+        }
+
+        public Wearable Get(Socket socket)
+        {
+            return wearables[(int)socket];
+        }
+
+        public void Equip(Socket socket , Item item )
+        {
+            int layer = item.GetProperty(socket.ToString()).GetInt();
+
+            Item _item = GetItem(socket, layer);
+            if ( _item != null)
+            {
+                TextManager.Write("You already have &the dog& equiped on the " + socket.ToString());
+                return;
+            }
+
+            Get(socket).items.Add(item);
+        }
+
+        public void Unequip(Socket socket, Item item)
+        {
+            int layer = item.GetProperty(socket.ToString()).GetInt();
+
+            if (!HasItem(socket, layer))
+            {
+                TextManager.Write("You don't have anything on the " + socket.ToString());
+                return;
+            }
+
+            RemoveItem(socket, layer);
+        }
+
+        public List<Wearable> wearables = new List<Wearable>();
+
+        public class Wearable
+        {
+            public Socket socket;
+            public List<Item> items;
+            public bool HasItem(Item item)
+            {
+                return items.Contains(item);
+            }
+
+        }
+        public enum Socket
+        {
+            Head,
+            Neck,
+            Chest,
+            Legs,
+            Hands,
+            Feet,
+        }
+
+
+    }
+
     public virtual void Init()
     {
+        Body body = new Body();
+        body.Init();
+        Equipment equipment = new Equipment();
+        equipment.Init();
 
     }
 
@@ -61,6 +197,8 @@ public class Humanoid : Item
         // set new direction
         currentCarnidal = (Cardinal)direction;
     }
+
+
 
     public virtual void Orient(Orientation orientation)
     {

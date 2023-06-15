@@ -90,7 +90,7 @@ public class ItemLoader : TextParser {
         // add to item list
         ItemManager.Instance.dataItems.Add(newItem);
 
-        newItem.info.invisible = cells[3].Contains("invisible");
+        newItem.infos = cells[3];
 
         if ( cells.Count > 4)
         {

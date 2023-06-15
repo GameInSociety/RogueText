@@ -21,19 +21,19 @@ Condition(health, -1)",,,,,"Player(move, relative, 0)",,,,,,,,,GOOUT,"Player(mov
 north,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 north east,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 east,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-south east,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-south,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-south west,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-west,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-north west,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+south east,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+south,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+south west,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+west,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+north west,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "front
 forward
-ahead",,"Player(move, relative, 0)",,,,,"Player(orient, 0)",,,,"Player(move, relative, 0)",,,,,,,,,,"Player(move, relative, 0)",,,,,,,,,,,,,,,
-right,,"Player(move, relative, 2)",,,,,"Player(orient, 2)",,,,"Player(move, relative, 2)",,,,,,,,,,"Player(move, relative, 2)",,,,,,,,,,,,,,,
+ahead",,"Player(move, relative, 0)",,,,,Item(describe),"Player(orient, 0)",,,"Player(move, relative, 0)",,,,,,,,,,"Player(move, relative, 0)",,,,,,,,,,,,,,,
+right,,"Player(move, relative, 2)",,,,,Item(describe),"Player(orient, 2)",,,"Player(move, relative, 2)",,,,,,,,,,"Player(move, relative, 2)",,,,,,,,,,,,,,,
 "back
 backwards
-behind",,"Player(move, relative, 4)",,,,,"Player(orient, 4)",,,,"Player(move, relative, 4)",,,,,,,,,,"Player(move, relative, 4)",,,,,,,,,,,,,,,
-left,,"Player(move, relative, 6)",,,,,"Player(orient, 6)",,,,"Player(move, relative, 6)",,,,,,,,,,"Player(move, relative, 6)",,,,,,,,,,,,,,,
+behind",,"Player(move, relative, 4)",,,,,Item(describe),"Player(orient, 4)",,,"Player(move, relative, 4)",,,,,,,,,,"Player(move, relative, 4)",,,,,,,,,,,,,,,
+left,,"Player(move, relative, 6)",,,,,Item(describe),"Player(orient, 6)",,,"Player(move, relative, 6)",,,,,,,,,,"Player(move, relative, 6)",,,,,,,,,,,,,,,
 "inventory
 bag",,,Item(describe),,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 *,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -60,7 +60,7 @@ shower,,,,,,,Item(describe),,,"Condition(thirst, +3)",,,,,,,,,,,,,,,,,,,,,,,,,,
 letter,,,,,,,Item(describe),"Take
 SetParam(retrieved_letter, true)",,,,"GiveClue
 SetParam(retrieved_letter, true)",,,,,,,,,,,,,,,,,,,,,,,,
-bush,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+bush,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 tree,,,,,,,Item(describe),,,,MoveAWAY,,"Write(the tree falls down)
 Item(destroy)
 Item(create, log, 5)
@@ -249,6 +249,6 @@ floor,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,"Item(create, trou)",,,,,
 hole,,,,,,,Item(describe),,Item(destroy),,,,,,,,,,,,,,,,,,,,,,"Item(create, trou)",,,,,
 desk,,,,,,,Item(describe),Item(pickUp),,,,,,,,,,,,,,,,,,,,,,,,,,,,
 mound,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-sailing ship,,,,,,, ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-undead,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-crotte,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+sailing ship,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+undead,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+crotte,,,,,,,Item(describe),,,,,,,,,,,,,,,,,,,,,,,,,,,,,

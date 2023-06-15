@@ -4,30 +4,31 @@ using UnityEngine;
 
 public class Function_Time : Function
 {
-    public override void Call(List<Item> items)
+    public override void TryCall()
     {
-        base.Call(items);
+        base.TryCall();
 
-        if ( GetParam(0) == "display")
+        Call(this);
+    }
+
+    void display()
+    {
+        TimeManager.Instance.WriteTimeOfDay();
+    }
+
+    void wait()
+    {
+        int hours;
+
+        if (InputInfo.Instance.hasValueInText)
         {
-            TimeManager.Instance.WriteTimeOfDay();
-            return;
+            hours = InputInfo.Instance.valueInText;
+        }
+        else
+        {
+            hours = 1;
         }
 
-        if ( GetParam(0) == "wait")
-        {
-            int hours;
-
-            if (InputInfo.Instance.hasValueInText)
-            {
-                hours = InputInfo.Instance.valueInText;
-            }
-            else
-            {
-                hours = 1;
-            }
-
-            TimeManager.Instance.Wait(hours);
-        }
+        TimeManager.Instance.Wait(hours);
     }
 }

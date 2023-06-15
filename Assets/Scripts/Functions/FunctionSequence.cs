@@ -142,7 +142,7 @@ public class FunctionSequence
 
                 function.InitParams(_line);
 
-                function.TryCall(itemGroups[itemIndex].items);
+                function.TryCall();
 
                 if (_break)
                 {

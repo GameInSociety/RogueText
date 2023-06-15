@@ -4,55 +4,36 @@ using UnityEngine;
 
 public class Function_Player : Function
 {
-    public override void Call(List<Item> items)
+    public override void TryCall()
     {
-        base.Call(items);
-
-        if ( GetParam(0) == "move")
-        {
-            Move();
-        }
-
-        if ( GetParam(0) == "orient")
-        {
-            Orient();
-            return;
-        }
-        
+        base.TryCall();
+        Call(this);
     }
 
-    void Move()
+    void move()
     {
-        if (GetParam(1) == "door")
+        if (GetParam(0) == "door")
         {
             ToDoor();
             return;
         }
 
-        if (GetParam(1) == "tile")
+        if (GetParam(0) == "tile")
         {
             ToTile();
             return;
         }
 
-        if (GetParam(1) == "relative")
+        if (GetParam(0) == "relative")
         {
             ToOrientation();
             return;
         }
-
-        ToCardinal();
-        return;
-    }
-
-    void ToCardinal()
-    {
-        Player.Instance.Move((Cardinal)ParseParam(1));
     }
 
     void ToOrientation()
     {
-        Player.Orientation moveOrientation = (Player.Orientation)ParseParam(2);
+        Player.Orientation moveOrientation = (Player.Orientation)ParseParam(1);
         Player.Instance.Move(Player.OrientationToCardinal(moveOrientation));
     }
 
@@ -86,9 +67,9 @@ public class Function_Player : Function
         }
     }
 
-    void Orient()
+    void orient()
     {
-        Humanoid.Orientation lookOrientation = (Player.Orientation)ParseParam(1);
+        Humanoid.Orientation lookOrientation = (Player.Orientation)ParseParam(0);
         Player.Instance.Orient(lookOrientation);
     }
 

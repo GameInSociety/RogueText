@@ -59,12 +59,12 @@ public class AppearInfoLoader : TextParser
             {
                 AppearInfo.ItemInfo itemInfo = new AppearInfo.ItemInfo();
 
+                // name or type
                 string[] parts = line.Split(", ");
                 string itemName = parts[0];
-                Item targetItem = ItemManager.Instance.GetDataItem(itemName);
-                itemInfo.itemIndex = targetItem.dataIndex;
-                itemInfo.name = targetItem.debug_name;
+                itemInfo.name = itemName;
 
+                // params
                 itemInfo.chanceAppear = 100;
                 itemInfo.amount = 1;
 

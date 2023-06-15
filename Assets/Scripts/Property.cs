@@ -209,6 +209,8 @@ public class Property
                 return TextUtils.GetPropertyContainerText(this);
             case "dir":
                 return "goes " + value;
+            case "equip":
+                return "you can put it on";
             default:
                 break;
         }

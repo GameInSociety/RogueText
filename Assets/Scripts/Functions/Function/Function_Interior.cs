@@ -4,40 +4,39 @@ using UnityEngine;
 
 public class Function_Interior : Function
 {
-    public override void Call(List<Item> items)
+    public override void TryCall()
     {
-        base.Call(items);
+        base.TryCall();
+        Call(this);
+    }
 
-        if ( GetParam(0) == "enter")
+    void enter()
+    {
+        Interior interior = GetItem().interior;
+
+        if (interior == null)
         {
-            Interior interior = GetItem().interior;
-
-            if ( interior == null)
-            {
-                interior = new Interior();
-                interior.Genererate(GetItem());
-            }
-
-            interior.Enter();
-            return;
+            interior = new Interior();
+            interior.Genererate(GetItem());
         }
 
-        if ( GetParam(0) == "describeOut")
+        interior.Enter();
+    }
+
+    void describeOut()
+    {
+        Cardinal cardinal = Coords.GetCardinalFromString(GetItem().GetProperty("direction").value);
+        Coords targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
+
+        Tile tile = TileSet.map.GetTile(targetCoords);
+
+        if (tile == null)
         {
-            Cardinal cardinal = Coords.GetCardinalFromString(GetItem().GetProperty("direction").value);
-            Coords targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
-
-            Tile tile = TileSet.map.GetTile(targetCoords);
-
-            if (tile == null)
-            {
-                TextManager.Write("The view is blocked by some bushes");
-            }
-            else
-            {
-                TextManager.Write("tile_describeExterior", tile);
-            }
-            return;
+            TextManager.Write("The view is blocked by some bushes");
+        }
+        else
+        {
+            TextManager.Write("tile_describeExterior", tile);
         }
     }
 }

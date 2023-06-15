@@ -24,8 +24,8 @@ public class ItemEvent
 
         if ( itemEvent == null)
         {
-            return;
             Debug.LogError("no item event for : " + item.debug_name);
+            return;
         }
 
         itemEvent.remove = true;

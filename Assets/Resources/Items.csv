@@ -1,4 +1,4 @@
-,,prep,info,properties,,,,,
+,,prep,types,properties,,,,,
 verbe seul,s,,,,,,,,
 north,"s
 d",to,"invisible
@@ -224,11 +224,81 @@ basement,s,in,,,,,,,
 cellar,s,in,,,,,,,
 office,s,in,,hidden / enclosed,,,,,
 garage,s,in,,,,,,,
-watering can,s,,,container / water / 10,,,,,
+watering can,s,,,,,,,,
 floor,s,on,,,,,,,
 hole,s,in,,,,,,,
 desk,s,,,,,,,,
 mound,s,,,,,,,,
 sailing ship,s,,,,,,,,
-undead,s,,,,,,,,
+undead,s,,humanoid,,,,,,
 crotte,s,,,,,,,,
+head,s,,body part,,,,,,
+neck,s,on,body part,,,,,,
+torso,s,in,body part,,,,,,
+left arm,s,,body part,,,,,,
+right arm,s,,body part,,,,,,
+left hand,s,,body part,,,,,,
+right hand,s,,body part,,,,,,
+left leg,s,,body part,,,,,,
+right leg,s,,body part,,,,,,
+left foot,s,on,body part,,,,,,
+right foot,s,in,body part,,,,,,
+baseball hat,s,,"clothes
+headwear",,,,,,
+fedora,s,,"clothes
+headwear",,,,,,
+chapka,s,,"clothes
+headwear",,,,,,
+beret,s,,"clothes
+headwear",,,,,,
+turtleneck sweater,s,,"clothes
+shirts",,,,,,
+t-shirt,s,,"clothes
+shirts",,,,,,
+tank top,s,,"clothes
+shirts",,,,,,
+long-sleeved shirt,s,,"clothes
+shirts",,,,,,
+hoody,s,,"clothes
+shirts",,,,,,
+jacket,s,,"clothes
+shirts",,,,,,
+tuxedo top,s,,clothes,,,,,,
+sweat pants,p,,"clothes
+legwear",,,,,,
+skirt,s,,"clothes
+legwear",,,,,,
+cargo pants,p,,"clothes
+legwear",,,,,,
+jumpsuit,s,,"clothes
+legwear",,,,,,
+carpenter suit,s,,"clothes
+legwear",,,,,,
+short pants,p,,"clothes
+legwear",,,,,,
+jeans,p,,"clothes
+legwear",,,,,,
+knee high boots,p,,"clothes
+footwear",,,,,,
+work boots,p,,"clothes
+footwear",,,,,,
+uggs,p,,"clothes
+footwear",,,,,,
+basketball shoes,p,,"clothes
+footwear",,,,,,
+laced booties,p,,"clothes
+footwear",,,,,,
+flip flops,p,,"clothes
+footwear",,,,,,
+monk straps,p,,"clothes
+footwear",,,,,,
+scarpin heels,p,,"clothes
+footwear",,,,,,
+fingerless gloves,p,,"clothes
+handwear",,,,,,
+lace gloves,p,,"clothes
+handwear",,,,,,
+leather gloves,p,,"clothes
+handwear",,,,,,
+mittens,p,,"clothes
+handwear",,,,,,
