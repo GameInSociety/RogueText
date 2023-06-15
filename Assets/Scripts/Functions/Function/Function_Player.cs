@@ -69,7 +69,7 @@ public class Function_Player : Function
         Item targetItem = GetItem();
 
         Property prop = targetItem.GetPropertyOfType("direction");
-        Movable.Orientation orientation = Coords.GetOrientationFromString(prop.name);
+        Humanoid.Orientation orientation = Coords.GetOrientationFromString(prop.name);
 
         Debug.Log("target orientation = " + orientation);
 
@@ -88,7 +88,7 @@ public class Function_Player : Function
 
     void Orient()
     {
-        Movable.Orientation lookOrientation = (Player.Orientation)ParseParam(1);
+        Humanoid.Orientation lookOrientation = (Player.Orientation)ParseParam(1);
         Player.Instance.Orient(lookOrientation);
     }
 

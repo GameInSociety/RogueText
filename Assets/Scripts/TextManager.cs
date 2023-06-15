@@ -6,16 +6,16 @@ using static UnityEditor.Progress;
 public class TextManager
 {
     static Item overrideItem = null;
-    static List<Movable.Orientation> overrideOrientations = new List<Movable.Orientation>();
+    static List<Humanoid.Orientation> overrideOrientations = new List<Humanoid.Orientation>();
     // PARAMS
     public static List<PhraseKey> phraseKeys = new List<PhraseKey>();
     // override c'est vraiment pas bien, il faut trouver une façon de faire ("&le chien sage (surrounding tile)&")
 
-    public static void SetOverrideOrientation(Movable.Orientation orientation)
+    public static void SetOverrideOrientation(Humanoid.Orientation orientation)
     {
-        overrideOrientations = new List<Movable.Orientation> { orientation };
+        overrideOrientations = new List<Humanoid.Orientation> { orientation };
     }
-    public static void SetOverrideOrientation(List<Movable.Orientation> _orientations)
+    public static void SetOverrideOrientation(List<Humanoid.Orientation> _orientations)
     {
         overrideOrientations = _orientations;
     }
@@ -135,7 +135,7 @@ public class TextManager
 
         return overrideItem;
     }
-    public static List<Movable.Orientation> GetOverrideOrientations()
+    public static List<Humanoid.Orientation> GetOverrideOrientations()
     {
         return overrideOrientations;
     }

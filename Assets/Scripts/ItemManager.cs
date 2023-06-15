@@ -22,6 +22,8 @@ public class ItemManager : MonoBehaviour {
 
         if (item == null)
         {
+            Debug.LogError("no " + _name + " in item datas");
+
             // find plural
             item = dataItems.Find(x => x.word.GetPlural() == _name);
 

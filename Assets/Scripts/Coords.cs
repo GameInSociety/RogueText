@@ -56,7 +56,7 @@ public struct Coords
         this.y = y;
     }
 
-    public static string GetOrientationText(List<Movable.Orientation> orientations)
+    public static string GetOrientationText(List<Humanoid.Orientation> orientations)
     {
         string str = "";
 
@@ -97,7 +97,7 @@ public struct Coords
         }
     }
 
-    public static string GetOrientationText(Movable.Orientation orientation)
+    public static string GetOrientationText(Humanoid.Orientation orientation)
     {
         string key = orientation.ToString().Remove(1).ToLower() + orientation.ToString().Remove(0, 1);
         key = "position_" + key;
@@ -105,21 +105,21 @@ public struct Coords
         return TextManager.GetPhrase(key);
     }
 
-    public static string GetOrientationWord(Movable.Orientation orientation)
+    public static string GetOrientationWord(Humanoid.Orientation orientation)
     {
         switch (orientation)
         {
-            case Movable.Orientation.front:
+            case Humanoid.Orientation.front:
                 return "front";
-            case Movable.Orientation.right:
+            case Humanoid.Orientation.right:
                 return "right";
-            case Movable.Orientation.back:
+            case Humanoid.Orientation.back:
                 return "back";
-            case Movable.Orientation.left:
+            case Humanoid.Orientation.left:
                 return "left";
-            case Movable.Orientation.None:
+            case Humanoid.Orientation.None:
                 return "eeeeeeeeeh";
-            case Movable.Orientation.Current:
+            case Humanoid.Orientation.Current:
                 return "here";
             default:
                 break;
@@ -144,20 +144,20 @@ public struct Coords
 
     }
 
-    public static Movable.Orientation GetOrientationFromString(string str)
+    public static Humanoid.Orientation GetOrientationFromString(string str)
     {
-        foreach (var item in System.Enum.GetValues(typeof(Movable.Orientation)))
+        foreach (var item in System.Enum.GetValues(typeof(Humanoid.Orientation)))
         {
             if (item.ToString() == str)
             {
-                return (Movable.Orientation)item;
+                return (Humanoid.Orientation)item;
             }
         }
 
 
         Debug.LogError("no orientation found in " + str);
 
-        return Movable.Orientation.None;
+        return Humanoid.Orientation.None;
 
     }
 
@@ -340,31 +340,31 @@ public struct Coords
         return "X : " + x + " / Y : " + y;
     }
 
-    public static Movable.Orientation GetOrientationFromNorth(Cardinal direction)
+    public static Humanoid.Orientation GetOrientationFromNorth(Cardinal direction)
     {
         switch (direction)
         {
             case Cardinal.north:
-                return Movable.Orientation.front;
+                return Humanoid.Orientation.front;
             case Cardinal.NorthEast:
                 break;
             case Cardinal.east:
-                return Movable.Orientation.left;
+                return Humanoid.Orientation.left;
             case Cardinal.SouthEast:
                 break;
             case Cardinal.south:
-                return Movable.Orientation.back;
+                return Humanoid.Orientation.back;
             case Cardinal.SouthWest:
                 break;
             case Cardinal.west:
-                return Movable.Orientation.right;
+                return Humanoid.Orientation.right;
             case Cardinal.NorthWest:
                 break;
             case Cardinal.None:
                 break;
         }
 
-        return Movable.Orientation.None;
+        return Humanoid.Orientation.None;
 
     }
 
@@ -424,7 +424,7 @@ public struct Coords
 
     }
 
-    public static Cardinal GetRelativeDirection(Cardinal direction, Movable.Orientation facing)
+    public static Cardinal GetRelativeDirection(Cardinal direction, Humanoid.Orientation facing)
     {
         int a = (int)direction + (int)facing;
         if (a >= 8)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class Movable
+public class Humanoid : Item
 {
     public Cardinal previousCardinal;
     public Cardinal currentCarnidal;
@@ -53,7 +53,9 @@ public class Movable
 
         // change current coords
         prevCoords = coords;
+
         coords = targetCoords;
+
         direction = coords - prevCoords;
 
         // set new direction

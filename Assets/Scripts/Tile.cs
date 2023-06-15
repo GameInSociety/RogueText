@@ -42,7 +42,7 @@ public class Tile : Item
             // change orientation, so the description is correct
             Coords dir = coords - Player.Instance.coords;
             Cardinal cardinal = (Cardinal)dir;
-            Player.Instance.Orient(Movable.CardinalToOrientation(cardinal));
+            Player.Instance.Orient(Humanoid.CardinalToOrientation(cardinal));
         }
 
         TryGenerateItems();
@@ -78,17 +78,17 @@ public class Tile : Item
 
     public void TryGetSurroundingTiles()
     {
-        List<Movable.Orientation> orientations = new List<Movable.Orientation>
+        List<Humanoid.Orientation> orientations = new List<Humanoid.Orientation>
         {
-            Movable.Orientation.front,
-            Movable.Orientation.right,
-            Movable.Orientation.left,
-            Movable.Orientation.back
+            Humanoid.Orientation.front,
+            Humanoid.Orientation.right,
+            Humanoid.Orientation.left,
+            Humanoid.Orientation.back
         };
 
         foreach (var orientation in orientations)
         {
-            /*Cardinal cardinal = Movable.OrientationToCardinal(orientation);
+            /*Cardinal cardinal = Humanoid.OrientationToCardinal(orientation);
             string cardinalItemName = cardinal.ToString();*/
 
             Tile adjacentTile = GetAdjacent(orientation);
@@ -99,7 +99,7 @@ public class Tile : Item
             }
 
             string orientation_itemName = orientation.ToString();
-            string opposite_itemName = Movable.GetOpposite(orientation).ToString();
+            string opposite_itemName = Humanoid.GetOpposite(orientation).ToString();
 
             if (!HasItem(orientation_itemName))
             {
@@ -176,9 +176,9 @@ public class Tile : Item
 
 
 
-    public Tile GetAdjacent(Movable.Orientation orientation)
+    public Tile GetAdjacent(Humanoid.Orientation orientation)
     {
-        Cardinal dir = Movable.OrientationToCardinal(orientation);
+        Cardinal dir = Humanoid.OrientationToCardinal(orientation);
 
         Coords targetCoords = coords + (Coords)dir;
 
@@ -202,13 +202,13 @@ public class Tile : Item
 
         return GetCurrent.SameTypeAs(GetPrevious);
     }
-    public Movable.Orientation OrientationToPlayer()
+    public Humanoid.Orientation OrientationToPlayer()
     {
         Coords dir = coords - Player.Instance.coords;
 
         Cardinal cardinal = (Cardinal)dir;
 
-        Movable.Orientation orientation = Movable.CardinalToOrientation(cardinal);
+        Humanoid.Orientation orientation = Humanoid.CardinalToOrientation(cardinal);
 
         return orientation;
     }
@@ -253,12 +253,12 @@ public class Tile : Item
         // delete cardinals, to prevent recursive stack overflow
         List<Cardinal> cards = new List<Cardinal>() { Cardinal.east, Cardinal.north, Cardinal.south, Cardinal.west };
 
-        List<Movable.Orientation> orientations = new List<Movable.Orientation>
+        List<Humanoid.Orientation> orientations = new List<Humanoid.Orientation>
         {
-            Movable.Orientation.front,
-            Movable.Orientation.right,
-            Movable.Orientation.left,
-            Movable.Orientation.back
+            Humanoid.Orientation.front,
+            Humanoid.Orientation.right,
+            Humanoid.Orientation.left,
+            Humanoid.Orientation.back
         };
 
         foreach (var orientation in orientations)

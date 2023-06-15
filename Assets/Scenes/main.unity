@@ -494,7 +494,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.49578997
+  m_Size: 0.45376518
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4158,11 +4158,11 @@ MonoBehaviour:
   tile:
     debug_name: debug name
     debug_randomID: 0
+    visible: 0
     info:
       invisible: 0
       generatedItems: 0
       discovered: 0
-      differenciate: 0
       def: 0
     dataIndex: 0
     currentWordIndex: 0
@@ -4172,7 +4172,6 @@ MonoBehaviour:
     coords:
       x: 0
       y: 0
-    saidTheres: 0
   verb:
     col: 0
     question: 
@@ -4184,11 +4183,11 @@ MonoBehaviour:
   inventory:
     debug_name: debug name
     debug_randomID: 0
+    visible: 0
     info:
       invisible: 0
       generatedItems: 0
       discovered: 0
-      differenciate: 0
       def: 0
     dataIndex: 0
     currentWordIndex: 0
@@ -4203,11 +4202,11 @@ MonoBehaviour:
     tile:
       debug_name: debug name
       debug_randomID: 0
+      visible: 0
       info:
         invisible: 0
         generatedItems: 0
         discovered: 0
-        differenciate: 0
         def: 0
       dataIndex: 0
       currentWordIndex: 0
@@ -4217,12 +4216,12 @@ MonoBehaviour:
       coords:
         x: 0
         y: 0
-      saidTheres: 0
     _break: 0
     _nextNode: 0
   colorWords: 0
   availableItems: []
-  currentItems: []
+  currentItems_in: []
+  currentItems_out: []
   propertyEvents: []
 --- !u!1 &1998673411
 GameObject:

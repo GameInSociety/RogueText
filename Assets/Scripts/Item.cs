@@ -192,6 +192,11 @@ public class Item
         return this as Tile != null;
     }
 
+    public bool IsHumanoid()
+    {
+        return this as Humanoid != null;
+    }
+
     static int depth = -1;
     static int tDepth = 0;
     public virtual void WriteContainedItems(bool describeContainers =false)

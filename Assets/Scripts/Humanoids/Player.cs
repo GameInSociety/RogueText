@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 
 [System.Serializable]
-public class Player : Movable {
+public class Player : Humanoid {
 
     public static Player Instance;
 

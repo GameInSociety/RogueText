@@ -1,7 +1,9 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class ZombieManager : MonoBehaviour
 {
@@ -18,15 +20,23 @@ public class ZombieManager : MonoBehaviour
 
     public void Init()
     {
-        for (int i = 0; i < count; i++)
+        /*for (int i = 0; i < count; i++)
         {
             Zombie zombie = new Zombie();
 
             zombie.Init();
 
             zombies.Add(zombie);
-        }
+        }*/
 
+        Item item = ItemManager.Instance.CreateFromData("undead");
+
+        var serializedParent = JsonConvert.SerializeObject(item);
+        Zombie newZombie = JsonConvert.DeserializeObject<Zombie>(serializedParent);
+        newZombie.coords = Player.Instance.coords;
+
+        newZombie.Init();
+        
         MapTexture.Instance.UpdateFeedbackMap();
 
         TimeManager.Instance.onNextHour += HandleOnNextHour;

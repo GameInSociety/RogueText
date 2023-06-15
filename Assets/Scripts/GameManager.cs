@@ -33,9 +33,11 @@ public class GameManager : MonoBehaviour
 
         Player.Instance = new Player();
         Player.Instance.Init();
+
+        ZombieManager.Instance.Init();
+
         Player.Instance.Move(Cardinal.None);
 
-        //ZombieManager.Instance.Init();
 
     }
 

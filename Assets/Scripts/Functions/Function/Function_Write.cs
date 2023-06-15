@@ -10,7 +10,7 @@ public class Function_Write : Function
 
         if ( GetParam(0) == "_north")
         {
-            Movable.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
+            Humanoid.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
             TextManager.SetOverrideOrientation(orientation);
             TextManager.Write("compas_giveNorth");
             return;
