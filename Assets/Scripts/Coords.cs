@@ -327,11 +327,11 @@ public struct Coords
 
     public static Word GetWordsDirection(Cardinal direction)
     {
-        return ItemManager.Instance.dataItems[(int)direction + 1].word;
+        return Item.dataItems[(int)direction + 1].word;
     }
     public static Item GetDirectionItem(Cardinal direction)
     {
-        return ItemManager.Instance.dataItems[(int)direction + 1];
+        return Item.dataItems[(int)direction + 1];
     }
 
     // string

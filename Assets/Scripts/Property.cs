@@ -210,7 +210,7 @@ public class Property
             case "dir":
                 return "goes " + value;
             case "equip":
-                return "you can put it on";
+                return "something you can wear";
             default:
                 break;
         }

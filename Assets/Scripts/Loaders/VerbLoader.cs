@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Analytics;
 
 public class VerbLoader : TextParser
 {
@@ -10,40 +11,46 @@ public class VerbLoader : TextParser
         Instance = this;
     }
 
-    public override void GetCell(int line_Index, List<string> line)
+    public override void GetCell(int line_Index, List<string> cells)
     {
-        base.GetCell(line_Index, line);
+        base.GetCell(line_Index, cells);
 
-        if (line.Count < 3)
+        if (cells.Count < 3)
         {
             return;
         }
 
         Verb newVerb = new Verb();
 
-        string name = line[0];
 
-        // check if universal
-        if (name[0] == '(')
+        if ( string.IsNullOrEmpty(cells[0]) )
         {
-            name = name.Remove(0, 1);
-            newVerb.universal = true;
+            return;
+        }
+        // parse all verb synonmys
+        char[] charsToTrim = { '\n', '\t', '\r', ' ' };
+        string[] names = cells[0].Split('\n');
+
+        /*foreach (var item in names)
+        {
+            Debug.Log(line_Index + item);
+        }*/
+        
+        newVerb.names = new string[names.Length];
+
+        for (int nameIndex = 0; nameIndex < names.Length; nameIndex++)
+        {
+            newVerb.names[nameIndex] = names[nameIndex].TrimEnd(charsToTrim);
         }
 
-        // parse all verb synonmys
-        newVerb.names = name.Split('\n');
-        newVerb.question = line[1];
-        newVerb.prepositions = line[2].Split('\n');
+        newVerb.question = cells[1];
+        newVerb.prepositions = cells[2].Split('\n');
         for (int i = 0; i < newVerb.prepositions.Length; i++)
         {
             if (newVerb.prepositions[i] == "*" )
             {
                 newVerb.prepositions[i] = newVerb.prepositions[i].Remove(0, 1);
             }
-        }
-        if ( line.Count > 3)
-        {
-            newVerb.universal = line[3] == "universal";
         }
 
         Verb.AddVerb(newVerb);

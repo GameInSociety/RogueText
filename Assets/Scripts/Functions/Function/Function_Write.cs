@@ -12,6 +12,11 @@ public class Function_Write : Function
         Call(this);
     }
 
+    void text()
+    {
+        TextManager.Write(GetParam(0));
+    }
+
     void north()
     {
         Humanoid.Orientation orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);

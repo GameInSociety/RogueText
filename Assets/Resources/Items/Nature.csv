@@ -1,0 +1,31 @@
+"NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"mushroom","","s","","","","","","","","eat 
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"puddle","","s","in","","container / water / 100
+%subEmpty
+Item(destroy, puddle)","","","","","look 
+Item(describe)","drink 
+Condition(thirst, +3)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bush","","s","in","","","","","","","look 
+Item(describe)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"tree","","s","near","","","","","","","look 
+Item(describe)","move 
+MoveAWAY","cut 
+Write(text, the tree falls down)
+Item(destroy)
+Item(create, log, 5)
+Item(create, stick, 10)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"log","","s","near","","","","","","","look 
+Item(describe)","take 
+Item(pickUp)","cut 
+Write(text, ""you cut the log into sticks)
+Item(create, stick, 3)
+Item(destroy)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"stick","","s","","","","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

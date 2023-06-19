@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 using UnityEngine.Analytics;
 
-public class ItemLoader : TextParser {
+public class ItemLoader : DataDownloader {
 
     // singleton
     public static ItemLoader Instance;
@@ -15,6 +16,10 @@ public class ItemLoader : TextParser {
     int itemIndex = 0;
 
     public Item[] items_debug;
+
+    public int propertyIndex = 0;
+    public int actionIndex = 0;
+    public int appearRateIndex = 0;
 
     private void Awake()
     {
@@ -26,7 +31,7 @@ public class ItemLoader : TextParser {
         base.FinishLoading();
 
         // debug list to explore items
-        items_debug = ItemManager.Instance.dataItems.ToArray();
+        items_debug = Item.dataItems.ToArray();
         foreach (var item in items_debug)
         {
             item.debug_name = item.word.text;
@@ -41,6 +46,25 @@ public class ItemLoader : TextParser {
         // name row
         if (rowIndex < 1)
         {
+            int col = 0;
+            foreach (var cell in cells)
+            {
+                if ( cell == "PROPERTIES")
+                {
+                    propertyIndex = col; 
+                }
+                else if (cell == "ACTIONS")
+                {
+                    actionIndex = col;
+                }
+                else if (cell == "CONTAINED ITEMS")
+                {
+                    appearRateIndex = col;
+                    break;
+                }
+                ++col;
+            }
+
             return;
         }
 
@@ -50,19 +74,16 @@ public class ItemLoader : TextParser {
             return;
         }
 
-        // * est pour passer les lignes vides,
-        // car on ne peut pas supprimer dans lignes ( elle ont des liens dans les autres DATAs )
-        // quand on rajouter un nouveau mot, il faut utiliser les * d'abord
-        if ( cells[0][0] == '*')
-        {
-            // can't continue, parce que sinon ça décale tout donc juste on fait rien
-        }
-
         // create new item
         Item newItem = new Item();
 
         string nameCell = cells[0];
         string[] synonyms = nameCell.Split('\n');
+
+        if (!string.IsNullOrEmpty(cells[1]))
+        {
+            newItem.className = cells[1];
+        }
 
         // SYNONYMS HERE
         // new word
@@ -76,39 +97,150 @@ public class ItemLoader : TextParser {
             // word
             newItem.words.Add(newWord);
             // pour synonym autre ligne aussi dans les genre
-            newWord.UpdateNumber(cells[1]);
+            newWord.UpdateNumber(cells[2]);
 
-            if (cells[2].Length > 1)
+            if (cells[3].Length > 1)
             {
                 // ainsi que les locations peut être
-                newItem.word.SetLocationPrep(cells[2]);
+                newItem.word.SetLocationPrep(cells[3]);
             }
         }
 
         //newItem.index = rowIndex-1;
         newItem.dataIndex = itemIndex;
         // add to item list
-        ItemManager.Instance.dataItems.Add(newItem);
+        Item.dataItems.Add(newItem);
 
-        newItem.infos = cells[3];
+        newItem.infos = cells[4].Split('\n').ToList();
 
-        if ( cells.Count > 4)
-        {
-            for (int i = 4; i < cells.Count; i++)
-            {
-                if (string.IsNullOrEmpty(cells[i]))
-                {
-                    // no properties in the item, continue
-                    break;
-                }
-
-                InitProperty(newItem, cells[i]);
-            }
-        }
+        LoadProperties(cells);
+        LoadActions(cells);
+        LoadAppearRates(cells);
 
         ++itemIndex;
 
 
+    }
+
+    void LoadProperties(List<string> cells)
+    {
+        if (cells.Count <= propertyIndex)
+        {
+            return;
+        }
+
+        for (int i = propertyIndex; i < actionIndex; i++)
+        {
+            if (string.IsNullOrEmpty(cells[i]))
+            {
+                // no properties in the item, continue
+                break;
+            }
+
+            InitProperty(Item.dataItems[itemIndex], cells[i]);
+        }
+    }
+
+    void LoadActions(List<string> cells)
+    {
+        if (cells.Count <= actionIndex)
+        {
+            return;
+        }
+
+        for (int i = actionIndex; i < appearRateIndex; i++)
+        {
+            if (string.IsNullOrEmpty(cells[i]))
+            {
+                // no properties in the item, continue
+                break;
+            }
+
+            InitAction(cells[i]);
+        }
+    }
+
+    void LoadAppearRates(List<string> cells)
+    {
+        AppearInfo appearInfo = new AppearInfo();
+        appearInfo.name = cells[0];
+        Item.appearInfos.Add(appearInfo);
+
+
+        if (cells.Count <= appearRateIndex)
+        {
+            return;
+        }
+
+        for (int i = appearRateIndex; i < cells.Count; i++)
+        {
+            if (string.IsNullOrEmpty(cells[i]))
+            {
+                // no properties in the item, continue
+                break;
+            }
+
+            
+            InitAppearRate(cells[i]);
+        }
+    }
+
+    void InitAppearRate(string cell)
+    {
+        AppearInfo.ItemInfo itemInfo = new AppearInfo.ItemInfo();
+
+        // name or type
+        string[] parts = cell.Split(", ");
+        string itemName = parts[0];
+        itemInfo.name = itemName;
+
+        // params
+        itemInfo.chanceAppear = 100;
+        itemInfo.amount = 1;
+
+        for (int j = 1; j < parts.Length; j++)
+        {
+            string part = parts[j];
+
+            if (part.Contains('%'))
+            {
+                string chanceAppear_str = parts[1].Remove(part.Length - 1);
+                if (!int.TryParse(chanceAppear_str, out itemInfo.chanceAppear))
+                {
+                    Debug.LogError("APPEAR INFO LOAD : couldn't parse chance appear : " + chanceAppear_str);
+                }
+            }
+            else if (part.Contains('x'))
+            {
+                string amount_str;
+                if (part.StartsWith('x'))
+                {
+                    amount_str = part.Remove(0, 1);
+                }
+                else
+                {
+                    amount_str = part.Remove(part.Length - 1);
+                }
+
+                // amount
+                if (!int.TryParse(amount_str, out itemInfo.amount))
+                {
+                    Debug.LogError("APPEAR INFO LOAD : couldn't parse amount : " + amount_str);
+                }
+            }
+        }
+
+        Item.appearInfos[itemIndex].itemInfos.Add(itemInfo);
+    }
+
+    void InitAction(string cell)
+    {
+        string firstLine = cell.Split('\n')[0];
+        firstLine = firstLine.TrimEnd(' ');
+        cell = cell.Remove(0, cell.IndexOf('\n') +1);
+
+        Verb verb = Verb.FindInData(firstLine);
+        verb.AddCell(itemIndex, cell);
     }
 
     void InitProperty(Item item, string cell)

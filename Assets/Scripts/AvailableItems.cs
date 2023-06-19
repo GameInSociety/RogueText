@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEngine;
 
 public static class AvailableItems
 {
     public static List<Item> list = new List<Item>();
+    public static List<Item> recentItems = new List<Item>();
 
     public static Item FindInText(string text)
     {
@@ -35,25 +37,30 @@ public static class AvailableItems
         get
         {
 
-            list.Clear();
 
-            list.Add(Inventory.Instance);
-            list.AddRange(Inventory.Instance.GetContainedItems);
+            List<Item> tmpList = new List<Item>();
+
+            tmpList.Add(Tile.GetCurrent);
+            tmpList.Add(Player.Inventory);
+            tmpList.AddRange(Player.Instance.body.GetAllItems());
 
             if (FunctionSequence.current != null && FunctionSequence.current.tile != Tile.GetCurrent)
             {
-                list.AddRange(FunctionSequence.current.tile.GetAllItems());
+                tmpList.AddRange(FunctionSequence.current.tile.GetAllItems());
             }
             else
             {
-                list.AddRange(Tile.GetCurrent.GetAllItems().FindAll(x=> x.visible));
+                tmpList.AddRange(Tile.GetCurrent.GetAllItems().FindAll(x=> x.visible));
             }
 
-            list.AddRange(ItemManager.Instance.dataItems.FindAll(x => x.GetAppearInfo().usableAnytime));
+            tmpList.AddRange(Item.dataItems.FindAll(x => x.HasInfo("general")));
 
-            //list.Remove(Tile.GetCurrent);
 
-            DebugManager.Instance.availableItems = list;
+            // add recent items
+
+            recentItems = tmpList.FindAll(x => !list.Contains(x));
+            list.Clear();
+            list.AddRange(tmpList);
 
             return list;
         }
@@ -77,7 +84,7 @@ public static class AvailableItems
                 list.AddRange(Tile.GetCurrent.GetAllItems());
             }
 
-            list.AddRange(ItemManager.Instance.dataItems.FindAll(x => x.GetAppearInfo().usableAnytime));
+            list.AddRange(Item.dataItems.FindAll(x => x.GetAppearInfo().usableAnytime));
 
             //list.Remove(Tile.GetCurrent);
 

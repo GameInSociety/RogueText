@@ -13,16 +13,15 @@ public class Function_Item : Function
 
     void pickUp()
     {
-        if (Inventory.Instance.HasItem(GetItem()))
+        if (Player.Inventory.HasItem(GetItem()))
         {
             TextManager.Write("inventory_pickUp_already", GetItem());
         }
         else
         {
-            Item.Remove(GetItem());
+            Item.RemoveFromContainer(GetItem());
 
-            Inventory.Instance.AddItem(GetItem());
-
+            Player.Inventory.AddItem(GetItem());
 
             int count = GetItems.Count;
 
@@ -42,7 +41,7 @@ public class Function_Item : Function
 
     void @throw()
     {
-        Item item = Inventory.Instance.GetItem(GetItem().word.text);
+        Item item = Player.Inventory.GetItem(GetItem().word.text);
 
         if (item == null)
         {
@@ -51,7 +50,7 @@ public class Function_Item : Function
         }
 
         // remove && add
-        Inventory.Instance.RemoveItem(item);
+        Player.Inventory.RemoveItem(item);
         FunctionSequence.current.tile.AddItem(GetItem());
 
         TextManager.Write("inventory_throw_sucess", GetItem());
@@ -80,11 +79,11 @@ public class Function_Item : Function
             item_name = GetItem().GetProperty(targetPropertyName).value;
         }
 
-        Item item = ItemManager.Instance.CreateInTile(FunctionSequence.current.tile, item_name);
+        Item item = FunctionSequence.current.tile.AddItem(item_name);
 
         for (int i = 1; i < amount; i++)
         {
-            ItemManager.Instance.CreateInTile(FunctionSequence.current.tile, item_name);
+            FunctionSequence.current.tile.AddItem(item_name);
         }
 
         if (FunctionSequence.current.tile == Tile.GetCurrent)
@@ -104,7 +103,7 @@ public class Function_Item : Function
             {
                 // found no item in container, inventory or tile
                 // break flow of actions
-                targetItem = ItemManager.Instance.GetDataItem(item_name);
+                targetItem = Item.GetDataItem(item_name);
                 TextManager.Write("item_require", targetItem);
                 FunctionSequence.current.Break();
                 return;

@@ -1,9 +1,13 @@
 ﻿using DG.Tweening.Core.Easing;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using UnityEditorInternal;
@@ -16,6 +20,7 @@ public class Item
 {
     public string debug_name = "debug name";
     public int debug_randomID;
+    public string className;
 
     // interior
     public Interior interior = null;
@@ -25,15 +30,15 @@ public class Item
         return AppearInfo.GetAppearInfo(dataIndex);
     }
 
-    public string infos;
+    public List<string> infos;
     public void AddInfo(string str)
     {
         if (infos.Contains(str))
         {
-            Debug.Log(infos + " already contains " + str);
+            Debug.Log("info already contains " + str);
         }
 
-        infos += "\n" + str;
+        infos.Add(str);
     }
 
     public bool HasInfo(string str)
@@ -61,12 +66,20 @@ public class Item
     /// </summary>
     public List<Property> properties = new List<Property>();
 
+
+    public virtual void Init()
+    {
+
+    }
+
     #region contained items
     public bool ContainsItems()
     {
         bool b = mContainedItems != null && mContainedItems.Count > 0;
         return b;
     }
+
+    
     public virtual void TryGenerateItems()
     {
         if (HasInfo("generated items"))
@@ -85,32 +98,31 @@ public class Item
         {
             for (int i = 0; i < itemInfo.amount; i++)
             {
-                float f = Random.value * 100f;
+                float f = UnityEngine.Random.value * 100f;
                 if (f < itemInfo.chanceAppear)
                 {
-                    CreateInItem(itemInfo.name);
+                    AddItem(itemInfo.name);
                 }
             }
         }
     }
-
-    public Item CreateInItem(string itemName)
+    public Item AddItem(string name)
     {
-        Item item = ItemManager.Instance.CreateFromData(itemName);
-
-        AddItem(item);
-        item.TryGenerateItems();
-        return item;
+        Item newItem = Item.CreateFromData(name);
+        return AddItem(newItem);
     }
 
-    public void AddItem(Item item)
+    public Item AddItem(Item item)
     {
-        if ( mContainedItems == null)
+        if (mContainedItems == null)
         {
             mContainedItems = new List<Item>();
         }
 
         mContainedItems.Add(item);
+        item.TryGenerateItems();
+
+        return item;
     }
 
     // remove item
@@ -163,6 +175,8 @@ public class Item
 
         return otherItem == this;
     }
+    #endregion
+
     #region socket
     /// <summary>
     /// DESCRIPTION
@@ -206,6 +220,7 @@ public class Item
     }
     public virtual void WriteContainedItems(bool describeContainers =false)
     {
+        visible = true;
         // Get Groups for description
         List<Group> allGroups = new List<Group>();
         foreach (var item in GetUnanimatedItems())
@@ -245,6 +260,7 @@ public class Item
         {
             itemGroups.Insert(0, containerGroups.First());
         }
+
 
         if (itemGroups.Count > 0 )
         {
@@ -334,7 +350,6 @@ public class Item
         return items;
     }
     #endregion
-    #endregion
 
 
     #region search
@@ -376,14 +391,14 @@ public class Item
             string bound = @$"\b{word.text}\b";
             if (Regex.IsMatch(text, bound))
             {
-                word.defaultNumber = Word.Number.Singular;
+                word.currentNumber = Word.Number.Singular;
                 return true;
             }
 
             bound = @$"\b{word.GetPlural()}\b";
             if (Regex.IsMatch(text, bound))
             {
-                word.defaultNumber = Word.Number.Plural;
+                word.currentNumber = Word.Number.Plural;
                 return true;
             }
         }
@@ -538,6 +553,10 @@ public class Item
 
         return property;
     }
+    public List<Property> GetPropertiesOfType(string type)
+    {
+        return properties.FindAll(x => x.type == type);
+    }
     public Property GetPropertyOfType(string type)
     {
         Property property = properties.Find(x => x.type == type);
@@ -592,10 +611,16 @@ public class Item
             prop.Destroy();
         }
 
-        Remove(item);
+        RemoveFromContainer(item);
     }
-    public static void Remove(Item targetItem)
+    public void TransferTo(Item item)
     {
+        RemoveFromContainer(this);
+        item.AddItem(this);
+    }
+    public static void RemoveFromContainer(Item targetItem)
+    {
+
         // then in tile
         foreach (var item in AvailableItems.Get)
         {
@@ -609,6 +634,100 @@ public class Item
     }
     #endregion
 
-    
+    #region tools
+    public static List<Item> dataItems = new List<Item>();
+
+    public static Item GetDataItem(string key)
+    {
+        Item item;
+        if (key.StartsWith("type:"))
+        {
+            key = key.Remove(0, 5);
+            List<Item> items = dataItems.FindAll(x => x.HasInfo(key));
+
+            item = items[UnityEngine.Random.Range(0, items.Count)];
+        }
+        else
+        {
+            item = dataItems.Find(x => x.HasWord(key));
+        }
+
+        if (item == null)
+        {
+            Debug.LogError("no " + key + " in item datas");
+            return null;
+        }
+
+        return item;
+    }
+
+    public static List<AppearInfo> appearInfos = new List<AppearInfo>();
+
+    public static Item CreateFromData(string name)
+    {
+        Item copy = GetDataItem(name);
+
+        copy.Init();
+
+        return CreateFromData(copy);
+    }
+
+    public static object CreateFromDataSpecial(string name)
+    {
+        Item item = CreateFromData(name);
+
+        if (string.IsNullOrEmpty(item.className))
+        {
+            Debug.Log("request " + name + " : no class name in data");
+            return null;
+        }
+
+        Type ItemType = Type.GetType(item.className);
+        if (ItemType == null)
+        {
+            Debug.LogError("pas d'item type pour " + item.debug_name);
+            return null;
+        }
+
+        var serializedParent = JsonConvert.SerializeObject(item);
+        object obj = JsonConvert.DeserializeObject(serializedParent, ItemType);
+
+        ((Item)obj).Init();
+
+        return obj;
+    }
+
+    /// create a new item by name
+    public static Item CreateFromData(Item copy)
+    {
+        Item newItem = new Item();
+
+        // common to all
+        newItem.debug_name = copy.debug_name;
+        newItem.debug_randomID = UnityEngine.Random.Range(0, 10000);
+        newItem.dataIndex = copy.dataIndex;
+        newItem.className = copy.className;
+
+        newItem.infos = copy.infos;
+
+        // the word never changes, non ? pourquoi en copy
+        newItem.words = copy.words;
+
+        // unique
+        foreach (var prop_copy in copy.properties)
+        {
+            newItem.CreateProperty(prop_copy);
+        }
+
+        return newItem;
+    }
+
+    public static List<Item> FindItemsWithProperty(string propName)
+    {
+        return dataItems.FindAll(x => x.HasProperty(propName));
+    }
+    #endregion
+
+
 
 }

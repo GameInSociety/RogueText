@@ -83,8 +83,6 @@ public class FunctionSequence
 
         pendingProps.Clear();
 
-        Debug.Log("[SEQUENCE] : " + lines[0] + " on item " + itemGroups[0].items[0].debug_name);
-
         for (itemIndex = 0; itemIndex < itemGroups.Count; itemIndex++)
         {
             // separate all actions

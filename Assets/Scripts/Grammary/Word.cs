@@ -9,6 +9,7 @@ public class Word
     public string locationPrep = "";
     public string text = "";
     public Number defaultNumber = Number.Singular;
+    public Number currentNumber;
     public bool defaultDefined = false;
 
     // ADJECTIVE
@@ -63,6 +64,8 @@ public class Word
                 Debug.LogError("pas trouvé de nombre pour l'item : " + text + " ( content : " + str + ")");
                 break;
         }
+
+        currentNumber = defaultNumber;
 
         if ( parts.Length > 1)
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Windows;
 using static UnityEditor.Progress;
 public static class TextManager
 {
@@ -175,6 +176,20 @@ public static class TextManager
     public static void Renew()
     {
         
+    }
+
+    public static string ItemNameToClassName(string str)
+    {
+        string[] parts = str.Split(' ');
+
+        string className = "";
+
+        foreach (var part in parts)
+        {
+            className += part[0].ToString().ToUpper() + part.Substring(1);
+        }
+
+        return className;
     }
 
     public static string ToLowercaseNamingConvention(this string s, bool toLowercase)

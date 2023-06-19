@@ -124,37 +124,37 @@ public class Verb {
 
 	public static Verb Get ( string str ) {
 
-        List<Verb> list = new List<Verb>();
+        List<Verb> potentialVerbs = GetVerbs.FindAll(x => x.FoundInText(str));
 
-        int smallestIndex = 300;
-
-        foreach (var verb in GetVerbs) {
-
-            // get all the verbs
-            if (verb.FoundInText(str))
-            {
-                int index = str.IndexOf(verb.GetName);
-                if (index < smallestIndex)
-                {
-                    list.Clear();
-                    smallestIndex = index;
-                }
-                list.Add(verb);
-                goto NextVerb;
-            }
-
-            NextVerb:
-            continue;
-
-		}
-
-        // list of verb found in the phrase
-        if ( list.Count > 0)
+        if ( potentialVerbs.Count == 0)
         {
-            return list[0];
+            Debug.LogError("no verbs found");
+            return null;
         }
 
-        return null;
+        Verb longestVerb = potentialVerbs[0];
+        foreach (var item in potentialVerbs)
+        {
+            if ( item.GetName.Length > longestVerb.GetName.Length)
+            {
+                longestVerb = item;
+            }
+        }
+
+        return longestVerb;
+    }
+
+    public static Verb FindInData(string str)
+    {
+        Verb verb = _verbs.Find(x  => x.names[0] == str);
+
+        if ( verb == null)
+        {
+            Debug.LogError("couldn't find verb in " + str);
+            return null;
+        }
+
+        return verb;
     }
 
     public static bool HasCurrent

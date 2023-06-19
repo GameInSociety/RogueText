@@ -1,6 +1,10 @@
-﻿using System.Collections;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Profiling.Memory.Experimental;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,22 +20,15 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-
         PhraseLoader.Instance.Load();
 
         VerbLoader.Instance.Load();
         ItemLoader.Instance.Load();
 
-        FunctionListLoader.Instance.Load();
-
-        AppearInfoLoader.Instance.Load();
-
         MapTexture.Instance.CreateMapFromTexture();
 
-        Inventory.Init();
 
-        Player.Instance = new Player();
+        Player.Instance = Item.CreateFromDataSpecial("player") as Player;
         Player.Instance.Init();
 
         ZombieManager.Instance.Init();
@@ -40,18 +37,4 @@ public class GameManager : MonoBehaviour
 
 
     }
-
-
-    /*private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            Interior interior = Interior.GetCurrent;
-            interior.Genererate();
-
-            TileSet.SetCurrent(interior.tileSet);
-
-            MapTexture.Instance.UpdateInteriorMap();
-        }
-    }*/
 }

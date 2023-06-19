@@ -27,6 +27,6 @@ public class AppearInfo
 
     public static AppearInfo GetAppearInfo(int itemIndex)
     {
-        return ItemManager.Instance.appearInfos[itemIndex];
+        return Item.appearInfos[itemIndex];
     }
 }

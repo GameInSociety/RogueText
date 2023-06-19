@@ -28,7 +28,8 @@ enter",where,"to
 ",
 throw,what,,
 "equip
-put on",what,,
+put on
+wear",what,,
 "unequip
 take off",what,,
 listen,what,to,

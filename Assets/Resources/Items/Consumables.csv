@@ -1,0 +1,76 @@
+"NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bottle
+water bottle
+flask","","s","","beverage","water / 0=5","dirty / 10 / delay","","","","look 
+Item(describe)","take 
+Item(pickUp)","fill 
+Prop(require, water)
+Prop(update, water, +*water)","drink 
+Condition(thirst, -1)
+Prop(update, water, -1)","throw 
+Item(throw)","empty 
+Prop(update, water, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"tomato","","s","","fresh food","","","","","","eat 
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"brocoli","","s","","fresh food","","","","","","eat 
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"apple","","s","","fresh food","","","","","","eat 
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"banana","","s","","fresh food","","","","","","eat 
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"milk bottle","","s","","beverage","state / spoiled / 10","container / milk / 0=5","","","","look 
+Item(describe)","take 
+Item(pickUp)","drink 
+Condition(thirst, +3)
+Item(destroy)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"piece of bread","","s","","food","state / spoiled / 10","","","","","eat 
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"carrot","","s","","fresh food","","","","","","eat 
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"meat can","","s","","closet food","","","","","","eat 
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"tomato can","","s","","closet food","","","","","","eat 
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"tuna can","","s","","closet food","","","","","","eat 
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"soda","","s","","closet food","","","","","","look 
+Item(describe)","take 
+Item(pickUp)","drink 
+Condition(thirst+1)
+Item(destroy)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"berry","","s","","fresh food","","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bottle of whisky","","s","","alcohol","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bottle of gin","","s","","alcohol","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bottle of wine","","s","","alcohol","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

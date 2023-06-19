@@ -38,8 +38,6 @@ public class InputInfo : MonoBehaviour
 
     public void Reset()
     {
-        Debug.Log("[RESETING INPUT]");
-
         waitForFirstItem = false;
         waitForVerb = false;
         CurrentItems.Clear();
@@ -98,7 +96,6 @@ public class InputInfo : MonoBehaviour
 
         if (CurrentItems.waitForItem)
         {
-            Debug.Log("wait specific");
             return;
         }
 

@@ -90,7 +90,7 @@ public class Interior {
 		while ( tileNames.Count > 0 ) {
 
             // add new hallway tile
-            Tile newHallwayTile = ItemManager.Instance.CreateTile(hallway_Coords, "hallway");
+            Tile newHallwayTile = Tile.Create(hallway_Coords, "hallway");
 
             if (tileSet.tiles.ContainsKey(hallway_Coords))
             {
@@ -104,13 +104,13 @@ public class Interior {
             // set entrance door
             if (a == 0)
             {
-                /*Item doorItem = ItemManager.Instance.CreateInTile(newHallwayTile, "door");
+                /*Item doorItem = Item.CreateInTile(newHallwayTile, "door");
                 // stating that it goes south so it displays "behind you" when entering the interior
                 // pas ouf, ça changer avec la description des propriétes
                 doorItem.CreateProperty("dir / direction / south");*/
 
-                Item dirItem = newHallwayTile.CreateInItem("back");
-                Item tileDoor = dirItem.CreateInItem("door");
+                Item dirItem = newHallwayTile.AddItem("back");
+                Item tileDoor = dirItem.AddItem("door");
                 tileDoor.CreateProperty("direction / back");
             }
 
@@ -129,7 +129,7 @@ public class Interior {
                 }
 
 				string tileName = tileNames [Random.Range (0, tileNames.Count)];
-                Tile newRoomTile = ItemManager.Instance.CreateTile(coords, tileName);
+                Tile newRoomTile = Tile.Create(coords, tileName);
 
                 tileNames.Remove (tileName);
 

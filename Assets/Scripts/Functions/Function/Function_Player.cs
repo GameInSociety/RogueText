@@ -73,16 +73,15 @@ public class Function_Player : Function
         Player.Instance.Orient(lookOrientation);
     }
 
-    void Equip()
+    void equip()
     {
-        Equipment.Part part = Equipment.GetPartFromString(GetParam(1));
-        Equipment.Instance.Equip(part, GetItem());
+        Player.Instance.body.Equip(GetItem());
     }
 
-    void Unequip()
+    void unequip()
     {
-        Equipment.Part part = Equipment.GetPartFromString(GetParam(1));
-        Equipment.Instance.Unequip(part);
+        Player.Instance.body.Unequip(GetItem());
+
     }
 
 }

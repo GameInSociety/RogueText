@@ -9,13 +9,15 @@ public class Zombie : Humanoid
 {
     public int stepsAway = 5;
 
-    public const int MaxStepsAway = 7;
+    public const int MaxStepsAway = 9;
 
     public bool subscribed = false;
 
     public string[] strings = new string[MaxStepsAway]
     {
         "TRIGGER ATTACK",
+        "lauching at you",
+        "about to attack",
         "within reach",
         "nearly in front of you",
         "a few steps away",
@@ -71,7 +73,7 @@ public class Zombie : Humanoid
 
     private void HandleOnNextHour()
     {
-        SetSteps(0);
+        SetSteps(1);
 
         WritePosition();
     }
@@ -80,7 +82,34 @@ public class Zombie : Humanoid
     {
         SetSteps(stepsAway - 1);
 
-        WritePosition();
+        if (stepsAway == 0)
+        {
+            Attack(Player.Instance);
+        }
+        else
+        {
+            TextManager.Write("&the dog& is now " + strings[stepsAway], this);
+        }
+    }
+
+    void Attack(Humanoid humanoid)
+    {
+        BodyPart targetBodyPart = humanoid.body.GetRandomBodyPart();
+
+        TextManager.Write("&the dog& aims for your ", this);
+        TextManager.Add("&dog&", targetBodyPart);
+
+        TextManager.Write("And strikes it");
+
+        Property health = humanoid.GetProperty("health");
+        health.SetInt(health.GetInt() - 1);
+        health.Describe();
+
+        /*float chanceHitting = Random.value;
+        if ( chanceHitting > 0)
+        {
+            TextManager.Write("And strikes it");
+        }*/
     }
 
     public override void WriteDescription()
@@ -93,7 +122,7 @@ public class Zombie : Humanoid
     {
         if (visible)
         {
-            TextManager.Write("&the dog& is now " + strings[stepsAway], this);
+            TextManager.Write("&the dog& is " + strings[stepsAway], this);
         }
         else
         {

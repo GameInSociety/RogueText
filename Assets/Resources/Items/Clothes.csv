@@ -1,0 +1,255 @@
+"NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"tuxedo top","","s","","clothes
+shirts","equip / chest / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bra","","s","","clothes
+shirts","equip / chest / 0","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"hoody","","s","","clothes
+shirts","equip / chest / 2","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"jacket","","s","","clothes
+shirts","equip / chest / 2","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"long-sleeved shirt","","s","","clothes
+shirts","equip / chest / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"t-shirt","","s","","clothes
+shirts","equip / chest / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"tank top","","s","","clothes
+shirts","equip / chest / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"turtleneck sweater","","s","","clothes
+shirts","equip / chest / 2","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"cargo pants","","p","","clothes
+legwear","equip / chest / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"carpenter suit","","s","","clothes
+legwear","equip / chest / 2
+equip / legs / 2","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"jeans","","p","","clothes
+legwear","equip / legs / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"jumpsuit","","s","","clothes
+legwear","equip / chest / 2
+equip / legs / 2","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"short pants","","p","","clothes
+legwear","equip / legs / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"skirt","","s","","clothes
+legwear","equip / legs / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"sweat pants","","p","","clothes
+legwear","equip / legs / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"baseball hat","","s","","clothes
+headwear","equip / head / 0","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"beret","","s","","clothes
+headwear","equip / head / 0","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"chapka","","s","","clothes
+headwear","equip / head / 0","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"fedora","","s","","clothes
+headwear","equip / head / 0","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"fingerless gloves","","p","","clothes
+handwear","equip / hands / 0","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"lace gloves","","p","","clothes
+handwear","equip / hands / 0","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"leather gloves","","p","","clothes
+handwear","equip / hands / 0","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"mittens","","p","","clothes
+handwear","equip / hands / 0","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"basketball shoes","","p","","clothes
+footwear","equip / feet / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"flip flops","","p","","clothes
+footwear","equip / feet / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"knee high boots","","p","","clothes
+footwear","equip / feet / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"laced booties","","p","","clothes
+footwear","equip / feet / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"monk straps","","p","","clothes
+footwear","equip / feet / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"scarpin heels","","p","","clothes
+footwear","equip / feet / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"uggs","","p","","clothes
+footwear","equip / feet / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"work boots","","p","","clothes
+footwear","equip / feet / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"socks","","p","","clothes
+footwear","equip / feet / 0","","","","","unequip
+Player(unequip)","unequip
+Player(unequip)","unequip
+Player(unequip)","unequip
+Player(unequip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"coat","","s","","clothes
+shirts","equip / chest / 3","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"glasses","","s","","clothes
+headwear","equip / head / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"underwear","","p","","clothes
+legwear","equip / legs / 0","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"watch","","s","","clothes
+handwear","equip / left hand / 1","","","","","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","equip 
+Player(equip)","unequip
+Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

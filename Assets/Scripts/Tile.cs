@@ -12,6 +12,13 @@ public class Tile : Item
 
     public static bool itemsChanged = false;
 
+    public static Tile Create(Coords _coords, string _name)
+    {
+        Tile tile = CreateFromDataSpecial(_name) as Tile;
+        tile.coords = _coords;
+        return tile;
+    }
+
 
     #region tile description
     // describe from the target cardinal ( example : Player Direction if move, window direction if look at window )
@@ -105,18 +112,18 @@ public class Tile : Item
 
             if (!HasItem(orientation_itemName))
             {
-                Item dirItem = CreateInItem(orientation_itemName);
+                Item dirItem = AddItem(orientation_itemName);
 
                 // if in interior, create door
                 if (adjacentTile.HasProperty("enclosed"))
                 {
-                    Item tileDoor = dirItem.CreateInItem("door");
+                    Item tileDoor = dirItem.AddItem("door");
                     tileDoor.CreateProperty("direction / " + orientation_itemName);
 
                     if (!adjacentTile.HasItem(opposite_itemName))
                     {
-                        Item adjDir = adjacentTile.CreateInItem(opposite_itemName);
-                        Item oppositeDoor = adjDir.CreateInItem("door");
+                        Item adjDir = adjacentTile.AddItem(opposite_itemName);
+                        Item oppositeDoor = adjDir.AddItem("door");
                         oppositeDoor.CreateProperty("direction / " + opposite_itemName);
                         continue;
                     }

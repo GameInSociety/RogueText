@@ -29,14 +29,9 @@ public class ZombieManager : MonoBehaviour
             zombies.Add(zombie);
         }*/
 
-        Item item = ItemManager.Instance.CreateFromData("undead");
-
-        var serializedParent = JsonConvert.SerializeObject(item);
-        Zombie newZombie = JsonConvert.DeserializeObject<Zombie>(serializedParent);
+        Zombie newZombie = Item.CreateFromDataSpecial("undead") as Zombie;
         newZombie.coords = Player.Instance.coords;
 
-        newZombie.Init();
-        
         MapTexture.Instance.UpdateFeedbackMap();
 
         TimeManager.Instance.onNextHour += HandleOnNextHour;

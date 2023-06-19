@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class DebugManager : MonoBehaviour
@@ -10,9 +11,6 @@ public class DebugManager : MonoBehaviour
     [Header("[VERB]")]
     public Verb verb;
     [Space]
-    [Header("[INVENTORY]")]
-    [Space]
-    public Item inventory;
 
     public bool AI_Enabled = false;
 
@@ -27,6 +25,7 @@ public class DebugManager : MonoBehaviour
 
     [Header("[AVAILABLE ITEMS]")]
     public List<Item> availableItems = new List<Item>();
+    public List<Item> recentItems = new List<Item>();
 
     [Header("[CURRENT ITEMS]")]
     public List<Item> currentItems_in;
@@ -35,13 +34,20 @@ public class DebugManager : MonoBehaviour
     [Header("[ITEM EVENTS]")]
     public List<ItemEvent> propertyEvents = new List<ItemEvent>();
 
+    [Header("[PLAYER]")]
+    public Player player;
 
     private void Start()
     {
         currentFunction = Function.current;
         currentFunctionList = FunctionSequence.current;
         propertyEvents = ItemEvent.list;
+
         availableItems = AvailableItems.list;
+        recentItems = AvailableItems.recentItems;
+
+        player = Player.Instance;
+
         verb = Verb.GetCurrent;
     }
 

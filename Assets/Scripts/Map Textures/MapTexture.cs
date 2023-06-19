@@ -127,7 +127,7 @@ public class MapTexture : MonoBehaviour {
                     {
                         TileInfo tileInfo = tileInfos[i];
 
-                        Tile newTile = ItemManager.Instance.CreateTile(coords, tileInfo.name);
+                        Tile newTile = Tile.Create(coords, tileInfo.name);
 
                         // get tile type from color
                         TileSet.map.Add(coords, newTile);

@@ -494,7 +494,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.45376518
+  m_Size: 0.5354628
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1020,7 +1020,7 @@ GameObject:
   - component: {fileID: 344407971}
   - component: {fileID: 344407970}
   m_Layer: 0
-  m_Name: Item
+  m_Name: Item Loader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1038,9 +1038,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c825ef81c6074eb4f8a835f3e25fde88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  linkReplace: gviz/tq?tqx=out:csv&sheet=
+  sheetNames:
+  - Body
+  - Clothes
+  - Consumables
+  - Empty
+  - Gardening
+  - General
+  - Humanoids
+  - Interior
+  - Locations
+  - Materials
+  - Medecine
+  - Misc
+  - Nature
+  - Rooms
+  - Tools
+  - Vehicles
+  targetAssets:
+  - {fileID: 4900000, guid: 3e38eba37c45c98439b056a1d035ab34, type: 3}
+  - {fileID: 4900000, guid: 2fcc6b449baf6b047ad24e8819c09c82, type: 3}
+  - {fileID: 4900000, guid: fc442f03a62c8574bb7b3dedd1069fe3, type: 3}
+  - {fileID: 4900000, guid: 7d400e60c84070b4294c2720969f0b94, type: 3}
+  - {fileID: 4900000, guid: 2abd51bbb19d94c4cb3bd62f3e7410b8, type: 3}
+  - {fileID: 4900000, guid: 81642520246a8ab4fae7a2484fb707af, type: 3}
+  - {fileID: 4900000, guid: 76e263c7410577f479d08c47b989bf58, type: 3}
+  - {fileID: 4900000, guid: ca27ecdc37b608f4cb412036061e1aa3, type: 3}
+  - {fileID: 4900000, guid: 53f322c5106160d4c890e3526e413862, type: 3}
+  - {fileID: 4900000, guid: 7cc69ac5e28b0194fb03ff1331ceb41f, type: 3}
+  - {fileID: 4900000, guid: aa7d8d50baabcc844ae35ace80a93f30, type: 3}
+  - {fileID: 4900000, guid: 1dd408dccd7890c4999ba3f6a2e582fe, type: 3}
+  - {fileID: 4900000, guid: dc507d3d5bd998a4fabfd626aaa5e4e2, type: 3}
+  - {fileID: 4900000, guid: 59e1c7d3e8a0b494298ff12ea5e289d4, type: 3}
+  - {fileID: 4900000, guid: 8e54f1537c3987041ade85db36bf72dd, type: 3}
+  - {fileID: 4900000, guid: 627c4da883f7db34a81daa2bee3535b6, type: 3}
   url: https://docs.google.com/spreadsheets/d/1J7DQfy9bEuvbxmnFNVD-U-pBuExX0amlt_KDc81CNcI/edit#gid=0
-  targetAsset: {fileID: 4900000, guid: 57c04579aebddfa488a30f66cc4a307f, type: 3}
+  path: Items
   items_debug: []
+  propertyIndex: 0
+  actionIndex: 0
+  appearRateIndex: 0
 --- !u!4 &344407971
 Transform:
   m_ObjectHideFlags: 0
@@ -1054,7 +1092,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1014188666}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &348016904
 GameObject:
@@ -1560,7 +1598,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1014188666}
-  m_RootOrder: 4
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &500605529
 MonoBehaviour:
@@ -2190,52 +2228,6 @@ MonoBehaviour:
   correctBip: {fileID: 8300000, guid: c7119e2db30d61f43875c510ce927689, type: 3}
   minPitch: 0.9
   maxPitch: 1
---- !u!1 &849199146
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 849199147}
-  - component: {fileID: 849199148}
-  m_Layer: 0
-  m_Name: Sequences
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &849199147
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 849199146}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1014188666}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &849199148
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 849199146}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae9e6f63e2cdca8449eeb802e9145f25, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  url: https://docs.google.com/spreadsheets/d/12qv108gqz6RedXmkWE-DUOf067Po6alEvIZW4MfxU_s/edit#gid=0
-  targetAsset: {fileID: 4900000, guid: 32146df0fa90638408d63f5bcfbec3c6, type: 3}
 --- !u!1 &859047420
 GameObject:
   m_ObjectHideFlags: 0
@@ -2266,7 +2258,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1014188666}
-  m_RootOrder: 3
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &859047422
 MonoBehaviour:
@@ -2493,53 +2485,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   story: {fileID: 0}
---- !u!1 &1010163073
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1010163074}
-  - component: {fileID: 1010163075}
-  m_Layer: 0
-  m_Name: Appear Info
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1010163074
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1010163073}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1014188666}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1010163075
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1010163073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f487503e6616ef542a5c4cd63ff103ef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  url: https://docs.google.com/spreadsheets/d/1j1dnVySIQ3QyZP-AN6A76r7_jz8t6OOu0wrv0Qigmyg/edit#gid=0
-  targetAsset: {fileID: 4900000, guid: 10996dc0c8c02774596e06a533cfab0d, type: 3}
-  debug: 0
 --- !u!1 &1014188665
 GameObject:
   m_ObjectHideFlags: 0
@@ -2568,9 +2513,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1010163074}
   - {fileID: 344407971}
-  - {fileID: 849199147}
   - {fileID: 859047421}
   - {fileID: 500605528}
   m_Father: {fileID: 0}
@@ -4158,12 +4101,8 @@ MonoBehaviour:
   tile:
     debug_name: debug name
     debug_randomID: 0
+    infos: 
     visible: 0
-    info:
-      invisible: 0
-      generatedItems: 0
-      discovered: 0
-      def: 0
     dataIndex: 0
     currentWordIndex: 0
     words: []
@@ -4183,12 +4122,8 @@ MonoBehaviour:
   inventory:
     debug_name: debug name
     debug_randomID: 0
+    infos: 
     visible: 0
-    info:
-      invisible: 0
-      generatedItems: 0
-      discovered: 0
-      def: 0
     dataIndex: 0
     currentWordIndex: 0
     words: []
@@ -4202,12 +4137,8 @@ MonoBehaviour:
     tile:
       debug_name: debug name
       debug_randomID: 0
+      infos: 
       visible: 0
-      info:
-        invisible: 0
-        generatedItems: 0
-        discovered: 0
-        def: 0
       dataIndex: 0
       currentWordIndex: 0
       words: []

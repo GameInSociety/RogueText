@@ -1,0 +1,63 @@
+"NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"seeds","","p","","","","","","","","eat 
+Condition(thirst, -2)
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","plant 
+Item(destroy)
+Item(create, sprout)
+If(prop, fertile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"sprout","","s","","","type / itemName / apple?brocoli?tomato?carrot","iValue / growing / 50
+%subHours
+Prop(update, growing, -1)
+
+%subEmpty
+Item(create, *itemName)
+Item(destroy, sprout)","iValue / watered / 10
+%subHours
+Prop(update, watered, -1)
+
+%subEmpty
+Prop(enable, drying)
+Prop(disable, watered)
+
+%subRain
+Prop(update, watered, +10)","$iValue / drying / 10
+%subHours
+Prop(update, drying, -1)
+
+%subRain
+Prop(update, drying, +10)
+Prop(disable, drying)
+Prop(update, watered, +10)
+Prop(enable, watered)
+
+%subEmpty
+Prop(disable, growing)
+Prop(disable, drying)
+Prop(enable, dead)","$state / dead","eat 
+Condition(thirst, -2)
+Condition(hunger, +1)","look 
+Item(describe)","take 
+Item(pickUp)","throw 
+Item(throw)","unearth 
+Item(destroy)
+Write(text, the dog& is gone)","water 
+If(prop, !dead)
+Prop(require, water)
+Prop(update, drying, +*water)
+Prop(disable, drying)
+Prop(update, watered, +*water)
+Prop(enable, watered)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"watering can","","s","","","","","","","","look 
+Item(describe)","take 
+Item(pickUp)","fill 
+Prop(require, water)
+Prop(update, water, +*water)","drink 
+Condition(thirst, -1)
+Prop(update, water, -1)","throw 
+Item(throw)","empty 
+If(propValue, water)
+Item(create, puddle)
+Prop(*puddle, update, water, *water)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

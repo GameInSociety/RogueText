@@ -1,0 +1,137 @@
+"NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"plain","Tile","s","on","dif","state / fertile","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","go in 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"field","Tile","s","in","dif","state / fertile","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","go in 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","hoody, x2","farm, x2","","","","","","","","","","","","","","","","","","","","","","","",""
+"clearing","Tile","s","in","dif","state / fertile","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","go in 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"hill","Tile","s","on","dif","","","","","","go 
+Player(move, tile)","look 
+Item(describe)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"mountain","Tile","s","on","dif","hidden / blocking","","","","","go 
+Player(move, tile)","look 
+Item(describe)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"forest","Tile","s","in","dif","state / fertile","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","go in 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"boscage
+bushy area
+shrub
+greenery","Tile","s","in","dif","state / fertile","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","go in 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"sea","Tile","s","near","dif","hidden / blocking","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","go in 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"lake","Tile","s","near","dif","hidden / blocking","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","go in 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"river","Tile","s","along","dif","hidden / blocking","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","go in 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"beach
+shore
+seaside
+shoreline","Tile","s","on","dif","","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"road","Tile","s","on","dif","","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"village road","Tile","s","on","dif","","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"costal road","Tile","s","on","dif","","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"path","Tile","s","on","dif","","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bridge","Tile","s","on","dif","","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Player(move, tile)","leave 
+Player(move, relative, 0)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"house","Tile","s","in front of","dif","hidden / interior","room / bathroom","room / bedroom","room / children's room","room / kitchen","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Interior(enter)","go in 
+Interior(enter)","leave 
+Interior(enter)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"farm","Tile","s","in front of","dif","hidden / interior","room / bathroom","room / bedroom","room / children's room","room / kitchen","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Interior(enter)","go in 
+Interior(enter)","leave 
+Interior(enter)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"cabin","Tile","s","in front of","dif","hidden / interior","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Interior(enter)","go in 
+Interior(enter)","leave 
+Interior(enter)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"mansion","Tile","s","in front of","dif","hidden / interior","","","","","go 
+Player(move, tile)","look 
+Item(describe)","move 
+Interior(enter)","go in 
+Interior(enter)","leave 
+Interior(enter)","go back 
+Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

@@ -3,42 +3,50 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 [System.Serializable]
 public class Player : Humanoid {
 
     public static Player Instance;
 
-    
-    /// <summary>
-    /// STATs
-    /// </summary>
-    public Stats stats;
-
     // COORDS
     private Coords startCoords = new Coords(9,9);
     // beach 9 3
     // farm 9 9
 
-    public Player()
-    {
-
-    }
-
     public override void Init()
     {
         base.Init();
 
-        // equipement
-        Equipment equipment = new Equipment();
-        equipment.Init();
-
-        // stats
-        stats = new Stats();
-
         coords = startCoords;
 
+        AddItem("bag");
+    }
+
+    public static Item Inventory
+    {
+        get
+        {
+            return Instance.GetItem("bag");
+        }
+    }
+
+    public override void WriteDescription()
+    {
+        //base.WriteDescription();
+
+        Property[] properties = GetPropertiesOfType("condition").ToArray();
+
+        foreach (var property in properties)
+        {
+            if ( property.GetInt() != 0 )
+            {
+
+            }
+        }
     }
 
     #region vision
@@ -46,7 +54,7 @@ public class Player : Humanoid {
     {
         if (TimeManager.Instance.currentPartOfDay == TimeManager.PartOfDay.Night)
         {
-            if (Inventory.Instance.HasItemWithProperty("source of light"))
+            if (HasItemWithProperty("source of light"))
             {
                 TextManager.Write("lamp_on");
                 return true;
@@ -141,34 +149,5 @@ public class Player : Humanoid {
         TextManager.Write("position_orientPlayer");
 
         base.Orient(orientation);
-    }
-
-    
-
-    
-
-    /// <summary>
-    /// ORIENTATION : front, left, right, back etc...
-    /// CARDINAL : north, west, south east
-    /// DIRECTION : to north, to west, to east, to south
-    /// </summary>
-
-}
-
-public class Stats
-{
-    public enum Type
-    {
-        Strengh,
-        Dexterity,
-        Charisma,
-        Constitution,
-    }
-
-    public int[] values = new int[4];
-
-    public int GetStat(Type t)
-    {
-        return values[(int)t];
     }
 }
