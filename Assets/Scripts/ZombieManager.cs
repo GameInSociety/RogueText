@@ -29,10 +29,14 @@ public class ZombieManager : MonoBehaviour
             zombies.Add(zombie);
         }*/
 
-        Zombie newZombie = Item.CreateFromDataSpecial("undead") as Zombie;
-        newZombie.coords = Player.Instance.coords;
+        for (int i = 0; i < count; i++)
+        {
+            Zombie newZombie = Item.CreateFromDataSpecial("undead") as Zombie;
+            newZombie.coords = Player.Instance.coords;
+            newZombie.Move(newZombie.coords);
 
-        MapTexture.Instance.UpdateFeedbackMap();
+            MapTexture.Instance.UpdateFeedbackMap();
+        }
 
         TimeManager.Instance.onNextHour += HandleOnNextHour;
     }

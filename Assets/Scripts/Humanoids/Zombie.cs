@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Zombie : Humanoid
 {
-    public int stepsAway = 5;
+    public int stepsAway = 2;
 
     public const int MaxStepsAway = 9;
 
@@ -26,20 +26,6 @@ public class Zombie : Humanoid
         "at a distance",
     };
 
-    public override void Init()
-    {
-        base.Init();
-
-        /*List<Tile> tiles = TileSet.current.tiles.Values.ToList().FindAll(x =>
-        !x.HasProperty("blocking")
-        );
-
-        coords = tiles[UnityEngine.Random.Range(0, tiles.Count)].coords;*/
-
-        currentCarnidal = (Cardinal)(Random.Range(0, 4));
-
-        Move(coords);
-    }
 
     public void Sub()
     {
@@ -101,9 +87,12 @@ public class Zombie : Humanoid
 
         TextManager.Write("And strikes it");
 
-        Property health = humanoid.GetProperty("health");
+        targetBodyPart.AddProperty("state / wounded", true);
+        
+
+        /*Property health = humanoid.GetProperty("health");
         health.SetInt(health.GetInt() - 1);
-        health.Describe();
+        health.Describe();*/
 
         /*float chanceHitting = Random.value;
         if ( chanceHitting > 0)

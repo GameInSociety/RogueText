@@ -9,9 +9,9 @@ public class BodyPart : Item
 
     public override void WriteDescription()
     {
-        //base.WriteDescription();
+        base.WriteDescription();
 
-        if (!ContainsItems())
+        /*if (!ContainsItems())
         {
             TextManager.Write("I'm not wearing anything on my &dog&", this);
         }
@@ -26,6 +26,6 @@ public class BodyPart : Item
             }
 
             TextManager.Add(" on my &dog&", this);
-        }
+        }*/
     }
 }

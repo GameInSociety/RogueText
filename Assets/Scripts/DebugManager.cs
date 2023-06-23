@@ -28,8 +28,7 @@ public class DebugManager : MonoBehaviour
     public List<Item> recentItems = new List<Item>();
 
     [Header("[CURRENT ITEMS]")]
-    public List<Item> currentItems_in;
-    public List<Item> currentItems_out;
+    public List<ItemGroup> itemGroups;
 
     [Header("[ITEM EVENTS]")]
     public List<ItemEvent> propertyEvents = new List<ItemEvent>();
@@ -45,6 +44,8 @@ public class DebugManager : MonoBehaviour
 
         availableItems = AvailableItems.list;
         recentItems = AvailableItems.recentItems;
+
+        itemGroups = ItemGroup.debug_groups;
 
         player = Player.Instance;
 

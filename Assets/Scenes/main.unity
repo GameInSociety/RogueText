@@ -393,8 +393,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bc2cbfbb8e1ea74889965bbf1c6bb41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dataItems: []
-  appearInfos: []
 --- !u!4 &109545162
 Transform:
   m_ObjectHideFlags: 0
@@ -2484,6 +2482,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69b91c4ff8931f64195b952a13a6bfe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startCoords:
+    x: 9
+    y: 9
   story: {fileID: 0}
 --- !u!1 &1014188665
 GameObject:
@@ -4101,7 +4102,8 @@ MonoBehaviour:
   tile:
     debug_name: debug name
     debug_randomID: 0
-    infos: 
+    className: 
+    infos: []
     visible: 0
     dataIndex: 0
     currentWordIndex: 0
@@ -4119,25 +4121,31 @@ MonoBehaviour:
     universal: 0
     names: []
     currentNameIndex: 0
-  inventory:
-    debug_name: debug name
-    debug_randomID: 0
-    infos: 
-    visible: 0
-    dataIndex: 0
-    currentWordIndex: 0
-    words: []
-    properties: []
-    mContainedItems: []
   AI_Enabled: 0
   currentFunctionList:
     lines: []
+    itemGroup:
+      text: 
+      items: []
+      pendingItem:
+        debug_name: debug name
+        debug_randomID: 0
+        className: 
+        infos: []
+        visible: 0
+        dataIndex: 0
+        currentWordIndex: 0
+        words: []
+        properties: []
+        mContainedItems: []
+      waitForItem: 0
     pendingProps: []
     itemIndex: 0
     tile:
       debug_name: debug name
       debug_randomID: 0
-      infos: 
+      className: 
+      infos: []
       visible: 0
       dataIndex: 0
       currentWordIndex: 0
@@ -4151,9 +4159,51 @@ MonoBehaviour:
     _nextNode: 0
   colorWords: 0
   availableItems: []
-  currentItems_in: []
-  currentItems_out: []
+  recentItems: []
+  itemGroups: []
   propertyEvents: []
+  player:
+    debug_name: debug name
+    debug_randomID: 0
+    className: 
+    infos: []
+    visible: 0
+    dataIndex: 0
+    currentWordIndex: 0
+    words: []
+    properties: []
+    mContainedItems: []
+    previousCardinal: 0
+    currentCarnidal: 0
+    health: 0
+    maxHealth: 10
+    prevCoords:
+      x: -1
+      y: -1
+    coords:
+      x: -1
+      y: -1
+    direction:
+      x: -1
+      y: -1
+    body:
+      debug_name: debug name
+      debug_randomID: 0
+      className: 
+      infos: []
+      visible: 0
+      dataIndex: 0
+      currentWordIndex: 0
+      words: []
+      properties: []
+      mContainedItems: []
+      conditions: []
+    condition:
+      type: 0
+      hour: 0
+      rate: 0
+      progress: 0
+      color: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1998673411
 GameObject:
   m_ObjectHideFlags: 0

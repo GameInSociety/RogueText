@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class Function_Item : Function
 {
-    public override void TryCall()
+    public override void TryCall(ItemGroup itemGroup)
     {
-        base.TryCall();
+        base.TryCall(itemGroup);
         Call(this);
     }
 
@@ -23,7 +23,7 @@ public class Function_Item : Function
 
             Player.Inventory.AddItem(GetItem());
 
-            int count = GetItems.Count;
+            int count = FunctionSequence.current.itemGroup.GetItems.Count;
 
             if (count > 1)
             {
@@ -114,11 +114,13 @@ public class Function_Item : Function
         }
 
 
-        Debug.Log("action require any item ?");
+        Debug.LogError("REQUIRE STOP WORKING BECAUSE ONLY ONE ITEM IN FUNCTION SEQUENCE.");
+        Debug.LogError("USE *search INSTEAD ?");
         // no target item, just ask for a second item
-        if (!HasItem(1))
+        //if (!HasItem(1))
+        if (false)
         {
-            CurrentItems.WaitForSpecificItem("item_noSecondItem");
+            group.WaitForSpecificItem("item_noSecondItem");
             FunctionSequence.current.Break();
             return;
         }

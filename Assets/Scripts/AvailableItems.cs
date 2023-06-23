@@ -41,11 +41,14 @@ public static class AvailableItems
             List<Item> tmpList = new List<Item>();
 
             tmpList.Add(Tile.GetCurrent);
+            tmpList.Add(Player.Instance);
             tmpList.Add(Player.Inventory);
             tmpList.AddRange(Player.Instance.body.GetAllItems());
 
             if (FunctionSequence.current != null && FunctionSequence.current.tile != Tile.GetCurrent)
             {
+                Debug.Log("curren ttile : " + FunctionSequence.current.itemGroup.text);
+                Debug.Log("function tile : " + FunctionSequence.current.tile.debug_name);
                 tmpList.AddRange(FunctionSequence.current.tile.GetAllItems());
             }
             else

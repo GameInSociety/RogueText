@@ -25,18 +25,13 @@ public class Tile : Item
     // pas mal
     public void Describe()
     {
-        CoroutineManager.Instance.onWait += DescribeDelay;
-        CoroutineManager.Instance.Wait();
-    }
+        
+        if (FunctionSequence.function_OnGoing)
+        {
+            FunctionSequence.onFinishSequences += Describe;
+            return;
+        }
 
-    void DescribeDelay()
-    {
-        CoroutineManager.Instance.onWait -= DescribeDelay;
-
-        //Debug.Log("[DESCRIBING TILE]");
-
-        SetPrevious(GetCurrent);
-        SetCurrent(this);
 
         DisplayDescription.Instance.Renew();
 
@@ -62,8 +57,7 @@ public class Tile : Item
 
         CheckHumanoids();
 
-
-        ConditionManager.GetInstance().WriteDescription();
+        Player.Instance.WriteDescription();
 
         // time of day
         TimeManager.Instance.WriteDescription();
@@ -118,13 +112,13 @@ public class Tile : Item
                 if (adjacentTile.HasProperty("enclosed"))
                 {
                     Item tileDoor = dirItem.AddItem("door");
-                    tileDoor.CreateProperty("direction / " + orientation_itemName);
+                    tileDoor.AddProperty("direction / " + orientation_itemName);
 
                     if (!adjacentTile.HasItem(opposite_itemName))
                     {
                         Item adjDir = adjacentTile.AddItem(opposite_itemName);
                         Item oppositeDoor = adjDir.AddItem("door");
-                        oppositeDoor.CreateProperty("direction / " + opposite_itemName);
+                        oppositeDoor.AddProperty("direction / " + opposite_itemName);
                         continue;
                     }
                 }
@@ -170,7 +164,7 @@ public class Tile : Item
         }
         else
         {
-            if (SameTypeAs(GetPrevious))
+            if (GetPrevious != null && SameTypeAs(GetPrevious) && GetPrevious.coords != coords)
             {
                 str = "tile_continue";
             }
@@ -205,7 +199,6 @@ public class Tile : Item
     {
         foreach (var item in GetHumanoids())
         {
-
             Zombie zombie = item as Zombie;
             zombie.Sub();
 
@@ -259,6 +252,8 @@ public class Tile : Item
 
     public static void SetCurrent(Tile tile)
     {
+        SetPrevious(_current);
+
         DebugManager.Instance.tile = tile;
         _current = tile;
     }

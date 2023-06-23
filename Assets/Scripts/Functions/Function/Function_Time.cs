@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class Function_Time : Function
 {
-    public override void TryCall()
+    public override void TryCall(ItemGroup itemGroup)
     {
-        base.TryCall();
-
+        base.TryCall(itemGroup);
         Call(this);
     }
 

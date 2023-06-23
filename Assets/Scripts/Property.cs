@@ -35,13 +35,6 @@ public class Property
     public static void DescribeUpdated(Item item = null)
     {
         describeItem = item;
-        CoroutineManager.Instance.onWait += Delay;
-        CoroutineManager.Instance.Wait();
-    }
-
-    public static void Delay()
-    {
-        CoroutineManager.Instance.onWait -= Delay;
 
         updatedProperties.RemoveAll(x => x.destroy);
 

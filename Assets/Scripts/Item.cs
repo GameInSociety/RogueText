@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using UnityEditor.XR;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Networking.Types;
@@ -18,6 +19,8 @@ using UnityEngine.UIElements;
 [System.Serializable]
 public class Item
 {
+    public int count = 1;
+
     public string debug_name = "debug name";
     public int debug_randomID;
     public string className;
@@ -35,7 +38,8 @@ public class Item
     {
         if (infos.Contains(str))
         {
-            Debug.Log("info already contains " + str);
+            return;
+            //Debug.Log("info already contains " + str);
         }
 
         infos.Add(str);
@@ -439,7 +443,7 @@ public class Item
     }
 
     // adds whole new, simple property
-    public Property CreateProperty(string line)
+    public Property AddProperty(string line, bool describe = false)
     {
         Property newProperty = new Property();
         string[] parts = line.Split(" / ");
@@ -451,6 +455,11 @@ public class Item
         }
 
         newProperty.Init();
+
+        if (describe)
+        {
+            newProperty.Describe();
+        }
 
         properties.Add(newProperty);
         return newProperty;

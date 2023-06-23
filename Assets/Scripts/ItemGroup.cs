@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Xml.Schema;
 using TMPro;
@@ -10,42 +11,67 @@ using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.AI;
 
-public static class CurrentItems
+[System.Serializable]
+public class ItemGroup
 {
-    public static List<Item> list = new List<Item>();
-    public static Item pendingItem;
+    public static List<ItemGroup> debug_groups = new List<ItemGroup>();
 
-    public static bool waitForItem = false;
+    public string text;
+    public List<Item> items = new List<Item>();
+    public Item pendingItem;
+    public bool waitForItem = false;
 
-    static string text;
+    public ItemGroup()
+    {
 
-    public static List<Item> Get
+    }
+    public ItemGroup(ItemGroup copy)
+    {
+        items = copy.items;
+        pendingItem = copy.pendingItem;
+        waitForItem = copy.waitForItem;
+        text = copy.text;
+
+        debug_groups.Add(this);
+
+    }
+
+    public List<Item> GetItems
     {
         get
         {
-            return list;
+            return items;
         }
     }
 
-    public static bool Empty
+    public bool Empty
     {
         get
         {
-            return list.Count == 0;
+            return items.Count == 0;
         }
     }
 
-    public static void Clear()
+    public void Clear()
     {
-        list.Clear();
+        items.Clear();
         waitForItem = false;
     }
 
-    public static Verb.Sequence GetSequence()
+    public static ItemGroup New()
+    {
+        ItemGroup itemGroup = new ItemGroup();
+
+        debug_groups.Add(itemGroup);
+
+        return itemGroup;
+
+    }
+    public Verb.Sequence GetSequence()
     {
         Item cellItem = null;
 
-        foreach (Item item in list)
+        foreach (Item item in items)
         {
             if (Verb.GetCurrent.HasCell(item))
             {
@@ -59,19 +85,18 @@ public static class CurrentItems
             return null;
         }
 
-        list.Remove(cellItem);
-        list.Insert(0, cellItem);
+        items.Remove(cellItem);
+        items.Insert(0, cellItem);
         return Verb.GetCurrent.GetSequence(cellItem);
     }
 
-    public static void FindAll(string _text)
+    public void Init(string _text)
     {
         text = _text;
 
         List<Item> availableItems = AvailableItems.Get;
-        List<Item> tmpItems = new List<Item>(list);
+        List<Item> tmpItems = new List<Item>(items);
         
-
         List<Item> range = availableItems.FindAll(x => x.ContainedInText(text));
 
         if (Regex.IsMatch(text, @$"\bit\b") || Regex.IsMatch(text, @$"\bthem\b"))
@@ -82,42 +107,39 @@ public static class CurrentItems
             }
         }
 
-        list.AddRange(range);
+        items.AddRange(range);
 
-        DebugManager.Instance.currentItems_in = new List<Item>(list);
 
         // try verb alone
-        if (list.Count == 0 && Verb.HasCurrent)
+        if (items.Count == 0 && Verb.HasCurrent)
         {
             Item verbItem = Item.GetDataItem("no item");
             if (Verb.GetCurrent.HasCell(verbItem))
             {
-                list.Add(verbItem);
+                items.Add(verbItem);
             }
         }
 
-        if (list.Count > 1 /*&& */)
+        if (items.Count > 1 /*&& */)
         {
             HandleMultipleItems();
         }
 
-        DebugManager.Instance.currentItems_out = new List<Item>(list);
     }
 
-    static void HandleMultipleItems()
+    void HandleMultipleItems()
     {
         if (GetSimilarItems().Count == 0)
         {
-            Debug.Log("no similar items in list");
             // no similar items, keep all
             return;
         }
 
-        if (!Differenciate(list))
+        if (!Differenciate(items))
         {
             // Don't differenciate item, throwing any
             // ex there are some plates
-            if (list[0].word.currentNumber == Word.Number.Plural)
+            if (items[0].word.currentNumber == Word.Number.Plural)
             {
                 // leave because taking all plates
                 return;
@@ -125,7 +147,7 @@ public static class CurrentItems
             else
             {
                 // just the first plate if the word is singular
-                list.RemoveRange(1, list.Count - 1);
+                items.RemoveRange(1, items.Count - 1);
                 return;
             }
         }
@@ -143,9 +165,9 @@ public static class CurrentItems
         // look for item in containers
         Item containerItem = null;
         Item specItem = null;
-        foreach (var cItem in list)
+        foreach (var cItem in items)
         {
-            foreach (var item in list)
+            foreach (var item in items)
             {
                 if (cItem.HasItem(item))
                 {
@@ -160,7 +182,7 @@ public static class CurrentItems
         {
             if ( containerItem != null)
             {
-                list.Remove(containerItem);
+                items.Remove(containerItem);
             }
             SetSpecificItem(specItem);
             return;
@@ -173,7 +195,7 @@ public static class CurrentItems
             {
                 pendingItem = null;
             }
-            else if (list.Contains(pendingItem))
+            else if (items.Contains(pendingItem))
             {
                 Debug.Log("getting pending item : " + pendingItem.debug_name);
                 SetSpecificItem(pendingItem);
@@ -193,7 +215,7 @@ public static class CurrentItems
 
     }
 
-    static Item GetNumberItem()
+    Item GetNumberItem()
     {
         string[] nums = new string[5]
         {
@@ -218,7 +240,7 @@ public static class CurrentItems
         return null;
     }
 
-    static void SetSpecificItem(Item item)
+    void SetSpecificItem(Item item)
     {
         pendingItem = item;
 
@@ -227,12 +249,12 @@ public static class CurrentItems
         /*int specItemIndex = list.IndexOf(item);
         Debug.Log("index of : " + item.debug_name + " is " +  specItemIndex);*/
 
-        list.RemoveAll(x => x.SameTypeAs(item));
-        list.Insert(0, item);
+        items.RemoveAll(x => x.SameTypeAs(item));
+        items.Insert(0, item);
     }
 
 
-    public static void WaitForSpecificItem(string message)
+    public void WaitForSpecificItem(string message)
     {
         if (waitForItem)
         {
@@ -241,7 +263,7 @@ public static class CurrentItems
             return;
         }
 
-        if ( list.Count == 0 )
+        if ( items.Count == 0 )
         {
             TextManager.Write(message);
         }
@@ -253,17 +275,17 @@ public static class CurrentItems
         waitForItem = true;
     }
 
-    public static List<Item> GetSimilarItems()
+    public List<Item> GetSimilarItems()
     {
         List<Item> items = new List<Item>();
 
-        if ( list.Count == 1) {
+        if ( this.items.Count == 1) {
             return items;
         }
 
-        foreach (var item in list)
+        foreach (var item in this.items)
         {
-            List<Item> ts = list.FindAll(x => x.SameTypeAs(item));
+            List<Item> ts = this.items.FindAll(x => x.SameTypeAs(item));
             if ( ts.Count > 1)
             {
                 items = ts;
@@ -274,17 +296,28 @@ public static class CurrentItems
         return items;
     }
 
-    public static bool HasItem(string itemName)
+    public bool HasItem(string itemName)
     {
         return FindOfType(itemName) != null;
     }
 
-    public static Item FindOfType(string itemName)
+    public Item GetItem(int i = 0)
     {
-        return list.Find(x => x.debug_name == itemName);
+        if (i >= items.Count)
+        {
+            Debug.LogError("Function GetItem : outside range ");
+            return null;
+        }
+
+        return items[i];
     }
 
-    public static bool Differenciate(List<Item> items)
+    public Item FindOfType(string itemName)
+    {
+        return items.Find(x => x.debug_name == itemName);
+    }
+
+    public bool Differenciate(List<Item> items)
     {
         bool containerPresent = items.Find(x => x.ContainsItems()) != null;
 

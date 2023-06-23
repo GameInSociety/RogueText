@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class Function_If : Function
 {
-    public override void TryCall()
+    public override void TryCall(ItemGroup itemGroup)
     {
-        base.TryCall();
+        base.TryCall(itemGroup);
         Call(this);
     }
     void prop()
@@ -57,7 +57,7 @@ public class Function_If : Function
 
     void has()
     {
-        if (CurrentItems.HasItem( GetParam(0)) )
+        if (group.HasItem( GetParam(0)) )
         {
             Debug.Log("has " + GetParam(0));
 

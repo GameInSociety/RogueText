@@ -31,6 +31,8 @@ public class InputInfo : MonoBehaviour
     public delegate void OnAction();
     public OnAction onAction;
 
+    ItemGroup itemGroup;
+
     private void Awake()
     {
         Instance = this;
@@ -38,9 +40,9 @@ public class InputInfo : MonoBehaviour
 
     public void Reset()
     {
+        itemGroup = null;
         waitForFirstItem = false;
         waitForVerb = false;
-        CurrentItems.Clear();
         Verb.Clear();
     }
 
@@ -71,20 +73,23 @@ public class InputInfo : MonoBehaviour
             Verb.SetCurrent(verb);
         }
 
-
-        if (CurrentItems.Empty|| CurrentItems.waitForItem)
+        if ( itemGroup == null)
         {
-            CurrentItems.FindAll(inputText);
-
+            itemGroup = ItemGroup.New();
         }
 
-        if (CurrentItems.Empty)
+        if (itemGroup.Empty|| itemGroup.waitForItem)
+        {
+            itemGroup.Init(inputText);
+        }
+
+        if (itemGroup.Empty)
         {
             if (Verb.HasCurrent && !waitForFirstItem)
             {
                 waitForFirstItem = true;
                 TextManager.Write("input_noItem");
-                //CurrentItems.WaitForSpecificItem("input_noItem");
+                //itemGroup.WaitForSpecificItem("input_noItem");
             }
             else
             {
@@ -94,33 +99,32 @@ public class InputInfo : MonoBehaviour
             return;
         }
 
-        if (CurrentItems.waitForItem)
+        if (itemGroup.waitForItem)
         {
             return;
         }
 
-        if (!Verb.HasCurrent && !CurrentItems.Empty)
+        if (!Verb.HasCurrent && !itemGroup.Empty)
         {
             waitForVerb = true;
-            TextManager.Write("input_noVerb", CurrentItems.Get.First());
+            TextManager.Write("input_noVerb", itemGroup.GetItems.First());
             return;
         }
 
-        Verb.Sequence sequence = CurrentItems.GetSequence();
+        Verb.Sequence sequence = itemGroup.GetSequence();
 
         if (sequence == null)
         {
-            TextManager.Write("input_noCombination", CurrentItems.Get.First());
+            TextManager.Write("input_noCombination", itemGroup.GetItems.First());
             Reset();
             return;
         }
 
-        FunctionSequence functionList = FunctionSequence.New(
+        FunctionSequence functionList = FunctionSequence.Call(
             sequence.content,
-            CurrentItems.Get,
+            itemGroup,
             Tile.GetCurrent
             );
-        functionList.Call();
 
         if (onAction != null)
             onAction();

@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public Coords startCoords;
+
     public Story story;
 
     private void Awake()
@@ -26,15 +28,12 @@ public class GameManager : MonoBehaviour
         ItemLoader.Instance.Load();
 
         MapTexture.Instance.CreateMapFromTexture();
-
+        Tile.SetCurrent(TileSet.current.GetTile(startCoords));
 
         Player.Instance = Item.CreateFromDataSpecial("player") as Player;
-        Player.Instance.Init();
-
-        ZombieManager.Instance.Init();
-
         Player.Instance.Move(Cardinal.None);
 
+        ZombieManager.Instance.Init();
 
     }
 }

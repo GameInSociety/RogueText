@@ -12,16 +12,12 @@ public class Player : Humanoid {
 
     public static Player Instance;
 
-    // COORDS
-    private Coords startCoords = new Coords(9,9);
-    // beach 9 3
-    // farm 9 9
-
     public override void Init()
     {
+
         base.Init();
 
-        coords = startCoords;
+        coords = Tile.GetCurrent.coords;
 
         AddItem("bag");
     }
@@ -38,13 +34,11 @@ public class Player : Humanoid {
     {
         //base.WriteDescription();
 
-        Property[] properties = GetPropertiesOfType("condition").ToArray();
-
-        foreach (var property in properties)
+        foreach (var item in body.GetContainedItems)
         {
-            if ( property.GetInt() != 0 )
+            if ( item.HasProperties() )
             {
-
+                item.WriteProperties();
             }
         }
     }
@@ -85,8 +79,10 @@ public class Player : Humanoid {
 
         base.Move(targetCoords);
 
+        Tile.SetCurrent(TileSet.current.GetTile(coords));
+
         // generate tile items
-        TileSet.current.tiles[coords].Describe();
+        Tile.GetCurrent.Describe();
 
         MapTexture.Instance.UpdateFeedbackMap();
     }
@@ -117,6 +113,7 @@ public class Player : Humanoid {
 
         if (targetTile == null)
         {
+            Debug.LogError("no tile : " + c.ToString());
             TextManager.Write("blocked_void");
             return;
         }

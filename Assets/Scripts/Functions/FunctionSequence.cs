@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Text;
+using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEditor.Progress;
@@ -16,17 +18,16 @@ public class FunctionSequence
     public static List<FunctionSequence> list = new List<FunctionSequence>();
     public static bool function_OnGoing = false;
 
+    public delegate void OnFinishSequences();
+    public static OnFinishSequences onFinishSequences;
+
     public string[] lines;
 
+    public ItemGroup itemGroup;
     // the pendind props of the function
     public List<Property> pendingProps = new List<Property>();
     // the items the functions will be applied to
     public int itemIndex = 0;
-    public struct ItemGroup
-    {
-        public List<Item> items;
-    }
-    public List<ItemGroup> itemGroups = new List<ItemGroup>();
     // the tile where the function takes place
     public Tile tile;
 
@@ -35,34 +36,23 @@ public class FunctionSequence
 
     public static GameObject parent;
 
-
-    public static FunctionSequence New(
+    public static FunctionSequence Call(
         string cell,
-        List<ItemGroup> itemGroups,
+        ItemGroup group,
         Tile tile)
     {
-        List<Item> items = new List<Item>();
-        foreach (var group in itemGroups)
+        if ( tile == null)
         {
-            items.Add(group.items[0]);
+            Debug.LogError("tile is null for : " + group.text);
         }
 
-        return New(cell, items, tile);
-    }
-    public static FunctionSequence New(
-        string cell,
-        List<Item> items,
-        Tile tile)
-    {
         FunctionSequence f = new FunctionSequence();
         f.Parse(cell);
         f.SetTile(tile);
-        foreach (var item in items)
-        {
-            ItemGroup group = new ItemGroup();
-            group.items = items;
-            f.itemGroups.Add(group);
-        }
+        f.itemGroup = group;
+
+        f.Call();
+
         return f;
     }
 
@@ -70,12 +60,9 @@ public class FunctionSequence
     {
         if ( function_OnGoing)
         {
-            //Debug.Log("[STACKING WORLD EVENT] " + lines[0]);
             list.Add(this);
             return;
         }
-
-        //Debug.Log("[CALLING WORLD EVENT] " + lines[0]);
 
         current = this;
 
@@ -83,8 +70,9 @@ public class FunctionSequence
 
         pendingProps.Clear();
 
-        for (itemIndex = 0; itemIndex < itemGroups.Count; itemIndex++)
+        for (itemIndex = 0; itemIndex < itemGroup.GetItems.Count; itemIndex++)
         {
+
             // separate all actions
             foreach (var line in lines)
             {
@@ -139,8 +127,7 @@ public class FunctionSequence
                 var function = Activator.CreateInstance(objectType) as Function;
 
                 function.InitParams(_line);
-
-                function.TryCall();
+                function.TryCall(itemGroup);
 
                 if (_break)
                 {
@@ -165,7 +152,7 @@ public class FunctionSequence
             return;
         }
 
-        if (CurrentItems.waitForItem)
+        if (itemGroup.waitForItem)
         {
         }
         else
@@ -176,6 +163,10 @@ public class FunctionSequence
         Property.DescribeUpdated();
 
 
+        if ( onFinishSequences != null)
+        {
+            onFinishSequences();
+        }
     }
 
     void JumpToSequence(string line)
@@ -204,12 +195,11 @@ public class FunctionSequence
 
         Verb.Sequence sequence = verb.GetSequence(item);
 
-        FunctionSequence functionList = New(
+        FunctionSequence functionList = Call(
             sequence.content,
-            itemGroups,
+            itemGroup,
             Tile.GetCurrent
             );
-        functionList.Call();
 
 
         Debug.Log("go to other sequence");

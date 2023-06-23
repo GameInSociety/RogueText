@@ -9,14 +9,15 @@ public class Body : Item
 {
     public List<Condition> conditions;
 
-    public void Init()
+    public override void Init()
     {
+        base.Init();
+
+
         foreach (Part part in Enum.GetValues(typeof(Part)))
         {
             string itemName = TextManager.ToLowercaseNamingConvention(part.ToString(), true);
-            Item item = Item.CreateFromData(itemName);
-            var serializedParent = JsonConvert.SerializeObject(item);
-            BodyPart bodyPart = JsonConvert.DeserializeObject<BodyPart>(serializedParent);
+            BodyPart bodyPart = Item.CreateFromDataSpecial(itemName) as BodyPart;
             AddItem(bodyPart);
         }
     }
@@ -74,9 +75,6 @@ public class Body : Item
                 Debug.Log("apply to part : " + bodyPart.debug_name);
             }
         }
-
-
-
 
     }
 
@@ -139,6 +137,7 @@ public class Body : Item
     {
         return GetContainedItems[UnityEngine.Random.Range(0, GetContainedItems.Count)] as BodyPart;
     }
+
 
     public Item GetPart(Part part)
     {

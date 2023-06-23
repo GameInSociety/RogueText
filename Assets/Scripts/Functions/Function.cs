@@ -1,10 +1,7 @@
-using Newtonsoft.Json.Bson;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.AI;
 
 [System.Serializable]
 public class Function
@@ -17,26 +14,24 @@ public class Function
     private List<string> parameters = new List<string>();
     // the pending props of the function list
 
-    private List<Item> items = new List<Item>();
+    private protected ItemGroup group;
 
-    public List<Item> GetItems
-    {
-        get { return items; }
-    }
-    public Item GetItem(int i = 0)
-    {
-        if (i >= items.Count)
-        {
-            Debug.LogError("Function GetItem : outside range ");
-            return null;
-        }
+    private protected Item item;
 
-        return items[i];
-    }
-    public bool HasItem(int i)
+    public void SetItem(Item it)
     {
-        return i < items.Count;
+        item = it;
     }
+
+    public Item GetItem()
+    {
+        return item;
+    }
+    
+    /*public bool HasItem(int i)
+    {
+        return i < GetItems.Count;
+    }*/
 
     public static string GetName(string line)
     {
@@ -49,22 +44,22 @@ public class Function
         return line;
     }
 
-    public virtual void TryCall()
+    public virtual void TryCall(ItemGroup itemGroup)
     {
-        items = CurrentItems.Get;
+        group = new ItemGroup(itemGroup);
+
 
         if (GetParam(0).StartsWith('*'))
         {
             // targeting specific item
             string itemName = GetParam(0).Remove(0, 1);
 
-            if ( CurrentItems.HasItem(itemName) == false)
+            if ( !group.HasItem(itemName))
             {
-                Debug.Log("no item of type : " + itemName);
-                CurrentItems.FindAll(itemName);
+                group.Init(itemName);
             }
             
-            if (CurrentItems.waitForItem)
+            if (group.waitForItem)
             {
                 Debug.Log("waiting for item spec");
                 //TextManager.Write("There's no " + GetParam(0));
@@ -72,8 +67,7 @@ public class Function
                 return;
             }
      //TextManager.Write("You VERB_NAME &the dog& with ", GetItem());
-            items[0] = CurrentItems.FindOfType(itemName);
-            Debug.Log("setting first item : " + items[0].debug_name);
+            group.GetItems[0] = group.FindOfType(itemName);
             //TextManager.Add("&the dog&", GetItem());
             RemoveParam(0);
         }

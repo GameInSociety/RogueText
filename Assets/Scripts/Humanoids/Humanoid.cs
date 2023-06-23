@@ -61,7 +61,6 @@ public class Humanoid : Item
 
     public virtual void Move(Coords targetCoords)
     {
-
         // change current coords
         prevCoords = coords;
 

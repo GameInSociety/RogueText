@@ -85,13 +85,14 @@ public class ItemEvent
     {
         Property.EventData eventData = prop.GetEvent(eventName);
 
-        FunctionSequence worldEvent = FunctionSequence.New(
+        ItemGroup itemGroup = ItemGroup.New();
+        itemGroup.Init(item.debug_name);
+
+        FunctionSequence worldEvent = FunctionSequence.Call(
         eventData.cellContent,
-        new List<Item>() { item },
+        itemGroup,
         tile
         );
-
-        worldEvent.Call();
     }
     #endregion
 

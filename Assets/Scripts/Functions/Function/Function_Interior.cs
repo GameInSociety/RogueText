@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Function_Interior : Function
 {
-    public override void TryCall()
+    public override void TryCall(ItemGroup itemGroup)
     {
-        base.TryCall();
+        base.TryCall(itemGroup);
         Call(this);
     }
 

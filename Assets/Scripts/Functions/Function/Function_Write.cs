@@ -6,9 +6,9 @@ using UnityEngine.UIElements;
 
 public class Function_Write : Function
 {
-    public override void TryCall()
+    public override void TryCall(ItemGroup itemGroup)
     {
-        base.TryCall();
+        base.TryCall(itemGroup);
         Call(this);
     }
 

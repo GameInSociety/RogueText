@@ -111,7 +111,7 @@ public class Interior {
 
                 Item dirItem = newHallwayTile.AddItem("back");
                 Item tileDoor = dirItem.AddItem("door");
-                tileDoor.CreateProperty("direction / back");
+                tileDoor.AddProperty("direction / back");
             }
 
             // check if room appears

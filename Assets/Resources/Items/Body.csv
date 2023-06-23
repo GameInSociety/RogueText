@@ -1,5 +1,11 @@
 "NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"head","BodyPart","s","on","body part","","","","","","look
+"head","BodyPart","s","on","body part","state / wounded","value / bleeding / 2
+%subHours
+Prop(update, bleeding, -1)
+
+%subEmpty
+Prop(update, bleeding, +2)
+Prop(*player, update, health, -1)","","","","look
 Item(describe)","unequip
 Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "neck","BodyPart","s","on","body part","","","","","","look
