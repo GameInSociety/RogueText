@@ -14,6 +14,14 @@ public class DataDownloaderEditor: Editor
             myScript.DownloadCSVs();
         }
 
+        for (int i = 0; i < myScript.sheetNames.Length; i++)
+        {
+            if (GUILayout.Button(myScript.sheetNames[i]))
+            {
+                myScript.StartCoroutine(myScript.DownloadsCSV(i));
+            }
+        }
+
         if (GUILayout.Button("Open Link"))
         {
             Application.OpenURL(myScript.url);

@@ -27,20 +27,19 @@ public class InputInfo : MonoBehaviour
     public bool waitForVerb = false;
     // bizarre, mais en soi wait for specific item est que pour les specs, pas pour le premier
     public bool waitForFirstItem = false;
-
-    public delegate void OnAction();
-    public OnAction onAction;
-
-    ItemGroup itemGroup;
-
+    
     private void Awake()
     {
         Instance = this;
     }
 
+    private void Start()
+    {
+        
+    }
+
     public void Reset()
     {
-        itemGroup = null;
         waitForFirstItem = false;
         waitForVerb = false;
         Verb.Clear();
@@ -73,17 +72,15 @@ public class InputInfo : MonoBehaviour
             Verb.SetCurrent(verb);
         }
 
-        if ( itemGroup == null)
+        ItemParser.ParseItems(inputText);
+
+        if (ItemParser.waitingForItem)
         {
-            itemGroup = ItemGroup.New();
+            Debug.Log("stop because waiting for item");
+            return;
         }
 
-        if (itemGroup.Empty|| itemGroup.waitForItem)
-        {
-            itemGroup.Init(inputText);
-        }
-
-        if (itemGroup.Empty)
+        if (ItemParser.IsEmpty)
         {
             if (Verb.HasCurrent && !waitForFirstItem)
             {
@@ -99,37 +96,57 @@ public class InputInfo : MonoBehaviour
             return;
         }
 
-        if (itemGroup.waitForItem)
-        {
-            return;
-        }
+        
 
-        if (!Verb.HasCurrent && !itemGroup.Empty)
+
+        if (!Verb.HasCurrent && !ItemParser.IsEmpty)
         {
             waitForVerb = true;
-            TextManager.Write("input_noVerb", itemGroup.GetItems.First());
+            TextManager.Write("input_noVerb", ItemParser.FirstItem);
             return;
         }
 
-        Verb.Sequence sequence = itemGroup.GetSequence();
+        if (FunctionSequence.pausedSequence != null)
+        {
+            if (ItemParser.replacingItem)
+            {
+                ItemParser.sustainItem = ItemParser.FirstItem;
+            }
+
+            Debug.Log("calling paused sequence");
+            FunctionSequence.pausedSequence.Call();
+            FunctionSequence.pausedSequence = null;
+            return;
+        }
+
+        Verb.Sequence sequence = Verb.GetCurrent.GetSequence(ItemParser.FirstItem);
 
         if (sequence == null)
         {
-            TextManager.Write("input_noCombination", itemGroup.GetItems.First());
+            TextManager.Write("input_noCombination", ItemParser.FirstItem);
             Reset();
             return;
         }
 
+        List<Item> items = ItemParser.GetItems;
+
+        foreach (var it in items)
+        {
+            Debug.Log(it.debug_name);
+        }
+
+
+        // putting aside mutiple items in function sequence because it may be obsolete with the new item search thing
+        // need to try and make plates work after
+
         FunctionSequence functionList = FunctionSequence.Call(
             sequence.content,
-            itemGroup,
+            new List<Item> { items[0] },
             Tile.GetCurrent
             );
 
-        if (onAction != null)
-            onAction();
+        ItemEvent.CallEvent("subAction");
 
-        //Reset();
     }
 
 

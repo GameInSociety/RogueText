@@ -12,16 +12,27 @@ public static class AvailableItems
 
     public static Item FindInText(string text)
     {
-        return Get.Find(x => x.ContainedInText(text));
+        return GetItems.Find(x => x.ContainedInText(text));
     }
-    public static Item Find(string name)
+
+    public static Item SearchByType(string type)
     {
-        return Get.Find(x=> x.HasWord(name));
+        return GetItems.Find(x => x.HasInfo(type));
+    }
+
+    public static Item SearchByProperty(string property)
+    {
+        return GetItems.Find(x=> x.HasProperty(property));
+    }
+
+    public static Item SearchByName(string name)
+    {
+        return GetItems.Find(x=> x.HasWord(name));
     }
     public static List<Item> FindAll(string name)
     {
         List<Item> list = new List<Item>();
-        foreach (var item in Get)
+        foreach (var item in GetItems)
         {
             if (item.HasWord(name))
             {
@@ -29,32 +40,31 @@ public static class AvailableItems
             }
         }
 
-        return Get.FindAll(x=> x.HasWord(name));
+        return GetItems.FindAll(x=> x.HasWord(name));
     }
 
-    public static List<Item> Get
+    public static List<Item> GetItems
     {
         get
         {
-
-
             List<Item> tmpList = new List<Item>();
 
-            tmpList.Add(Tile.GetCurrent);
-            tmpList.Add(Player.Instance);
-            tmpList.Add(Player.Inventory);
-            tmpList.AddRange(Player.Instance.body.GetAllItems());
+            tmpList.AddRange(Tile.GetCurrent.GetAllItems());
+
+            // je commente au cas ou ?
+            //tmpList.Add(Tile.GetCurrent);
+            /*tmpList.AddRange(Player.Instance.GetAllItems());
 
             if (FunctionSequence.current != null && FunctionSequence.current.tile != Tile.GetCurrent)
             {
-                Debug.Log("curren ttile : " + FunctionSequence.current.itemGroup.text);
-                Debug.Log("function tile : " + FunctionSequence.current.tile.debug_name);
+                Debug.Log("curren ttile : " + FunctionSequence.current.FirstItem.debug_name);
+                Debug.Log("function tile : " + FunctionSequence.current.FirstItem.debug_name);
                 tmpList.AddRange(FunctionSequence.current.tile.GetAllItems());
             }
             else
             {
                 tmpList.AddRange(Tile.GetCurrent.GetAllItems().FindAll(x=> x.visible));
-            }
+            }*/
 
             tmpList.AddRange(Item.dataItems.FindAll(x => x.HasInfo("general")));
 
@@ -64,6 +74,10 @@ public static class AvailableItems
             recentItems = tmpList.FindAll(x => !list.Contains(x));
             list.Clear();
             list.AddRange(tmpList);
+
+
+            
+
 
             return list;
         }

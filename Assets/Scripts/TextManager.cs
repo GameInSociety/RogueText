@@ -1,17 +1,18 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Windows;
-using static UnityEditor.Progress;
+
 public static class TextManager
 {
-    static Item overrideItem = null;
     static List<Humanoid.Orientation> overrideOrientations = new List<Humanoid.Orientation>();
     // PARAMS
     public static List<PhraseKey> phraseKeys = new List<PhraseKey>();
     // override c'est vraiment pas bien, il faut trouver une façon de faire ("&le chien sage (surrounding tile)&")
+    private static List<Item> overrides = new List<Item>();
 
     public static void SetOverrideOrientation(Humanoid.Orientation orientation)
     {
@@ -20,11 +21,6 @@ public static class TextManager
     public static void SetOverrideOrientation(List<Humanoid.Orientation> _orientations)
     {
         overrideOrientations = _orientations;
-    }
-    public static string GetPhrase(string key, Item _overrideItem)
-    {
-        overrideItem = _overrideItem;
-        return GetPhrase(key);
     }
     public static string GetPhrase(string key)
     {
@@ -36,7 +32,7 @@ public static class TextManager
 
         // &a good dog& => a charred road
         // &some dogs (main)& => some seeds
-        str = ExtractItemWords(str);
+        str = GetOverrideItem (str);
         return str;
     }
     private static string GetPhraseKey(string key)
@@ -49,7 +45,7 @@ public static class TextManager
         }
         return phraseKey.values[Random.Range(0, phraseKey.values.Count)];
     }
-    public static string ExtractItemWords(string text)
+    public static string GetOverrideItem(string text)
     {
         int safetyBreak = 0;
         if (text == null)
@@ -60,24 +56,53 @@ public static class TextManager
         while (text.Contains("&"))
         {
             // bonjour je suis &le chien sage (main)& => &le chien sage (main)&
-            string targetPart = IsolatePart(text);
+            string partToReplace = IsolatePart(text);
+
             // "&le chien sage (main)& => le chien sage (main)
-            string wordInfo = TrimPart(targetPart);
-            // le chien sage (main) => main
-            string itemInfo = GetKey(wordInfo);
+            string prms = TrimPart(partToReplace);
 
-            // getting the item
-            Item targetItem = GetItemFromCode(itemInfo);
 
-            if (targetItem == null)
+            Item targetItem = null;
+
+            if (prms.Contains('*'))
             {
-                Debug.LogError("target item is null " + itemInfo + " text : " + text);
+                targetItem = GetItemInHistory(prms, out prms);
+
+                if (targetItem == null)
+                {
+                    Debug.LogError("no override item for " + text);
+                    return "!NO OVERRIDE ITEM!";
+                }
+            }
+            else
+            {
+                // getting the item
+                if (overrides.Count > 0)
+                {
+                    targetItem = overrides.Last();
+                    overrides.Remove(targetItem);
+                }
+            }
+
+            
+
+            if ( targetItem == null)
+            {
+                Debug.LogError("no target item for : " + prms);
+                return "!override text error!";
+            }
+
+
+            if (Player.Instance.GetAllItems().Find(x => x == targetItem) != null)
+            {
+                Debug.Log("the item " + targetItem.debug_name + "/" + targetItem.GetHashCode() + " is part of the player");
+                prms = "your dog";
             }
 
             // get word from item
-            string word = targetItem.word.GetInfo(wordInfo);
+            string newPart = targetItem.word.GetInfo(prms);
             // replace target part with word, and continue
-            text = text.Replace(targetPart, word);
+            text = text.Replace(partToReplace, newPart);
 
             // safety break
             ++safetyBreak;
@@ -90,24 +115,35 @@ public static class TextManager
         return text;
         //
     }
-    private static string GetKey(string _key)
+
+    private static Item GetItemInHistory(string arg, out string newText)
     {
         // word code = le chien sage (main)
         // check if there tags
-        if (!_key.Contains("("))
+        if (!arg.Contains("*"))
         {
             // no key specified, so returning the main
             // not a bug, just flemme
 
-            //Debug.LogError("word code : " + wordCode + " doesn't contain item code");
-            return "main";
+            Debug.LogError("HISTORY ITEM : " + arg + " doesn't have *");
+            newText = arg;
+            return null;
         }
-        int startIndex = _key.IndexOf('(');
-        string tmpItemCode = _key.Remove(0, startIndex + 1);
-        tmpItemCode = tmpItemCode.Remove(tmpItemCode.Length - 1);
-        _key = _key.Remove(startIndex - 1);
-        // assign
-        return tmpItemCode;
+        // remove parentheses
+        string searchKey = arg.Remove(0, arg.IndexOf('*'));
+        newText = arg.Replace(searchKey, "dog");
+        searchKey = searchKey.Remove(0, 1);
+        searchKey = searchKey.Remove(searchKey.IndexOf('*'));
+        ItemParser.ItemKey itemKey = ItemParser.history.Find(x => x.key == searchKey);
+
+        if ( itemKey == null)
+        {
+            Debug.LogError("no item with key : " + searchKey + " in item history");
+        }
+
+        Item item = itemKey.item;
+
+        return item;
     }
     // isolate "&" du texte
     static string IsolatePart(string str)
@@ -128,15 +164,7 @@ public static class TextManager
         wordCode = wordCode.Remove(wordCode.Length - 1);
         return wordCode;
     }
-    static Item GetItemFromCode(string itemCode)
-    {
-        if ( overrideItem == null)
-        {
-            Debug.LogError("override item is null");
-        }
-
-        return overrideItem;
-    }
+    
     public static List<Humanoid.Orientation> GetOverrideOrientations()
     {
         return overrideOrientations;
@@ -146,10 +174,15 @@ public static class TextManager
     {
         DisplayDescription.Instance.text_target += "\n";
     }
+
     public static void Write(string str, Item _overrideItem)
     {
-        overrideItem = _overrideItem;
+        AddOverride(_overrideItem);
         Write(str);
+    }
+    public static void AddOverride(Item item)
+    {
+        overrides.Add(item);
     }
     public static void Write(string str)
     {
@@ -161,10 +194,14 @@ public static class TextManager
     {
         Add(TextUtils.GetLink(index, l));
     }
+    public static string GetLink(int index, int l)
+    {
+        return TextUtils.GetLink(index, l);
+    }
 
     public static void Add(string str, Item _overrideItem)
     {
-        overrideItem = _overrideItem;
+        AddOverride(_overrideItem);
         Add(str);
     }
     public static void Add (string str)

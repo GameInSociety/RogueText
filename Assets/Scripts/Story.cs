@@ -20,12 +20,6 @@ public class Story : MonoBehaviour
         Instance = this;
     }
 
-    void HandleSetParam()
-    {
-        bool b = Function.current.GetParam(0) == "true";
-        SetParam(Function.current.GetParam(0), b);
-    }
-
     public bool GetParam(string key)
     {
         Param param = _params.Find(x => x.key == key);

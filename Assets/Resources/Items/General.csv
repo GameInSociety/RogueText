@@ -6,7 +6,10 @@ Condition(health, -1)","move
 Player(move, relative, 0)","leave 
 GOOUT","go back 
 Player(move, relative, 4)","wait 
-Time(wait, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+Time(wait, 1)","hit / strike / attack
+*target/body part* Prop(enable, bleeding)
+*target* Prop(update, health, -*damage*)
+Write(text, you hit &the *target*& &on the *body part*& with your &*damage*&)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "north","","s
 d","to","invisible
 dif","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

@@ -3,13 +3,13 @@
 Item(describe)","take 
 Item(pickUp)","throw 
 Item(throw)","use 
-If(*door, prop, locked)
-Prop(*door, update, locked, unlocked)
-Item(destroy)","yes 
+*door* If(prop, locked)
+*door* Prop(update, locked, unlocked)
+*key* Item(destroy)","yes 
 If(prop, locked)
 Item(require, key)
 Prop(update, locked, unlocked)
-Item(*key, destroy)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+*key* Item(destroy)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "book","","s","","shelf misc","","","","","","look 
 Item(describe)","take 
 Item(pickUp)","throw 

@@ -7,51 +7,11 @@ using UnityEngine;
 
 public class Function_Prop : Function
 {
-    public override void TryCall(ItemGroup itemGroup)
+    public override void Call()
     {
-        base.TryCall(itemGroup);
+        base.Call();
         Call(this);
     }
-    void require()
-    {
-        Debug.LogError("REQUIRE STOP WORKING BECAUSE ONLY ONE ITEM IN FUNCTION SEQUENCE.");
-        Debug.LogError("USE *search INSTEAD ?");
-        //if (!HasItem(1))
-        if (false)
-            {
-            // this will display a phrase "what do you want to charge the flashlight with"
-            // hence, sustain verb and all so input follows
-            // but many actions require to sustain things
-            // so until je trouve quelque chose de mieux, je le mets partout
-            group.WaitForSpecificItem("item_noSecondItem");
-            FunctionSequence.current.Break();
-            return;
-        }
-
-        string prop_name = GetParam(0);
-
-        Item item = group.GetItems.Find(x => x.HasProperty(prop_name));
-
-        if (item == null)
-        {
-            TextManager.Write("&the dog (override)& has no " + prop_name, group.GetItem(1));
-            FunctionSequence.current.Break();
-            return;
-        }
-
-        if (item.GetProperty(prop_name).HasInt())
-        {
-            if (group.GetItem(1).GetProperty(prop_name).GetInt() == 0)
-            {
-                TextManager.Write("No more " + prop_name + " in &the dog (override)&", item);
-                FunctionSequence.current.Break();
-                return;
-            }
-        }
-
-        FunctionSequence.current.pendingProps.Add(item.GetProperty(prop_name));
-    }
-
     void disable()
     {
         Item targetItem = GetItem();
@@ -71,11 +31,12 @@ public class Function_Prop : Function
 
         if (property == null)
         {
-            Debug.LogError("ACTION_ENABLEPROPERY");
-            Debug.LogError("did not find property : " + prop_name);
+            Debug.LogError("ACTION_ENABLEPROPERY : did not find property : " + prop_name + " on " + targetItem.debug_name);
+            return;
         }
 
         targetItem.EnableProperty(prop_name);
+
 
     }
 
@@ -122,13 +83,8 @@ public class Function_Prop : Function
 
     void update()
     {
-
-        string targetProp = GetParam(0);
+        string propName = GetParam(0);
         string line = GetParam(1);
-
-        // in the function type is not reffered, so go for part 0
-        Property property = GetItem().GetProperty(targetProp);
-
-        property.Update(line);
+        GetItem().UpdateProperty(propName, line);
     }
 }

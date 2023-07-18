@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class Function_Item : Function
 {
-    public override void TryCall(ItemGroup itemGroup)
+    public override void Call()
     {
-        base.TryCall(itemGroup);
+        base.Call();
         Call(this);
     }
 
@@ -23,7 +23,7 @@ public class Function_Item : Function
 
             Player.Inventory.AddItem(GetItem());
 
-            int count = FunctionSequence.current.itemGroup.GetItems.Count;
+            int count = FunctionSequence.current.items.Count;
 
             if (count > 1)
             {
@@ -79,11 +79,11 @@ public class Function_Item : Function
             item_name = GetItem().GetProperty(targetPropertyName).value;
         }
 
-        Item item = FunctionSequence.current.tile.AddItem(item_name);
+        Item item = FunctionSequence.current.tile.CreateItem(item_name);
 
         for (int i = 1; i < amount; i++)
         {
-            FunctionSequence.current.tile.AddItem(item_name);
+            FunctionSequence.current.tile.CreateItem(item_name);
         }
 
         if (FunctionSequence.current.tile == Tile.GetCurrent)
@@ -97,7 +97,7 @@ public class Function_Item : Function
         if (HasParam(1))
         {
             string item_name = GetParam(0);
-            Item targetItem = AvailableItems.Find(item_name);
+            Item targetItem = AvailableItems.SearchByName(item_name);
 
             if (targetItem == null)
             {
@@ -108,8 +108,6 @@ public class Function_Item : Function
                 FunctionSequence.current.Break();
                 return;
             }
-
-            //TextManager.Write("you use &the dog (override)&", targetItem);
             return;
         }
 
@@ -120,7 +118,7 @@ public class Function_Item : Function
         //if (!HasItem(1))
         if (false)
         {
-            group.WaitForSpecificItem("item_noSecondItem");
+            //group.WaitForSpecificItem("item_noSecondItem");
             FunctionSequence.current.Break();
             return;
         }

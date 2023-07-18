@@ -6,15 +6,15 @@ using UnityEngine.UIElements;
 
 public class Function_Write : Function
 {
-    public override void TryCall(ItemGroup itemGroup)
+    public override void Call()
     {
-        base.TryCall(itemGroup);
+        base.Call();
         Call(this);
     }
 
     void text()
     {
-        TextManager.Write(GetParam(0));
+        TextManager.Write(GetParam(0), GetItem());
     }
 
     void north()

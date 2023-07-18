@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
@@ -12,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using UnityEditor.XR;
 using UnityEditorInternal;
+using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 using UnityEngine.Networking.Types;
 using UnityEngine.UIElements;
@@ -19,7 +21,6 @@ using UnityEngine.UIElements;
 [System.Serializable]
 public class Item
 {
-    public int count = 1;
 
     public string debug_name = "debug name";
     public int debug_randomID;
@@ -33,7 +34,7 @@ public class Item
         return AppearInfo.GetAppearInfo(dataIndex);
     }
 
-    public List<string> infos;
+    public List<string> infos = new List<string>();
     public void AddInfo(string str)
     {
         if (infos.Contains(str))
@@ -71,9 +72,15 @@ public class Item
     public List<Property> properties = new List<Property>();
 
 
-    public virtual void Init()
+    public virtual void Init(Item copy)
     {
+        // unique
+        foreach (var prop_copy in copy.properties)
+        {
+            Property newProp = CreateProperty(prop_copy);
+            properties.Add(newProp);
 
+        }
     }
 
     #region contained items
@@ -105,14 +112,17 @@ public class Item
                 float f = UnityEngine.Random.value * 100f;
                 if (f < itemInfo.chanceAppear)
                 {
-                    AddItem(itemInfo.name);
+                    CreateItem(itemInfo.name);
                 }
             }
         }
     }
-    public Item AddItem(string name)
+    #endregion
+
+    #region item creation
+    public Item CreateItem(string name)
     {
-        Item newItem = Item.CreateFromData(name);
+        Item newItem = Generate_Simple(name);
         return AddItem(newItem);
     }
 
@@ -157,7 +167,7 @@ public class Item
         if (mContainedItems == null)
             return false;
 
-        return mContainedItems.Contains(item);
+        return GetAllItems().Contains(item);
     }
 
     public bool SameTypeAs(Item otherItem)
@@ -218,10 +228,16 @@ public class Item
 
         );
     }
-    public List<Item> GetHumanoids()
+    public List<Item> GetEnemies()
     {
-        return mContainedItems.FindAll(x => x.IsHumanoid());
+        return mContainedItems.FindAll(x => x as Zombie != null);
     }
+
+    public bool ContainedIn(Item item)
+    {
+        return item.HasItem(this);
+    }
+
     public virtual void WriteContainedItems(bool describeContainers =false)
     {
         visible = true;
@@ -240,7 +256,7 @@ public class Item
                 newGroup.item = item;
                 allGroups.Add(newGroup);
 
-                item.word.defaultDefined = false;
+                item.word.defined = false;
                 continue;
 
             }
@@ -270,7 +286,7 @@ public class Item
         {
             if (describeContainers)
             {
-                TextManager.Write("there's ", this);
+                TextManager.Write("there's ");
             }
             else
             {
@@ -281,15 +297,14 @@ public class Item
             int index = 0;
             foreach (var group in itemGroups)
             {
-                group.item.word.currentInfo.amount = group.amount;
-                if (group.item.word.defaultDefined)
+                if (group.item.word.defined)
                 {
                     TextManager.Add("&the dog&", group.item);
                 }
                 else
                 {
                     TextManager.Add("&a dog&", group.item);
-                    group.item.word.defaultDefined = true;
+                    group.item.word.defined = true;
                 }
                 TextManager.AddLink(index, itemGroups.Count);
 
@@ -298,14 +313,14 @@ public class Item
 
             if (this != Tile.GetCurrent && itemGroups.Count > 0)
             {
-                if (word.defaultDefined)
+                if (word.defined)
                 {
                     TextManager.Add(" &on the dog&", this);
                 }
                 else
                 {
                     TextManager.Add(" &on a dog&", this);
-                    word.defaultDefined = true;
+                    word.defined = true;
                 }
             }
         }
@@ -343,12 +358,18 @@ public class Item
 
         foreach (var item in mContainedItems)
         {
-            items.AddRange(item.GetAllItems());
 
-            /*if ( item.info.available)
+            /*items.Add(item);
+
+            if (item.ContainsItems())
             {
-                items.AddRange(item.GetAllItems());
+                foreach (var item2 in item.GetContainedItems)
+                {
+                    items.Add(item2);
+                }
             }*/
+
+            items.AddRange(item.GetAllItems());
         }
 
         return items;
@@ -389,24 +410,32 @@ public class Item
     }
     public bool ContainedInText(string text)
     {
+        int index = 0;
+        return ContainedInText(text, out index);
+    }
+    public bool ContainedInText(string text, out int index)
+    {
         foreach (var word in words)
         {
             // find singular
             string bound = @$"\b{word.text}\b";
             if (Regex.IsMatch(text, bound))
             {
-                word.currentNumber = Word.Number.Singular;
+                word.number = Word.Number.Singular;
+                index = text.IndexOf(word.text);
                 return true;
             }
 
             bound = @$"\b{word.GetPlural()}\b";
             if (Regex.IsMatch(text, bound))
             {
-                word.currentNumber = Word.Number.Plural;
+                word.number = Word.Number.Plural;
+                index = text.IndexOf(word.GetPlural());
                 return true;
             }
         }
 
+        index = -1;
 
         return false;
     }
@@ -458,11 +487,19 @@ public class Item
 
         if (describe)
         {
-            newProperty.Describe();
+            PropertyDescription.Add(this, newProperty);
         }
 
         properties.Add(newProperty);
         return newProperty;
+    }
+
+    public void UpdateProperty(string propName, string line)
+    {
+        Property property = GetProperty(propName);
+        property.Update(line);
+
+        PropertyDescription.Add(this, property);
     }
 
     /// <summary>
@@ -489,9 +526,6 @@ public class Item
                 }
             }
         }
-
-        properties.Add(newProperty);
-
         return newProperty;
     }
     public void DeleteProperty(string propertyName)
@@ -542,12 +576,35 @@ public class Item
 
     public void EnableProperty(string propertyName)
     {
-        properties.Find(x => x.name == propertyName).enabled = true;
+        Property prop = properties.Find(x => x.name == propertyName);
+
+        if (prop == null)
+        {
+            Debug.LogError("ENABLE PROP : Could not find property " + propertyName);
+            return;
+        }
+
+        prop.enabled = true;
+        ItemEvent.CallEventOnProp("subEnable", prop);
+
+
+        PropertyDescription.Add(this, prop);
+
+
     }
 
     public void DisableProperty(string propertyName)
     {
-        properties.Find(x => x.name == propertyName).enabled = false;
+        Property prop = properties.Find(x => x.name == propertyName);
+        if (prop == null)
+        {
+            Debug.LogError("DISABLE PROP : Could not find property " + propertyName);
+            return;
+        }
+
+        prop.enabled = false;
+
+        PropertyDescription.Add(this, prop);
     }
 
     public Property GetProperty(string name)
@@ -585,6 +642,7 @@ public class Item
 
     public void WriteProperties()
     {
+
         int enabledPropCount = GetEnabledProperties().Count;
 
         if (enabledPropCount > 0)
@@ -612,7 +670,7 @@ public class Item
     #region remove & destroy
     public static void Destroy(Item item)
     {
-
+        Debug.Log("destroying " + item.debug_name);
         ItemEvent.Remove(item);
 
         foreach (var prop in item.properties)
@@ -631,7 +689,7 @@ public class Item
     {
 
         // then in tile
-        foreach (var item in AvailableItems.Get)
+        foreach (var item in AvailableItems.GetItems)
         {
             if (item.HasItem(targetItem))
             {
@@ -672,61 +730,58 @@ public class Item
 
     public static List<AppearInfo> appearInfos = new List<AppearInfo>();
 
-    public static Item CreateFromData(string name)
+    public static Item Generate_Simple(string name)
     {
         Item copy = GetDataItem(name);
 
-        copy.Init();
+        Item item = Generate(copy);
 
-        return CreateFromData(copy);
+        item.Init(copy);
+
+        return item;
     }
 
-    public static object CreateFromDataSpecial(string name)
+    public static object Generate_Special(string name)
     {
-        Item item = CreateFromData(name);
+        Item copy = GetDataItem(name);
 
-        if (string.IsNullOrEmpty(item.className))
+        if (string.IsNullOrEmpty(copy.className))
         {
             Debug.Log("request " + name + " : no class name in data");
             return null;
         }
 
-        Type ItemType = Type.GetType(item.className);
+        Type ItemType = Type.GetType(copy.className);
         if (ItemType == null)
         {
-            Debug.LogError("pas d'item type pour " + item.debug_name);
+            Debug.LogError("pas d'item type pour " + copy.debug_name);
             return null;
         }
+
+        Item item = Generate(copy);
 
         var serializedParent = JsonConvert.SerializeObject(item);
         object obj = JsonConvert.DeserializeObject(serializedParent, ItemType);
 
-        ((Item)obj).Init();
+        ((Item)obj).Init(copy);
 
         return obj;
     }
 
     /// create a new item by name
-    public static Item CreateFromData(Item copy)
+    private static Item Generate(Item copy)
     {
         Item newItem = new Item();
 
         // common to all
         newItem.debug_name = copy.debug_name;
-        newItem.debug_randomID = UnityEngine.Random.Range(0, 10000);
+        newItem.debug_randomID = newItem.GetHashCode();
         newItem.dataIndex = copy.dataIndex;
         newItem.className = copy.className;
 
         newItem.infos = copy.infos;
-
         // the word never changes, non ? pourquoi en copy
         newItem.words = copy.words;
-
-        // unique
-        foreach (var prop_copy in copy.properties)
-        {
-            newItem.CreateProperty(prop_copy);
-        }
 
         return newItem;
     }

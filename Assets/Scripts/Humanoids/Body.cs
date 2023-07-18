@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEditor;
+using System.Drawing;
 
 [System.Serializable]
 public class Body : Item
 {
     public List<Condition> conditions;
 
-    public override void Init()
+    public override void Init(Item copy)
     {
-        base.Init();
-
+        base.Init(copy);
 
         foreach (Part part in Enum.GetValues(typeof(Part)))
         {
             string itemName = TextManager.ToLowercaseNamingConvention(part.ToString(), true);
-            BodyPart bodyPart = Item.CreateFromDataSpecial(itemName) as BodyPart;
+            BodyPart bodyPart = Item.Generate_Special(itemName) as BodyPart;
             AddItem(bodyPart);
         }
     }
@@ -80,7 +80,7 @@ public class Body : Item
 
     public void Unequip(Item item)
     {
-        if (Player.Instance.body.HasItem(item)){
+        if (Player.Instance.GetBody.HasItem(item)){
 
             if ( item.GetContainedItems.Count == 0)
             {
@@ -106,7 +106,7 @@ public class Body : Item
             return;
         }
 
-        if (Player.Instance.body.GetAllItems().Find(x => x.HasItem(item)) != null)
+        if (Player.Instance.GetBody.GetAllItems().Find(x => x.HasItem(item)) != null)
         {
             // target part : an item
             // removing item from body part

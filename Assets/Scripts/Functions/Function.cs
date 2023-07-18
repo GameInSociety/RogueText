@@ -1,27 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
+using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 
 [System.Serializable]
 public class Function
 {
-    // ChangeProp(fine, -1)
-
-    public static Function current;
-
     // the parameters of the function ( fine ; -1 )
     private List<string> parameters = new List<string>();
     // the pending props of the function list
 
-    private protected ItemGroup group;
-
-    private protected Item item;
-
-    public void SetItem(Item it)
-    {
-        item = it;
-    }
+    public Item item;
 
     public Item GetItem()
     {
@@ -40,44 +32,64 @@ public class Function
             return line.Remove(line.IndexOf('('));
         }
 
-
         return line;
     }
 
-    public virtual void TryCall(ItemGroup itemGroup)
+    public virtual void TryCall(Item it)
     {
-        group = new ItemGroup(itemGroup);
+        item = it;
 
-
-        if (GetParam(0).StartsWith('*'))
+        /*if (GetParam(0).StartsWith('*'))
         {
             // targeting specific item
             string itemName = GetParam(0).Remove(0, 1);
 
-            if ( !group.HasItem(itemName))
+            Item newItem;
+            if (ItemParser.replacingItem)
             {
-                group.Init(itemName);
+                newItem = ItemParser.sustainItem;
+                //ItemParser.replacingItem = false;
             }
-            
-            if (group.waitForItem)
+            else
             {
-                Debug.Log("waiting for item spec");
-                //TextManager.Write("There's no " + GetParam(0));
-                FunctionSequence.current.Break();
-                return;
+                Item specItem = ItemParser.GetItems.Find(x=> x.debug_name == itemName);
+                if ( specItem != null)
+                {
+                    item = specItem;
+                }
+                else
+                {
+                    ItemParser.ParseItems(itemName);
+                    if (ItemParser.IsEmpty)
+                    {
+                        TextManager.Write("Theres no " + itemName + " around");
+                        FunctionSequence.current.Break();
+                        return;
+                    }
+                    if (ItemParser.waitingForItem)
+                    {
+                        ItemParser.replacingItem = true;
+                        FunctionSequence.current.Pause();
+                        return;
+                    }
+                    item = ItemParser.FirstItem;
+
+                }
             }
-     //TextManager.Write("You VERB_NAME &the dog& with ", GetItem());
-            group.GetItems[0] = group.FindOfType(itemName);
-            //TextManager.Add("&the dog&", GetItem());
-            RemoveParam(0);
-        }
+
+
+        }*/
+
+        Call();
+    }
+
+    public virtual void Call()
+    {
 
     }
 
     public virtual void Call(object obj)
     {
-        current = this;
-
         string methodName = GetParam(0);
         Type type = obj.GetType();
         MethodInfo mi = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
@@ -133,7 +145,7 @@ public class Function
     {
         if (i >= parameters.Count)
         {
-            Debug.LogError("getting contents : out of range (" + i + "/" + parameters.Count + ")");
+            //Debug.LogError("getting contents : out of range (" + i + "/" + parameters.Count + ")");
             return "no contents";
         }
 

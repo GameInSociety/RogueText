@@ -31,8 +31,9 @@ public class ZombieManager : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            Zombie newZombie = Item.CreateFromDataSpecial("undead") as Zombie;
-            newZombie.coords = Player.Instance.coords;
+
+            Zombie newZombie = Item.Generate_Special("undead") as Zombie;
+            newZombie.coords = GameManager.Instance.startCoords;
             newZombie.Move(newZombie.coords);
 
             MapTexture.Instance.UpdateFeedbackMap();

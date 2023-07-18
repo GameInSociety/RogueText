@@ -21,15 +21,22 @@ public class Humanoid : Item
     public Coords coords = new Coords(-1, -1);
     public Coords direction = new Coords(-1, -1);
 
-    public Body body;
     public Condition condition;
 
 
-    public override void Init()
+    public override void Init(Item copy)
     {
-        base.Init();
-        body = new Body();
-        body.Init();
+        base.Init(copy);
+
+        AddItem(Generate_Special("body") as Body);
+    }
+
+    public Body GetBody
+    {
+        get
+        {
+            return GetItem("body") as Body;
+        }
     }
 
     public bool CanMoveForward(Coords c)

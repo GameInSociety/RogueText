@@ -13,7 +13,7 @@ If(prop, fertile)","","","","","","","","","","","","","","","","","","","","","
 Prop(update, growing, -1)
 
 %subEmpty
-Item(create, *itemName)
+Item(create, *itemName*)
 Item(destroy, sprout)","iValue / watered / 10
 %subHours
 Prop(update, watered, -1)
@@ -46,18 +46,18 @@ Item(destroy)
 Write(text, the dog& is gone)","water 
 If(prop, !dead)
 Prop(require, water)
-Prop(update, drying, +*water)
+Prop(update, drying, +*water*)
 Prop(disable, drying)
-Prop(update, watered, +*water)
+Prop(update, watered, +*water*)
 Prop(enable, watered)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "watering can","","s","","","","","","","","look 
 Item(describe)","take 
 Item(pickUp)","fill 
 Prop(require, water)
-Prop(update, water, +*water)","drink 
+Prop(update, water, +*water*)","drink 
 Condition(thirst, -1)
 Prop(update, water, -1)","throw 
 Item(throw)","empty 
 If(propValue, water)
 Item(create, puddle)
-Prop(*puddle, update, water, *water)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+*puddle Prop(update, *water*)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

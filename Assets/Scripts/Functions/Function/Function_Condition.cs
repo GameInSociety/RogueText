@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class Function_Condition : Function
 {
-    public override void TryCall(ItemGroup itemGroup)
+    public override void Call()
     {
-        base.TryCall(itemGroup);
+        base.Call();
         Call(this);
     }
     void MEMRDE()
     {
-        Condition.Type conditionType = (Condition.Type)System.Enum.Parse(typeof(Condition.Type), Function.current.GetParam(0), true);
+        Condition.Type conditionType = (Condition.Type)System.Enum.Parse(typeof(Condition.Type), GetParam(0), true);
 
-        string str = Function.current.GetParam(1);
+        string str = GetParam(1);
 
         Condition condition = ConditionManager.GetInstance().GetCondition(conditionType);
 

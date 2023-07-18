@@ -1,4 +1,31 @@
 "NAME","","N.","PREP.","INF.","PROPERTIES","","","","","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"undead","Zombie","s","","humanoid","stat / strenght / 1","","","","","","","","","look 
-Item(describe)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"player","Player","s","","humanoid","condition / health / 10","condition / thirst / 10","condition / hunger / 10","condition / sleep / 10","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"undead","Zombie","s","","humanoid
+target","condition / health / 10=10
+&fine/hit/hurt/badly hurt/criticaly hurt/dying
+
+%subEmpty
+Prop(disable, steps)
+Prop(add, state / dead)
+Write(text, the undead lies on the ground)","distance / steps / 2
+&&far away/at an honest distance/rather close/a few steps away/nearly in front of you/within reach/about to attack
+
+%subAction
+Write(text, &the dog& is getting closer)
+Prop(update, steps, -1)
+
+%subEmpty
+Prop(enable, attack)","$action / attack
+
+%subEnable
+Write(text, &the dog& launches at you)
+*player/body part* Prop(enable, bleeding)
+Prop(update, steps, +2)
+Prop(disable, attack)","","","","","","","look 
+Item(describe)","hit / strike / attack
+*target* Prop(update, health, -*h.damage*)
+*target/r.body part* Prop(enable, bleeding)
+Write(text, you hit &the *target*& &on the *body part*& with your &*damage*&)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"player
+self
+own","Player","s","","humanoid
+player","","condition / thirst / 10","condition / hunger / 10","condition / sleep / 10","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

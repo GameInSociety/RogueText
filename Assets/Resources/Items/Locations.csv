@@ -12,7 +12,7 @@ Item(describe)","move
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 0)","go back 
-Player(move, tile)","","","","hoody, x2","farm, x2","","","","","","","","","","","","","","","","","","","","","","","",""
+Player(move, tile)","","","","knife","chair","","","","","","","","","","","","","","","","","","","","","","","",""
 "clearing","Tile","s","in","dif","state / fertile","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 

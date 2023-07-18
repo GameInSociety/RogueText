@@ -109,8 +109,8 @@ public class Interior {
                 // pas ouf, ça changer avec la description des propriétes
                 doorItem.CreateProperty("dir / direction / south");*/
 
-                Item dirItem = newHallwayTile.AddItem("back");
-                Item tileDoor = dirItem.AddItem("door");
+                Item dirItem = newHallwayTile.CreateItem("back");
+                Item tileDoor = dirItem.CreateItem("door");
                 tileDoor.AddProperty("direction / back");
             }
 

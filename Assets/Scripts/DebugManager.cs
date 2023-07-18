@@ -12,6 +12,11 @@ public class DebugManager : MonoBehaviour
     public Verb verb;
     [Space]
 
+    [Header("[ITEM PARSE]")]
+    public bool debug_ParsingItems = false;
+    public List<Item> parsedItems;
+    [Space]
+
     public bool AI_Enabled = false;
 
     [Space]
@@ -38,12 +43,13 @@ public class DebugManager : MonoBehaviour
 
     private void Start()
     {
-        currentFunction = Function.current;
         currentFunctionList = FunctionSequence.current;
         propertyEvents = ItemEvent.list;
 
         availableItems = AvailableItems.list;
         recentItems = AvailableItems.recentItems;
+
+        parsedItems = ItemParser.GetItems;
 
         itemGroups = ItemGroup.debug_groups;
 

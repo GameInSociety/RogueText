@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Function_Player : Function
 {
-    public override void TryCall(ItemGroup itemGroup)
+    public override void Call()
     {
-        base.TryCall(itemGroup);
+        base.Call();
         Call(this);
     }
 
@@ -75,12 +75,12 @@ public class Function_Player : Function
 
     void equip()
     {
-        Player.Instance.body.Equip(GetItem());
+        Player.Instance.GetBody.Equip(GetItem());
     }
 
     void unequip()
     {
-        Player.Instance.body.Unequip(GetItem());
+        Player.Instance.GetBody.Unequip(GetItem());
 
     }
 

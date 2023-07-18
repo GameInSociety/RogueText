@@ -1,9 +1,4 @@
 "NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"knife","","s","","","","","","","","look 
-Item(describe)","take 
-Item(pickUp)","throw 
-Item(throw)","make 
-Craft","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "mop","","s","","","","","","","","look 
 Item(describe)","take 
 Item(pickUp)","throw 
@@ -38,7 +33,7 @@ Prop(disable, battery)
 Prop(update, on, off)","charge 
 Item(require, battery)
 Prop(update, battery, +10)
-Item(*battery, destroy)","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+*battery* Item(destroy)","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "compas","","s","","","","","","","","look 
 Write(text, _north)","take 
 Item(pickUp)","throw 
@@ -53,5 +48,5 @@ Item(describe)","take
 Item(pickUp)","throw 
 Item(throw)","put 
 Item(require, flashlight)
-Prop(*flashlight, update, battery, +10)
+*flashlight* Prop(update, battery, +10)
 Item(destroy)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

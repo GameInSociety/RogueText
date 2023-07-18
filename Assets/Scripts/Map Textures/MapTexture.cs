@@ -47,6 +47,7 @@ public class MapTexture : MonoBehaviour {
     
     public void UpdateFeedbackMap()
     {
+        return;
         for (int x = 0; x < feedbackMap_Texture.width; x++)
         {
             for (int y = 0; y < feedbackMap_Texture.height; y++)

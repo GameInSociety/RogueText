@@ -30,8 +30,6 @@ public struct Coords
 
             float closestDirectionAngle = Vector2.Angle(v, (Vector2)((Coords)closestDirection));
 
-            string direction_str = Coords.GetWordsDirection(direction).GetInfo("au chien");
-
             if (angle < closestDirectionAngle)
             {
                 closestDirection = direction;

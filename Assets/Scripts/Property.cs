@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.Networking.Match;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 using static UnityEditor.Progress;
 
 [System.Serializable]
@@ -28,41 +29,9 @@ public class Property
     // battery / 0 / 10
     public int value_max = -1;
 
-    public static List<Property> updatedProperties = new List<Property>();
-
-    static Item describeItem;
-
-    public static void DescribeUpdated(Item item = null)
-    {
-        describeItem = item;
-
-        updatedProperties.RemoveAll(x => x.destroy);
-
-        if (updatedProperties.Count == 0)
-        {
-            return;
-        }
-
-        if (describeItem == null)
-        {
-            TextManager.Write("It's ");
-        }
-        else
-        {
-            TextManager.Write("&the dog& is ", describeItem);
-        }
-
-
-        int index = 0;
-        foreach (var prop in updatedProperties)
-        {
-            TextManager.Add(prop.GetDescription());
-            TextManager.AddLink(index, updatedProperties.Count);
-            ++index;
-        }
-
-        updatedProperties.Clear();
-    }
+    public bool alwaysDescribe = false;
+    public string[] descriptions;
+    public bool changed = false;
 
     /// <summary>
     /// POURQUOI ENABLE LES PROPS AU LIEU DE LES DETRUIRE ET RECREER ?
@@ -83,15 +52,20 @@ public class Property
     public Property()
     {
     }
-    public Property (Property copy)
+    public Property(Property copy)
     {
+
+
         name = copy.name;
         type = copy.type;
         value = copy.value;
         eventDatas = copy.eventDatas;
+        descriptions = copy.descriptions;
+        alwaysDescribe = copy.alwaysDescribe;
     }
     public void Init ()
     {
+
         if (type.StartsWith('$'))
         {
             type = type.Remove(0, 1);
@@ -183,6 +157,26 @@ public class Property
     #region description
     public string GetDescription()
     {
+        if ( descriptions != null)
+        {
+            int i = GetInt();
+            float lerp = (float)i / (float)value_max;
+            int index = (int)(lerp * descriptions.Length);
+            index = descriptions.Length - index;
+            index = (int)Mathf.Clamp(index, 0f, descriptions.Length-1);
+            if ( index >= descriptions.Length || index < 0)
+            {
+                Debug.LogError("PROPERTY : " + name + " (" + index + ") " + " range (" + descriptions.Length + ")");
+                foreach (var item in descriptions)
+                {
+                    Debug.Log(item);
+                }
+                return "/ " + name + " / error in description";
+            }
+            return descriptions[index] + " (" + i + ")";
+            return descriptions[index] + " (" + i + "/" + value_max +")";
+        }
+
         // get prop type
         switch (type)
         {
@@ -227,30 +221,9 @@ public class Property
     }
     public EventData GetEvent(string eventName)
     {
-        EventData propEvent = eventDatas.Find(x => x.eventName == eventName);
-        if ( propEvent == null)
-        {
-            Debug.LogError("couldn't find event : " + eventName + " on property " + name);
-        }
-
-        return propEvent;
+        return eventDatas.Find(x => x.eventName == eventName);
     }
     #endregion
-
-    public void Describe()
-    {
-        if (!enabled)
-        {
-            return;
-        }
-
-        if (updatedProperties.Contains(this))
-        {
-            return;
-        }
-
-        updatedProperties.Add(this);
-    }
     public bool destroy = false;
     public void Destroy()
     {
@@ -260,7 +233,7 @@ public class Property
     #region update
     public void Update(string line)
     {
-        Describe();
+        //Describe();
 
         bool add = false;
         bool remove = false;
@@ -280,13 +253,18 @@ public class Property
         if (line.StartsWith('*'))
         {
             line = line.Remove(0, 1);
-            Property pendingProp = FunctionSequence.current.pendingProps.Find(x => x.name == line);
-            line = pendingProp.value;
+            line = line.Remove(line.IndexOf('*'));
 
-            int valueNeeded = pendingProp.value_max - pendingProp.GetInt();
+            Property prop = ItemParser.SearchProperty(line);
 
-            int i = pendingProp.GetInt() - valueNeeded;
-            pendingProp.SetInt(i);
+            if ( prop ==  null )
+            {
+                TextManager.Write("Nothing here has " + line);
+                FunctionSequence.current.Break();
+                return;
+            }
+
+            line = prop.value;
         }
 
         int dif = 0;
@@ -370,7 +348,6 @@ public class Property
     public void SetInt(int newValue)
     {
         newValue = Mathf.Clamp(newValue, 0, value_max);
-
         SetValue(newValue.ToString());
 
         if ( newValue <= 0)

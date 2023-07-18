@@ -5,7 +5,7 @@ flask","","s","","beverage","water / 0=5","dirty / 10 / delay","","","","look
 Item(describe)","take 
 Item(pickUp)","fill 
 Prop(require, water)
-Prop(update, water, +*water)","drink 
+Prop(update, water, +*water*)","drink 
 Condition(thirst, -1)
 Prop(update, water, -1)","throw 
 Item(throw)","empty 

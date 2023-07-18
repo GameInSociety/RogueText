@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class Function_If : Function
 {
-    public override void TryCall(ItemGroup itemGroup)
+    public override void Call()
     {
-        base.TryCall(itemGroup);
+        base.Call();
         Call(this);
     }
     void prop()
@@ -36,8 +36,8 @@ public class Function_If : Function
         if (!targetItem.HasEnabledProperty(parts[0]))
         {
             Debug.Log(targetItem.debug_name + " id : " + targetItem.debug_randomID + " dont have the prop " + parts[0]);
-
-            TextManager.Write("It's not " + parts[0]);
+            Debug.Log("NOT WRITING IT BECAUSE IT WRITES IT IN WEIRD WAYS");
+            //TextManager.Write("It's not " + parts[0]);
             FunctionSequence.current.Break();
             return;
         }
@@ -57,7 +57,7 @@ public class Function_If : Function
 
     void has()
     {
-        if (group.HasItem( GetParam(0)) )
+        if (ItemParser.HasItem( GetParam(0)) )
         {
             Debug.Log("has " + GetParam(0));
 
@@ -65,6 +65,10 @@ public class Function_If : Function
         }
         else
         {
+            /*if ( GetParam(1) != "hide")
+            {
+                TextManager.Write("I have no " + GetParam(0));
+            }*/
             Debug.Log("doesn't have " + GetParam(0));
             FunctionSequence.current.GoToNextNode();
             // go to next "*"

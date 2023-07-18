@@ -14,10 +14,11 @@ public class DisplayInput : MonoBehaviour {
 	}
 
 	void Start () {
-		//Hide ();
-	}
+		Focus ();
+        //Hide ();
+    }
 
-	public void Show (){
+    public void Show (){
 		gameObject.SetActive (true);
 
     }

@@ -81,6 +81,39 @@ public class DataDownloader : MonoBehaviour
 
     }
 
+    public IEnumerator DownloadsCSV(int sheetIndex)
+    {
+        TextAsset[] textAssets = Resources.LoadAll<TextAsset>(path);
+
+        sheetNames = new string[textAssets.Length];
+        targetAssets = new Object[textAssets.Length];
+
+        for (int i = 0; i < textAssets.Length; i++)
+        {
+            sheetNames[i] = textAssets[i].name;
+            targetAssets[i] = textAssets[i] as Object;
+        }
+
+
+        yield return null;
+
+        int editIndex = url.IndexOf("edit");
+        if (editIndex != -1)
+        {
+            string tmpUrl = url.Remove(editIndex) + linkReplace + sheetNames[sheetIndex];
+
+            Debug.Log("Fetching " + sheetNames[sheetIndex] + "...");
+            yield return DownloadCSV(tmpUrl, targetAssets[sheetIndex]);
+        }
+        else
+        {
+            Debug.LogError("no index for edit in link " + url);
+        }
+
+        Debug.Log("Done !");
+
+    }
+
     IEnumerator DownloadCSV(string tmpUrl, UnityEngine.Object asset)
     {
 

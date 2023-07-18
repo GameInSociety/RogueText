@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using TMPro;
+using System.Net.Configuration;
 
 [System.Serializable]
 public class Tile : Item
@@ -14,9 +15,9 @@ public class Tile : Item
 
     public static Tile Create(Coords _coords, string _name)
     {
-        Tile tile = CreateFromDataSpecial(_name) as Tile;
+        Tile tile = Generate_Special(_name) as Tile;
         tile.coords = _coords;
-        return tile;
+        return tile; 
     }
 
 
@@ -57,8 +58,6 @@ public class Tile : Item
 
         CheckHumanoids();
 
-        Player.Instance.WriteDescription();
-
         // time of day
         TimeManager.Instance.WriteDescription();
 
@@ -66,14 +65,16 @@ public class Tile : Item
         TimeManager.Instance.WriteWeatherDescription();
 
         DisplayDescription.Instance.UseAI();
+
+        //Property.DescribeUpdated();
     }
 
     public override void WriteContainedItems(bool describeContainers = false)
     {
-        foreach (var item in GetAllItems())
+        /*foreach (var item in GetAllItems())
         {
             item.visible = false;
-        }
+        }*/
 
         base.WriteContainedItems(describeContainers);
     }
@@ -81,6 +82,7 @@ public class Tile : Item
 
     public void TryGetSurroundingTiles()
     {
+        return;
         List<Humanoid.Orientation> orientations = new List<Humanoid.Orientation>
         {
             Humanoid.Orientation.front,
@@ -106,18 +108,18 @@ public class Tile : Item
 
             if (!HasItem(orientation_itemName))
             {
-                Item dirItem = AddItem(orientation_itemName);
+                Item dirItem = CreateItem(orientation_itemName);
 
                 // if in interior, create door
                 if (adjacentTile.HasProperty("enclosed"))
                 {
-                    Item tileDoor = dirItem.AddItem("door");
+                    Item tileDoor = dirItem.CreateItem("door");
                     tileDoor.AddProperty("direction / " + orientation_itemName);
 
                     if (!adjacentTile.HasItem(opposite_itemName))
                     {
-                        Item adjDir = adjacentTile.AddItem(opposite_itemName);
-                        Item oppositeDoor = adjDir.AddItem("door");
+                        Item adjDir = adjacentTile.CreateItem(opposite_itemName);
+                        Item oppositeDoor = adjDir.CreateItem("door");
                         oppositeDoor.AddProperty("direction / " + opposite_itemName);
                         continue;
                     }
@@ -197,13 +199,10 @@ public class Tile : Item
 
     public void CheckHumanoids()
     {
-        foreach (var item in GetHumanoids())
-        {
-            Zombie zombie = item as Zombie;
-            zombie.Sub();
 
-            TextManager.Return();
-            item.WriteDescription();
+        foreach (var item in GetEnemies())
+        {
+            TextManager.Write("&a dog& is " + item.GetProperty("steps").GetDescription(), item);
         }
     }
 
@@ -256,30 +255,24 @@ public class Tile : Item
 
         DebugManager.Instance.tile = tile;
         _current = tile;
+        _current.AddItem(Player.Instance);
     }
 
     public static void SetPrevious(Tile tile)
     {
         _previous = tile;
 
+
         if (_previous == null)
         {
             return;
         }
 
+        tile.RemoveItem(Player.Instance);
+
         tile.DeleteDirectionItems();
     }
 
-    public void UnsubHumanoids()
-    {
-        foreach (var item in GetHumanoids())
-        {
-            //Humanoid hum = item as Humanoid;
-            Zombie zombie = item as Zombie;
-            zombie.Unsub();
-
-        }
-    }
 
     public void DeleteDirectionItems()
     {
@@ -301,6 +294,8 @@ public class Tile : Item
             if (HasItem(str))
             {
                 Item orientationItem = GetItem(str);
+
+                Debug.Log("removing : " + orientationItem.debug_name);
 
                 RemoveItem(orientationItem);
 

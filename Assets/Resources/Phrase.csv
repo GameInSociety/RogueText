@@ -9,14 +9,14 @@ blocked_sea,"you've reach the sea, impossible to advance",,
 blocked_void,there's nothing ahead,,
 compas_giveNorth,the north is TARGET_ORIENTATION // should be orientation item &to the dog&,,
 container_alreadyClosed,&the dog& is already closed,,
-container_close,you close &the dog (override)&,,
+container_close,you close &the dog&,,
 container_describe,"in &the dog&, you see : CONTAINER_LIST",,
 container_empty,there is nothing in &the dog&,,
-craft_list,"to craft &a dog (override)&, you need ",,
+craft_list,"to craft &a dog&, you need ",,
 craft_sucess,you crafted &a dog&,,
 craft_unable,you don't have the necessary meterials to craft &a dog&,,
 door_locked,"the door is locked, you need a key",,
-gardening_grew,&a dog (override)& appeared,,
+gardening_grew,&a dog& appeared,,
 gardening_water,you water &the dog&,,
 health_concerning,you starting to feel bad,,
 health_critical,you're on the verge of dying,,
@@ -30,9 +30,9 @@ input_noCombination,you can't VERB_NAME &the dog&,,
 input_noItem,VERB_QUESTION do you want to VERB_NAME VERB_PREPOSITION,,
 input_nothingRecognized,what do you mean,,
 input_noVerb,what do you want to do with &the dog&,,
-input_itemConfusion,which &dog (override)& do you want to VERB_NAME VERB_PREPOSITION,,
+input_itemConfusion,which &dog& do you want to VERB_NAME VERB_PREPOSITION,,
 tile_blockedExterior,"the window leads some bushed, you don't see anything",,
-tile_describeExterior,"by the window, you see &the dog (override)&",,
+tile_describeExterior,"by the window, you see &the dog&",,
 interior_getout_blocked,the window is blocked by wirings,,
 inventory_close,you close your bag,,
 inventory_PickUp,you take &the dog&,,
@@ -46,8 +46,8 @@ item_noDescription,can't do much with &the dog&,,
 item_NoMoreValue,no more VALUE in  &the dog&,,
 item_noProperty,you can't VERB_NAME &the dog (second item)&,,
 item_noSecondItem,VERB_QUESTION do you want to VERB_NAME &the dog& with,,
-item_require,you don't have any &dog (override)&,,
-item_use,you use &the dog (override)&,,
+item_require,you don't have any &dog&,,
+item_use,you use &the dog&,,
 lamp_off,"it's too dark, you can't see anything",,
 lamp_on,you torchlight show you arround,,
 movement_blocked,there is no &dog (tile)& to go to,,
@@ -66,30 +66,30 @@ sleep_critical,"you're exhausted, find somewhere to rest",,
 sleep_normal,you feel well rested,,
 sleep_problematic,you feel tired,,
 socket_tile_continue,"SOCKET_POS, &the dog (socket)& continues
-&the dog (socket)& continues SOCKET_POS","TARGET_ORIENTATION, &the dog (override)& continues
-&the dog (override)& continues TARGET_ORIENTATION","TARGET_ORIENTATION, &the dog (override)& continue
-&the dog (override)& continue TARGET_ORIENTATION"
-socket_tile_discover,"SOCKET_POS, &a dog (socket)&","&a dog (override)& TARGET_ORIENTATION
-TARGET_ORIENTATION, &a dog (override)&","you see &a dog (override)& TARGET_ORIENTATION
-&a dog (override)& is TARGET_ORIENTATION
-TARGET_ORIENTATION, you see &a dog (override)&
-you see, TARGET_ORIENTATION, &a dog (override)&
-&a dog (override)& TARGET_ORIENTATION"
-socket_tile_visited,"SOCKET_POS, the dog (socket)&","It's &the dog (override)& TARGET_ORIENTATION again
-&the dog (override)& is TARGET_ORIENTATION","you're back &the dog (override)& TARGET_ORIENTATION
-&a dog (override)& is TARGET_ORIENTATION
-TARGET_ORIENTATION, you see &the dog (override)&
-you see, TARGET_ORIENTATION, &the dog (override)&
-&the dog (override)& can be seen TARGET_ORIENTATION"
+&the dog (socket)& continues SOCKET_POS","TARGET_ORIENTATION, &the dog& continues
+&the dog& continues TARGET_ORIENTATION","TARGET_ORIENTATION, &the dog& continue
+&the dog& continue TARGET_ORIENTATION"
+socket_tile_discover,"SOCKET_POS, &a dog (socket)&","&a dog& TARGET_ORIENTATION
+TARGET_ORIENTATION, &a dog&","you see &a dog& TARGET_ORIENTATION
+&a dog& is TARGET_ORIENTATION
+TARGET_ORIENTATION, you see &a dog&
+you see, TARGET_ORIENTATION, &a dog&
+&a dog& TARGET_ORIENTATION"
+socket_tile_visited,"SOCKET_POS, the dog (socket)&","It's &the dog& TARGET_ORIENTATION again
+&the dog& is TARGET_ORIENTATION","you're back &the dog& TARGET_ORIENTATION
+&a dog& is TARGET_ORIENTATION
+TARGET_ORIENTATION, you see &the dog&
+you see, TARGET_ORIENTATION, &the dog&
+&the dog& can be seen TARGET_ORIENTATION"
 socket_default,"SOCKET_POS, &a dog (socket)&",,
 thirst_concerning,your throat is slighty dry,,
 thirst_critical,"you're completly dry and feel awful, drink something",,
 thirst_normal,you don't feel thirsty,,
 thirst_problematic,you're starting to be thirsty,,
-tile_addItem,&a dog (override)& appears,,
-tile_continue,you continue &on the dog (override)&,,
-tile_discover,you are &on a dog (override)&,,
-tile_goback,You're back &on the dog (override)&,,
+tile_addItem,&a dog& appears,,
+tile_continue,you continue &on the dog&,,
+tile_discover,you are &on a dog&,,
+tile_goback,You're back &on the dog&,,
 tile_wait,You're still &on the dog&,,
 tile_locationPhrases,EEEH,,
 tile_positionPhrases,EEEH,,

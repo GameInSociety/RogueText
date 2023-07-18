@@ -1,11 +1,14 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using UnityEditor.Search;
+using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEditor.Progress;
@@ -23,7 +26,7 @@ public class FunctionSequence
 
     public string[] lines;
 
-    public ItemGroup itemGroup;
+    public List<Item> items;
     // the pendind props of the function
     public List<Property> pendingProps = new List<Property>();
     // the items the functions will be applied to
@@ -36,20 +39,22 @@ public class FunctionSequence
 
     public static GameObject parent;
 
+    public static FunctionSequence pausedSequence;
+
     public static FunctionSequence Call(
         string cell,
-        ItemGroup group,
+        List<Item> its,
         Tile tile)
     {
         if ( tile == null)
         {
-            Debug.LogError("tile is null for : " + group.text);
+            Debug.LogError("tile is null for : " + its[0].debug_name);
         }
 
         FunctionSequence f = new FunctionSequence();
         f.Parse(cell);
         f.SetTile(tile);
-        f.itemGroup = group;
+        f.items = its;
 
         f.Call();
 
@@ -58,11 +63,16 @@ public class FunctionSequence
 
     public void Call()
     {
-        if ( function_OnGoing)
+
+
+        _break = false;
+
+        if (function_OnGoing)
         {
             list.Add(this);
             return;
         }
+
 
         current = this;
 
@@ -70,7 +80,7 @@ public class FunctionSequence
 
         pendingProps.Clear();
 
-        for (itemIndex = 0; itemIndex < itemGroup.GetItems.Count; itemIndex++)
+        for (itemIndex = 0; itemIndex < items.Count; itemIndex++)
         {
 
             // separate all actions
@@ -79,15 +89,14 @@ public class FunctionSequence
                 string _line = line;
                 if (string.IsNullOrEmpty(_line)) { continue; }
 
-                if (_line.StartsWith('*'))
+                if (_line.StartsWith("else "))
                 {
-                    Debug.LogError(_line + " starts with *");
 
                     // check if the line starts with '*'
                     if (_nextNode)
                     {
                         // remove * and call function
-                        _line = line.Remove(0, 1);
+                        _line = line.Remove(0, 5);
                         _nextNode = false;
                     }
                     else
@@ -95,7 +104,7 @@ public class FunctionSequence
                         Debug.Log("* in line " + line + ", finishing sequence");
                         goto End;
                     }
-                    
+
                 }
                 else
                 {
@@ -109,29 +118,16 @@ public class FunctionSequence
                     }
                 }
 
-                if ( _line.StartsWith("> "))
+                if (_line.StartsWith("> "))
                 {
                     JumpToSequence(_line);
                     goto End;
                 }
 
-                // get function class 
-                string functionName = Function.GetName(_line);
-                functionName = TextUtils.FirstLetterCap(functionName);
-                var objectType = Type.GetType("Function_" + functionName);
-                if ( objectType == null)
-                {
-                    Debug.LogError("function " + functionName + " doesn't exist");
-                    return;
-                }
-                var function = Activator.CreateInstance(objectType) as Function;
-
-                function.InitParams(_line);
-                function.TryCall(itemGroup);
+                CallFunction(line);
 
                 if (_break)
                 {
-                    Debug.Log("breaking at " + _line);
                     goto End;
                 }
             }
@@ -144,7 +140,7 @@ public class FunctionSequence
 
         current = null;
 
-        if ( list.Count > 0)
+        if (list.Count > 0)
         {
             FunctionSequence worldEvent = list[0];
             list.RemoveAt(0);
@@ -152,7 +148,7 @@ public class FunctionSequence
             return;
         }
 
-        if (itemGroup.waitForItem)
+        if (ItemParser.waitingForItem)
         {
         }
         else
@@ -160,13 +156,63 @@ public class FunctionSequence
             InputInfo.Instance.Reset();
         }
 
-        Property.DescribeUpdated();
+        //Property.DescribeUpdated();
 
-
-        if ( onFinishSequences != null)
+        if (onFinishSequences != null)
         {
             onFinishSequences();
         }
+
+        TextManager.Return();
+
+        PropertyDescription.Describe();
+    }
+
+
+    void CallFunction(string line)
+    {
+        Item item = items[itemIndex];
+
+        if (line.StartsWith('*'))
+        {
+            // search for other items / types
+            string content = line.Remove(0, 1);
+            content = content.Remove(content.IndexOf('*'));
+
+            item = ItemParser.SearchItem(content);
+
+            if ( item == null)
+            {
+                Debug.Log("no item of type " + content + " either, throwing confusion / absence");
+                TextManager.Write("There's no " + content + " around");
+                Break();
+                return;
+            }
+
+            if ( ItemParser.waitingForItem)
+            {
+                Debug.LogError("Waiting for item spec");
+                Pause();
+                return;
+            }
+
+            line = line.Remove(0, content.Length + 3);
+        }
+
+        // get function class 
+        string functionName = Function.GetName(line);
+        functionName = TextUtils.FirstLetterCap(functionName);
+        var objectType = Type.GetType("Function_" + functionName);
+        if (objectType == null)
+        {
+            Debug.LogError("function " + functionName + " doesn't exist");
+            return;
+        }
+
+        var function = Activator.CreateInstance(objectType) as Function;
+
+        function.InitParams(line);
+        function.TryCall(item);
     }
 
     void JumpToSequence(string line)
@@ -197,7 +243,7 @@ public class FunctionSequence
 
         FunctionSequence functionList = Call(
             sequence.content,
-            itemGroup,
+            items,
             Tile.GetCurrent
             );
 
@@ -218,6 +264,12 @@ public class FunctionSequence
         _nextNode = true;
     }
 
+    public void Pause()
+    {
+        pausedSequence = this;
+        Break();
+    }
+
     // break
     public void Break(string message)
     {
@@ -226,13 +278,22 @@ public class FunctionSequence
     }
     public void Break()
     {
+        current = null;
+        function_OnGoing = false;
+        //list.Clear();
         _break = true;
     }
     #endregion
 
 
     #region items
-
+    public Item FirstItem
+    {
+        get
+        {
+            return items[0];
+        }
+    }
     public void SetTile(Tile t)
     {
         tile = t;

@@ -10,6 +10,7 @@ using UnityEngine.UIElements;
 [System.Serializable]
 public class ItemEvent
 {
+    public string name;
     public Item item;
     public Tile tile;
     public List<PropertyEvent> events = new List<PropertyEvent>();
@@ -24,7 +25,7 @@ public class ItemEvent
 
         if ( itemEvent == null)
         {
-            Debug.LogError("no item event for : " + item.debug_name);
+            //Debug.LogError("no item event for : " + item.debug_name);
             return;
         }
 
@@ -35,7 +36,9 @@ public class ItemEvent
     public static ItemEvent New(Item item, Tile tile)
     {
         ItemEvent itemEvent = new ItemEvent();
-        
+
+        itemEvent.name = item.debug_name;
+
         itemEvent.item = item;
         itemEvent.tile = tile;
 
@@ -49,7 +52,7 @@ public class ItemEvent
 
         foreach (var itemEvent in list)
         {
-            itemEvent.Call(eventName);
+            itemEvent.CallOnAllProps(eventName);
 
             //Property.DescribeUpdated(itemEvent.item);
 
@@ -67,31 +70,35 @@ public class ItemEvent
             return;
         }
 
-        targetEvent.CallOnProp(eventName, property);
+        targetEvent.Call(eventName, property);
 
     }
-    public void Call(string eventName)
+    public void CallOnAllProps(string eventName)
     {
 
         List<Property> properties = item.properties.FindAll(x=> x.enabled && x.HasEvent(eventName));
 
         foreach (var prop in properties)
         {
-            CallOnProp(eventName, prop);
+            Call(eventName, prop);
 
         }
     }
-    public void CallOnProp(string eventName ,Property prop )
+    public void Call(string eventName ,Property prop )
     {
+
         Property.EventData eventData = prop.GetEvent(eventName);
 
-        ItemGroup itemGroup = ItemGroup.New();
-        itemGroup.Init(item.debug_name);
+        if (eventData== null)
+        {
+            Debug.Log("no " + eventName + " on prop " + prop.name);
+            return; 
+        }
 
         FunctionSequence worldEvent = FunctionSequence.Call(
-        eventData.cellContent,
-        itemGroup,
-        tile
+            eventData.cellContent,
+            new List<Item>() { item },
+            tile
         );
     }
     #endregion

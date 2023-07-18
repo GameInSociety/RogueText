@@ -28,12 +28,17 @@ public class GameManager : MonoBehaviour
         ItemLoader.Instance.Load();
 
         MapTexture.Instance.CreateMapFromTexture();
+
+        Player.Instance = Item.Generate_Special("player") as Player;
+
         Tile.SetCurrent(TileSet.current.GetTile(startCoords));
 
-        Player.Instance = Item.CreateFromDataSpecial("player") as Player;
-        Player.Instance.Move(Cardinal.None);
+        Player.Instance.Move(startCoords);
 
         ZombieManager.Instance.Init();
+
+        Player.Instance.Move(Cardinal.None);
+
 
     }
 }

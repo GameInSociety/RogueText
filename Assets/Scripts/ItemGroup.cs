@@ -94,7 +94,7 @@ public class ItemGroup
     {
         text = _text;
 
-        List<Item> availableItems = AvailableItems.Get;
+        List<Item> availableItems = AvailableItems.GetItems;
         List<Item> tmpItems = new List<Item>(items);
         
         List<Item> range = availableItems.FindAll(x => x.ContainedInText(text));
@@ -139,7 +139,7 @@ public class ItemGroup
         {
             // Don't differenciate item, throwing any
             // ex there are some plates
-            if (items[0].word.currentNumber == Word.Number.Plural)
+            if (items[0].word.number == Word.Number.Plural)
             {
                 // leave because taking all plates
                 return;

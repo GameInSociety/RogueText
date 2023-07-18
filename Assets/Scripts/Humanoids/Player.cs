@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
@@ -12,21 +13,18 @@ public class Player : Humanoid {
 
     public static Player Instance;
 
-    public override void Init()
+    public override void Init(Item copy)
     {
+        base.Init(copy);
 
-        base.Init();
-
-        coords = Tile.GetCurrent.coords;
-
-        AddItem("bag");
+        CreateItem("bag");
     }
 
     public static Item Inventory
     {
         get
         {
-            return Instance.GetItem("bag");
+            return Instance;
         }
     }
 
@@ -34,7 +32,7 @@ public class Player : Humanoid {
     {
         //base.WriteDescription();
 
-        foreach (var item in body.GetContainedItems)
+        foreach (var item in GetBody.GetContainedItems)
         {
             if ( item.HasProperties() )
             {
@@ -80,6 +78,7 @@ public class Player : Humanoid {
         base.Move(targetCoords);
 
         Tile.SetCurrent(TileSet.current.GetTile(coords));
+
 
         // generate tile items
         Tile.GetCurrent.Describe();

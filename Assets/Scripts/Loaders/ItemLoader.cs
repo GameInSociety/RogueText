@@ -43,6 +43,7 @@ public class ItemLoader : DataDownloader {
     {
         base.GetCell(rowIndex, cells);
 
+
         // name row
         if (rowIndex < 1)
         {
@@ -71,6 +72,7 @@ public class ItemLoader : DataDownloader {
         // skip empty
         if (cells.Count > 0 && string.IsNullOrEmpty(cells[0]))
         {
+            Debug.Log("skipping");
             return;
         }
 
@@ -102,7 +104,7 @@ public class ItemLoader : DataDownloader {
             if (cells[3].Length > 1)
             {
                 // ainsi que les locations peut être
-                newItem.word.SetLocationPrep(cells[3]);
+                newItem.word.locationPrep = cells[3];
             }
         }
 
@@ -112,6 +114,11 @@ public class ItemLoader : DataDownloader {
         Item.dataItems.Add(newItem);
 
         newItem.infos = cells[4].Split('\n').ToList();
+
+        if ( newItem.debug_name == "chair")
+        {
+            Debug.Log("wtf chair");
+        }
 
         LoadProperties(cells);
         LoadActions(cells);
@@ -124,6 +131,7 @@ public class ItemLoader : DataDownloader {
 
     void LoadProperties(List<string> cells)
     {
+
         if (cells.Count <= propertyIndex)
         {
             return;
@@ -239,8 +247,13 @@ public class ItemLoader : DataDownloader {
         firstLine = firstLine.TrimEnd(' ');
         cell = cell.Remove(0, cell.IndexOf('\n') +1);
 
-        Verb verb = Verb.FindInData(firstLine);
-        verb.AddCell(itemIndex, cell);
+        string[] strs = firstLine.Split(" / ");
+        foreach (string str in strs)
+        {
+            Verb verb = Verb.FindInData(str);
+            verb.AddCell(itemIndex, cell);
+        }
+
     }
 
     void InitProperty(Item item, string cell)
@@ -271,7 +284,7 @@ public class ItemLoader : DataDownloader {
 
         /// GET EVENTS AND FUNCTIONS
         bool getFunctions = false;
-        for (int i = 0; i < lines.Length; i++)
+        for (int i = 1; i < lines.Length; i++)
         {
             string line = lines[i];
 
@@ -305,6 +318,27 @@ public class ItemLoader : DataDownloader {
                 continue;
             }
 
+            if (line.StartsWith('&'))
+            {
+                string description;
+
+                Property lastProp = item.properties[item.properties.Count - 1];
+
+                if (line.StartsWith("&&"))
+                {
+                    // always describe
+                    description = line.Remove(0, 2);
+                    lastProp.alwaysDescribe = true;
+                }
+                else
+                {
+                    // describe when described
+                    description = line.Remove(0, 1);
+                }
+
+                lastProp.descriptions = description.Split('/');
+            }
+
             // getting the function of it
             if (getFunctions)
             {
@@ -313,9 +347,6 @@ public class ItemLoader : DataDownloader {
                 lastEvent.cellContent += line + '\n';
                 continue;
             }
-
-
-            
 
             //newItem.CreateProperty(property_line);
         }
