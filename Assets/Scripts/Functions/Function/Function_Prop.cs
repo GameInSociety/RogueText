@@ -51,11 +51,9 @@ public class Function_Prop : Function
         if (property.GetInt() <= 0)
         {
             TextManager.Write("No " + property.name);
-            FunctionSequence.current.Break();
+            FunctionSequence.current.Stop();
             return;
         }
-
-        FunctionSequence.current.pendingProps.Add(property);
     }
 
     void check()

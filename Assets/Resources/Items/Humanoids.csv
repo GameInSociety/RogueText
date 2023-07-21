@@ -6,7 +6,7 @@ target","condition / health / 10=10
 %subEmpty
 Prop(disable, steps)
 Prop(add, state / dead)
-Write(text, the undead lies on the ground)","distance / steps / 2
+Write(text, the undead lies on the ground)","$distance / steps / 2
 &&far away/at an honest distance/rather close/a few steps away/nearly in front of you/within reach/about to attack
 
 %subAction

@@ -27,7 +27,7 @@ public class Tile : Item
     public void Describe()
     {
         
-        if (FunctionSequence.function_OnGoing)
+        if (!FunctionSequence.SequenceFinished)
         {
             FunctionSequence.onFinishSequences += Describe;
             return;

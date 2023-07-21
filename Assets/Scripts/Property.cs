@@ -260,7 +260,7 @@ public class Property
             if ( prop ==  null )
             {
                 TextManager.Write("Nothing here has " + line);
-                FunctionSequence.current.Break();
+                FunctionSequence.current.Stop();
                 return;
             }
 

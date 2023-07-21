@@ -130,16 +130,11 @@ public class InputInfo : MonoBehaviour
 
         List<Item> items = ItemParser.GetItems;
 
-        foreach (var it in items)
-        {
-            Debug.Log(it.debug_name);
-        }
-
 
         // putting aside mutiple items in function sequence because it may be obsolete with the new item search thing
         // need to try and make plates work after
 
-        FunctionSequence functionList = FunctionSequence.Call(
+        FunctionSequence.NewSequence(
             sequence.content,
             new List<Item> { items[0] },
             Tile.GetCurrent

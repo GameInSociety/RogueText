@@ -139,6 +139,7 @@ public static class TextManager
         if ( itemKey == null)
         {
             Debug.LogError("no item with key : " + searchKey + " in item history");
+            return null;
         }
 
         Item item = itemKey.item;
@@ -227,6 +228,19 @@ public static class TextManager
         }
 
         return className;
+    }
+
+    public static string ListItems (List<Item> items)
+    {
+        string str = "";
+        int i = 0;
+        foreach (Item item in items) {
+            str += item.debug_name;
+            str += GetLink(i , items.Count);
+            ++i;
+        }
+
+        return str;
     }
 
     public static string ToLowercaseNamingConvention(this string s, bool toLowercase)

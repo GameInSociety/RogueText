@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.AccessControl;
 using System.Text.RegularExpressions;
 using Unity.Collections.LowLevel.Unsafe;
@@ -28,6 +29,7 @@ public static class ItemParser
         First,
         Highest,
         Random,
+        Input,
     }
 
     public class ItemKey
@@ -149,6 +151,7 @@ public static class ItemParser
             Spec(numberItem);
         }
 
+        Item itemFromContainer = null;
         // look for item in containers
         foreach (var cItem in items)
         {
@@ -156,9 +159,15 @@ public static class ItemParser
             {
                 if (cItem.HasItem(it))
                 {
-                    Spec(it);
+                    itemFromContainer = it;
+                    break;
                 }
             }
+        }
+
+        if (itemFromContainer != null)
+        {
+            Spec(itemFromContainer);
         }
 
         if (waitingForItem)
@@ -180,6 +189,7 @@ public static class ItemParser
 
         if (GetDuplicates() == null)
         {
+            Debug.Log("no duplicates");
             return;
         }
 
@@ -294,8 +304,6 @@ public static class ItemParser
         string propertyName = "";
         Item item = SearchItem(content, out propertyName);
 
-        Debug.Log("property search : property name : " + propertyName);
-
         if ( item == null)
         {
             Debug.LogError("no property for : " + content);
@@ -311,20 +319,18 @@ public static class ItemParser
     }
     public static Item SearchItem(string key, out string modifiedKey)
     {
-        Debug.Log("[SEARCH] : " + key);
+        Logue.New("search", "[SEARCH] : " + key, Color.magenta);
 
         // check if parent item
         if (key.Contains('/'))
         {
             string[] parts = key.Split(new char[] { '/' });
-            parentItem = GetPotentialItems(parts[0]).FirstOrDefault();
-            Debug.Log("searching inside : " + parentItem.debug_name);
+            parentItem = SearchItem(parts[0]);
             key = parts[1];
         }
 
-        Type type = Type.First;
-
         // get type if not default
+        Type type = Type.First;
         if (key.Contains('.'))
         {
             string[] parts= key.Split(new char[] { '.' });
@@ -336,12 +342,23 @@ public static class ItemParser
 
         if (items.Count == 0)
         {
+            Logue.Add("no results with key " + key + " in available items");
             modifiedKey = "error";
             return null;
         }
 
-        Item item = null;
 
+        // before sorting by type, check if the item's name appears in input
+        string inputText = InputInfo.Instance.inputText;
+        Item item = items.Find(x => x.ContainedInText(inputText));
+
+        if ( item != null)
+        {
+            type = Type.Input;
+            goto Result;
+        }
+
+        // if no results, sort by type
         switch (type)
         {
             case Type.First:
@@ -370,20 +387,21 @@ public static class ItemParser
                 }
 
                 item = items[i];
-                Debug.Log("item with highest " + key + " : " + item.debug_name);
                 break;
             case Type.Random:
                 item = items[UnityEngine.Random.Range(0, items.Count)];
-                Debug.Log("randomly selected " + key + " : " + item.debug_name);
                 break;
             default:
                 item = items[0];
                 break;
         }
 
+        Result:
+
+
         history.Add(new ItemKey(key, item));
 
-        Debug.Log("found : " + item.debug_name);
+        Logue.Add($"[{type}]{key} : {item.debug_name}");
         modifiedKey = key;
         return item;
     }
@@ -401,51 +419,76 @@ public static class ItemParser
         }
     }
 
-    private static List<Item> GetPotentialItems (string content)
+    public enum MatchType
     {
-        Predicate<Item> match = x => x.debug_name == content
-            ||
-            x.HasInfo(content)
-            ||
-            x.HasProperty(content);
-
+        Input,
+        Info,
+        Property,
+    }
+    private static List<Item> GetPotentialItems(string content)
+    {
         // first search in history
-        /*ItemKey key = history.Find(x=> x.key == content);
+        // IMPORTANT for target ... and target/body part
+        // so that the target is the same and not searched twice
+        ItemKey key = history.Find(x => x.key == content);
 
-        if ( key != null)
+        if (key != null)
         {
-            Debug.Log("found " + content + " in history");
-            return key.item;
-        }*/
+            Logue.Add($"[HISTORY] : {key.item.debug_name}");
+            return new List<Item> { key.item };
+        }
 
+        List<Predicate<Item>> matches = new List<Predicate<Item>>()
+        {
+            x => x.debug_name == content,
+            x => x.HasInfo(content),
+            x => x.HasProperty(content)
+        };
 
+        List<Item> list= new List<Item>();
+        for (int matchIndex = 0; matchIndex < 3; matchIndex++)
+        {
+            MatchType matchType = (MatchType)matchIndex;
+            Predicate<Item> match = matches[(int)matchIndex];
+            list = GetPotentialItems(content, match);
+
+            if (list != null && list.Count > 0)
+            {
+                Logue.Add($"[{matchType}] : " + TextManager.ListItems(list));
+                parentItem = null;
+                return list;
+            }
+        }
+
+        parentItem = null;
+        Logue.Add($"[NO MATCH]{key}");
+        return list;
+    }
+
+    private static List<Item> GetPotentialItems (string content, Predicate<Item> match)
+    {
+
+        
         List<Item> tmp_items = new List<Item>();
-
+        
         // search for item in pending items
         if ( parentItem != null)
         {
-            Debug.Log("searching in " + parentItem.debug_name);
+            Logue.Add("searching in " + parentItem.debug_name);
             tmp_items.AddRange(parentItem.GetAllItems().FindAll(match));
-            parentItem = null;
             return tmp_items;
         }
-
-        // add items from input
-        tmp_items.AddRange(GetItems.FindAll(match));
-
-        // if there is an matching item in the input, return for priority
-        if ( tmp_items.Count > 0 )
-        {
-            Debug.Log("found " + content + " in input");
-            return tmp_items;
-        }
-
-        Debug.Log("found " + content + " in available items");
+        
 
         // add available items
         tmp_items.AddRange(AvailableItems.GetItems.FindAll(match));
+        if (tmp_items.Count > 0)
+        {
+            Logue.Add("results in available items");
+            return tmp_items;
+        }
 
-        return tmp_items;
+        return null;
     }
 
 

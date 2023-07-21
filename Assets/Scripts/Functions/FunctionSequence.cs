@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor.Search;
 using UnityEditor.SearchService;
 using UnityEngine;
@@ -19,7 +20,6 @@ public class FunctionSequence
     // static
     public static FunctionSequence current;
     public static List<FunctionSequence> list = new List<FunctionSequence>();
-    public static bool function_OnGoing = false;
 
     public delegate void OnFinishSequences();
     public static OnFinishSequences onFinishSequences;
@@ -27,22 +27,32 @@ public class FunctionSequence
     public string[] lines;
 
     public List<Item> items;
-    // the pendind props of the function
-    public List<Property> pendingProps = new List<Property>();
     // the items the functions will be applied to
     public int itemIndex = 0;
     // the tile where the function takes place
     public Tile tile;
 
-    public bool _break = false;
+    public bool stopped = false;
     public bool _nextNode = false;
-
-    public static GameObject parent;
+    public bool finished = false;
 
     public static FunctionSequence pausedSequence;
 
-    public static FunctionSequence Call(
-        string cell,
+    public static bool SequenceFinished
+    {
+        get
+        {
+            if ( current == null)
+            {
+                return true;
+            }
+
+            return current != null && current.finished;
+        }
+    }
+
+    public static FunctionSequence NewSequence(
+        string _lines,
         List<Item> its,
         Tile tile)
     {
@@ -51,93 +61,87 @@ public class FunctionSequence
             Debug.LogError("tile is null for : " + its[0].debug_name);
         }
 
-        FunctionSequence f = new FunctionSequence();
-        f.Parse(cell);
-        f.SetTile(tile);
-        f.items = its;
+        FunctionSequence sequence = new FunctionSequence();
+        sequence.Parse(_lines);
+        sequence.SetTile(tile);
+        sequence.items = its;
 
-        f.Call();
+        sequence.Call();
 
-        return f;
+        return sequence;
+    }
+
+    public Item GetItem
+    {
+        get { return items[0]; }
     }
 
     public void Call()
     {
+        stopped = false;
 
-
-        _break = false;
-
-        if (function_OnGoing)
+        if (!SequenceFinished)
         {
             list.Add(this);
             return;
         }
 
-
         current = this;
+        Logue.New("func",$"[FUNCTION] {GetItem.debug_name} {Tile.GetCurrent.debug_name}", Color.cyan);
 
-        function_OnGoing = true;
-
-        pendingProps.Clear();
-
-        for (itemIndex = 0; itemIndex < items.Count; itemIndex++)
+        // separate all actions
+        foreach (var line in lines)
         {
+            string _line = line;
+            if (string.IsNullOrEmpty(_line)) { continue; }
 
-            // separate all actions
-            foreach (var line in lines)
+            if (_line.StartsWith("else "))
             {
-                string _line = line;
-                if (string.IsNullOrEmpty(_line)) { continue; }
 
-                if (_line.StartsWith("else "))
+                // check if the line starts with '*'
+                if (_nextNode)
                 {
-
-                    // check if the line starts with '*'
-                    if (_nextNode)
-                    {
-                        // remove * and call function
-                        _line = line.Remove(0, 5);
-                        _nextNode = false;
-                    }
-                    else
-                    {
-                        Debug.Log("* in line " + line + ", finishing sequence");
-                        goto End;
-                    }
-
+                    // remove * and call function
+                    _line = line.Remove(0, 5);
+                    _nextNode = false;
                 }
                 else
                 {
-                    if (_nextNode)
-                    {
-                        Debug.Log("skipping " + line);
-                        // skip line
-                        // could be the same function as break,
-                        // but for now on garde les deux
-                        continue;
-                    }
-                }
-
-                if (_line.StartsWith("> "))
-                {
-                    JumpToSequence(_line);
+                    Debug.Log("* in line " + line + ", finishing sequence");
                     goto End;
                 }
 
-                CallFunction(line);
-
-                if (_break)
+            }
+            else
+            {
+                if (_nextNode)
                 {
-                    goto End;
+                    Debug.Log("skipping " + line);
+                    // skip line
+                    // could be the same function as break,
+                    // but for now on garde les deux
+                    continue;
                 }
             }
 
+            if (_line.StartsWith("> "))
+            {
+                JumpToSequence(_line);
+                goto End;
+            }
+
+            CallFunction(line);
+
+            if (stopped)
+            {
+                Logue.Add("Break");
+                goto End;
+            }
         }
 
         End:
 
-        function_OnGoing = false;
-
+        finished = true;
         current = null;
 
         if (list.Count > 0)
@@ -148,20 +152,17 @@ public class FunctionSequence
             return;
         }
 
-        if (ItemParser.waitingForItem)
-        {
-        }
-        else
+        if (!ItemParser.waitingForItem)
         {
             InputInfo.Instance.Reset();
         }
-
-        //Property.DescribeUpdated();
 
         if (onFinishSequences != null)
         {
             onFinishSequences();
         }
+
+        ItemParser.history.Clear();
 
         TextManager.Return();
 
@@ -171,7 +172,7 @@ public class FunctionSequence
 
     void CallFunction(string line)
     {
-        Item item = items[itemIndex];
+        Item item = GetItem;
 
         if (line.StartsWith('*'))
         {
@@ -183,15 +184,14 @@ public class FunctionSequence
 
             if ( item == null)
             {
-                Debug.Log("no item of type " + content + " either, throwing confusion / absence");
-                TextManager.Write("There's no " + content + " around");
-                Break();
+                Logue.Add($"No Item for {item.debug_name} key : {content}");
+                Stop();
                 return;
             }
 
             if ( ItemParser.waitingForItem)
             {
-                Debug.LogError("Waiting for item spec");
+                Logue.Add($"Waiting for spec on {item.debug_name} key : {content}");
                 Pause();
                 return;
             }
@@ -241,12 +241,11 @@ public class FunctionSequence
 
         Verb.Sequence sequence = verb.GetSequence(item);
 
-        FunctionSequence functionList = Call(
+        NewSequence(
             sequence.content,
             items,
             Tile.GetCurrent
             );
-
 
         Debug.Log("go to other sequence");
     }
@@ -266,22 +265,27 @@ public class FunctionSequence
 
     public void Pause()
     {
+        Logue.Add("Sequence Paused");
         pausedSequence = this;
-        Break();
+        Clear();
     }
 
     // break
     public void Break(string message)
     {
         TextManager.Write(message);
-        Break();
+        Stop();
     }
-    public void Break()
+    public void Stop()
+    {
+        Logue.Add("Sequence Stopped");
+        Clear();
+        
+    }
+    public void Clear()
     {
         current = null;
-        function_OnGoing = false;
-        //list.Clear();
-        _break = true;
+        stopped = true;
     }
     #endregion
 

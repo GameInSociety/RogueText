@@ -95,7 +95,7 @@ public class ItemEvent
             return; 
         }
 
-        FunctionSequence worldEvent = FunctionSequence.Call(
+        FunctionSequence.NewSequence(
             eventData.cellContent,
             new List<Item>() { item },
             tile

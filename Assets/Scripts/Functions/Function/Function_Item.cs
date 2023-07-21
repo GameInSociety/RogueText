@@ -105,7 +105,7 @@ public class Function_Item : Function
                 // break flow of actions
                 targetItem = Item.GetDataItem(item_name);
                 TextManager.Write("item_require", targetItem);
-                FunctionSequence.current.Break();
+                FunctionSequence.current.Stop();
                 return;
             }
             return;
@@ -119,7 +119,7 @@ public class Function_Item : Function
         if (false)
         {
             //group.WaitForSpecificItem("item_noSecondItem");
-            FunctionSequence.current.Break();
+            FunctionSequence.current.Stop();
             return;
         }
     }

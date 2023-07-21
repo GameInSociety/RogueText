@@ -23,7 +23,7 @@ public class Function_If : Function
             if (targetItem.HasEnabledProperty(property_line))
             {
                 TextManager.Write("It's " + property_line);
-                FunctionSequence.current.Break();
+                FunctionSequence.current.Stop();
                 return;
             }
 
@@ -38,7 +38,7 @@ public class Function_If : Function
             Debug.Log(targetItem.debug_name + " id : " + targetItem.debug_randomID + " dont have the prop " + parts[0]);
             Debug.Log("NOT WRITING IT BECAUSE IT WRITES IT IN WEIRD WAYS");
             //TextManager.Write("It's not " + parts[0]);
-            FunctionSequence.current.Break();
+            FunctionSequence.current.Stop();
             return;
         }
 
@@ -49,7 +49,7 @@ public class Function_If : Function
             if (property.GetInt() <= int.Parse(parts[1]))
             {
                 TextManager.Write("No " + property.name);
-                FunctionSequence.current.Break();
+                FunctionSequence.current.Stop();
                 return;
             }
         }
