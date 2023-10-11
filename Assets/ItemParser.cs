@@ -54,7 +54,7 @@ public static class ItemParser
         {
             if (pendingItem != null)
             {
-                Spec(pendingItem);
+                Isolate(pendingItem);
             }
         }
         else
@@ -69,6 +69,7 @@ public static class ItemParser
 
     public static void ParseItems ()
     {
+        // clear the items if no spec item
         if (!waitingForItem)
         {
             items.Clear();
@@ -81,6 +82,7 @@ public static class ItemParser
         {
             if (items.Contains(item))
             {
+                Debug.Log("parsed items already contain " + item.debug_name);
                 continue;
             }
 
@@ -138,8 +140,9 @@ public static class ItemParser
             }
             else
             {
+                Debug.Log("keep first one because not plural ?");
                 // keep only one, because it's not dif and singluar
-                Spec(items.First());
+                Isolate(items.First());
             }
         }
 
@@ -148,12 +151,17 @@ public static class ItemParser
 
         if (numberItem != null)
         {
-            Spec(numberItem);
+            Debug.Log("catching number item");
+            Isolate(numberItem);
         }
 
         Item itemFromContainer = null;
         // look for item in containers
-        foreach (var cItem in items)
+        // je sais plus trop pourquoi mais ça pose des problemes.
+        // c'est super important, donc se pencher dessus plus tard
+        // et à terme remédier à ce truc que les lieux adjacents sont contenus dans la droite et la gauche
+        // ça n'a aucun sens et ça fait régulièrement des loop infinis
+        /*foreach (var cItem in items)
         {
             foreach (var it in items)
             {
@@ -163,11 +171,12 @@ public static class ItemParser
                     break;
                 }
             }
-        }
+        }*/
 
         if (itemFromContainer != null)
         {
-            Spec(itemFromContainer);
+            Debug.Log("item is from contained");
+            Isolate(itemFromContainer);
         }
 
         if (waitingForItem)
@@ -180,6 +189,7 @@ public static class ItemParser
 
         if (pendingItem != null)
         {
+            Debug.Log("there's a pending item");
             if (items.Contains(pendingItem) && !text.Contains("other"))
             {
                 Add(pendingItem);
@@ -187,12 +197,18 @@ public static class ItemParser
             }
         }
 
-        if (GetDuplicates() == null)
+        if (AvailableItems.GetDuplicates(items)!= null)
+        {
+            WaitForSpecItem();
+        }
+        else
         {
             Debug.Log("no duplicates");
-            return;
         }
+    }
 
+    static void WaitForSpecItem()
+    {
         string message = "input_itemConfusion";
         if (Verb.GetCurrent == null)
         {
@@ -207,7 +223,6 @@ public static class ItemParser
         {
             TextManager.Write(message, items[0]);
         }
-
 
         waitingForItem = true;
     }
@@ -227,12 +242,12 @@ public static class ItemParser
         int i = 0;
         foreach (var num in nums)
         {
-
             if ( text.Contains(num) )
             {
-                if ( GetDuplicates() != null)
+                Debug.Log(num);
+                if ( AvailableItems.GetDuplicates(items) != null)
                 {
-                    return GetDuplicates()[i];
+                    return AvailableItems.GetDuplicates(items)[i];
                 }
             }
             ++i;
@@ -246,7 +261,7 @@ public static class ItemParser
         return items.Find(x => x.debug_name == itemName) != null;
     }
 
-    static void Spec(Item item)
+    static void Isolate(Item item)
     {
         items.RemoveAll(x => x != item && x.dataIndex == item.dataIndex);
         waitingForItem = false;
@@ -258,20 +273,7 @@ public static class ItemParser
         waitingForItem = false;
     }
 
-    static List<Item> GetDuplicates()
-    {
-        foreach (var item in items)
-        {
-            List<Item> its = items.FindAll(x=> x.dataIndex == item.dataIndex && x.HasInfo("dif"));
-
-            if (its.Count > 1)
-            {
-                return its;
-            }
-        }
-
-        return null;
-    }
+    
 
     public static bool AllIdentical(List<Item> items)
     {

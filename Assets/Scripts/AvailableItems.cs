@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public static class AvailableItems
 {
@@ -43,12 +44,33 @@ public static class AvailableItems
         return GetItems.FindAll(x=> x.HasWord(name));
     }
 
+    public static List<Item> GetDuplicates(List<Item> items)
+    {
+
+        foreach (var item in items)
+        {
+            Debug.Log("secong batch : " + item.debug_name);
+        }
+
+        foreach (var item in items)
+        {
+            Debug.Log("is " + item.debug_name + " a duplicate");
+            List<Item> its = items.FindAll(x => x.dataIndex == item.dataIndex && x.HasInfo("dif"));
+
+            if (its.Count > 1)
+            {
+                return its;
+            }
+        }
+
+        return null;
+    }
+
     public static List<Item> GetItems
     {
         get
         {
             List<Item> tmpList = new List<Item>();
-
             tmpList.AddRange(Tile.GetCurrent.GetAllItems());
 
             // je commente au cas ou ?
@@ -68,16 +90,10 @@ public static class AvailableItems
 
             tmpList.AddRange(Item.dataItems.FindAll(x => x.HasInfo("general")));
 
-
             // add recent items
-
             recentItems = tmpList.FindAll(x => !list.Contains(x));
             list.Clear();
             list.AddRange(tmpList);
-
-
-            
-
 
             return list;
         }

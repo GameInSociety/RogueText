@@ -21,35 +21,26 @@ using UnityEngine.UIElements;
 [System.Serializable]
 public class Item
 {
-
+    // the debug name, without string function for debug purposes
     public string debug_name = "debug name";
+    // the random id, to store hashcode
     public int debug_randomID;
+    // the class name of the item, it will serialize a new one if not null
     public string className;
 
+    // un peu oublié à quoi ça ser ça
+    public List<string> infos = new List<string>();
+
+    // les spécificit's de l'objet.
+    // à reset à chaque passe.
+    // droite / gauche / bleu, rouge...
+    // mais aussi second, first, third etc...
+    public List<string> specs = new List<string>();
+
     // interior
+    // maybe the interior class would be a item type
     public Interior interior = null;
 
-    public AppearInfo GetAppearInfo()
-    {
-        return AppearInfo.GetAppearInfo(dataIndex);
-    }
-
-    public List<string> infos = new List<string>();
-    public void AddInfo(string str)
-    {
-        if (infos.Contains(str))
-        {
-            return;
-            //Debug.Log("info already contains " + str);
-        }
-
-        infos.Add(str);
-    }
-
-    public bool HasInfo(string str)
-    {
-        return infos.Contains(str);
-    }
 
     public bool visible = false;
 
@@ -71,6 +62,25 @@ public class Item
     /// </summary>
     public List<Property> properties = new List<Property>();
 
+    #region info
+    public void AddInfo(string str)
+    {
+        if (infos.Contains(str))
+            return;
+
+        infos.Add(str);
+    }
+
+    public bool HasInfo(string str)
+    {
+        return infos.Contains(str);
+    }
+    #endregion
+
+    public AppearInfo GetAppearInfo()
+    {
+        return AppearInfo.GetAppearInfo(dataIndex);
+    }
 
     public virtual void Init(Item copy)
     {
@@ -129,9 +139,7 @@ public class Item
     public Item AddItem(Item item)
     {
         if (mContainedItems == null)
-        {
             mContainedItems = new List<Item>();
-        }
 
         mContainedItems.Add(item);
         item.TryGenerateItems();

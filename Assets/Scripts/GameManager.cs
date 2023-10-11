@@ -35,9 +35,7 @@ public class GameManager : MonoBehaviour
 
         Player.Instance.Move(startCoords);
 
-        ZombieManager.Instance.Init();
-
-        Player.Instance.Move(Cardinal.None);
+        //ZombieManager.Instance.Init();
 
 
     }

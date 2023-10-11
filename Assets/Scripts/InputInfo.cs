@@ -128,7 +128,8 @@ public class InputInfo : MonoBehaviour
             return;
         }
 
-        List<Item> items = ItemParser.GetItems;
+        //List<Item> items = ItemParser.GetItems;
+        List<Item> items = AvailableItems.GetItems;
 
 
         // putting aside mutiple items in function sequence because it may be obsolete with the new item search thing

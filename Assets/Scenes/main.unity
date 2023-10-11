@@ -4063,6 +4063,7 @@ MonoBehaviour:
     debug_randomID: 0
     className: 
     infos: []
+    specs: []
     visible: 0
     dataIndex: 0
     currentWordIndex: 0
@@ -4080,7 +4081,7 @@ MonoBehaviour:
     universal: 0
     names: []
     currentNameIndex: 0
-  debug_ParsingItems: 0
+  debug_ParsingItems: 1
   parsedItems: []
   AI_Enabled: 0
   currentFunction:
@@ -4089,6 +4090,7 @@ MonoBehaviour:
       debug_randomID: 0
       className: 
       infos: []
+      specs: []
       visible: 0
       dataIndex: 0
       currentWordIndex: 0
@@ -4098,13 +4100,13 @@ MonoBehaviour:
   currentFunctionList:
     lines: []
     items: []
-    pendingProps: []
     itemIndex: 0
     tile:
       debug_name: debug name
       debug_randomID: 0
       className: 
       infos: []
+      specs: []
       visible: 0
       dataIndex: 0
       currentWordIndex: 0
@@ -4114,8 +4116,9 @@ MonoBehaviour:
       coords:
         x: 0
         y: 0
-    _break: 0
+    stopped: 0
     _nextNode: 0
+    finished: 0
   colorWords: 0
   availableItems: []
   recentItems: []
@@ -4126,6 +4129,7 @@ MonoBehaviour:
     debug_randomID: 0
     className: 
     infos: []
+    specs: []
     visible: 0
     dataIndex: 0
     currentWordIndex: 0

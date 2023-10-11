@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using TMPro;
 using System.Net.Configuration;
+using UnityEngine.Analytics;
 
 [System.Serializable]
 public class Tile : Item
@@ -82,7 +83,6 @@ public class Tile : Item
 
     public void TryGetSurroundingTiles()
     {
-        return;
         List<Humanoid.Orientation> orientations = new List<Humanoid.Orientation>
         {
             Humanoid.Orientation.front,
@@ -99,12 +99,14 @@ public class Tile : Item
             Tile adjacentTile = GetAdjacent(orientation);
 
             if (adjacentTile == null)
-            {
                 continue;
-            }
 
             string orientation_itemName = orientation.ToString();
             string opposite_itemName = Humanoid.GetOpposite(orientation).ToString();
+
+            // check if the current tile as the orientation item
+            // je vais supprimer les "objets directions" ( left , right etc... ) mais leur rajouter des specs 
+            
 
             if (!HasItem(orientation_itemName))
             {
@@ -175,7 +177,6 @@ public class Tile : Item
                 str = "tile_discover";
             }
         }
-
         TextManager.Write(str, (Item)this);
     }
 

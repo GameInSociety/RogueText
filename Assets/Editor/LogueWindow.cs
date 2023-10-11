@@ -16,9 +16,7 @@ public class LogueWindow : EditorWindow
     void OnGUI()
     {
         if (GUILayout.Button("CLEAR"))
-        {
             Logue.Clear();
-        }
 
         foreach (var entry in Logue.entries)
         {
