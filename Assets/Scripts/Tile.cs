@@ -65,7 +65,7 @@ public class Tile : Item
         // weather
         TimeManager.Instance.WriteWeatherDescription();
 
-        DisplayDescription.Instance.UseAI();
+        //DisplayDescription.Instance.UseAI();
 
         //Property.DescribeUpdated();
     }
@@ -101,85 +101,62 @@ public class Tile : Item
             if (adjacentTile == null)
                 continue;
 
-            string orientation_itemName = orientation.ToString();
-            string opposite_itemName = Humanoid.GetOpposite(orientation).ToString();
+            string opp_orientation = Humanoid.GetOpposite(orientation).ToString();
 
             // check if the current tile as the orientation item
             // je vais supprimer les "objets directions" ( left , right etc... ) mais leur rajouter des specs 
-            
 
-            if (!HasItem(orientation_itemName))
+            if (adjacentTile.HasProperty("enclosed"))
             {
-                Item dirItem = CreateItem(orientation_itemName);
+                Item tileDoor = CreateItem("door");
+                tileDoor.AddProperty("direction / " + orientation.ToString());
+                tileDoor.AddSpec(orientation.ToString());
 
-                // if in interior, create door
-                if (adjacentTile.HasProperty("enclosed"))
+                if (!adjacentTile.HasItem(opp_orientation))
                 {
-                    Item tileDoor = dirItem.CreateItem("door");
-                    tileDoor.AddProperty("direction / " + orientation_itemName);
-
-                    if (!adjacentTile.HasItem(opposite_itemName))
-                    {
-                        Item adjDir = adjacentTile.CreateItem(opposite_itemName);
-                        Item oppositeDoor = adjDir.CreateItem("door");
-                        oppositeDoor.AddProperty("direction / " + opposite_itemName);
-                        continue;
-                    }
+                    Item oppositeDoor = adjacentTile.CreateItem("door");
+                    oppositeDoor.AddProperty("direction / " + opp_orientation);
+                    oppositeDoor.AddSpec(opp_orientation);
+                    continue;
                 }
-                else
-                {
-                    if (!Player.Instance.CanSee())
-                    {
-                        return;
-                    }
-
-                    if (GetItem(orientation_itemName) == null)
-                    {
-                        Debug.LogError("no " + orientation_itemName + " in " + debug_name);
-                    }
-
-                    if (!GetItem(orientation_itemName).HasItem(adjacentTile))
-                    {
-                        GetItem(orientation_itemName).AddItem(adjacentTile);
-                    }
-                }
-
             }
-        }
+            else
+            {
+                if (!Player.Instance.CanSee())
+                    return;
 
-        //SocketManager.Instance.DescribeItems(SurroundingTiles(), null);
+                // here maybe put "a path leads to a field"
+                // the road continues to a forest small forest.
+                // et pas seulement "on the left, a field"
+
+                Item newTile = AddTemporaryItem(adjacentTile);
+                newTile.AddSpec(orientation.ToString());
+            }
+
+            //SocketManager.Instance.DescribeItems(SurroundingTiles(), null);
+        }
     }
 
     public void DescribeSelf()
     {
-
         string str = "";
 
         if (HasInfo("discovered"))
         {
             if (GetPrevious != null && GetPrevious.coords == coords)
-            {
                 str = "tile_wait";
-            }
             else
-            {
                 str = "tile_goback";
-            }
         }
         else
         {
             if (GetPrevious != null && SameTypeAs(GetPrevious) && GetPrevious.coords != coords)
-            {
                 str = "tile_continue";
-            }
             else
-            {
                 str = "tile_discover";
-            }
         }
         TextManager.Write(str, (Item)this);
     }
-
 
 
     public Tile GetAdjacent(Humanoid.Orientation orientation)
@@ -271,37 +248,21 @@ public class Tile : Item
 
         tile.RemoveItem(Player.Instance);
 
-        tile.DeleteDirectionItems();
+        tile.DeleteTempItems();
     }
 
 
-    public void DeleteDirectionItems()
+    public void DeleteTempItems()
     {
-        // delete cardinals, to prevent recursive stack overflow
-        List<Cardinal> cards = new List<Cardinal>() { Cardinal.east, Cardinal.north, Cardinal.south, Cardinal.west };
 
-        List<Humanoid.Orientation> orientations = new List<Humanoid.Orientation>
+        foreach (var item in GetContainedItems)
         {
-            Humanoid.Orientation.front,
-            Humanoid.Orientation.right,
-            Humanoid.Orientation.left,
-            Humanoid.Orientation.back
-        };
-
-        foreach (var orientation in orientations)
-        {
-            string str = orientation.ToString();
-
-            if (HasItem(str))
-            {
-                Item orientationItem = GetItem(str);
-
-                Debug.Log("removing : " + orientationItem.debug_name);
-
-                RemoveItem(orientationItem);
-
-            }
+            if (item.temporary)
+                Debug.Log("removing temp item : " + item.debug_name);
         }
+
+        GetContainedItems.RemoveAll(x => x.temporary);
+
     }
 
 }

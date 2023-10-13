@@ -22,12 +22,8 @@ public class EditorTools : EditorWindow
 
     void OnGUI()
     {
-
         if (Player.Instance != null)
-        {
             GUILayout.Label("Player orientation : " + Player.Instance.currentCarnidal, EditorStyles.boldLabel);
-        }
-
 
         GUILayout.Label("Base Settings", EditorStyles.boldLabel);
 

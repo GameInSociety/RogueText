@@ -1,22 +1,9 @@
-﻿using DG.Tweening.Core.Easing;
-using JetBrains.Annotations;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security.Permissions;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using UnityEditor.XR;
-using UnityEditorInternal;
-using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
-using UnityEngine.Networking.Types;
-using UnityEngine.UIElements;
 
 [System.Serializable]
 public class Item
@@ -31,6 +18,8 @@ public class Item
     // un peu oublié à quoi ça ser ça
     public List<string> infos = new List<string>();
 
+    public bool temporary = false;
+
     // les spécificit's de l'objet.
     // à reset à chaque passe.
     // droite / gauche / bleu, rouge...
@@ -40,11 +29,6 @@ public class Item
     // interior
     // maybe the interior class would be a item type
     public Interior interior = null;
-
-
-    public bool visible = false;
-
-    // pas encore utilisé mais à faire 
 
     /// <summary>
     /// declaration
@@ -77,6 +61,16 @@ public class Item
     }
     #endregion
 
+    #region specs
+    public void AddSpec(string str)
+    {
+        if (specs.Contains(str))
+            return;
+
+        specs.Add(str);
+    }
+    #endregion
+
     public AppearInfo GetAppearInfo()
     {
         return AppearInfo.GetAppearInfo(dataIndex);
@@ -104,10 +98,7 @@ public class Item
     public virtual void TryGenerateItems()
     {
         if (HasInfo("generated items"))
-        {
             return;
-        }
-
         GenerateItems();
     }
 
@@ -136,12 +127,20 @@ public class Item
         return AddItem(newItem);
     }
 
+    public Item AddTemporaryItem(Item item)
+    {
+        item.temporary = true;
+        return AddItem(item);
+    }
+
     public Item AddItem(Item item)
     {
         if (mContainedItems == null)
             mContainedItems = new List<Item>();
 
         mContainedItems.Add(item);
+
+        // vraiment pas sûr que ça devrait être ici
         item.TryGenerateItems();
 
         return item;
@@ -210,9 +209,7 @@ public class Item
         get
         {
             if (mContainedItems == null)
-            {
                 mContainedItems = new List<Item>();
-            }
 
             return mContainedItems;
         }
@@ -246,15 +243,12 @@ public class Item
         return item.HasItem(this);
     }
 
-    public virtual void WriteContainedItems(bool describeContainers =false)
-    {
-        visible = true;
+    public virtual void WriteContainedItems(bool describeContainers=false) {
         // Get Groups for description
         List<Group> allGroups = new List<Group>();
         foreach (var item in GetUnanimatedItems())
         {
             Group group = allGroups.Find(x => x.item.dataIndex == item.dataIndex);
-            item.visible = true;
 
             if (group == null)
             {
@@ -276,30 +270,20 @@ public class Item
 
         List<Group> containerGroups = new List<Group>();
         List<Group> itemGroups = new List<Group>();
-
         if (describeContainers)
-        {
             containerGroups = allGroups.FindAll(x => x.item.ContainsItems() && x.item.HasInfo("invisible"));
-        }
+
         itemGroups = allGroups.FindAll(x => !x.item.HasInfo("invisible"));
 
-
         if (containerGroups.Count > 0 && !containerGroups.First().item.HasInfo("invisible"))
-        {
             itemGroups.Insert(0, containerGroups.First());
-        }
-
 
         if (itemGroups.Count > 0 )
         {
             if (describeContainers)
-            {
                 TextManager.Write("there's ");
-            }
             else
-            {
                 TextManager.Write("");
-            }
 
             // Describe groups
             int index = 0;
@@ -336,9 +320,7 @@ public class Item
         foreach (var group in containerGroups)
         {
             if (group.item.ContainsItems())
-            {
                 group.item.WriteContainedItems();
-            }
         }
 
         AddInfo("discovered");
@@ -354,77 +336,30 @@ public class Item
     // description depth here
     public List<Item> GetAllItems()
     {
-        List<Item> items = new List<Item>
-        {
-            this
-        };
-
+        var items = new List<Item> {this};
         if (mContainedItems == null)
-        {
             return items;
-        }
-
         foreach (var item in mContainedItems)
-        {
-
-            /*items.Add(item);
-
-            if (item.ContainsItems())
-            {
-                foreach (var item2 in item.GetContainedItems)
-                {
-                    items.Add(item2);
-                }
-            }*/
-
-            items.AddRange(item.GetAllItems());
-        }
-
+           items.AddRange(item.GetAllItems());
         return items;
     }
     #endregion
 
 
     #region search
-    public Word word
-    {
-        get
-        {
-            return words[currentWordIndex];
-        }
+    public Word word {
+        get { return words[currentWordIndex];}
     }
-    public bool HasWord(string _text)
-    {
-        // find singular
-        int index = words.FindIndex(x => x.text == _text);
-
-        if (index >= 0)
-        {
-            currentWordIndex = index;
-            return true;
-        }
-
-        // find plural
-        /*index = words.FindIndex(x => x.GetPlural() == _text);
-
-        if ( index >= 0)
-        {
-            currentWordIndex = index;
-            return true;
-        }*/
-
-
-        return false;
+    public bool HasWord(string _text) {
+        currentWordIndex = words.FindIndex(x => x.text == _text);
+        return currentWordIndex >= 0;
     }
-    public bool ContainedInText(string text)
-    {
+    public bool ContainedInText(string text) {
         int index = 0;
         return ContainedInText(text, out index);
     }
-    public bool ContainedInText(string text, out int index)
-    {
-        foreach (var word in words)
-        {
+    public bool ContainedInText(string text, out int index) {
+        foreach (var word in words) {
             // find singular
             string bound = @$"\b{word.text}\b";
             if (Regex.IsMatch(text, bound))
@@ -435,8 +370,7 @@ public class Item
             }
 
             bound = @$"\b{word.GetPlural()}\b";
-            if (Regex.IsMatch(text, bound))
-            {
+            if (Regex.IsMatch(text, bound)) {
                 word.number = Word.Number.Plural;
                 index = text.IndexOf(word.GetPlural());
                 return true;
@@ -444,11 +378,9 @@ public class Item
         }
 
         index = -1;
-
         return false;
     }
     #endregion
-
 
     #region properties
     /// properties /// <summary>
@@ -457,56 +389,39 @@ public class Item
     public virtual void WriteDescription()
     {
         if (HasProperties())
-        {
             WriteProperties();
-        }
 
         if (ContainsItems())
-        {
             WriteContainedItems(true);
-        }
 
-        if (!HasProperties() && !ContainsItems())
-        {
+        if (!HasProperties() && !ContainsItems()) {
             if (GetAppearInfo().CanContainItems())
-            {
                 TextManager.Write("It's empty");
-            }
             else
-            {
                 TextManager.Write("It's just &a dog&", this);
-            }
         }
     }
 
     // adds whole new, simple property
-    public Property AddProperty(string line, bool describe = false)
-    {
+    public Property AddProperty(string line, bool describe = false) {
         Property newProperty = new Property();
         string[] parts = line.Split(" / ");
         newProperty.type = parts[0];
         newProperty.name = parts[1];
         if (parts.Length > 2)
-        {
             newProperty.SetValue(parts[2]);
-        }
-
         newProperty.Init();
 
         if (describe)
-        {
             PropertyDescription.Add(this, newProperty);
-        }
 
         properties.Add(newProperty);
         return newProperty;
     }
 
-    public void UpdateProperty(string propName, string line)
-    {
+    public void UpdateProperty(string propName, string line) {
         Property property = GetProperty(propName);
         property.Update(line);
-
         PropertyDescription.Add(this, property);
     }
 
@@ -515,29 +430,20 @@ public class Item
     ///  de réfléchir à une autre solution
     /// </summary>
     // add proper property, from the data, with events and all
-    public Property CreateProperty(Property property_data)
-    {
+    public Property CreateProperty(Property property_data) {
         Property newProperty = new Property(property_data);
-
         newProperty.Init();
-
-        if (newProperty.eventDatas != null)
-        {
-            foreach (var eventData in newProperty.eventDatas)
-            {
+        if (newProperty.eventDatas != null) {
+            foreach (var eventData in newProperty.eventDatas) {
                 // juste un objet par evetn en fait
                 ItemEvent itemEvent = ItemEvent.list.Find(x => x.item == this);
-
                 if (itemEvent == null)
-                {
                     itemEvent = ItemEvent.New(this, Tile.GetCurrent);
-                }
             }
         }
         return newProperty;
     }
-    public void DeleteProperty(string propertyName)
-    {
+    public void DeleteProperty(string propertyName) {
         Property property = GetProperty(propertyName);
         if (property == null)
         {
@@ -546,56 +452,41 @@ public class Item
         }
         properties.Remove(property);
     }
-    public bool HasProperties()
-    {
+    public bool HasProperties() {
         return properties.FindAll(x => x.enabled).Count > 0;
     }
-    public bool HasVisibleProperties()
-    {
+    public bool HasVisibleProperties() {
         return properties.FindAll(x => x.enabled && x.type != "hidden").Count > 0;
     }
-    public bool HasEnabledProperty(string name)
-    {
+    public bool HasEnabledProperty(string name) {
         Property property = properties.Find(x => x.name == name && x.enabled);
-
         return property != null;
     }
-    public bool HasProperty(string name)
-    {
+    public bool HasProperty(string name) {
         Property property = properties.Find(x => x.name == name);
-
         return property != null;
     }
-
-    public bool HasPropertyOfType(string type)
-    {
+    public bool HasPropertyOfType(string type) {
         Property property = properties.Find(x => x.type == type);
-
         return property != null;
     }
 
-    public List<Property> GetEnabledProperties()
-    {
+    public List<Property> GetEnabledProperties() {
         // ici "type == container" veut dire que la battery ou water des items est décrite meme si le truc est disabled,
         // à terme, mettre un parametre qui fait que la prop est décrite meme quand l'item est disabled
         // ou un autre truc mieux
         return properties.FindAll(x => x.enabled || x.type == "container");
     }
 
-    public void EnableProperty(string propertyName)
-    {
+    public void EnableProperty(string propertyName) {
         Property prop = properties.Find(x => x.name == propertyName);
-
-        if (prop == null)
-        {
+        if (prop == null) {
             Debug.LogError("ENABLE PROP : Could not find property " + propertyName);
             return;
         }
 
         prop.enabled = true;
         ItemEvent.CallEventOnProp("subEnable", prop);
-
-
         PropertyDescription.Add(this, prop);
 
 

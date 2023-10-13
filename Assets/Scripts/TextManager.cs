@@ -32,7 +32,7 @@ public static class TextManager
 
         // &a good dog& => a charred road
         // &some dogs (main)& => some seeds
-        str = GetOverrideItem (str);
+        str = GetOverrideText (str);
         return str;
     }
     private static string GetPhraseKey(string key)
@@ -45,13 +45,12 @@ public static class TextManager
         }
         return phraseKey.values[Random.Range(0, phraseKey.values.Count)];
     }
-    public static string GetOverrideItem(string text)
+    public static string GetOverrideText(string text)
     {
         int safetyBreak = 0;
         if (text == null)
-        {
             Debug.LogError("extract item words : le text est null ?");
-        }
+        
         // each "&le chien sage (itemcode)& iteration
         while (text.Contains("&"))
         {
@@ -60,7 +59,6 @@ public static class TextManager
 
             // "&le chien sage (main)& => le chien sage (main)
             string prms = TrimPart(partToReplace);
-
 
             Item targetItem = null;
 
@@ -84,14 +82,8 @@ public static class TextManager
                 }
             }
 
-            
-
             if ( targetItem == null)
-            {
-                Debug.LogError("no target item for : " + prms);
                 return "!override text error!";
-            }
-
 
             if (Player.Instance.GetAllItems().Find(x => x == targetItem) != null)
             {
@@ -99,10 +91,20 @@ public static class TextManager
                 prms = "your dog";
             }
 
+            
+
             // get word from item
             string newPart = targetItem.word.GetInfo(prms);
             // replace target part with word, and continue
             text = text.Replace(partToReplace, newPart);
+
+            Debug.Log(text + " specs : " + targetItem.specs.Count);
+
+            foreach (var spec in targetItem.specs)
+            {
+                Debug.Log("spec");
+                text += $"({spec})";
+            }
 
             // safety break
             ++safetyBreak;
