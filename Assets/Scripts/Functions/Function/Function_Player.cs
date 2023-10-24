@@ -2,85 +2,70 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Function_Player : Function
-{
-    public override void Call()
-    {
+public class Function_Player : Function {
+    public override void Call() {
         base.Call();
         Call(this);
     }
 
-    void move()
-    {
-        if (GetParam(0) == "door")
-        {
+    void move() {
+        if (GetParam(0) == "door") {
             ToDoor();
             return;
         }
 
-        if (GetParam(0) == "tile")
-        {
+        if (GetParam(0) == "tile") {
             ToTile();
             return;
         }
 
-        if (GetParam(0) == "relative")
-        {
+        if (GetParam(0) == "relative") {
             ToOrientation();
             return;
         }
     }
 
-    void ToOrientation()
-    {
-        Player.Orientation moveOrientation = (Player.Orientation)ParseParam(1);
+    void ToOrientation() {
+        var moveOrientation = (Player.Orientation)ParseParam(1);
         Player.Instance.Move(Player.OrientationToCardinal(moveOrientation));
     }
 
-    void ToTile()
-    {
-        Item targetItem = GetItem();
-        Tile tile = targetItem as Tile;
+    void ToTile() {
+        var targetItem = base.targetItem();
+        var tile = targetItem as Tile;
 
         Player.Instance.MoveToTile(tile);
     }
 
-    void ToDoor()
-    {
-        Item targetItem = GetItem();
+    void ToDoor() {
+        var targetItem = base.targetItem();
 
-        Property prop = targetItem.GetPropertyOfType("direction");
-        Humanoid.Orientation orientation = Coords.GetOrientationFromString(prop.name);
+        var prop = targetItem.GetPropertyOfType("direction");
+        var orientation = Coords.GetOrientationFromString(prop.name);
 
         Debug.Log("target orientation = " + orientation);
 
-        if (Tile.GetCurrent.GetAdjacent(orientation) == null)
-        {
+        if (Tile.GetCurrent.getAdjacent(orientation) == null) {
             Debug.Log("exiting because no tile after");
 
             // no tile, so exit interior
             Interior.Current.Exit();
-        }
-        else
-        {
+        } else {
             Player.Instance.Move(orientation);
         }
     }
 
-    void orient()
-    {
-        Humanoid.Orientation lookOrientation = (Player.Orientation)ParseParam(0);
+    void orient() {
+        var lookOrientation = (Player.Orientation)ParseParam(0);
         Player.Instance.Orient(lookOrientation);
     }
 
-    void equip()
-    {
-        Player.Instance.GetBody.Equip(GetItem());
+    void equip() {
+        Player.Instance.GetBody.Equip(targetItem());
     }
 
-    void unequip()
-    {
-        Player.Instance.GetBody.Unequip(GetItem());
+    void unequip() {
+        Player.Instance.GetBody.Unequip(targetItem());
 
     }
 

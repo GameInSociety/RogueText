@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class TileSet {
 
@@ -13,47 +13,35 @@ public class TileSet {
     public Coords coords;
     public Coords playerCoords = Coords.Zero;
 
-    public Dictionary<Coords, Tile> tiles = new Dictionary<Coords, Tile> ();
+    public Dictionary<Coords, Tile> tiles = new Dictionary<Coords, Tile>();
     public int width;
     public int height;
 
-    public Coords Center
-    {
-        get
-        {
-            return new Coords( (int)((float)width / 2f) , (int)((float)height /2f) ); 
-        }
+    public Coords Center => new Coords((int)(width / 2f), (int)(height / 2f));
+
+    public void Init() {
+        width = MapTexture.Instance.mainMap_Texture.width;
+        height = MapTexture.Instance.mainMap_Texture.height;
     }
 
-    public void Init()
-    {
-        width   = MapTexture.Instance.mainMap_Texture.width;
-        height  = MapTexture.Instance.mainMap_Texture.height;
+    public void Add(Coords c, Tile newTile) {
+        tiles.Add(c, newTile);
     }
 
-	public void Add (Coords c, Tile newTile)
-	{
-		tiles.Add (c, newTile);
-	}
-
-    public static void SetCurrent (TileSet _tileSet)
-    {
+    public static void SetCurrent(TileSet _tileSet) {
         current = _tileSet;
     }
 
-    public Tile GetTile(Coords coords)
-    {
-        if (tiles.ContainsKey(coords) == false)
-        {
+    public Tile GetTile(Coords coords) {
+        if (tiles.ContainsKey(coords) == false) {
             return null;
         }
 
         return tiles[coords];
     }
 
-    public void RemoveAt (Coords c)
-    {
-        tiles.Remove(c);
+    public void RemoveAt(Coords c) {
+        _ = tiles.Remove(c);
     }
 
 }

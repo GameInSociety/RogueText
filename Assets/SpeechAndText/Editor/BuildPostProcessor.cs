@@ -6,8 +6,7 @@ using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
 #endif
 
-public class BuildPostProcessor
-{
+public class BuildPostProcessor {
 #if UNITY_IOS
 
     [PostProcessBuildAttribute(1)]

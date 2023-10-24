@@ -8,8 +8,7 @@ using UnityEditor;
 using UnityEngine;
 
 [System.Serializable]
-public class Humanoid : Item
-{
+public class Humanoid : Item {
     public Cardinal previousCardinal;
     public Cardinal currentCarnidal;
 
@@ -24,50 +23,37 @@ public class Humanoid : Item
     public Condition condition;
 
 
-    public override void Init(Item copy)
-    {
+    public override void Init(Item copy) {
         base.Init(copy);
 
-        AddItem(Generate_Special("body") as Body);
+        _ = addItem(Generate_Special("body") as Body);
     }
 
-    public Body GetBody
-    {
-        get
-        {
-            return GetItem("body") as Body;
-        }
-    }
+    public Body GetBody => GetItem("body") as Body;
 
-    public bool CanMoveForward(Coords c)
-    {
-        Tile targetTile = TileSet.current.GetTile(c);
+    public bool CanMoveForward(Coords c) {
+        var targetTile = TileSet.current.GetTile(c);
 
-        if (targetTile == null)
-        {
+        if (targetTile == null) {
             return false;
         }
 
-        if (targetTile.HasProperty("blocking"))
-        {
+        if (targetTile.hasProperty("blocking")) {
             return false;
         }
 
         return true;
     }
 
-    public void Move(Orientation orientation)
-    {
-        Move(OrientationToCardinal( orientation));
+    public void Move(Orientation orientation) {
+        Move(OrientationToCardinal(orientation));
     }
-    public void Move(Cardinal targetCardinal)
-    {
-        Coords targetCoords = coords + (Coords)targetCardinal;
+    public void Move(Cardinal targetCardinal) {
+        var targetCoords = coords + (Coords)targetCardinal;
         Move(targetCoords);
     }
 
-    public virtual void Move(Coords targetCoords)
-    {
+    public virtual void Move(Coords targetCoords) {
         // change current coords
         prevCoords = coords;
 
@@ -81,45 +67,37 @@ public class Humanoid : Item
 
 
 
-    public virtual void Orient(Orientation orientation)
-    {
+    public virtual void Orient(Orientation orientation) {
         SetDirection(OrientationToCardinal(orientation));
     }
-    
-    public void SetDirection(Cardinal cardinal)
-    {
+
+    public void SetDirection(Cardinal cardinal) {
         previousCardinal = currentCarnidal;
         currentCarnidal = cardinal;
     }
 
-    public static Cardinal OrientationToCardinal( Orientation orientation)
-    {
+    public static Cardinal OrientationToCardinal(Orientation orientation) {
 
-        int a = (int)Player.Instance.currentCarnidal + (int)orientation;
-        if (a >= 8)
-        {
+        var a = (int)Player.Instance.currentCarnidal + (int)orientation;
+        if (a >= 8) {
             a -= 8;
         }
 
         return (Cardinal)a;
     }
 
-    public static Orientation CardinalToOrientation(Cardinal cardinal)
-    {
+    public static Orientation CardinalToOrientation(Cardinal cardinal) {
 
-        int a = (int)cardinal - (int)Player.Instance.currentCarnidal;
-        if (a < 0)
-        {
+        var a = (int)cardinal - (int)Player.Instance.currentCarnidal;
+        if (a < 0) {
             a += 8;
         }
 
         return (Orientation)a;
     }
 
-    public static Orientation GetOpposite(Orientation orientation)
-    {
-        switch (orientation)
-        {
+    public static Orientation getOpp(Orientation orientation) {
+        switch (orientation) {
             case Orientation.front:
                 return Orientation.back;
             case Orientation.right:
@@ -136,8 +114,7 @@ public class Humanoid : Item
         return Orientation.None;
     }
 
-    public enum Orientation
-    {
+    public enum Orientation {
         front,
         FrontRight,
         right,

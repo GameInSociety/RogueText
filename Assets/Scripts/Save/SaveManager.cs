@@ -1,55 +1,45 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System;
+using UnityEngine;
+using UnityEngine.UI;
 
-public class SaveManager : MonoBehaviour
-{
-	public static SaveManager Instance;
+public class SaveManager : MonoBehaviour {
+    public static SaveManager Instance;
 
-	GameData gameData;
+    GameData gameData;
 
-	public GameData GameData {
-		get {
-			return gameData;
-		}
-	}
+    public GameData GameData => gameData;
 
-	void Awake () {
-		Instance = this;
-	}
+    void Awake() {
+        Instance = this;
+    }
 
-    void Start()
-    {
+    void Start() {
 
-        if (SaveTool.Instance.FileExists("PlayerInfo", "player info"))
-        {
-            
+        if (SaveTool.Instance.FileExists("PlayerInfo", "player info")) {
+
         }
 
         gameData = new GameData();
 
     }
 
-    private void Update()
-    {
+    private void Update() {
 
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.S))
-        {
-        Debug.Log("saving...");
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.S)) {
+            Debug.Log("saving...");
             Save();
         }
 
     }
 
-    void Save()
-    {
-        
+    void Save() {
+
     }
 
-	public void LoadGame () {
+    public void LoadGame() {
 
 
         /*for (int x = 0; x < WorldGeneration.Instance.mapScale; x++)
@@ -72,12 +62,11 @@ public class SaveManager : MonoBehaviour
             }
         }*/
 
-	}
+    }
 
 }
 
 //[System.Serializable]
-public class GameData
-{
+public class GameData {
 
 }

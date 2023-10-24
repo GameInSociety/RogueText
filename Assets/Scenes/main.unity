@@ -448,7 +448,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.75160044
+  m_Size: 0.95191973
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -974,7 +974,7 @@ GameObject:
   - component: {fileID: 344407971}
   - component: {fileID: 344407970}
   m_Layer: 0
-  m_Name: Item Loader
+  m_Name: Item
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1029,6 +1029,9 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 8e54f1537c3987041ade85db36bf72dd, type: 3}
   - {fileID: 4900000, guid: 627c4da883f7db34a81daa2bee3535b6, type: 3}
   - {fileID: 4900000, guid: 251c62b807ddd5b46b8bd1910e43fd8a, type: 3}
+  sheet: 
+  row: 0
+  col: 0
   url: https://docs.google.com/spreadsheets/d/1J7DQfy9bEuvbxmnFNVD-U-pBuExX0amlt_KDc81CNcI/edit#gid=0
   path: Items
   items_debug: []
@@ -1841,12 +1844,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 370c83b2c4743cb4ba150f5e4abc5f67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputText: 
-  hasValueInText: 0
-  valueInText: 0
-  itemConfusion: 0
-  waitForVerb: 0
-  waitForFirstItem: 0
 --- !u!1 &667825934
 GameObject:
   m_ObjectHideFlags: 0
@@ -1885,6 +1882,61 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &686600227
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 686600228}
+  - component: {fileID: 686600229}
+  m_Layer: 0
+  m_Name: Spec
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &686600228
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686600227}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1014188666}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &686600229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686600227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fa5dc7eb0d4b404ca6015690dc6dfa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  linkReplace: gviz/tq?tqx=out:csv&sheet=
+  sheetNames:
+  - Specs
+  targetAssets:
+  - {fileID: 4900000, guid: 30eed904fd31fa946ae95eab64c2a8c8, type: 3}
+  sheet: 
+  row: 0
+  col: 0
+  url: https://docs.google.com/spreadsheets/d/1zSs7homIUoaalRh5uD0VBkWbzRyV4WQvPhD5iaLnGVg/edit#gid=0
+  path: Specs
+  cats: []
 --- !u!850595691 &708840487
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -2198,7 +2250,7 @@ GameObject:
   - component: {fileID: 859047421}
   - component: {fileID: 859047422}
   m_Layer: 0
-  m_Name: Phrases
+  m_Name: Phrase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2367,6 +2419,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f8ece25191c837488faf5c04a52f9eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetItemName: plate
 --- !u!1 &986185446
 GameObject:
   m_ObjectHideFlags: 0
@@ -2522,6 +2575,7 @@ Transform:
   - {fileID: 344407971}
   - {fileID: 859047421}
   - {fileID: 500605528}
+  - {fileID: 686600228}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4058,84 +4112,75 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11560db2b0b10d849ad30c4dc5bcb44e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tile:
+  TILE:
     debug_name: debug name
     debug_randomID: 0
     className: 
     infos: []
     specs: []
-    visible: 0
     dataIndex: 0
     currentWordIndex: 0
     words: []
     properties: []
     mContainedItems: []
+    indexInInput: 0
+    numInInput: 0
     coords:
       x: 0
       y: 0
-  verb:
-    col: 0
-    question: 
-    prepositions: []
-    helpPhrase: 
-    universal: 0
-    names: []
-    currentNameIndex: 0
-  debug_ParsingItems: 1
-  parsedItems: []
-  AI_Enabled: 0
-  currentFunction:
+  parsers: []
+  currentFunctionList:
+    lines: []
     item:
       debug_name: debug name
       debug_randomID: 0
       className: 
       infos: []
       specs: []
-      visible: 0
       dataIndex: 0
       currentWordIndex: 0
       words: []
       properties: []
       mContainedItems: []
-  currentFunctionList:
-    lines: []
-    items: []
-    itemIndex: 0
+      indexInInput: 0
+      numInInput: 0
     tile:
       debug_name: debug name
       debug_randomID: 0
       className: 
       infos: []
       specs: []
-      visible: 0
       dataIndex: 0
       currentWordIndex: 0
       words: []
       properties: []
       mContainedItems: []
+      indexInInput: 0
+      numInInput: 0
       coords:
         x: 0
         y: 0
     stopped: 0
     _nextNode: 0
-    finished: 0
   colorWords: 0
-  availableItems: []
-  recentItems: []
-  itemGroups: []
-  propertyEvents: []
-  player:
+  AVAILABLE_ITEMS:
+    list: []
+    recentItems: []
+    debug_presentInInput: []
+  EVENTS: []
+  PLAYER:
     debug_name: debug name
     debug_randomID: 0
     className: 
     infos: []
     specs: []
-    visible: 0
     dataIndex: 0
     currentWordIndex: 0
     words: []
     properties: []
     mContainedItems: []
+    indexInInput: 0
+    numInInput: 0
     previousCardinal: 0
     currentCarnidal: 0
     health: 0
@@ -4155,6 +4200,19 @@ MonoBehaviour:
       rate: 0
       progress: 0
       color: {r: 1, g: 1, b: 1, a: 1}
+    Inventory:
+      debug_name: debug name
+      debug_randomID: 0
+      className: 
+      infos: []
+      specs: []
+      dataIndex: 0
+      currentWordIndex: 0
+      words: []
+      properties: []
+      mContainedItems: []
+      indexInInput: 0
+      numInInput: 0
 --- !u!1 &1998673411
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,30 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class AppearInfo
-{
+public class AppearInfo {
     public string name; // for debug porposes ( the inspector )
 
     public bool usableAnytime = false;
 
-    public List<ItemInfo> itemInfos= new List<ItemInfo>();
+    public List<ItemInfo> itemInfos = new List<ItemInfo>();
 
     [System.Serializable]
-    public struct ItemInfo
-    {
+    public struct ItemInfo {
         public string name; // for debug purposes
-        public int chanceAppear;
+        public int chance;
         public int amount;
     }
 
-    public bool CanContainItems()
-    {
+    public bool CanContainItems() {
         return itemInfos.Count > 0;
     }
 
 
-    public static AppearInfo GetAppearInfo(int itemIndex)
-    {
+    public static AppearInfo GetAppearInfo(int itemIndex) {
         return Item.appearInfos[itemIndex];
     }
 }

@@ -5,32 +5,27 @@ using System.Text.RegularExpressions;
 using UnityEditor.Search;
 using UnityEngine;
 
-public class Function_Prop : Function
-{
-    public override void Call()
-    {
+public class Function_Prop : Function {
+    public override void Call() {
         base.Call();
         Call(this);
     }
-    void disable()
-    {
-        Item targetItem = GetItem();
+    void disable() {
+        var targetItem = base.targetItem();
 
-        string line = GetParam(0);
-        Property property = targetItem.properties.Find(x => x.name == line);
+        var line = GetParam(0);
+        var property = targetItem.properties.Find(x => x.name == line);
         targetItem.DisableProperty(line);
     }
 
-    void enable()
-    {
-        Item targetItem = GetItem();
+    void enable() {
+        var targetItem = base.targetItem();
 
-        string prop_name = GetParam(0);
+        var prop_name = GetParam(0);
 
-        Property property = targetItem.properties.Find(x => x.name == prop_name);
+        var property = targetItem.properties.Find(x => x.name == prop_name);
 
-        if (property == null)
-        {
+        if (property == null) {
             Debug.LogError("ACTION_ENABLEPROPERY : did not find property : " + prop_name + " on " + targetItem.debug_name);
             return;
         }
@@ -40,49 +35,42 @@ public class Function_Prop : Function
 
     }
 
-    void checkValue()
-    {
-        Item targetItem = GetItem();
+    void checkValue() {
+        var targetItem = base.targetItem();
 
-        string propertyName = GetParam(0);
+        var propertyName = GetParam(0);
 
-        Property property = targetItem.GetProperty(propertyName);
+        var property = targetItem.GetProperty(propertyName);
 
-        if (property.GetInt() <= 0)
-        {
-            TextManager.Write("No " + property.name);
+        if (property.GetInt() <= 0) {
+            TextManager.write("No " + property.name);
             FunctionSequence.current.Stop();
             return;
         }
     }
 
-    void check()
-    {
-       
+    void check() {
+
     }
 
-    void remove()
-    {
-        Item targetItem = GetItem();
+    void remove() {
+        var targetItem = base.targetItem();
 
-        string propertyName = GetParam(0);
+        var propertyName = GetParam(0);
 
         targetItem.DeleteProperty(propertyName);
     }
 
-    void create()
-    {
-        Item targetItem = GetItem();
+    void create() {
+        var targetItem = base.targetItem();
 
-        string line = GetParam(0);
-
-        Property newProperty = targetItem.AddProperty(line);
+        var line = GetParam(0);
+        _ = targetItem.addProperty(line);
     }
 
-    void update()
-    {
-        string propName = GetParam(0);
-        string line = GetParam(1);
-        GetItem().UpdateProperty(propName, line);
+    void update() {
+        var propName = GetParam(0);
+        var line = GetParam(1);
+        targetItem().UpdateProperty(propName, line);
     }
 }

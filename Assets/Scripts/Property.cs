@@ -13,8 +13,7 @@ using UnityEngine.UIElements;
 using static UnityEditor.Progress;
 
 [System.Serializable]
-public class Property
-{
+public class Property {
     public string name;
     public bool enabled = false;
     public string type;
@@ -45,15 +44,13 @@ public class Property
     /// </summary>
     public List<EventData> eventDatas;
 
-   
+
     /// <summary>
     /// CONSTRUCTOR
     /// </summary>
-    public Property()
-    {
+    public Property() {
     }
-    public Property(Property copy)
-    {
+    public Property(Property copy) {
 
 
         name = copy.name;
@@ -63,58 +60,45 @@ public class Property
         descriptions = copy.descriptions;
         alwaysDescribe = copy.alwaysDescribe;
     }
-    public void Init ()
-    {
+    public void Init() {
 
-        if (type.StartsWith('$'))
-        {
+        if (type.StartsWith('$')) {
             type = type.Remove(0, 1);
             enabled = false;
-        }
-        else
-        {
+        } else {
             enabled = true;
         }
 
         // the choice between many names
         // tomato?apple?carot
-        if (name.Contains('?'))
-        {
-            string[] parts = name.Split('?');
+        if (name.Contains('?')) {
+            var parts = name.Split('?');
 
-            if (name.Contains('%'))
-            {
+            if (name.Contains('%')) {
                 // fucked up , trouver mieux ou mettre dans une autre fonction
-                for (int i = 0; i < parts.Length; i++)
-                {
-                    string part = parts[i];
+                for (var i = 0; i < parts.Length; i++) {
+                    var part = parts[i];
 
-                    if (part.Contains("%"))
-                    {
-                        int percentIndex = part.IndexOf('%');
-                        string parseTarget = part.Remove(percentIndex);
+                    if (part.Contains("%")) {
+                        var percentIndex = part.IndexOf('%');
+                        var parseTarget = part.Remove(percentIndex);
 
 
-                        int percent = int.Parse(parseTarget);
+                        var percent = int.Parse(parseTarget);
 
-                        float result = Random.value * 100;
-                        if (result < percent)
-                        {
-                            name = part.Remove(0,percentIndex+1);
+                        var result = Random.value * 100;
+                        if (result < percent) {
+                            name = part.Remove(0, percentIndex + 1);
                             break;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         name = part;
                         break;
                     }
 
                 }
 
-            }
-            else
-            {
+            } else {
                 name = parts[Random.Range(0, parts.Length)];
             }
 
@@ -124,65 +108,53 @@ public class Property
         // a percent of chance
 
 
-        if (!string.IsNullOrEmpty(value))
-        {
-            if (value.Contains('?'))
-            {
-                string[] strs = value.Split('?');
+        if (!string.IsNullOrEmpty(value)) {
+            if (value.Contains('?')) {
+                var strs = value.Split('?');
                 SetValue(strs[Random.Range(0, strs.Length)]);
                 return;
             }
 
-            if (HasInt())
-            {
+            if (HasInt()) {
                 value_max = GetInt();
-            }
-            else if (value.Contains('='))
-            {
-                int min = int.Parse(value.Split('=')[0]);
-                int max = int.Parse(value.Split('=')[1]);
+            } else if (value.Contains('=')) {
+                var min = int.Parse(value.Split('=')[0]);
+                var max = int.Parse(value.Split('=')[1]);
                 value_max = max;
-                int tmpValue = Random.Range(min, max);
+                var tmpValue = Random.Range(min, max);
                 SetInt(tmpValue);
                 return;
             }
         }
     }
 
-    public void SetValue(string str)
-    {
+    public void SetValue(string str) {
         value = str;
     }
 
     #region description
-    public string GetDescription()
-    {
-        if ( descriptions != null)
-        {
-            int i = GetInt();
-            float lerp = (float)i / (float)value_max;
-            int index = (int)(lerp * descriptions.Length);
+    public string GetDescription() {
+        if (descriptions != null) {
+            var i = GetInt();
+            var lerp = i / (float)value_max;
+            var index = (int)(lerp * descriptions.Length);
             index = descriptions.Length - index;
-            index = (int)Mathf.Clamp(index, 0f, descriptions.Length-1);
-            if ( index >= descriptions.Length || index < 0)
-            {
+            index = (int)Mathf.Clamp(index, 0f, descriptions.Length - 1);
+            if (index >= descriptions.Length || index < 0) {
                 Debug.LogError("PROPERTY : " + name + " (" + index + ") " + " range (" + descriptions.Length + ")");
-                foreach (var item in descriptions)
-                {
+                foreach (var item in descriptions) {
                     Debug.Log(item);
                 }
                 return "/ " + name + " / error in description";
             }
             return descriptions[index] + " (" + i + ")";
-            return descriptions[index] + " (" + i + "/" + value_max +")";
+            return descriptions[index] + " (" + i + "/" + value_max + ")";
         }
 
         // get prop type
-        switch (type)
-        {
+        switch (type) {
             case "type":
-                if (string.IsNullOrEmpty(value))
-                {
+                if (string.IsNullOrEmpty(value)) {
                     return "a " + name;
                 }
                 return "a " + value;
@@ -204,8 +176,7 @@ public class Property
 
         // wtf
         // encore plus wtf
-        if (type.ToLower().Contains("type"))
-        {
+        if (type.ToLower().Contains("type")) {
             return "a " + name;
         }
 
@@ -215,51 +186,43 @@ public class Property
     #endregion
 
     #region events
-    public bool HasEvent(string eventName)
-    {
+    public bool HasEvent(string eventName) {
         return eventDatas != null && eventDatas.Find(x => x.eventName == eventName) != null;
     }
-    public EventData GetEvent(string eventName)
-    {
+    public EventData GetEvent(string eventName) {
         return eventDatas.Find(x => x.eventName == eventName);
     }
     #endregion
     public bool destroy = false;
-    public void Destroy()
-    {
+    public void Destroy() {
         destroy = true;
     }
 
     #region update
-    public void Update(string line)
-    {
+    public void Update(string line) {
         //Describe();
 
-        bool add = false;
-        bool remove = false;
+        var add = false;
+        var remove = false;
 
-        if (line.StartsWith('+'))
-        {
+        if (line.StartsWith('+')) {
             line = line.Remove(0, 1);
             add = true;
         }
 
-        if (line.StartsWith('-'))
-        {
+        if (line.StartsWith('-')) {
             line = line.Remove(0, 1);
             remove = true;
         }
 
-        if (line.StartsWith('*'))
-        {
+        if (line.StartsWith('*')) {
             line = line.Remove(0, 1);
             line = line.Remove(line.IndexOf('*'));
 
-            Property prop = ItemParser.SearchProperty(line);
+            var prop = ItemParser.GetCurrent.SearchPropertyOfItemInInput(line);
 
-            if ( prop ==  null )
-            {
-                TextManager.Write("Nothing here has " + line);
+            if (prop == null) {
+                TextManager.write("Nothing here has " + line);
                 FunctionSequence.current.Stop();
                 return;
             }
@@ -267,30 +230,23 @@ public class Property
             line = prop.value;
         }
 
-        int dif = 0;
-
-        if ( int.TryParse(line, out dif))
-        {
-            int newValue = dif;
-            if ( add)
-            {
+        int dif;
+        if (int.TryParse(line, out dif)) {
+            var newValue = dif;
+            if (add) {
                 newValue = GetInt() + dif;
             }
-            if ( remove)
-            {
-                newValue= GetInt() - dif;
+            if (remove) {
+                newValue = GetInt() - dif;
             }
 
             SetInt(newValue);
             return;
         }
 
-        if (string.IsNullOrEmpty(value))
-        {
+        if (string.IsNullOrEmpty(value)) {
             name = line;
-        }
-        else if ( value != line)
-        {
+        } else if (value != line) {
             SetValue(line);
             return;
         }
@@ -300,16 +256,13 @@ public class Property
 
     #region events
     /// THIS CLASS WILL NEVER BE A COPY BECAUSE IT WILL NEVER CHANGE
-    
-    public class EventData
-    {
+
+    public class EventData {
         public string eventName;
         public string cellContent;
     }
-    public void AddEventData(EventData propertyEvent)
-    {
-        if (eventDatas == null)
-        {
+    public void AddEventData(EventData propertyEvent) {
+        if (eventDatas == null) {
             eventDatas = new List<EventData>();
         }
 
@@ -318,48 +271,45 @@ public class Property
     #endregion
 
     #region setters & getters
-    public bool HasInt()
-    {
-        if (string.IsNullOrEmpty(value))
-        {
+    public bool HasInt() {
+        if (string.IsNullOrEmpty(value)) {
             return false;
         }
+        /* Modification non fusionnée à partir du projet 'Assembly-CSharp.Player'
+        Avant :
+                int i;
+                return int.TryParse(value, out i);
+        Après :
+                return int.TryParse(value, out i);
+        */
 
-        int i = -1;
-
-        return int.TryParse(value, out i);
+        return int.TryParse(value, out _);
     }
-    public int GetInt()
-    {
-        int i = -1;
-
-        if (int.TryParse(value, out i))
-        {
+    public int GetInt() {
+        int i;
+        if (int.TryParse(value, out i)) {
             return i;
         }
 
-        if (i == -1)
-        {
+        if (i == -1) {
             Debug.LogError("couldn't parse");
         }
 
         return i;
     }
-    public void SetInt(int newValue)
-    {
+    public void SetInt(int newValue) {
         newValue = Mathf.Clamp(newValue, 0, value_max);
         SetValue(newValue.ToString());
 
-        if ( newValue <= 0)
-        {
-            ItemEvent.CallEventOnProp("subEmpty", this);
+        if (newValue <= 0) {
+            ItemEvent.callEventOnProp("subEmpty", this);
         }
 
     }
     #endregion
 
 
-    
+
 
 
 }

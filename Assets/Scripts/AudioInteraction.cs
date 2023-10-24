@@ -1,12 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
 using TextSpeech;
-using System;
+using UnityEngine;
 
-public class AudioInteraction : MonoBehaviour
-{
+public class AudioInteraction : MonoBehaviour {
     public static AudioInteraction Instance;
 
     private bool speaking = false;
@@ -16,13 +15,11 @@ public class AudioInteraction : MonoBehaviour
 
     public List<string> phrasesToSpeak = new List<string>();
 
-    private void Awake()
-    {
+    private void Awake() {
         Instance = this;
     }
 
-    void Start()
-    {
+    void Start() {
         Setting("fr-FR");
 
         SpeechToText.instance.onResultCallback = OnSpeechResult;
@@ -30,32 +27,27 @@ public class AudioInteraction : MonoBehaviour
 
     }
 
-    
+
 
     #region voice recognition
-    public void StartRecording()
-    {
+    public void StartRecording() {
         DisplayRecordFeedback.Instance.uiText.text = "Attente...";
 
         SpeechToText.instance.StartRecording("Speak any");
     }
-    public void StopRecording()
-    {
+    public void StopRecording() {
         SpeechToText.instance.StopRecording();
     }
 
-    private void OnSpeechResult(string str)
-    {
+    private void OnSpeechResult(string str) {
         DisplayRecordFeedback.Instance.uiText.text = str;
     }
     #endregion
 
     #region text speak
-    public void StartSpeaking (string str)
-    {
+    public void StartSpeaking(string str) {
 
-        if (speaking)
-        {
+        if (speaking) {
             phrasesToSpeak.Add(str);
             return;
         }
@@ -65,31 +57,26 @@ public class AudioInteraction : MonoBehaviour
         TextToSpeech.instance.StartSpeak(str);
     }
 
-    void HandleOnDoneSpeaking()
-    {
+    void HandleOnDoneSpeaking() {
         speaking = false;
 
-        if ( phrasesToSpeak.Count > 0)
-        {
+        if (phrasesToSpeak.Count > 0) {
             StartSpeaking(phrasesToSpeak[0]);
             phrasesToSpeak.RemoveAt(0);
         }
     }
 
-    public void ClearSpeaking()
-    {
+    public void ClearSpeaking() {
         phrasesToSpeak.Clear();
         StopSpeaking();
     }
 
-    public void StopSpeaking()
-    {
+    public void StopSpeaking() {
         TextToSpeech.instance.StopSpeak();
     }
     #endregion
 
-    void Setting(string str)
-    {
+    void Setting(string str) {
         TextToSpeech.instance.Setting(str, pitch, rate);
         SpeechToText.instance.Setting(str);
     }

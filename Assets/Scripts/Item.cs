@@ -1,13 +1,21 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.SqlServer.Server;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using TMPro;
+using Unity.Android.Types;
 using UnityEngine;
 
 [System.Serializable]
-public class Item
-{
+public class Item {
+
+    // static things
+    public static List<AppearInfo> appearInfos = new List<AppearInfo>();
+    public static List<Item> dataItems = new List<Item>();
+
     // the debug name, without string function for debug purposes
     public string debug_name = "debug name";
     // the random id, to store hashcode
@@ -18,13 +26,11 @@ public class Item
     // un peu oublié à quoi ça ser ça
     public List<string> infos = new List<string>();
 
-    public bool temporary = false;
-
     // les spécificit's de l'objet.
     // à reset à chaque passe.
     // droite / gauche / bleu, rouge...
     // mais aussi second, first, third etc...
-    public List<string> specs = new List<string>();
+    public List<Spec> specs;
 
     // interior
     // maybe the interior class would be a item type
@@ -47,149 +53,181 @@ public class Item
     public List<Property> properties = new List<Property>();
 
     #region info
-    public void AddInfo(string str)
-    {
+    public void AddInfo(string str) {
         if (infos.Contains(str))
             return;
 
         infos.Add(str);
     }
-
-    public bool HasInfo(string str)
-    {
+    public bool HasInfo(string str) {
         return infos.Contains(str);
     }
     #endregion
-
     #region specs
-    public void AddSpec(string str)
-    {
-        if (specs.Contains(str))
-            return;
+    public Spec specContainedIn(string str) {
+        Spec targetSpec = specs.Find(x => str.Contains(x.displayValue));
+        return targetSpec;
+    }
 
-        specs.Add(str);
+    public Spec getKeyInfo(string str) {
+        if ( specs == null)
+            return null;
+        return specs.Find(x => x.key == str || x.displayValue == str || x.searchValue == str);
+    }
+
+    public bool hasKey(string key) {
+        return hasSpecs() && specs.Find(x => x.searchValue == key) != null;
+    }
+
+    public bool hasSpec(string spec) {
+        return hasSpecs() && specs.Find(x => x.key == spec) != null;
+    }
+    public bool hasSpecs() {
+        return specs != null;
+    }
+    public bool specMatch(Item it) {
+
+        if (specs == null)
+            return false;
+        
+        if ( it.specs.Count != specs.Count){
+            Debug.Log($"{debug_name} spec match : not same count ({specs.Count}/{it.specs.Count})");
+            return false;
+        }
+
+        // ça va jamais être égale parce que c'est pas des structs mais des objets
+
+        for (int i = 0; i < it.specs.Count; i++) {
+            if (it.specs[i].searchValue != specs[i].searchValue) {
+                Debug.Log($"{debug_name} spec match : not same SEARCH VALUE ({it.specs[i].searchValue}/{specs[i].searchValue})");
+                return false;
+            }
+            if (it.specs[i].key != specs[i].key) {
+                Debug.Log($"{debug_name} spec match : not same KEY ({it.specs[i].key}/{specs[i].key})");
+                return false;
+            }
+        }
+        return true;
+    }
+    public bool textHasSpecs(string text, out Spec spec) {
+        if (!hasSpecs()) {
+            spec = null;
+            return false;
+        }
+        spec = specs.Find(x => text.Contains(x.searchValue));
+        return spec != null;
+    }
+    public Spec setSpec(string search,string display = "", string key = "none", bool visible = true) {
+        if (specs == null)
+            specs = new List<Spec>();
+
+        Spec spec = specs.Find(x => x.key != "none" && x.key == key);
+        if ( spec == null) {
+            spec = new Spec(search, display, key, visible);
+            specs.Add(spec);
+        } else {
+            spec.searchValue = search;
+            spec.displayValue = display;
+            spec.key = key;
+            spec.visible = visible;
+        }
+        return spec;
     }
     #endregion
 
-    public AppearInfo GetAppearInfo()
-    {
+    public AppearInfo GetAppearInfo() {
         return AppearInfo.GetAppearInfo(dataIndex);
     }
-
-    public virtual void Init(Item copy)
-    {
-        // unique
-        foreach (var prop_copy in copy.properties)
-        {
-            Property newProp = CreateProperty(prop_copy);
+    public virtual void Init(Item copy) {
+        foreach (var prop_copy in copy.properties) {
+            var newProp = CreateProperty(prop_copy);
             properties.Add(newProp);
-
         }
     }
-
     #region contained items
-    public bool ContainsItems()
-    {
-        bool b = mContainedItems != null && mContainedItems.Count > 0;
+    public bool containsItems() {
+        var b = mContainedItems != null && mContainedItems.Count > 0;
         return b;
     }
 
-    
-    public virtual void TryGenerateItems()
-    {
+    public virtual void generateItems() {
         if (HasInfo("generated items"))
             return;
-        GenerateItems();
-    }
-
-    public virtual void GenerateItems()
-    {
         AddInfo("generated items");
-
-        foreach (var itemInfo in GetAppearInfo().itemInfos)
-        {
-            for (int i = 0; i < itemInfo.amount; i++)
-            {
-                float f = UnityEngine.Random.value * 100f;
-                if (f < itemInfo.chanceAppear)
-                {
-                    CreateItem(itemInfo.name);
+        foreach (var itemInfo in GetAppearInfo().itemInfos) {
+            for (var i = 0; i < itemInfo.amount; i++) {
+                var f = UnityEngine.Random.value * 100f;
+                if (f < itemInfo.chance) {
+                    _ = addItem(itemInfo.name);
                 }
             }
         }
     }
     #endregion
-
     #region item creation
-    public Item CreateItem(string name)
-    {
-        Item newItem = Generate_Simple(name);
-        return AddItem(newItem);
+    public Item addItem(string name) {
+        var newItem = Generate_Simple(name);
+        return addItem(newItem);
     }
-
-    public Item AddTemporaryItem(Item item)
-    {
-        item.temporary = true;
-        return AddItem(item);
-    }
-
-    public Item AddItem(Item item)
-    {
+    public Item addItem(Item item) {
         if (mContainedItems == null)
             mContainedItems = new List<Item>();
 
         mContainedItems.Add(item);
 
+        item.setSpec(debug_name, $">{getWord("in a dog")}", "container", false);
+
         // vraiment pas sûr que ça devrait être ici
-        item.TryGenerateItems();
+        item.generateItems();
 
         return item;
     }
 
     // remove item
-    public void RemoveItem(Item item)
-    {
+    public void removeFromTile() {
+        var tmp = Tile.GetCurrent.getRecursive(4);
+        foreach (var item in tmp) {
+            if (item.hasItem(this)) {
+                Debug.Log(item.debug_name + " has item : " + debug_name);
+                item.RemoveItem(this);
+                break;
+            }
+        }
+    }
+    public void RemoveItem(Item item) {
+        if (!mContainedItems.Contains(item)) {
+            Debug.LogError($"{debug_name} doesn't contain {item.debug_name}");
+        }
         mContainedItems.Remove(item);
     }
-    public Item GetItem(string itemName)
-    {
-       if (mContainedItems == null)
+    public Item GetItem(string itemName) {
+        if (mContainedItems == null)
             return null;
 
-        Item tmpItem = mContainedItems.Find(x => x.HasWord(itemName));
+        var tmpItem = mContainedItems.Find(x => x.HasWord(itemName));
 
         return tmpItem;
     }
 
-    public bool HasItem(string itemName)
-    {
+    public bool hasItem(string itemName) {
         if (mContainedItems == null)
             return false;
-
         return mContainedItems.Find(x => x.word.text == itemName) != null;
     }
 
-    public bool HasItem(Item item)
-    {
-        if (mContainedItems == null)
-            return false;
-
-        return GetAllItems().Contains(item);
+    public bool hasItem(Item item) {
+        return mContainedItems != null && mContainedItems.Contains(item);
     }
 
-    public bool SameTypeAs(Item otherItem)
-    {
-        if ( otherItem == null)
-        {
+    public bool SameTypeAs(Item otherItem) {
+        if (otherItem == null) {
             return false;
         }
 
         return otherItem.dataIndex == dataIndex;
     }
-    public bool ExactSameAs(Item otherItem)
-    {
-        if (otherItem == null)
-        {
+    public bool ExactSameAs(Item otherItem) {
+        if (otherItem == null) {
             Debug.Log("no previous tile");
             return false;
         }
@@ -197,215 +235,217 @@ public class Item
         return otherItem == this;
     }
     #endregion
-
     #region socket
     /// <summary>
     /// DESCRIPTION
     /// </summary>
     [SerializeField]
     private List<Item> mContainedItems;
-    public List<Item> GetContainedItems
-    {
-        get
-        {
+    public List<Item> getContainedItems {
+        get {
             if (mContainedItems == null)
                 mContainedItems = new List<Item>();
-
             return mContainedItems;
         }
     }
-
-    public bool IsTile()
-    {
-        return this as Tile != null;
-    }
-
-    public bool IsHumanoid()
-    {
-        return this as Humanoid != null;
-    }
-
-    public List<Item> GetUnanimatedItems()
-    {
+    public List<Item> getItems() {
         return mContainedItems.FindAll(x =>
-            
-            !x.IsHumanoid()
-
+            x as Humanoid == null
         );
     }
-    public List<Item> GetEnemies()
-    {
-        return mContainedItems.FindAll(x => x as Zombie != null);
+    public List<Item> getEnemies() {
+        return mContainedItems.FindAll(x => (x as Zombie) != null);
     }
-
-    public bool ContainedIn(Item item)
-    {
-        return item.HasItem(this);
+    public bool containedIn(Item item) {
+        return item.hasItem(this);
     }
-
-    public virtual void WriteContainedItems(bool describeContainers=false) {
+    public virtual void writeContainedItems(bool describeContainers = false) {
+        string list = TextManager.listItems(getItems());
+        string description = $"there's {list} {getWord("in a dog")}";
+        TextManager.write(description);
+        AddInfo("discovered");
+        return;
         // Get Groups for description
-        List<Group> allGroups = new List<Group>();
-        foreach (var item in GetUnanimatedItems())
-        {
-            Group group = allGroups.Find(x => x.item.dataIndex == item.dataIndex);
-
-            if (group == null)
-            {
+        var allGroups = new List<Group>();
+        foreach (var item in getItems()) {
+            var group = allGroups.Find(x => x.item.dataIndex == item.dataIndex);
+            if (group == null) {
                 // Create new group
-                Group newGroup = new Group();
+                var newGroup = new Group();
                 newGroup.amount = 1;
-                newGroup.item = item;
+                newGroup.item = item; 
                 allGroups.Add(newGroup);
-
                 item.word.defined = false;
                 continue;
-
             }
-
             // Found group, adding amount
             ++group.amount;
-
         }
 
-        List<Group> containerGroups = new List<Group>();
-        List<Group> itemGroups = new List<Group>();
+        var containerGroups = new List<Group>();
+        var itemGroups = new List<Group>();
         if (describeContainers)
-            containerGroups = allGroups.FindAll(x => x.item.ContainsItems() && x.item.HasInfo("invisible"));
+            containerGroups = allGroups.FindAll(x => x.item.containsItems() && x.item.HasInfo("invisible"));
 
         itemGroups = allGroups.FindAll(x => !x.item.HasInfo("invisible"));
-
         if (containerGroups.Count > 0 && !containerGroups.First().item.HasInfo("invisible"))
             itemGroups.Insert(0, containerGroups.First());
-
-        if (itemGroups.Count > 0 )
-        {
+        if (itemGroups.Count > 0) {
             if (describeContainers)
-                TextManager.Write("there's ");
+                TextManager.write("there's ");
             else
-                TextManager.Write("");
+                TextManager.write("");
 
             // Describe groups
-            int index = 0;
-            foreach (var group in itemGroups)
-            {
-                if (group.item.word.defined)
-                {
-                    TextManager.Add("&the dog&", group.item);
-                }
-                else
-                {
-                    TextManager.Add("&a dog&", group.item);
+            var index = 0;
+            foreach (var group in itemGroups) {
+                if (group.item.word.defined) {
+                    TextManager.add("&the dog&", group.item);
+                } else {
+                    TextManager.add("&a dog&", group.item);
                     group.item.word.defined = true;
                 }
                 TextManager.AddLink(index, itemGroups.Count);
-
                 ++index;
             }
 
-            if (this != Tile.GetCurrent && itemGroups.Count > 0)
-            {
-                if (word.defined)
-                {
-                    TextManager.Add(" &on the dog&", this);
-                }
-                else
-                {
-                    TextManager.Add(" &on a dog&", this);
+            if (this != Tile.GetCurrent && itemGroups.Count > 0) {
+                if (word.defined) {
+                    TextManager.add(" &on the dog&", this);
+                } else {
+                    TextManager.add(" &on a dog&", this);
                     word.defined = true;
                 }
             }
         }
+        foreach (var group in containerGroups) {
+            if (group.item.containsItems())
+                group.item.writeContainedItems();
+        }
+        AddInfo("discovered");
+    }
 
-        foreach (var group in containerGroups)
-        {
-            if (group.item.ContainsItems())
-                group.item.WriteContainedItems();
+    public string getWord(string prms) {
+        string str = "";
+        string bSpecs = getSpecText("!>");
+        string aSpecs = getSpecText(">");
+        if (!string.IsNullOrEmpty(bSpecs))
+            str += $" {bSpecs}";
+        str += word.get(prms);
+        if (!string.IsNullOrEmpty(aSpecs))
+            str += $" {aSpecs}";
+        return str;
+    }
+    public string getSpecText(string filter = "") {
+        if (specs == null)
+            return "";
+        string str = "";
+        List<Spec> list = specs.FindAll(x=>x.visible);
+        if (!string.IsNullOrEmpty(filter)) {
+            if (filter.StartsWith('!')) {
+                list = list.FindAll(x => !x.displayValue.StartsWith(filter.Remove(0, 1)));
+            } else {
+                list = list.FindAll(x => x.displayValue.StartsWith(filter));
+            }
+        }
+        for (int i = 0; i < list.Count; i++) {
+            string spectext = list[i].displayValue;
+            if (!string.IsNullOrEmpty(filter) && !filter.StartsWith('!'))
+                spectext = spectext.Remove(0, 1);
+            str += $"{spectext} {TextManager.getLink(i, list.Count)}";
         }
 
-        AddInfo("discovered");
-
+        return str;
     }
 
     [System.Serializable]
-    public class Group
-    {
+    public class Group {
         public Item item;
         public int amount;
     }
     // description depth here
-    public List<Item> GetAllItems()
-    {
-        var items = new List<Item> {this};
-        if (mContainedItems == null)
+    public List<Item> getRecursive(int depth) {
+        var items = new List<Item> { this };
+        if (depth == 0 || mContainedItems == null)
             return items;
-        foreach (var item in mContainedItems)
-           items.AddRange(item.GetAllItems());
+        foreach (var it in mContainedItems)
+            items.AddRange(it.getRecursive(depth - 1));
         return items;
     }
     #endregion
-
-
     #region search
-    public Word word {
-        get { return words[currentWordIndex];}
-    }
+    public Word word => words[currentWordIndex];
     public bool HasWord(string _text) {
         currentWordIndex = words.FindIndex(x => x.text == _text);
         return currentWordIndex >= 0;
     }
-    public bool ContainedInText(string text) {
-        int index = 0;
-        return ContainedInText(text, out index);
+    public bool containedInText(string _text) {
+        return getIndexInText(_text) >= 0;
     }
-    public bool ContainedInText(string text, out int index) {
+    public int[] getIndexesInText(string text, Word.Number num = Word.Number.Singular) {
+        List<int> ints = new List<int>();
         foreach (var word in words) {
-            // find singular
-            string bound = @$"\b{word.text}\b";
-            if (Regex.IsMatch(text, bound))
-            {
-                word.number = Word.Number.Singular;
-                index = text.IndexOf(word.text);
-                return true;
-            }
+            // return -1 if the default number is plural =>
+            // "take seeds""take scissors" => take all seeds etc..
+            if (num == Word.Number.Plural && word.number == Word.Number.Plural)
+                continue;
+            if (Regex.IsMatch(text, @$"\b{word.getText(num)}\b")) {
 
-            bound = @$"\b{word.GetPlural()}\b";
-            if (Regex.IsMatch(text, bound)) {
-                word.number = Word.Number.Plural;
-                index = text.IndexOf(word.GetPlural());
-                return true;
+                int index = 0;
+                while (index >= 0) {
+
+                    index = text.IndexOf(word.getText(num), index + 1);
+                    if (index < 0 || index >= text.Length)
+                        break;
+                    ints.Add(index);
+                }
+
             }
         }
 
-        index = -1;
-        return false;
+        return ints.ToArray();
+    }
+    public int indexInInput;
+    public Word.Number numInInput;
+    public int getIndexInText(string text, Word.Number num = Word.Number.Singular) {
+        foreach (var word in words) {
+            // return -1 if the default number is plural =>
+            // "take seeds""take scissors" => take all seeds etc..
+            if (num == Word.Number.Plural && word.number == Word.Number.Plural)
+                return -1;
+            if (Regex.IsMatch(text, @$"\b{word.getText(num)}\b")) {
+                indexInInput = text.IndexOf(word.getText(num));
+                numInInput = num;
+                return indexInInput;
+            }
+        }
+
+        return -1;
     }
     #endregion
-
     #region properties
     /// properties /// <summary>
     /// properties ///
     /// </summary>
-    public virtual void WriteDescription()
-    {
-        if (HasProperties())
+    public virtual void writeDescription() {
+        if (hasProperties())
             WriteProperties();
 
-        if (ContainsItems())
-            WriteContainedItems(true);
+        if (containsItems())
+            writeContainedItems(true);
 
-        if (!HasProperties() && !ContainsItems()) {
+        if (!hasProperties() && !containsItems()) {
             if (GetAppearInfo().CanContainItems())
-                TextManager.Write("It's empty");
+                TextManager.write("It's empty");
             else
-                TextManager.Write("It's just &a dog&", this);
+                TextManager.write($"It's just {getWord("a dog")}");
         }
     }
 
     // adds whole new, simple property
-    public Property AddProperty(string line, bool describe = false) {
-        Property newProperty = new Property();
-        string[] parts = line.Split(" / ");
+    public Property addProperty(string line, bool describe = false) {
+        var newProperty = new Property();
+        var parts = line.Split(" / ");
         newProperty.type = parts[0];
         newProperty.name = parts[1];
         if (parts.Length > 2)
@@ -420,7 +460,7 @@ public class Item
     }
 
     public void UpdateProperty(string propName, string line) {
-        Property property = GetProperty(propName);
+        var property = GetProperty(propName);
         property.Update(line);
         PropertyDescription.Add(this, property);
     }
@@ -431,12 +471,12 @@ public class Item
     /// </summary>
     // add proper property, from the data, with events and all
     public Property CreateProperty(Property property_data) {
-        Property newProperty = new Property(property_data);
+        var newProperty = new Property(property_data);
         newProperty.Init();
         if (newProperty.eventDatas != null) {
             foreach (var eventData in newProperty.eventDatas) {
                 // juste un objet par evetn en fait
-                ItemEvent itemEvent = ItemEvent.list.Find(x => x.item == this);
+                var itemEvent = ItemEvent.list.Find(x => x.item == this);
                 if (itemEvent == null)
                     itemEvent = ItemEvent.New(this, Tile.GetCurrent);
             }
@@ -444,30 +484,29 @@ public class Item
         return newProperty;
     }
     public void DeleteProperty(string propertyName) {
-        Property property = GetProperty(propertyName);
-        if (property == null)
-        {
+        var property = GetProperty(propertyName);
+        if (property == null) {
             Debug.LogError("DeleteProperty : property " + propertyName + " does not exist in " + debug_name);
             return;
         }
-        properties.Remove(property);
+        _ = properties.Remove(property);
     }
-    public bool HasProperties() {
+    public bool hasProperties() {
         return properties.FindAll(x => x.enabled).Count > 0;
     }
     public bool HasVisibleProperties() {
         return properties.FindAll(x => x.enabled && x.type != "hidden").Count > 0;
     }
     public bool HasEnabledProperty(string name) {
-        Property property = properties.Find(x => x.name == name && x.enabled);
+        var property = properties.Find(x => x.name == name && x.enabled);
         return property != null;
     }
-    public bool HasProperty(string name) {
-        Property property = properties.Find(x => x.name == name);
+    public bool hasProperty(string name) {
+        var property = properties.Find(x => x.name == name);
         return property != null;
     }
     public bool HasPropertyOfType(string type) {
-        Property property = properties.Find(x => x.type == type);
+        var property = properties.Find(x => x.type == type);
         return property != null;
     }
 
@@ -479,24 +518,22 @@ public class Item
     }
 
     public void EnableProperty(string propertyName) {
-        Property prop = properties.Find(x => x.name == propertyName);
+        var prop = properties.Find(x => x.name == propertyName);
         if (prop == null) {
             Debug.LogError("ENABLE PROP : Could not find property " + propertyName);
             return;
         }
 
         prop.enabled = true;
-        ItemEvent.CallEventOnProp("subEnable", prop);
+        ItemEvent.callEventOnProp("subEnable", prop);
         PropertyDescription.Add(this, prop);
 
 
     }
 
-    public void DisableProperty(string propertyName)
-    {
-        Property prop = properties.Find(x => x.name == propertyName);
-        if (prop == null)
-        {
+    public void DisableProperty(string propertyName) {
+        var prop = properties.Find(x => x.name == propertyName);
+        if (prop == null) {
             Debug.LogError("DISABLE PROP : Could not find property " + propertyName);
             return;
         }
@@ -506,161 +543,107 @@ public class Item
         PropertyDescription.Add(this, prop);
     }
 
-    public Property GetProperty(string name)
-    {
-        Property property = properties.Find(x => x.name == name);
+    public Property GetProperty(string name) {
+        var property = properties.Find(x => x.name == name);
 
-        if (property == null)
-        {
+        if (property == null) {
             Debug.LogError("property : " + name + " doesn't exist in item " + word.text);
             return null;
         }
 
         return property;
     }
-    public List<Property> GetPropertiesOfType(string type)
-    {
+    public List<Property> GetPropertiesOfType(string type) {
         return properties.FindAll(x => x.type == type);
     }
-    public Property GetPropertyOfType(string type)
-    {
-        Property property = properties.Find(x => x.type == type);
+    public Property GetPropertyOfType(string type) {
+        var property = properties.Find(x => x.type == type);
 
-        if (property == null)
-        {
+        if (property == null) {
             Debug.LogError("property if type : " + type + " doesn't exist in item " + word.text);
             return null;
         }
 
         return property;
     }
-    public bool HasItemWithProperty(string propertyName)
-    {
-        return GetContainedItems.Find(x => x.HasProperty(propertyName)) != null;
+    public bool HasItemWithProperty(string propertyName) {
+        return getContainedItems.Find(x => x.hasProperty(propertyName)) != null;
     }
 
-    public void WriteProperties()
-    {
+    public void WriteProperties() {
 
-        int enabledPropCount = GetEnabledProperties().Count;
+        var enabledPropCount = GetEnabledProperties().Count;
 
-        if (enabledPropCount > 0)
-        {
-            TextManager.Write("&the dog& is ", this);
+        if (enabledPropCount > 0) {
+            TextManager.write("&the dog& is ", this);
 
-            for (int i = 0; i < enabledPropCount; i++)
-            {
-                Property property = GetEnabledProperties()[i];
+            for (var i = 0; i < enabledPropCount; i++) {
+                var property = GetEnabledProperties()[i];
 
-                TextManager.Add(property.GetDescription());
+                TextManager.add(property.GetDescription());
                 TextManager.AddLink(i, enabledPropCount);
 
             }
         }
     }
     #endregion
-
-    ///
-    /// <summary>
-    /// TOOLS
-    /// </summary>
-    ///
-
     #region remove & destroy
-    public static void Destroy(Item item)
-    {
-        Debug.Log("destroying " + item.debug_name);
+    public static void Destroy(Item item) {
         ItemEvent.Remove(item);
-
         foreach (var prop in item.properties)
-        {
             prop.Destroy();
-        }
-
-        RemoveFromContainer(item);
+        AvailableItems.Get.removeFromWorld(item);
     }
-    public void TransferTo(Item item)
-    {
-        RemoveFromContainer(this);
-        item.AddItem(this);
-    }
-    public static void RemoveFromContainer(Item targetItem)
-    {
-
-        // then in tile
-        foreach (var item in AvailableItems.GetItems)
-        {
-            if (item.HasItem(targetItem))
-            {
-                item.RemoveItem(targetItem);
-                return;
-            }
-        }
-        Debug.LogError("removing item : " + targetItem.word.text + " failed : not in container, tile or inventory");
+    public void TransferTo(Item item) {
+        AvailableItems.Get.removeFromWorld(this);
+        item.addItem(this);
     }
     #endregion
-
     #region tools
-    public static List<Item> dataItems = new List<Item>();
-
-    public static Item GetDataItem(string key)
-    {
+    public static Item GetDataItem(string key) {
         Item item;
-        if (key.StartsWith("type:"))
-        {
+        if (key.StartsWith("type:")) {
             key = key.Remove(0, 5);
-            List<Item> items = dataItems.FindAll(x => x.HasInfo(key));
-
+            var items = dataItems.FindAll(x => x.HasInfo(key));
             item = items[UnityEngine.Random.Range(0, items.Count)];
-        }
-        else
-        {
+        } else {
             item = dataItems.Find(x => x.HasWord(key));
         }
-
-        if (item == null)
-        {
+        if (item == null) {
             Debug.LogError("no " + key + " in item datas");
             return null;
         }
-
         return item;
     }
 
-    public static List<AppearInfo> appearInfos = new List<AppearInfo>();
+    public static Item Generate_Simple(string name) {
+        var copy = GetDataItem(name);
 
-    public static Item Generate_Simple(string name)
-    {
-        Item copy = GetDataItem(name);
-
-        Item item = Generate(copy);
+        var item = Generate(copy);
 
         item.Init(copy);
 
         return item;
     }
 
-    public static object Generate_Special(string name)
-    {
-        Item copy = GetDataItem(name);
+    public static object Generate_Special(string name) {
+        var copy = GetDataItem(name);
 
-        if (string.IsNullOrEmpty(copy.className))
-        {
+        if (string.IsNullOrEmpty(copy.className)) {
             Debug.Log("request " + name + " : no class name in data");
             return null;
         }
 
-        Type ItemType = Type.GetType(copy.className);
-        if (ItemType == null)
-        {
+        var ItemType = Type.GetType(copy.className);
+        if (ItemType == null) {
             Debug.LogError("pas d'item type pour " + copy.debug_name);
             return null;
         }
 
-        Item item = Generate(copy);
+        var item = Generate(copy);
 
         var serializedParent = JsonConvert.SerializeObject(item);
-        object obj = JsonConvert.DeserializeObject(serializedParent, ItemType);
+        var obj = JsonConvert.DeserializeObject(serializedParent, ItemType);
 
         ((Item)obj).Init(copy);
 
@@ -668,9 +651,8 @@ public class Item
     }
 
     /// create a new item by name
-    private static Item Generate(Item copy)
-    {
-        Item newItem = new Item();
+    private static Item Generate(Item copy) {
+        var newItem = new Item();
 
         // common to all
         newItem.debug_name = copy.debug_name;
@@ -685,9 +667,8 @@ public class Item
         return newItem;
     }
 
-    public static List<Item> FindItemsWithProperty(string propName)
-    {
-        return dataItems.FindAll(x => x.HasProperty(propName));
+    public static List<Item> FindItemsWithProperty(string propName) {
+        return dataItems.FindAll(x => x.hasProperty(propName));
     }
     #endregion
 

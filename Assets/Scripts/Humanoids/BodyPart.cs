@@ -4,12 +4,10 @@ using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
-public class BodyPart : Item
-{
+public class BodyPart : Item {
 
-    public override void WriteDescription()
-    {
-        base.WriteDescription();
+    public override void writeDescription() {
+        base.writeDescription();
 
         /*if (!ContainsItems())
         {

@@ -3,13 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ConditionManager : MonoBehaviour
-{
+public class ConditionManager : MonoBehaviour {
     private static ConditionManager _instance;
-    public static ConditionManager GetInstance()
-    {
-        if (_instance == null)
-        {
+    public static ConditionManager GetInstance() {
+        if (_instance == null) {
             _instance = GameObject.FindObjectOfType<ConditionManager>();
         }
 
@@ -18,55 +15,45 @@ public class ConditionManager : MonoBehaviour
 
     public Condition[] conditions;
 
-    private void Awake()
-    {
+    private void Awake() {
         _instance = this;
     }
 
 
-    public void AdvanceCondition()
-    {
+    public void AdvanceCondition() {
         GetCondition(Condition.Type.Thirst).Advance();
         GetCondition(Condition.Type.Hunger).Advance();
         GetCondition(Condition.Type.Sleep).Advance();
     }
 
-    public void WriteDescription()
-    {
-        string text = "";
+    public void WriteDescription() {
+        var text = "";
 
-        int index = 0;
+        var index = 0;
 
-        foreach (var Condition in conditions)
-        {
-            if (Condition.progress != Condition.Progress.Normal)
-            {
+        foreach (var Condition in conditions) {
+            if (Condition.progress != Condition.Progress.Normal) {
                 text += Condition.GetDescription();
-                
+
                 index++;
 
-                if ( index >= conditions.Length-1)
-                {
+                if (index >= conditions.Length - 1) {
                     break;
                 }
 
-                if ( index == conditions.Length -2 )
-                {
+                if (index == conditions.Length - 2) {
                     text += " and ";
-                }
-                else
-                {
+                } else {
                     text += ", ";
                 }
 
             }
         }
 
-        TextManager.Write(text);
+        TextManager.write(text);
     }
 
-    public Condition GetCondition(Condition.Type conditionType)
-    {
+    public Condition GetCondition(Condition.Type conditionType) {
         return conditions[(int)conditionType];
     }
 }

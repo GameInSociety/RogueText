@@ -1,5 +1,5 @@
 "NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"knife","","s","","","","","","","","look 
+"knife","","s","","","value / damage / 8","","","","","look 
 Item(describe)","take 
 Item(pickUp)","throw 
 Item(throw)","make 

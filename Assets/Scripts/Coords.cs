@@ -4,34 +4,29 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [System.Serializable]
-public struct Coords
-{
-    public string GetCode()
-    {
+public struct Coords {
+    public string GetCode() {
         return "x:" + x + ",y:" + y;
     }
 
     public int x;
     public int y;
 
-    public static Cardinal GetCardinalFromCoords(Coords coords)
-    {
-        Vector2 v = (Vector2)coords;
+    public static Cardinal GetCardinalFromCoords(Coords coords) {
+        var v = (Vector2)coords;
 
-        Cardinal direction = Cardinal.north;
+        var direction = Cardinal.north;
 
-        Cardinal closestDirection = Cardinal.north;
+        var closestDirection = Cardinal.north;
 
-        while (direction != Cardinal.None)
-        {
-            Coords ce = (Coords)direction;
+        while (direction != Cardinal.None) {
+            var ce = (Coords)direction;
 
-            float angle = Vector2.Angle(v, (Vector2)ce);
+            var angle = Vector2.Angle(v, (Vector2)ce);
 
-            float closestDirectionAngle = Vector2.Angle(v, (Vector2)((Coords)closestDirection));
+            var closestDirectionAngle = Vector2.Angle(v, (Vector2)(Coords)closestDirection);
 
-            if (angle < closestDirectionAngle)
-            {
+            if (angle < closestDirectionAngle) {
                 closestDirection = direction;
             }
 
@@ -40,73 +35,55 @@ public struct Coords
         return closestDirection;
     }
 
-    public static Coords random
-    {
-        get
-        {
-            return new Coords(Random.Range(1, TileSet.current.width - 1), Random.Range(1, TileSet.current.height - 1));
-        }
-    }
+    public static Coords random => new Coords(Random.Range(1, TileSet.current.width - 1), Random.Range(1, TileSet.current.height - 1));
 
-    public Coords(int x, int y)
-    {
+    public Coords(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    public static string GetOrientationText(List<Humanoid.Orientation> orientations)
-    {
-        string str = "";
+    public static string GetOrientationText(List<Humanoid.Orientation> orientations) {
+        var str = "";
 
-        int i = 0;
+        var i = 0;
 
-        foreach (var facing in orientations)
-        {
-            string directionWord = GetOrientationText(facing);
+        foreach (var facing in orientations) {
+            var directionWord = GetOrientationText(facing);
 
             str += directionWord;
 
             // avant dernier
-            if (i == orientations.Count - 2)
-            {
+            if (i == orientations.Count - 2) {
                 str += " and ";
             }
             // dernier
-            else if (i == orientations.Count - 1)
-            {
+            else if (i == orientations.Count - 1) {
 
             }
             // courrant de la phrase
-            else
-            {
+            else {
                 str += ", ";
             }
 
             i++;
         }
 
-        if (DebugManager.Instance.colorWords)
-        {
+        if (DebugManager.Instance.colorWords) {
             return "<color=yellow>" + str + "</color>";
-        }
-        else
-        {
+        } else {
             return str;
         }
     }
 
-    public static string GetOrientationText(Humanoid.Orientation orientation)
-    {
-        string key = orientation.ToString().Remove(1).ToLower() + orientation.ToString().Remove(0, 1);
+    public static string GetOrientationText(Humanoid.Orientation orientation) {
+        var key = orientation.ToString().Remove(1).ToLower() + orientation.ToString().Remove(0, 1);
         key = "position_" + key;
 
-        return TextManager.GetPhrase(key);
+        return TextManager.getItemWord(key);
     }
 
-    public static string GetOrientationWord(Humanoid.Orientation orientation)
-    {
-        switch (orientation)
-        {
+    public static string GetOrientationWord(Humanoid.Orientation orientation) {
+        switch (orientation) {
             case Humanoid.Orientation.front:
                 return "front";
             case Humanoid.Orientation.right:
@@ -126,12 +103,9 @@ public struct Coords
         return "woops orientation";
     }
 
-    public static Cardinal GetCardinalFromString(string str)
-    {
-        foreach (var item in System.Enum.GetValues(typeof(Cardinal)))
-        {
-            if (item.ToString() == str)
-            {
+    public static Cardinal GetCardinalFromString(string str) {
+        foreach (var item in System.Enum.GetValues(typeof(Cardinal))) {
+            if (item.ToString() == str) {
                 return (Cardinal)item;
             }
         }
@@ -142,12 +116,9 @@ public struct Coords
 
     }
 
-    public static Humanoid.Orientation GetOrientationFromString(string str)
-    {
-        foreach (var item in System.Enum.GetValues(typeof(Humanoid.Orientation)))
-        {
-            if (item.ToString() == str)
-            {
+    public static Humanoid.Orientation GetOrientationFromString(string str) {
+        foreach (var item in System.Enum.GetValues(typeof(Humanoid.Orientation))) {
+            if (item.ToString() == str) {
                 return (Humanoid.Orientation)item;
             }
         }
@@ -159,82 +130,61 @@ public struct Coords
 
     }
 
-    public bool OutOfMap()
-    {
+    public bool OutOfMap() {
         return
             x > TileSet.current.width - 2 || x < 1 ||
             y > TileSet.current.height - 2 || y < 1;
     }
 
-    public static Coords Zero
-    {
-        get
-        {
-            return new Coords(0, 0);
-        }
-    }
+    public static Coords Zero => new Coords(0, 0);
     // overrides
     // == !=
-    public static bool operator ==(Coords c1, Coords c2)
-    {
+    public static bool operator ==(Coords c1, Coords c2) {
         return c1.x == c2.x && c1.y == c2.y;
     }
-    public static bool operator !=(Coords c1, Coords c2)
-    {
+    public static bool operator !=(Coords c1, Coords c2) {
         return !(c1 == c2);
     }
 
     // < >
-    public static bool operator <(Coords c1, Coords c2)
-    {
+    public static bool operator <(Coords c1, Coords c2) {
         return c1.x < c2.x && c1.y < c2.y;
     }
-    public static bool operator >(Coords c1, Coords c2)
-    {
+    public static bool operator >(Coords c1, Coords c2) {
         return c1.x > c2.x && c1.y > c2.y;
     }
-    public static bool operator <(Coords c1, int i)
-    {
+    public static bool operator <(Coords c1, int i) {
         return c1.x < i || c1.y < i;
     }
-    public static bool operator >(Coords c1, int i)
-    {
+    public static bool operator >(Coords c1, int i) {
         return c1.x > i || c1.y > i;
     }
 
     // >= <=
-    public static bool operator >=(Coords c1, Coords c2)
-    {
+    public static bool operator >=(Coords c1, Coords c2) {
         return c1.x >= c2.x && c1.y >= c2.y;
     }
-    public static bool operator <=(Coords c1, Coords c2)
-    {
+    public static bool operator <=(Coords c1, Coords c2) {
         return c1.x <= c2.x && c1.y <= c2.y;
     }
-    public static bool operator >=(Coords c1, int i)
-    {
+    public static bool operator >=(Coords c1, int i) {
         return c1.x >= i || c1.y >= i;
     }
-    public static bool operator <=(Coords c1, int i)
-    {
+    public static bool operator <=(Coords c1, int i) {
         return c1.x <= i || c1.y <= i;
     }
 
     // + -
-    public static Coords operator +(Coords c1, Coords c2)
-    {
+    public static Coords operator +(Coords c1, Coords c2) {
         return new Coords(c1.x + c2.x, c1.y + c2.y);
     }
-    public static Coords operator -(Coords c1, Coords c2)
-    {
+    public static Coords operator -(Coords c1, Coords c2) {
         return new Coords(c1.x - c2.x, c1.y - c2.y);
     }
-    public static Coords operator +(Coords c1, int i)
-    {
+    public static Coords operator +(Coords c1, int i) {
         return new Coords(c1.x + i, c1.y + i);
     }
-    public static Coords operator -(Coords c1, int i)
-    {
+    public static Coords operator -(Coords c1, int i) {
         return new Coords(c1.x - i, c1.y - i);
     }
 
@@ -256,8 +206,7 @@ public struct Coords
     //	}
     public static explicit operator Coords(Cardinal dir)  // explicit byte to digit conversion operator
     {
-        switch (dir)
-        {
+        switch (dir) {
             case Cardinal.north:
                 return new Coords(0, 1);
             case Cardinal.NorthEast:
@@ -281,12 +230,9 @@ public struct Coords
         return new Coords();
     }
 
-    public static explicit operator Cardinal(Coords c)
-    {
-        if ( c.x < 0)
-        {
-            switch (c.y)
-            {
+    public static explicit operator Cardinal(Coords c) {
+        if (c.x < 0) {
+            switch (c.y) {
                 case -1:
                     return Cardinal.SouthWest;
                 case 0:
@@ -294,11 +240,8 @@ public struct Coords
                 case 1:
                     return Cardinal.NorthWest;
             }
-        }
-        else if (c.x > 0)
-        {
-            switch (c.y)
-            {
+        } else if (c.x > 0) {
+            switch (c.y) {
                 case -1:
                     return Cardinal.SouthEast; ;
                 case 0:
@@ -306,11 +249,8 @@ public struct Coords
                 case 1:
                     return Cardinal.NorthEast;
             }
-        }
-        else
-        {
-            switch (c.y)
-            {
+        } else {
+            switch (c.y) {
                 case -1:
                     return Cardinal.south;
                 case 0:
@@ -323,25 +263,20 @@ public struct Coords
         return Cardinal.None;
     }
 
-    public static Word GetWordsDirection(Cardinal direction)
-    {
+    public static Word GetWordsDirection(Cardinal direction) {
         return Item.dataItems[(int)direction + 1].word;
     }
-    public static Item GetDirectionItem(Cardinal direction)
-    {
+    public static Item GetDirectionItem(Cardinal direction) {
         return Item.dataItems[(int)direction + 1];
     }
 
     // string
-    public override string ToString()
-    {
+    public override string ToString() {
         return "X : " + x + " / Y : " + y;
     }
 
-    public static Humanoid.Orientation GetOrientationFromNorth(Cardinal direction)
-    {
-        switch (direction)
-        {
+    public static Humanoid.Orientation GetOrientationFromNorth(Cardinal direction) {
+        switch (direction) {
             case Cardinal.north:
                 return Humanoid.Orientation.front;
             case Cardinal.NorthEast:
@@ -366,30 +301,20 @@ public struct Coords
 
     }
 
-    public void Turn()
-    {
-         if ( x == 0 && y == 1 || x == 0 && y == -1)
-        {
-            if ( Random.value < 0.5f)
-            {
+    public void Turn() {
+        if ((x == 0 && y == 1) || (x == 0 && y == -1)) {
+            if (Random.value < 0.5f) {
                 x = 1;
                 y = 0;
-            }
-            else
-            {
+            } else {
                 x = -1;
                 y = 0;
             }
-        }
-        else if (x == 1 && y == 0 || x == -1 && y == 0)
-        {
-            if (Random.value < 0.5f)
-            {
+        } else if ((x == 1 && y == 0) || (x == -1 && y == 0)) {
+            if (Random.value < 0.5f) {
                 x = 0;
                 y = 1;
-            }
-            else
-            {
+            } else {
                 x = 0;
                 y = -1;
             }
@@ -397,12 +322,10 @@ public struct Coords
 
     }
 
-    public static Coords GetRandom4()
-    {
-        int randomDir = Random.Range(0, 4);
+    public static Coords GetRandom4() {
+        var randomDir = Random.Range(0, 4);
 
-        switch (randomDir)
-        {
+        switch (randomDir) {
             case 0:
                 return new Coords(0, 1);
 
@@ -422,11 +345,9 @@ public struct Coords
 
     }
 
-    public static Cardinal GetRelativeDirection(Cardinal direction, Humanoid.Orientation facing)
-    {
-        int a = (int)direction + (int)facing;
-        if (a >= 8)
-        {
+    public static Cardinal GetRelativeDirection(Cardinal direction, Humanoid.Orientation facing) {
+        var a = (int)direction + (int)facing;
+        if (a >= 8) {
             a -= 8;
         }
 

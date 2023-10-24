@@ -1,142 +1,68 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using UnityEditor;
 using UnityEngine;
-using static UnityEditor.Progress;
 
-public static class AvailableItems
-{
-    public static List<Item> list = new List<Item>();
-    public static List<Item> recentItems = new List<Item>();
+[System.Serializable]
+public class AvailableItems {
 
-    public static Item FindInText(string text)
-    {
-        return GetItems.Find(x => x.ContainedInText(text));
-    }
-
-    public static Item SearchByType(string type)
-    {
-        return GetItems.Find(x => x.HasInfo(type));
-    }
-
-    public static Item SearchByProperty(string property)
-    {
-        return GetItems.Find(x=> x.HasProperty(property));
-    }
-
-    public static Item SearchByName(string name)
-    {
-        return GetItems.Find(x=> x.HasWord(name));
-    }
-    public static List<Item> FindAll(string name)
-    {
-        List<Item> list = new List<Item>();
-        foreach (var item in GetItems)
-        {
-            if (item.HasWord(name))
-            {
-                list.Add(item);
-            }
-        }
-
-        return GetItems.FindAll(x=> x.HasWord(name));
-    }
-
-    public static List<Item> GetDuplicates(List<Item> items)
-    {
-
-        foreach (var item in items)
-        {
-            Debug.Log("secong batch : " + item.debug_name);
-        }
-
-        foreach (var item in items)
-        {
-            Debug.Log("is " + item.debug_name + " a duplicate");
-            List<Item> its = items.FindAll(x => x.dataIndex == item.dataIndex && x.HasInfo("dif"));
-
-            if (its.Count > 1)
-            {
-                return its;
-            }
-        }
-
-        return null;
-    }
-
-    public static List<Item> GetItems
-    {
-        get
-        {
-            List<Item> tmpList = new List<Item>();
-            tmpList.AddRange(Tile.GetCurrent.GetAllItems());
-
-            // je commente au cas ou ?
-            //tmpList.Add(Tile.GetCurrent);
-            /*tmpList.AddRange(Player.Instance.GetAllItems());
-
-            if (FunctionSequence.current != null && FunctionSequence.current.tile != Tile.GetCurrent)
-            {
-                Debug.Log("curren ttile : " + FunctionSequence.current.FirstItem.debug_name);
-                Debug.Log("function tile : " + FunctionSequence.current.FirstItem.debug_name);
-                tmpList.AddRange(FunctionSequence.current.tile.GetAllItems());
-            }
-            else
-            {
-                tmpList.AddRange(Tile.GetCurrent.GetAllItems().FindAll(x=> x.visible));
-            }*/
-
-            tmpList.AddRange(Item.dataItems.FindAll(x => x.HasInfo("general")));
-
-            // add recent items
-            recentItems = tmpList.FindAll(x => !list.Contains(x));
-            list.Clear();
-            list.AddRange(tmpList);
-
-            return list;
-        }
-    }
-
-    /*public static List<Item> Get
-    {
+    private static AvailableItems _inst;
+    public static AvailableItems Get {
         get {
+            if ( _inst == null )
+                _inst = new AvailableItems();
 
-            list.Clear();
-
-            list.Add(Inventory.Instance);
-            list.AddRange(Inventory.Instance.GetContainedItems);
-
-            if (FunctionSequence.current != null && FunctionSequence.current.tile != Tile.GetCurrent)
-            {
-                list.AddRange(FunctionSequence.current.tile.GetAllItems());
-            }
-            else
-            {
-                list.AddRange(Tile.GetCurrent.GetAllItems());
-            }
-
-            list.AddRange(Item.dataItems.FindAll(x => x.GetAppearInfo().usableAnytime));
-
-            //list.Remove(Tile.GetCurrent);
-
-            DebugManager.Instance.availableItems = list;
-
-            return list;
+            return _inst;
         }
-    }*/
+    }
+    
+    public List<Item> list = new List<Item>();
+    public List<Item> recentItems = new List<Item>();
+    public List<Item> debug_presentInInput = new List<Item>();
 
-    public static List<Item> GetFunctionItems
-    {
-        get
-        {
-            if (FunctionSequence.current == null)
-            {
-                return null;
+    public Item findInTargetText(string text) {
+        return list.Find(x => x.containedInText(text));
+    }
+    public Item getItemOfType(string type) {
+        return list.Find(x => x.HasInfo(type));
+    }
+    public Item getItemOfProperty(string property) {
+        return list.Find(x => x.hasProperty(property));
+    }
+    public Item getItemOfName(string name) {
+        return list.Find(x => x.HasWord(name));
+    }
+
+    public void removeFromWorld(Item targetItem) {
+        foreach (var item in AvailableItems.Get.list) {
+            if (item.hasItem(targetItem)) {
+                Debug.Log($"removing {targetItem.debug_name} from {item.debug_name}");
+                item.RemoveItem(targetItem);
+                return;
             }
-
-            return FunctionSequence.current.tile.GetAllItems();
         }
+        Debug.LogError("removing item : " + targetItem.word.text + " failed : not in container, tile or inventory");
+    }
+
+    public List<Item> searchInText(string text) {
+
+        List<Item> its = list.FindAll(x => x.containedInText(text));
+        debug_presentInInput = its;
+        return its;
+    }
+
+    public static void update() {
+
+        var newAvailableItems = new List<Item>();
+        
+        // the tile and all it's contained items
+        newAvailableItems.AddRange(Tile.GetCurrent.getRecursive(2));
+        // it's important that it's after the tile, otherwise the parser will search the inventory first (ex: take plate, you already have it)
+        // add spec "my" ou "inventory"// add different keys to specs (my+inventory+in bag)
+        // ah non. parce que ça peut être un container aussi. "take field plate". "take bag plate". ça y est toujorus ça ?
+        // the surrouning tiles
+        newAvailableItems.AddRange(Tile.GetCurrent.getExits());
+        // the player and all it's things
+        newAvailableItems.AddRange(Player.Instance.getRecursive(5));
+
+        Get.list = newAvailableItems;
     }
 }

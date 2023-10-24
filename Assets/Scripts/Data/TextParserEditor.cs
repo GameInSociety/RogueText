@@ -3,23 +3,19 @@ using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(TextParser), true)]
-public class TextParserEditor : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        TextParser myScript = (TextParser)target;
+public class TextParserEditor : Editor {
+    public override void OnInspectorGUI() {
+        var myScript = (TextParser)target;
 
-        if (GUILayout.Button("Download Data"))
-        {
+        if (GUILayout.Button("Download Data")) {
             myScript.DownloadCSVs();
         }
 
-        if (GUILayout.Button("Open Link"))
-        {
+        if (GUILayout.Button("Open Link")) {
             Application.OpenURL(myScript.url);
         }
 
-        DrawDefaultInspector();
+        _ = DrawDefaultInspector();
     }
 }
 #endif

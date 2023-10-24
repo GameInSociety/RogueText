@@ -5,12 +5,9 @@ using UnityEngine;
 public class TimeManager : MonoBehaviour {
 
     private static TimeManager _instance;
-    public static TimeManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
+    public static TimeManager Instance {
+        get {
+            if (_instance == null) {
                 _instance = GameObject.FindObjectOfType<TimeManager>();
             }
 
@@ -19,16 +16,16 @@ public class TimeManager : MonoBehaviour {
     }
     public int daysPasted = 0;
 
-	public int timeOfDay = 0;
+    public int timeOfDay = 0;
 
     /// <summary>
     /// RAIN
     /// </summary>
 	public int rainRate_Max = 40;
-	public int rainRate_Min = 10;
-	public int hoursLeftToRain = 0;
-	public int rainDuration_Max = 10;
-	public int rainDuration_Min = 1;
+    public int rainRate_Min = 10;
+    public int hoursLeftToRain = 0;
+    public int rainDuration_Max = 10;
+    public int rainDuration_Min = 1;
     public bool raining = false;
     public bool displayRainDescription = false;
 
@@ -36,11 +33,11 @@ public class TimeManager : MonoBehaviour {
     /// HOURS
     /// </summary>
 	public int hourToDawn = 5;
-	public int hourToMorning = 8;
-	public int hourToNoon = 12;
-	public int hourToAfternoon = 14;
-	public int hourToDusk = 18;
-	public int hourToNight = 21;
+    public int hourToMorning = 8;
+    public int hourToNoon = 12;
+    public int hourToAfternoon = 14;
+    public int hourToDusk = 18;
+    public int hourToNight = 21;
 
     public int movesToNextHour = 3;
     public int currentMove = 0;
@@ -54,71 +51,66 @@ public class TimeManager : MonoBehaviour {
     public OnNextHour onNextHour;
 
     public enum PartOfDay {
-		Dawn,
-		Morning,
-		Noon,
-		Afternoon,
-		Dusk,
-		Night,
+        Dawn,
+        Morning,
+        Noon,
+        Afternoon,
+        Dusk,
+        Night,
 
         None,
-	}
+    }
 
-	public PartOfDay currentPartOfDay;
-	public PartOfDay previousPartOfDay;
+    public PartOfDay currentPartOfDay;
+    public PartOfDay previousPartOfDay;
 
-	public PartOfDay GetPartOfDay () {
+    public PartOfDay GetPartOfDay() {
 
-		if (timeOfDay < hourToDawn)
-			return PartOfDay.Night;
+        if (timeOfDay < hourToDawn)
+            return PartOfDay.Night;
 
-		if (timeOfDay < hourToMorning)
-			return PartOfDay.Dawn;
+        if (timeOfDay < hourToMorning)
+            return PartOfDay.Dawn;
 
-		if (timeOfDay < hourToNoon)
-			return PartOfDay.Morning;
+        if (timeOfDay < hourToNoon)
+            return PartOfDay.Morning;
 
-		if (timeOfDay < hourToAfternoon)
-			return PartOfDay.Noon;
+        if (timeOfDay < hourToAfternoon)
+            return PartOfDay.Noon;
 
-		if (timeOfDay < hourToDusk)
-			return PartOfDay.Afternoon;
+        if (timeOfDay < hourToDusk)
+            return PartOfDay.Afternoon;
 
-		if (timeOfDay < hourToNight)
-			return PartOfDay.Dawn;
+        if (timeOfDay < hourToNight)
+            return PartOfDay.Dawn;
 
-		return PartOfDay.Night;
-	}
+        return PartOfDay.Night;
+    }
 
-    private void Start()
-    {
+    private void Start() {
         ResetRain();
         UpdateStates();
 
     }
 
-    public void AdvanceTime()
-    {
+    public void AdvanceTime() {
         currentMove++;
 
-        if (currentMove >= movesToNextHour)
-        {
+        if (currentMove >= movesToNextHour) {
             currentMove = 0;
 
             NextHour(1);
         }
     }
 
-    public void Wait(int hours)
-    {
+    public void Wait(int hours) {
         NextHour(hours);
 
         // pour l'instant un peu oblig� � cause des objets etc...
-        Tile.GetCurrent.Describe();
+        Tile.GetCurrent.describe();
     }
 
-    public void ChangeMovesPerHour(int i)
-    {
+    public void ChangeMovesPerHour(int i) {
         movesToNextHour = i;
 
         currentMove = 0;
@@ -126,147 +118,121 @@ public class TimeManager : MonoBehaviour {
         NextHour(1);
     }
 
-    public void NextHour(int hours)
-    {
-        for (int i = 0; i < hours; i++)
-        {
+    public void NextHour(int hours) {
+        for (var i = 0; i < hours; i++) {
             ++timeOfDay;
-            
+
             // states
             ConditionManager.GetInstance().AdvanceCondition();
 
             // 
             UpdateStates();
 
-            if (raining)
-            {
-                ItemEvent.CallEvent("subRain");
+            if (raining) {
+                ItemEvent.callEvent("subRain");
             }
 
-            if (timeOfDay == 24)
-            {
+            if (timeOfDay == 24) {
                 timeOfDay = 0;
                 NextDay();
             }
 
-            ItemEvent.CallEvent("subHours");
+            ItemEvent.callEvent("subHours");
 
-            if (onNextHour != null)
-            {
+            if (onNextHour != null) {
                 onNextHour();
             }
         }
 
     }
 
-    public void WriteTimeOfDay()
-    {
-        TextManager.Write("time_Hours");
+    public void WriteTimeOfDay() {
+        TextManager.write("time_Hours");
     }
 
-    public string GetTimeOfDayDescription()
-    {
-        if (timeOfDay == 12)
-        {
+    public string GetTimeOfDayDescription() {
+        if (timeOfDay == 12) {
             return "noon";
-        }
-        else if (timeOfDay == 0)
-        {
+        } else if (timeOfDay == 0) {
             return "midnight";
-        }
-        else if (timeOfDay < 12)
-        {
+        } else if (timeOfDay < 12) {
             return timeOfDay + " in the morning";
-        }
-        else
-        {
+        } else {
             return timeOfDay + " at night";
         }
     }
 
-    public void NextDay()
-    {
+    public void NextDay() {
         ++daysPasted;
-        if (onNextDay != null)
-        {
+        if (onNextDay != null) {
             onNextDay();
         }
 
     }
 
     #region part of day
-    public void WriteDescription()
-    {
-        if (!changedPartOfDay)
-        {
+    public void writeTimeOfDay() {
+        if (!changedPartOfDay) {
             return;
         }
 
         changedPartOfDay = false;
 
-        switch (currentPartOfDay)
-        {
+        switch (currentPartOfDay) {
             case PartOfDay.Dawn:
-                TextManager.Write("weather_dawn");
+                TextManager.write("weather_dawn");
                 break;
             case PartOfDay.Morning:
-                TextManager.Write("weather_morning");
+                TextManager.write("weather_morning");
                 break;
             case PartOfDay.Noon:
-                TextManager.Write("weather_noon");
+                TextManager.write("weather_noon");
                 break;
             case PartOfDay.Afternoon:
-                TextManager.Write("weather_afternoon");
+                TextManager.write("weather_afternoon");
                 break;
             case PartOfDay.Dusk:
-                TextManager.Write("weather_dusk");
+                TextManager.write("weather_dusk");
                 break;
             case PartOfDay.Night:
-                TextManager.Write("weather_night");
+                TextManager.write("weather_night");
                 break;
             default:
                 break;
         }
 
-        
+
     }
     #endregion
 
     #region weather
-    public void WriteWeatherDescription()
-    {
-        if (!displayRainDescription)
-        {
+    public void writeWeatherDescription() {
+        if (!displayRainDescription) {
             return;
         }
 
         displayRainDescription = false;
 
-        if (raining)
-        {
-            TextManager.Write("weather_RainStarts");
-        }
-        else
-        {
-            TextManager.Write("weather_RainStops");
+        if (raining) {
+            TextManager.write("weather_RainStarts");
+        } else {
+            TextManager.write("weather_RainStops");
         }
 
-        
+
     }
-    private void UpdateStates()
-    {
+    private void UpdateStates() {
         // part of day
         previousPartOfDay = currentPartOfDay;
         currentPartOfDay = GetPartOfDay();
 
-        if (currentPartOfDay != previousPartOfDay)
-        {
+        if (currentPartOfDay != previousPartOfDay) {
             changedPartOfDay = true;
         }
 
         --hoursLeftToRain;
 
-        if ( hoursLeftToRain == 0) {
+        if (hoursLeftToRain == 0) {
 
             raining = !raining;
 
@@ -276,14 +242,10 @@ public class TimeManager : MonoBehaviour {
         }
     }
 
-    void ResetRain()
-    {
-        if (raining)
-        {
+    void ResetRain() {
+        if (raining) {
             hoursLeftToRain = Random.Range(rainDuration_Min, rainDuration_Max);
-        }
-        else
-        {
+        } else {
             hoursLeftToRain = Random.Range(rainRate_Min, rainRate_Max);
         }
     }

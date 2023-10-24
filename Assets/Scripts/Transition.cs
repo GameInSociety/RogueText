@@ -1,11 +1,9 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using DG.Tweening;
-
-public class Transition : MonoBehaviour
-{
+public class Transition : MonoBehaviour {
     public static Transition Instance;
 
     public GameObject group;
@@ -14,37 +12,31 @@ public class Transition : MonoBehaviour
 
     public float duration = 0.5f;
 
-    private void Awake()
-    {
+    private void Awake() {
         Instance = this;
     }
 
-    private void Start()
-    {
+    private void Start() {
         Hide();
     }
 
-    void Show()
-    {
+    void Show() {
         group.SetActive(true);
     }
 
-    void Hide()
-    {
+    void Hide() {
         group.SetActive(false);
     }
 
-    public void FadeIn()
-    {
+    public void FadeIn() {
         Show();
 
-        canvasGroup.DOFade(1f, duration);
+        _ = canvasGroup.DOFade(1f, duration);
     }
 
-    public void FadeOut()
-    {
+    public void FadeOut() {
         Invoke("Hide", duration);
 
-        canvasGroup.DOFade(0f, duration); 
+        _ = canvasGroup.DOFade(0f, duration);
     }
 }

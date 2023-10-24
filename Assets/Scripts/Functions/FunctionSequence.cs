@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor.Search;
@@ -15,196 +16,166 @@ using UnityEngine.UIElements;
 using static UnityEditor.Progress;
 
 [System.Serializable]
-public class FunctionSequence
-{
-    // static
+public class FunctionSequence {
+
+    #region static declaration
+    // a function sequence is a list of functions provided in a cell
+
+    // the ongoing sequence
     public static FunctionSequence current;
+    // a paused sequence... why wouldn't it be the same ?
+    public static FunctionSequence pausedSequence;
+    // list of sequence to be read if a sequence is launched when an ongoing one is unfinished
     public static List<FunctionSequence> list = new List<FunctionSequence>();
 
+    // end event at the end of all sequences
     public delegate void OnFinishSequences();
     public static OnFinishSequences onFinishSequences;
-
+    #endregion
+    
+    // the cell lines of the sequences. parsed each line
     public string[] lines;
-
-    public List<Item> items;
-    // the items the functions will be applied to
-    public int itemIndex = 0;
+    // the target item of the function.
+    // could in the input parser,
+    // but also in an event, or inside a cell
+    public Item item;
     // the tile where the function takes place
     public Tile tile;
 
+    // meh
     public bool stopped = false;
     public bool _nextNode = false;
-    public bool finished = false;
 
-    public static FunctionSequence pausedSequence;
+    // je comprends pas vraiment pourquoi ça peutp pas simplement être "current != null" mais soite.
+    public static bool SequenceFinished => current != null;
 
-    public static bool SequenceFinished
-    {
-        get
-        {
-            if ( current == null)
-            {
-                return true;
-            }
+    public static void TrySequence() {
+        // check if the sequence has been pause
+        // if there's an item confusion mid function (ex: use key => on which door would you like to use de key)
+        if (pausedSequence != null) {
 
-            return current != null && current.finished;
+            Debug.Log("calling paused sequence");
+            pausedSequence.Call();
+            pausedSequence = null;
+            return;
         }
+
+        var sequence = ItemParser.GetCurrent.firstVerb.GetSequence(ItemParser.GetCurrent.mainItem());
+        if (sequence == null) {
+            TextManager.write("input_noCombination", ItemParser.GetCurrent.mainItem());
+            return;
+        }
+
+        // putting aside mutiple items in function sequence because it may be obsolete with the new item search thing
+        // need to try and make plates work after
+
+        newSequence(
+            sequence.content,
+            ItemParser.GetCurrent.potentialItems[0],
+            Tile.GetCurrent
+            );
+
+        // !!!!!!!!!!!!!!! //
+        // this should be called at the end of all the function sequences.
+        ItemEvent.callEvent("subAction");
     }
 
-    public static FunctionSequence NewSequence(
+    public static FunctionSequence newSequence(
         string _lines,
-        List<Item> its,
-        Tile tile)
-    {
-        if ( tile == null)
-        {
-            Debug.LogError("tile is null for : " + its[0].debug_name);
-        }
+        Item targetItem,
+        Tile tile) {
 
-        FunctionSequence sequence = new FunctionSequence();
+        if (tile == null) Debug.LogError("tile is null for : " + targetItem.debug_name);
+
+        var sequence = new FunctionSequence();
         sequence.Parse(_lines);
-        sequence.SetTile(tile);
-        sequence.items = its;
-
+        sequence.tile = tile;
+        sequence.item = targetItem;
         sequence.Call();
-
         return sequence;
     }
 
-    public Item GetItem
-    {
-        get { return items[0]; }
-    }
-
-    public void Call()
-    {
+    public void Call() {
         stopped = false;
 
-        if (!SequenceFinished)
-        {
+        // adding the sequence to the list if one is already unfinished
+        if (current != null) {
             list.Add(this);
             return;
         }
 
         current = this;
-        Logue.New("func",$"[FUNCTION] {GetItem.debug_name} {Tile.GetCurrent.debug_name}", Color.cyan);
+
+        // debug log
+        Logue.New("func", $"[FUNCTION] {item.debug_name} {Tile.GetCurrent.debug_name}", Color.cyan);
 
         // separate all actions
-        foreach (var line in lines)
-        {
-            string _line = line;
+        foreach (var line in lines) {
+            var _line = line;
             if (string.IsNullOrEmpty(_line)) { continue; }
 
-            if (_line.StartsWith("else "))
-            {
+            if (_line.StartsWith("else ")) {
 
                 // check if the line starts with '*'
-                if (_nextNode)
-                {
+                if (_nextNode) {
                     // remove * and call function
                     _line = line.Remove(0, 5);
                     _nextNode = false;
-                }
-                else
-                {
+                } else {
                     Debug.Log("* in line " + line + ", finishing sequence");
                     goto End;
                 }
 
-            }
-            else
-            {
-                if (_nextNode)
-                {
-                    Debug.Log("skipping " + line);
-                    // skip line
-                    // could be the same function as break,
-                    // but for now on garde les deux
-                    continue;
-                }
-            }
+            } else if (_nextNode) continue;
 
-            if (_line.StartsWith("> "))
-            {
+            if (_line.StartsWith("> ")) {
                 JumpToSequence(_line);
                 goto End;
             }
 
             CallFunction(line);
 
-            if (stopped)
-            {
-                Logue.Add("Break");
-                goto End;
-            }
+            // an element has stopped the sequence when it's going
+            // (example : player doesn't have key => stop)
+            if (stopped) goto End;
         }
 
         End:
 
-        finished = true;
-        current = null;
 
-        if (list.Count > 0)
-        {
-            FunctionSequence worldEvent = list[0];
+        // before ending the sequences, 
+        if (list.Count > 0) {
+            var nextSequence = list[0];
             list.RemoveAt(0);
-            worldEvent.Call();
+            nextSequence.Call();
             return;
         }
 
-        if (!ItemParser.waitingForItem)
-        {
-            InputInfo.Instance.Reset();
-        }
+        // !!!!!!!!!!!! //
+        // end of all sequences...
+        ItemParser.clearParser();
+        ItemParser.GetCurrent.itemHistory.Clear();
+        TextManager.Return();
+        PropertyDescription.Describe();
+        current = null;
 
         if (onFinishSequences != null)
-        {
             onFinishSequences();
-        }
-
-        ItemParser.history.Clear();
-
-        TextManager.Return();
-
-        PropertyDescription.Describe();
     }
 
 
-    void CallFunction(string line)
-    {
-        Item item = GetItem;
+    void CallFunction(string line) {
 
-        if (line.StartsWith('*'))
-        {
-            // search for other items / types
-            string content = line.Remove(0, 1);
-            content = content.Remove(content.IndexOf('*'));
-
-            item = ItemParser.SearchItem(content);
-
-            if ( item == null)
-            {
-                Logue.Add($"No Item for {item.debug_name} key : {content}");
-                Stop();
-                return;
-            }
-
-            if ( ItemParser.waitingForItem)
-            {
-                Logue.Add($"Waiting for spec on {item.debug_name} key : {content}");
-                Pause();
-                return;
-            }
-
-            line = line.Remove(0, content.Length + 3);
+        // c'est ici qu'une DEUXIEME passes d'input se fait.
+        // à priori, c'est comme un deuxième 
+        if (line.StartsWith('*')) {
+            line = GetNewItem(line);
         }
-
         // get function class 
-        string functionName = Function.GetName(line);
+        var functionName = Function.GetName(line);
         functionName = TextUtils.FirstLetterCap(functionName);
         var objectType = Type.GetType("Function_" + functionName);
-        if (objectType == null)
-        {
+        if (objectType == null) {
             Debug.LogError("function " + functionName + " doesn't exist");
             return;
         }
@@ -212,99 +183,93 @@ public class FunctionSequence
         var function = Activator.CreateInstance(objectType) as Function;
 
         function.InitParams(line);
-        function.TryCall(item);
+        function.TryCall((Item)item);
     }
 
-    void JumpToSequence(string line)
-    {
-        line = line.Remove(0, 2);
+    string GetNewItem(string line) {
+        // the function will have effect on the player item instead of the one in the function
 
-        Verb verb = Verb.Get(line);
-        if (verb != null)
-        {
-            Debug.Log("found verb : " + line);
+        // crop the line between **
+        // ex: *player* => player
+        line = line.Remove(0, 1);
+        line = line.Remove(line.IndexOf('*'));
+        //
+
+        // search for a new item 
+        // this will search for a new item in the input.
+        // it will override the current one, so consider creating a new one.
+        // à voir
+        item = ItemParser.GetCurrent.SearchItemInInput(line);
+        // the parser did not find the item in the input
+        if (item == null) {
+            Stop();
+            return line;
         }
-        else
-        {
+        if (ItemParser.GetCurrent.step == ItemParser.Step.waitingForSpecificItem) {
+            Pause();
+            return line;
+        }
+
+        return line.Remove(0, line.Length + 3);
+    }
+
+    void JumpToSequence(string line) {
+        line = line.Remove(0, 2);
+        //var verb = ItemParser.getVerbInInput(line);
+        var verb = ItemParser.GetCurrent.firstVerb;
+        if (verb != null) {
+            Debug.Log("found verb : " + line);
+        } else {
             Debug.Log("did not find verb in " + line);
         }
 
-        Item item = AvailableItems.FindInText(line);
-        if (item != null)
-        {
+        var item = AvailableItems.Get.findInTargetText(line);
+        if (item != null) {
             Debug.Log("found item : " + item.debug_name);
-        }
-        else
-        {
+        } else {
             Debug.Log("didn't find item in " + line);
         }
 
-        Verb.Sequence sequence = verb.GetSequence(item);
+        var sequence = verb.GetSequence(item);
 
-        NewSequence(
+        _ = newSequence(
             sequence.content,
-            items,
+            item,
             Tile.GetCurrent
             );
 
         Debug.Log("go to other sequence");
     }
 
-    public void Parse(string cell)
-    {
+    public void Parse(string cell) {
         lines = cell.Split('\n');
     }
 
-
     #region sequence
-    public void GoToNextNode()
-    {
+    public void GoToNextNode() {
         Debug.Log("skip to next node");
         _nextNode = true;
     }
 
-    public void Pause()
-    {
+    public void Pause() {
         Logue.Add("Sequence Paused");
         pausedSequence = this;
-        Clear();
+        clear();
     }
 
     // break
-    public void Break(string message)
-    {
-        TextManager.Write(message);
+    public void Break(string message) {
+        TextManager.write(message);
         Stop();
     }
-    public void Stop()
-    {
+    public void Stop() {
         Logue.Add("Sequence Stopped");
-        Clear();
-        
+        clear();
+
     }
-    public void Clear()
-    {
+    public void clear() {
         current = null;
         stopped = true;
     }
     #endregion
-
-
-    #region items
-    public Item FirstItem
-    {
-        get
-        {
-            return items[0];
-        }
-    }
-    public void SetTile(Tile t)
-    {
-        tile = t;
-    }
-    
-    #endregion
-
-    
-
 }

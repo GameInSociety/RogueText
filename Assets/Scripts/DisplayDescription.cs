@@ -8,19 +8,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class DisplayDescription : MonoBehaviour {
-	
-	public static DisplayDescription Instance;
+
+    public static DisplayDescription Instance;
     public RectTransform verticalLayoutGroup;
 
     public ScrollRect scrollRect;
 
     public bool enableAI = false;
     public bool useAIForNextText = false;
-
-    public bool AI_Enabled()
-    {
-        return DebugManager.Instance.AI_Enabled;
-    }
 
     public Text uiText;
     public Text uiText_Old;
@@ -43,38 +38,28 @@ public class DisplayDescription : MonoBehaviour {
     float voiceTimer;
     public float voiceDelay = 0.1f;
     string voice_Text = "";
-
-	void Awake () {
-		Instance = this;
-	}
-
-    void Start()
-    {
-        ClearDescription();
-
-        if (AI_Enabled())
-        {
-            ChatGPT.Instance.onSendReply += HandleOnSendReply;
-        }
-    }
-
     bool taint = false;
 
-    private void Update()
-    {
-        if ( playVoice )
-        {
+    void Awake() {
+        Instance = this;
+    }
+
+    void Start() {
+        ClearDescription();
+    }
+
+
+    private void Update() {
+        if (playVoice) {
             voiceTimer += Time.deltaTime;
-            if ( voiceTimer >= voiceDelay)
-            {
+            if (voiceTimer >= voiceDelay) {
                 AudioInteraction.Instance.StartSpeaking(voice_Text);
                 voice_Text = "";
                 playVoice = false;
             }
         }
 
-        if (timer >= rate)
-        {
+        if (timer >= rate) {
             timer = 0f;
 
             Type();
@@ -83,35 +68,27 @@ public class DisplayDescription : MonoBehaviour {
         timer += Time.deltaTime;
     }
 
-    void Type()
-    {
+    void Type() {
 
-        if (typeIndex >= text_target.Length)
-        {
+        if (typeIndex >= text_target.Length) {
             return;
         }
 
-        if (uiText.text.EndsWith("■"))
-        {
+        if (uiText.text.EndsWith("■")) {
             uiText.text = uiText.text.Remove(uiText.text.Length - 1);
         }
 
         Sound.Instance.PlayRandomTypeSound();
 
-        if (taint)
-        {
-            if (text_target[typeIndex] == '<')
-            {
+        if (taint) {
+            if (text_target[typeIndex] == '<') {
                 taint = false;
                 typeIndex = uiText.text.Length;
                 return;
             }
 
-        }
-        else
-        {
-            if (text_target[typeIndex] == '<')
-            {
+        } else {
+            if (text_target[typeIndex] == '<') {
                 taint = true;
                 uiText.text += "<color=green>";
                 typeIndex = uiText.text.Length;
@@ -128,22 +105,19 @@ public class DisplayDescription : MonoBehaviour {
         ++typeIndex;
     }
 
-    public void ClearDescription()
-    {
+    public void ClearDescription() {
         uiText.text = "";
         text_target = "";
         uiText_Old.text = "";
     }
 
-    public void Reset()
-    {
+    public void Reset() {
         typeIndex = 0;
         text_target = "";
         uiText.text = "";
     }
 
-    public void Renew()
-    {
+    public void renew() {
         uiText_Old.text += uiText.text;
 
         Reset();
@@ -155,14 +129,12 @@ public class DisplayDescription : MonoBehaviour {
         uiText.text += "\n";*/
     }
 
-    public void AddToDescription(string str, bool doReturn)
-    {
+    public void AddToDescription(string str, bool doReturn) {
         // majuscule
         str = TextUtils.FirstLetterCap(str);
 
         // add
-        if (doReturn)
-        {
+        if (doReturn) {
             str = "\n" + str;
         }
 
@@ -175,37 +147,23 @@ public class DisplayDescription : MonoBehaviour {
         Invoke("Delay", 0f);
     }
 
-    public void UseAI()
-    {
-        if (AI_Enabled())
-        {
-            useAIForNextText = true;
-        }
-    }
-
-    public void Delay()
-    {
-        if (useAIForNextText )
-        {
+    public void Delay() {
+        if (useAIForNextText) {
             useAIForNextText = false;
 
             DallE.Instance.SendImageRequest(text_target);
 
             ChatGPT.Instance.SendReply(text_target);
-        }
-        else
-        {
+        } else {
             UpdateDescription(text_target);
         }
     }
 
-    void HandleOnSendReply(string text)
-    {
-        UpdateDescription(text);   
+    void HandleOnSendReply(string text) {
+        UpdateDescription(text);
     }
 
-    public void UpdateDescription(string text)
-    {
+    public void UpdateDescription(string text) {
         text_target = text;
         voice_Text = text;
         playVoice = true;

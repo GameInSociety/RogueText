@@ -6,24 +6,26 @@ using UnityEditor.Profiling.Memory.Experimental;
 using UnityEngine;
 using static UnityEditor.Progress;
 
-public class GameManager : MonoBehaviour
-{
+public class GameManager : MonoBehaviour {
     public static GameManager Instance;
 
     public Coords startCoords;
 
     public Story story;
 
-    private void Awake()
-    {
+    private void Awake() {
         Instance = this;
     }
 
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
+
         PhraseLoader.Instance.Load();
 
+        SpecLoader.Instance.Load();
+        Debug.Log(SpecLoader.Instance.GetCat("shape").GetRandom());
+        Debug.Log(SpecLoader.Instance.GetCat("shape").GetRandom());
+        Debug.Log(SpecLoader.Instance.GetCat("shape").GetRandom());
         VerbLoader.Instance.Load();
         ItemLoader.Instance.Load();
 

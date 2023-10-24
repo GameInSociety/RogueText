@@ -4,17 +4,14 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 [System.Serializable]
-public class Condition
-{
-    public enum Progress
-    {
+public class Condition {
+    public enum Progress {
         Normal,
         Concerning,
         Problematic,
         Critical
     }
-    public enum Type
-    {
+    public enum Type {
         Health,
         Thirst,
         Hunger,
@@ -28,59 +25,47 @@ public class Condition
     public Progress progress;
     public Color color = Color.white;
 
-    public void Advance()
-    {
-        if (progress == Progress.Critical)
-        {
+    public void Advance() {
+        if (progress == Progress.Critical) {
             ConditionManager.GetInstance().GetCondition(Type.Health).Advance();
             return;
         }
 
         ++hour;
-        if (hour == rate)
-        {
+        if (hour == rate) {
             hour = 0;
             ++GetProgress;
         }
     }
 
-    public void Change(int i)
-    {
+    public void Change(int i) {
         GetProgress += i;
     }
 
-    public void Remove(int i)
-    {
+    public void Remove(int i) {
         GetProgress -= i;
     }
-    public string GetDebugText()
-    {
-        string str = type.ToString() + " : " + progress.ToString() + " (" + hour + " / " + rate + ")";
+    public string GetDebugText() {
+        var str = type.ToString() + " : " + progress.ToString() + " (" + hour + " / " + rate + ")";
 
-        Color c = Color.Lerp(color, Color.white, 0.5f);
+        var c = Color.Lerp(color, Color.white, 0.5f);
 
-        string html = ColorUtility.ToHtmlStringRGB(c);
+        var html = ColorUtility.ToHtmlStringRGB(c);
         str = "<color=#" + html + ">" + str + "</color>";
 
         return str;
     }
 
-    public string GetDescription()
-    {
-        string keyWord = type.ToString().ToLower() + "_" + progress.ToString().ToLower();
+    public string GetDescription() {
+        var keyWord = type.ToString().ToLower() + "_" + progress.ToString().ToLower();
 
-        return TextManager.GetPhrase(keyWord);
+        return TextManager.getItemWord(keyWord);
     }
 
-    public Progress GetProgress
-    {
-        get
-        {
-            return progress;
-        }
+    public Progress GetProgress {
+        get => progress;
 
-        set
-        {
+        set {
             progress = value;
 
             if (progress < 0)

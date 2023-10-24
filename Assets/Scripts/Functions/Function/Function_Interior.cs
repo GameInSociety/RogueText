@@ -2,41 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Function_Interior : Function
-{
-    public override void Call()
-    {
+public class Function_Interior : Function {
+    public override void Call() {
         base.Call();
         Call(this);
     }
 
-    void enter()
-    {
-        Interior interior = GetItem().interior;
+    void enter() {
+        var interior = targetItem().interior;
 
-        if (interior == null)
-        {
+        if (interior == null) {
             interior = new Interior();
-            interior.Genererate(GetItem());
+            interior.Genererate(targetItem());
         }
 
         interior.Enter();
     }
 
-    void describeOut()
-    {
-        Cardinal cardinal = Coords.GetCardinalFromString(GetItem().GetProperty("direction").value);
-        Coords targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
+    void describeOut() {
+        var cardinal = Coords.GetCardinalFromString(targetItem().GetProperty("direction").value);
+        var targetCoords = TileSet.map.playerCoords + (Coords)cardinal;
 
-        Tile tile = TileSet.map.GetTile(targetCoords);
+        var tile = TileSet.map.GetTile(targetCoords);
 
-        if (tile == null)
-        {
-            TextManager.Write("The view is blocked by some bushes");
-        }
-        else
-        {
-            TextManager.Write("tile_describeExterior", tile);
+        if (tile == null) {
+            TextManager.write("The view is blocked by some bushes");
+        } else {
+            TextManager.write("tile_describeExterior", tile);
         }
     }
 }

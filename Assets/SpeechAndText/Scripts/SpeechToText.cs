@@ -1,81 +1,67 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
 using System.Runtime.InteropServices;
+using UnityEngine;
 using UnityEngine.UI;
-using System;
 
-namespace TextSpeech
-{
-    public class SpeechToText : MonoBehaviour
-    {
+namespace TextSpeech {
+    public class SpeechToText : MonoBehaviour {
 
         #region Init
         static SpeechToText _instance;
-        public static SpeechToText instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
+        public static SpeechToText instance {
+            get {
+                if (_instance == null) {
                     Init();
                 }
                 return _instance;
             }
         }
-        public static void Init()
-        {
+        public static void Init() {
             if (_instance != null) return;
-            GameObject obj = new GameObject();
+            var obj = new GameObject();
             obj.name = "TextToSpeech";
             _instance = obj.AddComponent<SpeechToText>();
         }
-        void Awake()
-        {
+        void Awake() {
             _instance = this;
         }
         #endregion
 
         public Action<string> onResultCallback;
 
-        public void Setting(string _language)
-        {
+        public void Setting(string _language) {
 #if UNITY_EDITOR
 #elif UNITY_IPHONE
         _TAG_SettingSpeech(_language);
 #elif UNITY_ANDROID
-        AndroidJavaClass javaUnityClass = new AndroidJavaClass("com.starseed.speechtotext.Bridge");
-        javaUnityClass.CallStatic("SettingSpeechToText", _language);
+            var javaUnityClass = new AndroidJavaClass("com.starseed.speechtotext.Bridge");
+            javaUnityClass.CallStatic("SettingSpeechToText", _language);
 #endif
         }
-        public void StartRecording(string _message = "")
-        {
+        public void StartRecording(string _message = "") {
 #if UNITY_EDITOR
 #elif UNITY_IPHONE
         _TAG_startRecording();
 #elif UNITY_ANDROID
-        if (isShowPopupAndroid)
-        {
-            AndroidJavaClass javaUnityClass = new AndroidJavaClass("com.starseed.speechtotext.Bridge");
-            javaUnityClass.CallStatic("OpenSpeechToText", _message);
-        }
-        else
-        {
-            AndroidJavaClass javaUnityClass = new AndroidJavaClass("com.starseed.speechtotext.Bridge");
-            javaUnityClass.CallStatic("StartRecording");
-        }
+            if (isShowPopupAndroid) {
+                var javaUnityClass = new AndroidJavaClass("com.starseed.speechtotext.Bridge");
+                javaUnityClass.CallStatic("OpenSpeechToText", _message);
+            } else {
+                var javaUnityClass = new AndroidJavaClass("com.starseed.speechtotext.Bridge");
+                javaUnityClass.CallStatic("StartRecording");
+            }
 #endif
         }
-        public void StopRecording()
-        {
+        public void StopRecording() {
 #if UNITY_EDITOR
 #elif UNITY_IPHONE
         _TAG_stopRecording();
 #elif UNITY_ANDROID
-        if (isShowPopupAndroid == false)
-        {
-            AndroidJavaClass javaUnityClass = new AndroidJavaClass("com.starseed.speechtotext.Bridge");
-            javaUnityClass.CallStatic("StopRecording");
-        }
+            if (isShowPopupAndroid == false) {
+                var javaUnityClass = new AndroidJavaClass("com.starseed.speechtotext.Bridge");
+                javaUnityClass.CallStatic("StopRecording");
+            }
 #endif
         }
 
@@ -90,16 +76,13 @@ namespace TextSpeech
         private static extern void _TAG_SettingSpeech(string _language);
 #endif
 
-        public void onMessage(string _message)
-        {
+        public void onMessage(string _message) {
         }
-        public void onErrorMessage(string _message)
-        {
+        public void onErrorMessage(string _message) {
             Debug.Log(_message);
         }
         /** Called when recognition results are ready. */
-        public void onResults(string _results)
-        {
+        public void onResults(string _results) {
             if (onResultCallback != null)
                 onResultCallback(_results);
         }
@@ -126,11 +109,9 @@ namespace TextSpeech
         /** Insufficient permissions */
         public const int ERROR_INSUFFICIENT_PERMISSIONS = 9;
         /////////////////////
-        String getErrorText(int errorCode)
-        {
-            String message;
-            switch (errorCode)
-            {
+        string getErrorText(int errorCode) {
+            string message;
+            switch (errorCode) {
                 case ERROR_AUDIO:
                     message = "Audio recording error";
                     break;
@@ -173,45 +154,39 @@ namespace TextSpeech
         public Action<string> onErrorCallback;
         public Action<string> onPartialResultsCallback;
         /** Called when the endpointer is ready for the user to start speaking. */
-        public void onReadyForSpeech(string _params)
-        {
+        public void onReadyForSpeech(string _params) {
             if (onReadyForSpeechCallback != null)
                 onReadyForSpeechCallback(_params);
         }
         /** Called after the user stops speaking. */
-        public void onEndOfSpeech(string _paramsNull)
-        {
+        public void onEndOfSpeech(string _paramsNull) {
             if (onEndOfSpeechCallback != null)
                 onEndOfSpeechCallback();
         }
         /** The sound level in the audio stream has changed. */
-        public void onRmsChanged(string _value)
-        {
-            float _rms = float.Parse(_value);
+        public void onRmsChanged(string _value) {
+            var _rms = float.Parse(_value);
             if (onRmsChangedCallback != null)
                 onRmsChangedCallback(_rms);
         }
 
         /** The user has started to speak. */
-        public void onBeginningOfSpeech(string _paramsNull)
-        {
+        public void onBeginningOfSpeech(string _paramsNull) {
             if (onBeginningOfSpeechCallback != null)
                 onBeginningOfSpeechCallback();
         }
 
         /** A network or recognition error occurred. */
-        public void onError(string _value)
-        {
-            int _error = int.Parse(_value);
-            string _message = getErrorText(_error);
+        public void onError(string _value) {
+            var _error = int.Parse(_value);
+            var _message = getErrorText(_error);
             Debug.Log(_message);
 
             if (onErrorCallback != null)
                 onErrorCallback(_message);
         }
         /** Called when partial recognition results are available. */
-        public void onPartialResults(string _params)
-        {
+        public void onPartialResults(string _params) {
             if (onPartialResultsCallback != null)
                 onPartialResultsCallback(_params);
         }

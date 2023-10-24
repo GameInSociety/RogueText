@@ -1,89 +1,88 @@
-﻿using System.Collections;
+﻿using Newtonsoft.Json;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Newtonsoft.Json;
-using TMPro;
 using System.Net.Configuration;
+using System.Runtime.CompilerServices;
+using TMPro;
+using UnityEngine;
 using UnityEngine.Analytics;
 
 [System.Serializable]
-public class Tile : Item
-{
+public class Tile : Item {
     // location of tile in world
     public Coords coords;
-
     public static bool itemsChanged = false;
-
-    public static Tile Create(Coords _coords, string _name)
-    {
-        Tile tile = Generate_Special(_name) as Tile;
+    public static Tile create(Coords _coords, string _name) {
+        var tile = Generate_Special(_name) as Tile;
         tile.coords = _coords;
-        return tile; 
+        return tile;
     }
 
-
     #region tile description
-    // describe from the target cardinal ( example : Player Direction if move, window direction if look at window )
-    // pas mal
-    public void Describe()
-    {
+    public void describe() {
         
-        if (!FunctionSequence.SequenceFinished)
-        {
-            FunctionSequence.onFinishSequences += Describe;
+        if (FunctionSequence.current != null) {
+            FunctionSequence.onFinishSequences += describe;
             return;
         }
 
+        DisplayDescription.Instance.renew();
 
-        DisplayDescription.Instance.Renew();
-
-        if (Player.Instance.coords == coords)
-        {
-            // don't change orientation
-        }
-        else
-        {
-            // change orientation, so the description is correct
-            Coords dir = coords - Player.Instance.coords;
-            Cardinal cardinal = (Cardinal)dir;
+        // change orientation, so the description is correct
+        if (Player.Instance.coords != coords) {
+            var dir = coords - Player.Instance.coords;
+            var cardinal = (Cardinal)dir;
             Player.Instance.Orient(Humanoid.CardinalToOrientation(cardinal));
         }
 
-        TryGenerateItems();
-
-        DescribeSelf();
-
-        TryGetSurroundingTiles();
-
-        WriteContainedItems(true);
-
-        CheckHumanoids();
-
-        // time of day
-        TimeManager.Instance.WriteDescription();
-
-        // weather
-        TimeManager.Instance.WriteWeatherDescription();
-
-        //DisplayDescription.Instance.UseAI();
+        generateItems();
+        writeDescription();
+        writeHumanoids();
+        TimeManager.Instance.writeTimeOfDay();
+        TimeManager.Instance.writeWeatherDescription();
 
         //Property.DescribeUpdated();
     }
 
-    public override void WriteContainedItems(bool describeContainers = false)
-    {
-        /*foreach (var item in GetAllItems())
-        {
-            item.visible = false;
-        }*/
+    public override void writeDescription() {
+        //base.WriteDescription();
 
-        base.WriteContainedItems(describeContainers);
+        // "you're on a tile...
+        TextManager.write(getDescriptionType, this);
+
+        // putting items that contain things and items that don't in the same list
+        // (testing to see how it looks)
+        List<Item> mainItms = getItems().FindAll(x => x as Tile == null);
+        string main_str = $"there's {TextManager.listItems(mainItms)}";
+        TextManager.write(main_str);
+
+        // main items
+        /*List<Item> mainItms = getItems().FindAll(x => !x.containsItems() && x as Tile == null);
+        string main_str = $"there's {TextManager.listItems(mainItms)}";
+        TextManager.write(main_str);
+
+        // containers
+        List<Item> containers = getItems().FindAll(x => x.containsItems() && x as Tile == null);
+        foreach (var item in containers)
+            item.writeContainedItems();*/
+
+        List<Item> tiles = getExits();
+        TextManager.write($"around you, {TextManager.listItems(tiles)}");
+
+        // humanoids now...
+    }
+    public string getDescriptionType {
+        get {
+            if (HasInfo("discovered"))
+                return GetPrevious != null && GetPrevious.coords == coords ? "tile_wait" : "tile_goback";
+            else
+                return GetPrevious != null && SameTypeAs(GetPrevious) && GetPrevious.coords != coords ? "tile_continue" : "tile_discover";
+        }
     }
 
+    public List<Item> getExits() {
 
-    public void TryGetSurroundingTiles()
-    {
-        List<Humanoid.Orientation> orientations = new List<Humanoid.Orientation>
+        var orientations = new List<Humanoid.Orientation>
         {
             Humanoid.Orientation.front,
             Humanoid.Orientation.right,
@@ -91,116 +90,71 @@ public class Tile : Item
             Humanoid.Orientation.back
         };
 
-        foreach (var orientation in orientations)
-        {
-            /*Cardinal cardinal = Humanoid.OrientationToCardinal(orientation);
-            string cardinalItemName = cardinal.ToString();*/
+        List<Item> tiles = new List<Item>();
 
-            Tile adjacentTile = GetAdjacent(orientation);
-
+        foreach (var orientation in orientations) {
+            var adjacentTile = getAdjacent(orientation);
+            // skip if the tile is null (a void)
             if (adjacentTile == null)
                 continue;
-
-            string opp_orientation = Humanoid.GetOpposite(orientation).ToString();
-
-            // check if the current tile as the orientation item
-            // je vais supprimer les "objets directions" ( left , right etc... ) mais leur rajouter des specs 
-
-            if (adjacentTile.HasProperty("enclosed"))
-            {
-                Item tileDoor = CreateItem("door");
-                tileDoor.AddProperty("direction / " + orientation.ToString());
-                tileDoor.AddSpec(orientation.ToString());
-
-                if (!adjacentTile.HasItem(opp_orientation))
-                {
-                    Item oppositeDoor = adjacentTile.CreateItem("door");
-                    oppositeDoor.AddProperty("direction / " + opp_orientation);
-                    oppositeDoor.AddSpec(opp_orientation);
-                    continue;
+            var opp_orientation = Humanoid.getOpp(orientation).ToString();
+            // if the tile is enclosed (often an interior)
+            if (adjacentTile.hasProperty("enclosed")) {
+                var newDoor = addItem("door");
+                newDoor.addProperty("direction / " + orientation.ToString());
+                newDoor.setSpec(orientation.ToString(), $">on the {orientation}");
+                if (!adjacentTile.hasItem(opp_orientation)) {
+                    var oppositeDoor = adjacentTile.addItem("door");
+                    _ = oppositeDoor.addProperty("direction / " + opp_orientation);
+                    oppositeDoor.setSpec(opp_orientation, $">on the {orientation}");
                 }
+
+            } else if (Player.Instance.canSee()){
+                var newTile = Generate_Simple(adjacentTile.debug_name);
+                newTile.setSpec(orientation.ToString(), $">on the {orientation}");
+                tiles.Add(newTile);
             }
-            else
-            {
-                if (!Player.Instance.CanSee())
-                    return;
-
-                // here maybe put "a path leads to a field"
-                // the road continues to a forest small forest.
-                // et pas seulement "on the left, a field"
-
-                Item newTile = AddTemporaryItem(adjacentTile);
-                newTile.AddSpec(orientation.ToString());
-            }
-
-            //SocketManager.Instance.DescribeItems(SurroundingTiles(), null);
         }
-    }
 
-    public void DescribeSelf()
-    {
-        string str = "";
-
-        if (HasInfo("discovered"))
-        {
-            if (GetPrevious != null && GetPrevious.coords == coords)
-                str = "tile_wait";
-            else
-                str = "tile_goback";
-        }
-        else
-        {
-            if (GetPrevious != null && SameTypeAs(GetPrevious) && GetPrevious.coords != coords)
-                str = "tile_continue";
-            else
-                str = "tile_discover";
-        }
-        TextManager.Write(str, (Item)this);
+        return tiles;
     }
 
 
-    public Tile GetAdjacent(Humanoid.Orientation orientation)
-    {
-        Cardinal dir = Humanoid.OrientationToCardinal(orientation);
+    public Tile getAdjacent(Humanoid.Orientation orientation) {
+        var dir = Humanoid.OrientationToCardinal(orientation);
 
-        Coords targetCoords = coords + (Coords)dir;
+        var targetCoords = coords + (Coords)dir;
 
         return TileSet.current.GetTile(targetCoords);
     }
-    public Tile GetAdjacent(Cardinal cardinal)
-    {
-        Coords targetCoords = coords + (Coords)cardinal;
+    public Tile GetAdjacent(Cardinal cardinal) {
+        var targetCoords = coords + (Coords)cardinal;
 
         return TileSet.current.GetTile(targetCoords);
     }
     #endregion
 
-    public void CheckHumanoids()
-    {
+    public void writeHumanoids() {
 
-        foreach (var item in GetEnemies())
-        {
-            TextManager.Write("&a dog& is " + item.GetProperty("steps").GetDescription(), item);
+        foreach (var item in getEnemies()) {
+            TextManager.write("&a dog& is " + item.GetProperty("steps").GetDescription(), item);
         }
     }
 
     #region info
-    public static bool SameAsPrevious()
-    {
-        if (GetPrevious == null)
-        {
+    public static bool SameAsPrevious() {
+        if (GetPrevious == null) {
             return false;
         }
 
         return GetCurrent.SameTypeAs(GetPrevious);
     }
-    public Humanoid.Orientation OrientationToPlayer()
-    {
-        Coords dir = coords - Player.Instance.coords;
+    public Humanoid.Orientation OrientationToPlayer() {
+        var dir = coords - Player.Instance.coords;
 
-        Cardinal cardinal = (Cardinal)dir;
+        var cardinal = (Cardinal)dir;
 
-        Humanoid.Orientation orientation = Humanoid.CardinalToOrientation(cardinal);
+        var orientation = Humanoid.CardinalToOrientation(cardinal);
 
         return orientation;
     }
@@ -210,59 +164,20 @@ public class Tile : Item
     /// TOOLS
     /// </summary>
     private static Tile _previous;
-    public static Tile GetPrevious
-    {
-        get
-        {
-            return _previous;
-        }
-    }
+    public static Tile GetPrevious => _previous;
 
     private static Tile _current;
-    public static Tile GetCurrent
-    {
-        get
-        {
-            return _current;
-        }
-    }
+    public static Tile GetCurrent => _current;
 
-    public static void SetCurrent(Tile tile)
-    {
+    public static void SetCurrent(Tile tile) {
         SetPrevious(_current);
 
-        DebugManager.Instance.tile = tile;
+        DebugManager.Instance.TILE = tile;
         _current = tile;
-        _current.AddItem(Player.Instance);
     }
 
-    public static void SetPrevious(Tile tile)
-    {
+    public static void SetPrevious(Tile tile) {
         _previous = tile;
-
-
-        if (_previous == null)
-        {
-            return;
-        }
-
-        tile.RemoveItem(Player.Instance);
-
-        tile.DeleteTempItems();
-    }
-
-
-    public void DeleteTempItems()
-    {
-
-        foreach (var item in GetContainedItems)
-        {
-            if (item.temporary)
-                Debug.Log("removing temp item : " + item.debug_name);
-        }
-
-        GetContainedItems.RemoveAll(x => x.temporary);
-
     }
 
 }

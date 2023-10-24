@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class TextInterpretor
-{
-    public static void InterpretText(string text)
-    {
+public static class TextInterpretor {
+    public static void InterpretText(string text) {
         /*List<Item> list = Item.dataItems.FindAll(x => x.ContainedInText(text));
 
         List<Item> availableItems = AvailableItems.Get;

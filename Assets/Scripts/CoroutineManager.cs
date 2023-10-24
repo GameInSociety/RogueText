@@ -3,16 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CoroutineManager : MonoBehaviour
-{
+public class CoroutineManager : MonoBehaviour {
     private static CoroutineManager _instance;
-    public static CoroutineManager Instance
-    {
-        get { 
+    public static CoroutineManager Instance {
+        get {
 
-            if (_instance == null)
-            {
-                _instance = GameObject.FindObjectOfType <CoroutineManager>();
+            if (_instance == null) {
+                _instance = GameObject.FindObjectOfType<CoroutineManager>();
             }
 
             return _instance;
@@ -21,14 +18,11 @@ public class CoroutineManager : MonoBehaviour
 
     public delegate void OnWait();
     public OnWait onWait;
-    public void Wait()
-    {
+    public void Wait() {
         Invoke("Delay", 0f);
     }
-    void Delay()
-    {
-        if (onWait != null)
-        {
+    void Delay() {
+        if (onWait != null) {
             onWait();
         }
     }

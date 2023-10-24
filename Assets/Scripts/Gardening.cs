@@ -3,6 +3,5 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Gardening
-{
+public class Gardening {
 }

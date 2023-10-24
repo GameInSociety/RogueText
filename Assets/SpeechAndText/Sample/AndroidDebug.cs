@@ -1,14 +1,12 @@
-﻿using UnityEngine;
+﻿using TextSpeech;
+using UnityEngine;
 using UnityEngine.UI;
-using TextSpeech;
 
-public class AndroidDebug : MonoBehaviour
-{
+public class AndroidDebug : MonoBehaviour {
     public Text txtLog;
     public Text txtNewLog;
     public RectTransform RmsBar;
-    void Start()
-    {
+    void Start() {
         SpeechToText.instance.onResultCallback = onResultCallback;
 #if UNITY_ANDROID
         SpeechToText.instance.onReadyForSpeechCallback = onReadyForSpeechCallback;
@@ -22,40 +20,32 @@ public class AndroidDebug : MonoBehaviour
 #endif
     }
 
-    void AddLog(string log)
-    {
+    void AddLog(string log) {
         txtLog.text += "\n" + log;
         txtNewLog.text = log;
         Debug.Log(log);
     }
-    void onResultCallback(string _data)
-    {
+    void onResultCallback(string _data) {
         AddLog("Result: " + _data);
     }
 
-    void onReadyForSpeechCallback(string _params)
-    {
+    void onReadyForSpeechCallback(string _params) {
         AddLog("Ready for the user to start speaking");
     }
-    void onEndOfSpeechCallback()
-    {
+    void onEndOfSpeechCallback() {
         AddLog("User stops speaking");
     }
-    void onRmsChangedCallback(float _value)
-    {
-        float _size = _value * 10;
+    void onRmsChangedCallback(float _value) {
+        var _size = _value * 10;
         RmsBar.sizeDelta = new Vector2(_size, 5);
     }
-    void onBeginningOfSpeechCallback()
-    {
+    void onBeginningOfSpeechCallback() {
         AddLog("User has started to speak");
     }
-    void onErrorCallback(string _params)
-    {
+    void onErrorCallback(string _params) {
         AddLog("Error: " + _params);
     }
-    void onPartialResultsCallback(string _params)
-    {
+    void onPartialResultsCallback(string _params) {
         AddLog("Partial recognition results are available " + _params);
     }
 }

@@ -8,8 +8,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 [System.Serializable]
-public class ItemEvent
-{
+public class ItemEvent {
     public string name;
     public Item item;
     public Tile tile;
@@ -19,23 +18,16 @@ public class ItemEvent
 
     public bool remove = false;
 
-    public static void Remove(Item item)
-    {
-        ItemEvent itemEvent = list.Find(x=> x.item == item);
-
-        if ( itemEvent == null)
-        {
-            //Debug.LogError("no item event for : " + item.debug_name);
+    public static void Remove(Item item) {
+        var itemEvent = list.Find(x => x.item == item);
+        if (itemEvent == null)
             return;
-        }
-
         itemEvent.remove = true;
     }
 
 
-    public static ItemEvent New(Item item, Tile tile)
-    {
-        ItemEvent itemEvent = new ItemEvent();
+    public static ItemEvent New(Item item, Tile tile) {
+        var itemEvent = new ItemEvent();
 
         itemEvent.name = item.debug_name;
 
@@ -46,26 +38,15 @@ public class ItemEvent
         return itemEvent;
     }
     #region call
-    public static void CallEvent(string eventName)
-    {
-        list.RemoveAll(x => x.remove);
-
+    public static void callEvent(string eventName) {
+        _ = list.RemoveAll(x => x.remove);
         foreach (var itemEvent in list)
-        {
             itemEvent.CallOnAllProps(eventName);
-
-            //Property.DescribeUpdated(itemEvent.item);
-
-        }
-
-
     }
-    public static void CallEventOnProp(string eventName, Property property)
-    {
-        ItemEvent targetEvent = list.Find(x => x.item.HasProperty(property.name));
+    public static void callEventOnProp(string eventName, Property property) {
+        var targetEvent = list.Find(x => x.item.hasProperty(property.name));
 
-        if ( targetEvent == null)
-        {
+        if (targetEvent == null) {
             Debug.LogError("no events with property : " + property.name);
             return;
         }
@@ -73,31 +54,25 @@ public class ItemEvent
         targetEvent.Call(eventName, property);
 
     }
-    public void CallOnAllProps(string eventName)
-    {
+    public void CallOnAllProps(string eventName) {
 
-        List<Property> properties = item.properties.FindAll(x=> x.enabled && x.HasEvent(eventName));
+        var properties = item.properties.FindAll(x => x.enabled && x.HasEvent(eventName));
 
         foreach (var prop in properties)
-        {
             Call(eventName, prop);
-
-        }
     }
-    public void Call(string eventName ,Property prop )
-    {
+    public void Call(string eventName, Property prop) {
 
-        Property.EventData eventData = prop.GetEvent(eventName);
+        var eventData = prop.GetEvent(eventName);
 
-        if (eventData== null)
-        {
+        if (eventData == null) {
             Debug.Log("no " + eventName + " on prop " + prop.name);
-            return; 
+            return;
         }
 
-        FunctionSequence.NewSequence(
+        FunctionSequence.newSequence(
             eventData.cellContent,
-            new List<Item>() { item },
+            item,
             tile
         );
     }

@@ -3,108 +3,86 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-public class Function_Item : Function
-{
-    public override void Call()
-    {
+public class Function_Item : Function {
+    public override void Call() {
         base.Call();
         Call(this);
     }
 
-    void pickUp()
-    {
-        if (Player.Inventory.HasItem(GetItem()))
-        {
-            TextManager.Write("inventory_pickUp_already", GetItem());
-        }
-        else
-        {
-            Item.RemoveFromContainer(GetItem());
+    void pickUp() {
+        if (Player.Instance.Inventory.hasItem(targetItem())) {
+            TextManager.write("inventory_pickUp_already", targetItem());
+        } else {
+            targetItem().removeFromTile();
 
-            Player.Inventory.AddItem(GetItem());
+            var count = ItemParser.GetCurrent.numericValueInInput;
 
-            int count = FunctionSequence.current.items.Count;
-
+            // say before it's in the inventory ( that way it doesn't say "your plate")
             if (count > 1)
-            {
-                if (FunctionSequence.current.itemIndex == 0)
-                {
-                    TextManager.Write("You took " + count + " &dogs&", GetItem());
-                }
-            }
+                TextManager.write("You took " + count + " &dogs&", targetItem());
             else
-            {
-                TextManager.Write("You took &the dog&", GetItem());
-            }
+                TextManager.write("You took &the dog&", targetItem());
+
+            Player.Instance.Inventory.addItem(targetItem());
+            
         }
     }
 
-    void @throw()
-    {
-        Item item = Player.Inventory.GetItem(GetItem().word.text);
+    void @throw() {
+        var item = Player.Instance.Inventory.GetItem(targetItem().word.text);
 
-        if (item == null)
-        {
-            TextManager.Write("inventory_throw_nothing");
+        if (item == null) {
+            TextManager.write("inventory_throw_nothing");
             return;
         }
 
         // remove && add
-        Player.Inventory.RemoveItem(item);
-        FunctionSequence.current.tile.AddItem(GetItem());
+        Player.Instance.Inventory.RemoveItem(item);
+        _ = FunctionSequence.current.tile.addItem(targetItem());
 
-        TextManager.Write("inventory_throw_sucess", GetItem());
+        TextManager.write("inventory_throw_sucess", targetItem());
     }
 
 
-    void destroy()
-    {
-        Item.Destroy(GetItem());
+    void destroy() {
+        Item.Destroy(targetItem());
     }
 
-    void create()
-    {
-        int amount = 1;
-        if (HasValue(1))
-        {
+    void create() {
+        var amount = 1;
+        if (HasValue(1)) {
             amount = ParseParam(1);
         }
 
         // if the target item starts with '*', getting the value of an other property
         // sprout gets value "vegetableType" pour savoir en quoi elle va pousser
-        string item_name = GetParam(0);
-        if (item_name.StartsWith('*'))
-        {
-            string targetPropertyName = item_name.Remove(0, 1);
-            item_name = GetItem().GetProperty(targetPropertyName).value;
+        var item_name = GetParam(0);
+        if (item_name.StartsWith('*')) {
+            var targetPropertyName = item_name.Remove(0, 1);
+            item_name = targetItem().GetProperty(targetPropertyName).value;
         }
 
-        Item item = FunctionSequence.current.tile.CreateItem(item_name);
+        var item = FunctionSequence.current.tile.addItem(item_name);
 
-        for (int i = 1; i < amount; i++)
-        {
-            FunctionSequence.current.tile.CreateItem(item_name);
+        for (var i = 1; i < amount; i++) {
+            _ = FunctionSequence.current.tile.addItem(item_name);
         }
 
-        if (FunctionSequence.current.tile == Tile.GetCurrent)
-        {
-            TextManager.Write("tile_addItem", item);
+        if (FunctionSequence.current.tile == Tile.GetCurrent) {
+            TextManager.write("tile_addItem", item);
         }
     }
 
-    void require()
-    {
-        if (HasParam(1))
-        {
-            string item_name = GetParam(0);
-            Item targetItem = AvailableItems.SearchByName(item_name);
+    void require() {
+        if (HasParam(1)) {
+            var item_name = GetParam(0);
+            var targetItem = AvailableItems.Get.getItemOfName(item_name);
 
-            if (targetItem == null)
-            {
+            if (targetItem == null) {
                 // found no item in container, inventory or tile
                 // break flow of actions
                 targetItem = Item.GetDataItem(item_name);
-                TextManager.Write("item_require", targetItem);
+                TextManager.write("item_require", targetItem);
                 FunctionSequence.current.Stop();
                 return;
             }
@@ -116,18 +94,20 @@ public class Function_Item : Function
         Debug.LogError("USE *search INSTEAD ?");
         // no target item, just ask for a second item
         //if (!HasItem(1))
-        if (false)
-        {
+        if (false) {
             //group.WaitForSpecificItem("item_noSecondItem");
             FunctionSequence.current.Stop();
             return;
         }
     }
 
-    void describe()
-    {
-        GetItem().WriteDescription();
+    void describe() {
+
+        Debug.Log("item count " + ItemParser.GetCurrent.potentialItems.Count);
+        foreach (var item in ItemParser.GetCurrent.potentialItems) {
+            item.writeDescription();
+        }
     }
 
-    
+
 }

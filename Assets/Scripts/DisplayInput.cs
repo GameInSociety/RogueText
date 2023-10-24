@@ -5,64 +5,50 @@ using UnityEngine.UI;
 
 public class DisplayInput : MonoBehaviour {
 
-	public static DisplayInput Instance;
+    public static DisplayInput Instance;
 
-	public InputField inputField;
+    public InputField inputField;
 
-    void Awake () {
-		Instance = this;
-	}
-
-	void Start () {
-		Focus ();
-        //Hide ();
+    void Awake() {
+        Instance = this;
     }
 
-    public void Show (){
-		gameObject.SetActive (true);
-
-    }
-	public void Hide (){
-		gameObject.SetActive (false);
+    void Start() {
+        Focus();
     }
 
-    void HandleOnStopTyping ()
-	{
-		Show ();
-		Focus ();
-	}
+    public void Show() {
+        gameObject.SetActive(true);
 
-	void HandleOnStartTyping ()
-	{
-		Hide ();
-	}
+    }
+    public void Hide() {
+        gameObject.SetActive(false);
+    }
 
-    public void OnEndEdit () {
-
-        InputInfo.Instance.ParseText(inputField.text);
+    public void OnEndEdit() {
+        string text = inputField.text;
+        if (string.IsNullOrEmpty(text))
+            return;
+        ItemParser.GetCurrent.Parse(text);
         Clear();
     }
 
-    public void EndInput()
-    {
+    public void EndInput() {
         inputField.interactable = false;
         inputField.enabled = false;
         inputField.text = "";
     }
 
-    public void OnValueChanged () {
-		Sound.Instance.PlayRandomTypeSound ();
-	}
+    public void OnValueChanged() {
+        Sound.Instance.PlayRandomTypeSound();
+    }
 
-	void Clear ()
-	{
-		inputField.text = "";
-		Focus ();
-	}
-	void Focus () {
-
-		inputField.Select ();
+    void Clear() {
+        inputField.text = "";
+        Focus();
+    }
+    void Focus() {
+        inputField.Select();
         inputField.ActivateInputField();
-
-	}
+    }
 }

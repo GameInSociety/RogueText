@@ -4,21 +4,18 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 
 [System.Serializable]
-public class Word
-{
+public class Word {
     // data //
-    public string locationPrep = "";
     public string text = "";
+    public string locationPrep = "";
     public Number number;
     public bool defined = false;
 
-    public Word()
-    {
+    public Word() {
 
     }
 
-    public Word (Word copy)
-    {
+    public Word(Word copy) {
         this.locationPrep = copy.locationPrep;
         this.text = copy.text;
         this.number = copy.number;
@@ -26,12 +23,10 @@ public class Word
     }
 
     #region number
-    public void UpdateNumber(string str)
-    {
-        string[] parts = str.Split('\n');
+    public void UpdateNumber(string str) {
+        var parts = str.Split('\n');
 
-        switch (parts[0])
-        {
+        switch (parts[0]) {
             case "s":
                 number = Number.Singular;
                 break;
@@ -43,18 +38,15 @@ public class Word
                 break;
         }
 
-        if ( parts.Length > 1)
-        {
-            if (parts[1] == "d")
-            {
+        if (parts.Length > 1) {
+            if (parts[1] == "d") {
                 defined = true;
             }
         }
     }
     #endregion
 
-    public bool StartsWithVowel()
-    {
+    public bool startWithVowel() {
         if (
             text[0] == 'a'
             ||
@@ -64,8 +56,7 @@ public class Word
             ||
             text[0] == 'o'
             ||
-            text[0] == 'u')
-        {
+            text[0] == 'u') {
             return true;
         }
 
@@ -79,50 +70,50 @@ public class Word
     /// </summary>
     /// <param name="str"></param>
     /// <returns></returns>
-    public string GetInfo(string str)
-    {
+    public string get(string str) {
 
-        string locBound = @$"\bon\b";
+        // location "on a dog" => in the armory
+        var locBound = @$"\bon\b";
         if (Regex.IsMatch(text, locBound))
-        {
             str = str.Replace(locBound, locationPrep);
-        }
 
-        if (defined)
-        {
-            string articleBound = @$"\ba\b";
+        if (defined) {
+            // if the word is always defined ( north, left, sky etc...)
+            var articleBound = @$"\ba\b";
             str = str.Replace(articleBound, "the");
-        }
-        else
-        {
-            if (StartsWithVowel())
-            {
-                string articleBound = @$"\ba\b";
-                str= Regex.Replace(str, articleBound, "an");
-        }
+        } else {
+            // a dog => some mittens
+            if ( number == Number.Plural) {
+                var articleBound = @$"\ba\b";
+                str = Regex.Replace(str, articleBound, "some");
+            } else {
+                // a dog = an armory
+                if (startWithVowel()) {
+                    var articleBound = @$"\ba\b";
+                    str = Regex.Replace(str, articleBound, "an");
+                }
+            }
         }
 
         str = str.Replace("dog", text);
 
-        if (DebugManager.Instance.colorWords)
-        {
+        if (DebugManager.Instance.colorWords) {
             return "<color=green>" + str + "</color>";
-        }
-        else
-        {
+        } else {
             return str;
         }
     }
     #endregion
 
-    public void SetText(string _text)
-    {
+    public void SetText(string _text) {
         text = _text;
     }
 
-    public string GetPlural()
-    {
-        string plural = text.ToLower();
+    public string getText(Number num = Number.Singular) {
+        return num == Number.Plural ? getPlural() : text;
+    }
+    public string getPlural() {
+        var plural = text.ToLower();
 
         if (!text.EndsWith("s"))
             plural += "s";
@@ -131,12 +122,12 @@ public class Word
     }
 
     #region enums
-    public enum Number
-    {
-        None,
-
+    public enum Number {
         Singular,
         Plural,
+
+        Any,
+        None,
     }
     #endregion
 }

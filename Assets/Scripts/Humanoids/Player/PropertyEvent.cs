@@ -4,17 +4,15 @@ using System.Xml.Linq;
 using UnityEngine;
 
 [System.Serializable]
-public class PropertyEvent
-{
+public class PropertyEvent {
     public Property.EventData eventData;
     public Property property;
 
     public bool called = false;
 
 
-    public static PropertyEvent New(Property.EventData eventData, Property property)
-    {
-        PropertyEvent pEvent = new PropertyEvent();
+    public static PropertyEvent New(Property.EventData eventData, Property property) {
+        var pEvent = new PropertyEvent();
         pEvent.eventData = eventData;
         pEvent.property = property;
 

@@ -1,79 +1,73 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
 using System.IO;
-using System.Xml;
-using System;
+using System.Runtime.Serialization;
 using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
+using UnityEngine;
 
 
 //tu peux changer le chemin de sauvegarde il y a troi ligne a changer :
 //string path = Application.dataPath + dataPathSave;
-public class SaveTool : MonoBehaviour
-{
-	public int chunkLimit = 10;
+public class SaveTool : MonoBehaviour {
+    public int chunkLimit = 10;
 
-	public static SaveTool Instance;
+    public static SaveTool Instance;
 
-	void Awake () {
-		Instance = this;
-	}
+    void Awake() {
+        Instance = this;
+    }
 
-	#region directories
-	public void CreateDirectories ()
-	{
-		if ( DirectoryExists(GetSaveFolderPath()) == false ) {
-//			Debug.Log ("BYTES SaveData folder doesnt exist, creating it");
-			Directory.CreateDirectory (GetSaveFolderPath ());
-		}
-	}
-	#endregion
+    #region directories
+    public void CreateDirectories() {
+        if (DirectoryExists(GetSaveFolderPath()) == false) {
+            //			Debug.Log ("BYTES SaveData folder doesnt exist, creating it");
+            _ = Directory.CreateDirectory(GetSaveFolderPath());
+        }
+    }
+    #endregion
 
 
-	#region save & load
-	public void ResetIslandFolder ()
-	{
-		if ( DirectoryExists(GetSaveFolderPath() + "/Islands") == true ) {
-			Directory.Delete (GetSaveFolderPath() + "/Islands",true);
-		}
+    #region save & load
+    public void ResetIslandFolder() {
+        if (DirectoryExists(GetSaveFolderPath() + "/Islands") == true) {
+            Directory.Delete(GetSaveFolderPath() + "/Islands", true);
+        }
 
-		Directory.CreateDirectory (GetSaveFolderPath() + "/Islands");
+        _ = Directory.CreateDirectory(GetSaveFolderPath() + "/Islands");
 
-	}
+    }
 
-    public void DeleteFolder (string mapName)
-    {
+    public void DeleteFolder(string mapName) {
         Directory.Delete(GetSaveFolderPath(mapName), true);
     }
 
-    public void DeleteGameData () {
-		string path = GetSaveFolderPath () + "/game data.xml";
-		File.Delete (path);
-	}
+    public void DeleteGameData() {
+        var path = GetSaveFolderPath() + "/game data.xml";
+        File.Delete(path);
+    }
 
-    public void SaveToSpecificFolder (string folder , string fileName , object o)
-    {
-		fileName = GetSaveFolderPath (folder) + "/" + fileName + ".xml";
+    public void SaveToSpecificFolder(string folder, string fileName, object o) {
+        fileName = GetSaveFolderPath(folder) + "/" + fileName + ".xml";
         Save(fileName, o);
     }
 
-    public void SaveToCurrentMap ( string path , object o) {
+    public void SaveToCurrentMap(string path, object o) {
 
-		path = GetSaveFolderPath () + "/" + path + ".xml";
+        path = GetSaveFolderPath() + "/" + path + ".xml";
         Save(path, o);
     }
 
-    public void Save (string path, object o)
-    {
-        byte[] bytes = Encoding.Unicode.GetBytes(path);
+    public void Save(string path, object o) {
+        var bytes = Encoding.Unicode.GetBytes(path);
         path = Encoding.Unicode.GetString(bytes);
 
         File.Delete(path);
 
-        FileStream file = File.Open(path, FileMode.CreateNew);
-        XmlSerializer serializer = new XmlSerializer(o.GetType());
+        var file = File.Open(path, FileMode.CreateNew);
+        var serializer = new XmlSerializer(o.GetType());
 
         //		file = file.
         serializer.Serialize(file, o);
@@ -81,26 +75,23 @@ public class SaveTool : MonoBehaviour
         file.Close();
     }
 
-    public object LoadFromSpecificPath ( string mapName , string path , string className)
-    {
+    public object LoadFromSpecificPath(string mapName, string path, string className) {
         path = GetSaveFolderPath(mapName) + "/" + path;
         return LoadFromPath(path, className);
     }
-	public object LoadFromCurrentMap(string path, string className)
-	{
+    public object LoadFromCurrentMap(string path, string className) {
         path = GetSaveFolderPath() + "/" + path;
         return LoadFromPath(path, className);
-	}
-    public object LoadFromPath(string path, string className)
-    {
-        byte[] bytes = Encoding.Unicode.GetBytes(path);
+    }
+    public object LoadFromPath(string path, string className) {
+        var bytes = Encoding.Unicode.GetBytes(path);
         path = Encoding.Unicode.GetString(bytes);
 
         //		FileStream file = File.Open(path, FileMode.OpenOrCreate);
-        FileStream file = File.Open(path, FileMode.Open);
-        XmlSerializer serializer = new XmlSerializer(Type.GetType(className));
+        var file = File.Open(path, FileMode.Open);
+        var serializer = new XmlSerializer(Type.GetType(className));
 
-        object o = serializer.Deserialize(file);
+        var o = serializer.Deserialize(file);
 
         file.Close();
 
@@ -108,61 +99,53 @@ public class SaveTool : MonoBehaviour
     }
     #endregion
 
-    public bool FileExists(string mapName , string path)
-    {
+    public bool FileExists(string mapName, string path) {
         path = GetSaveFolderPath(mapName) + "/" + path + ".xml";
 
-        byte[] bytes = Encoding.Unicode.GetBytes(path);
+        var bytes = Encoding.Unicode.GetBytes(path);
         path = Encoding.Unicode.GetString(bytes);
 
-        bool exists = (File.Exists(path));
+        var exists = File.Exists(path);
 
         return exists;
     }
-    public bool FileExists(string path)
-    {
-		path = GetSaveFolderPath () + "/" + path + ".xml";
+    public bool FileExists(string path) {
+        path = GetSaveFolderPath() + "/" + path + ".xml";
 
-        byte[] bytes = Encoding.Unicode.GetBytes(path);
+        var bytes = Encoding.Unicode.GetBytes(path);
         path = Encoding.Unicode.GetString(bytes);
 
-		bool exists = (File.Exists(path));
+        var exists = File.Exists(path);
 
-		return exists;
+        return exists;
     }
-	public bool DirectoryExists(string path)
-	{
-		byte[] bytes = Encoding.Unicode.GetBytes(path);
-		path = Encoding.Unicode.GetString(bytes);
+    public bool DirectoryExists(string path) {
+        var bytes = Encoding.Unicode.GetBytes(path);
+        path = Encoding.Unicode.GetString(bytes);
 
-		bool exists = (Directory.Exists(path));
+        var exists = Directory.Exists(path);
 
-		return exists;
-	}
+        return exists;
+    }
 
     #region paths
-    public string GetSaveFolderPath(string targetFolder)
-    {
-        string path = Application.dataPath + "/SaveData/" + targetFolder;
+    public string GetSaveFolderPath(string targetFolder) {
+        var path = Application.dataPath + "/SaveData/" + targetFolder;
 
         if (Application.isMobilePlatform)
             path = Application.persistentDataPath + "/SaveData/" + targetFolder;
 
         return path;
     }
-    public string GetSaveFolderPath () {
+    public string GetSaveFolderPath() {
+        var s = "Default";
+        var path = Application.dataPath + "/SaveData/" + s;
 
-        string s = "";
+        if (Application.isMobilePlatform)
+            path = Application.persistentDataPath + "/SaveData/" + s;
 
-        s = "Default";
-
-		string path = Application.dataPath + "/SaveData/" + s;
-
-        if ( Application.isMobilePlatform )
-			path = Application.persistentDataPath + "/SaveData/" + s;
-
-		return path;
-	}
-	#endregion
+        return path;
+    }
+    #endregion
 
 }

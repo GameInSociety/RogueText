@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
+using UnityEngine;
 
 public class Interior {
 
-	public Coords coords;
+    public Coords coords;
 
     public static Interior Current;
 
@@ -20,14 +20,12 @@ public class Interior {
     // tmp list for giving objets ( doors ... ) adjectives, because they_re not meant repeat them selves
     //List<Adjective> adjectives;
 
-    public static bool InsideInterior()
-    {
+    public static bool InsideInterior() {
         return Current != null;
     }
 
     #region enter / exit
-    public void Enter()
-    {
+    public void Enter() {
         TileSet.map.playerCoords = Player.Instance.coords;
 
         Current = this;
@@ -44,8 +42,7 @@ public class Interior {
 
     }
 
-    public void Exit()
-    {
+    public void Exit() {
         Player.Instance.coords = TileSet.map.playerCoords;
 
         Current = null;
@@ -65,7 +62,7 @@ public class Interior {
         tileSet.width = TileSet.map.width;
         tileSet.height = TileSet.map.height;
 
-        List<Property> rooms = item.properties.FindAll(x => x.type == "room");
+        var rooms = item.properties.FindAll(x => x.type == "room");
 
         /*foreach (var room in rooms)
         {
@@ -73,7 +70,7 @@ public class Interior {
         }*/
 
         // create room types
-        List<string> tileNames = new List<string>
+        var tileNames = new List<string>
         {
             "bathroom",
             "bedroom",
@@ -83,63 +80,59 @@ public class Interior {
         };
 
         // create hallway
-        Coords hallway_Coords = tileSet.Center;
-        Coords hallway_Dir = new Coords(0,1);
-        int a = 0;
+        var hallway_Coords = tileSet.Center;
+        var hallway_Dir = new Coords(0, 1);
+        var a = 0;
 
-		while ( tileNames.Count > 0 ) {
+        while (tileNames.Count > 0) {
 
             // add new hallway tile
-            Tile newHallwayTile = Tile.Create(hallway_Coords, "hallway");
+            var newHallwayTile = Tile.create(hallway_Coords, "hallway");
 
-            if (tileSet.tiles.ContainsKey(hallway_Coords))
-            {
+            if (tileSet.tiles.ContainsKey(hallway_Coords)) {
                 hallway_Coords += hallway_Dir;
                 ++a;
                 continue;
             }
 
-			tileSet.Add (hallway_Coords, newHallwayTile);
+            tileSet.Add(hallway_Coords, newHallwayTile);
 
             // set entrance door
-            if (a == 0)
-            {
+            if (a == 0) {
                 /*Item doorItem = Item.CreateInTile(newHallwayTile, "door");
                 // stating that it goes south so it displays "behind you" when entering the interior
                 // pas ouf, ça changer avec la description des propriétes
                 doorItem.CreateProperty("dir / direction / south");*/
 
-                Item dirItem = newHallwayTile.CreateItem("back");
-                Item tileDoor = dirItem.CreateItem("door");
-                tileDoor.AddProperty("direction / back");
+                var dirItem = newHallwayTile.addItem("back");
+                var tileDoor = dirItem.addItem("door");
+                _ = tileDoor.addProperty("direction / back");
             }
 
             // check if room appears
-            if ( Random.value < chanceCreateRoom ) {
+            if (Random.value < chanceCreateRoom) {
 
-                Coords side = new Coords(hallway_Dir.x, hallway_Dir.y);
+                var side = new Coords(hallway_Dir.x, hallway_Dir.y);
                 side.Turn();
 
-                Coords coords = newHallwayTile.coords + side
+                var coords = newHallwayTile.coords + side
                     ;
 
-                if (tileSet.tiles.ContainsKey(coords))
-                {
+                if (tileSet.tiles.ContainsKey(coords)) {
                     continue;
                 }
 
-				string tileName = tileNames [Random.Range (0, tileNames.Count)];
-                Tile newRoomTile = Tile.Create(coords, tileName);
+                var tileName = tileNames[Random.Range(0, tileNames.Count)];
+                var newRoomTile = Tile.create(coords, tileName);
 
-                tileNames.Remove (tileName);
+                _ = tileNames.Remove(tileName);
 
-                tileSet.Add ( coords, newRoomTile );
-			}
+                tileSet.Add(coords, newRoomTile);
+            }
 
             hallway_Coords += hallway_Dir;
-            
-            if ( Random.value < chanceHallwayTurn)
-            {
+
+            if (Random.value < chanceHallwayTurn) {
                 hallway_Dir.Turn();
             }
 
@@ -147,5 +140,5 @@ public class Interior {
 
         }
 
-	}
+    }
 }

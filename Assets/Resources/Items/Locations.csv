@@ -12,14 +12,14 @@ Item(describe)","move
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 0)","go back 
-Player(move, tile)","","","","knife","chair","","","","","","","","","","","","","","","","","","","","","","","",""
+Player(move, tile)","","","","apple*5","banana*5","house*3","","","","","","","","","","","","","","","","","","","","","","",""
 "clearing","Tile","s","in","dif","state / fertile","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 0)","go back 
-Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+Player(move, tile)","","","","seeds","watering can*2","house*3","","","","","","","","","","","","","","","","","","","","","","",""
 "hill","Tile","s","on","dif","","","","","","go 
 Player(move, tile)","look 
 Item(describe)","leave 

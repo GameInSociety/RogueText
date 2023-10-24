@@ -5,22 +5,18 @@ using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using UnityEngine;
 
-public class Zombie : Humanoid
-{
-    public override void Move(Coords targetCoords)
-    {
+public class Zombie : Humanoid {
+    public override void Move(Coords targetCoords) {
 
         base.Move(targetCoords);
 
-        TileSet.current.GetTile(targetCoords).AddItem(this);
+        _ = TileSet.current.GetTile(targetCoords).addItem(this);
     }
 
-    public void Advance()
-    {
-        Coords targetCoords = coords + (Coords)currentCarnidal;
+    public void Advance() {
+        var targetCoords = coords + (Coords)currentCarnidal;
 
-        if (!CanMoveForward(targetCoords))
-        {
+        if (!CanMoveForward(targetCoords)) {
             Turn();
             return;
         }
@@ -28,11 +24,9 @@ public class Zombie : Humanoid
         Move(targetCoords);
     }
 
-    public void Turn()
-    {
+    public void Turn() {
         currentCarnidal += 2;
-        if ( currentCarnidal == (Cardinal)0)
-        {
+        if (currentCarnidal == 0) {
             currentCarnidal = 0;
         }
     }

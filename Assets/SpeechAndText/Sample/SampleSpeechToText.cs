@@ -1,9 +1,8 @@
-﻿using UnityEngine;
+﻿using TextSpeech;
+using UnityEngine;
 using UnityEngine.UI;
-using TextSpeech;
 
-public class SampleSpeechToText : MonoBehaviour
-{
+public class SampleSpeechToText : MonoBehaviour {
     public GameObject loading;
     public InputField inputLocale;
     public InputField inputText;
@@ -13,16 +12,14 @@ public class SampleSpeechToText : MonoBehaviour
     public Text txtLocale;
     public Text txtPitch;
     public Text txtRate;
-    void Start()
-    {
+    void Start() {
         Setting("en-US");
         loading.SetActive(false);
         SpeechToText.instance.onResultCallback = OnResultSpeech;
     }
-    
 
-    public void StartRecording()
-    {
+
+    public void StartRecording() {
         SpeechToText.instance.StartRecording("Speak any");
 
 #if UNITY_EDITOR
@@ -30,32 +27,26 @@ public class SampleSpeechToText : MonoBehaviour
 #endif
     }
 
-    public void StopRecording()
-    {
+    public void StopRecording() {
         SpeechToText.instance.StopRecording();
     }
-    void OnResultSpeech(string _data)
-    {
+    void OnResultSpeech(string _data) {
         inputText.text = _data;
     }
-    public void OnClickSpeak()
-    {
+    public void OnClickSpeak() {
         TextToSpeech.instance.StartSpeak(inputText.text);
     }
-    public void  OnClickStopSpeak()
-    {
+    public void OnClickStopSpeak() {
         TextToSpeech.instance.StopSpeak();
     }
-    public void Setting(string code)
-    {
+    public void Setting(string code) {
         TextToSpeech.instance.Setting(code, pitch, rate);
         SpeechToText.instance.Setting(code);
         txtLocale.text = "Locale: " + code;
         txtPitch.text = "Pitch: " + pitch;
         txtRate.text = "Rate: " + rate;
     }
-    public void OnClickApply()
-    {
+    public void OnClickApply() {
         Setting(inputLocale.text);
     }
 }

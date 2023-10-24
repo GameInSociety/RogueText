@@ -1,70 +1,59 @@
+using DG.Tweening.Core.Easing;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-public class DebugManager : MonoBehaviour
-{
+public class DebugManager : MonoBehaviour {
+
+    // TESTS //
+    // 1) plates (10x, tester les piles)
+    // 2) flashlight (flashlight + battery)
+    // 3) gardening (graine)
+    // 4) doors & keys
+    // 5) boat (à voir)
+
+    [Space]
     [Header("[TILE]")]
-    [Space]
-    public Tile tile;
-    [Header("[VERB]")]
-    public Verb verb;
-    [Space]
+    public Tile TILE;
 
-    [Header("[ITEM PARSE]")]
-    public bool debug_ParsingItems = false;
-    public List<Item> parsedItems;
-    [Space]
-
-    public bool AI_Enabled = false;
+    [Header("[PARSER]")]
+    public List<ItemParser> parsers = new List<ItemParser>();
 
     [Space]
     [Header("[FUNCTION]")]
-    [Space]
-    public Function currentFunction;
     public FunctionSequence currentFunctionList;
 
+    [Space]
     [Header("[TEXT]")]
     public bool colorWords = true;
 
+    [Space]
     [Header("[AVAILABLE ITEMS]")]
-    public List<Item> availableItems = new List<Item>();
-    public List<Item> recentItems = new List<Item>();
+    public AvailableItems AVAILABLE_ITEMS;
 
-    [Header("[CURRENT ITEMS]")]
-    public List<ItemGroup> itemGroups;
-
+    [Space]
     [Header("[ITEM EVENTS]")]
-    public List<ItemEvent> propertyEvents = new List<ItemEvent>();
+    public List<ItemEvent> EVENTS = new List<ItemEvent>();
 
+    [Space]
     [Header("[PLAYER]")]
-    public Player player;
+    public Player PLAYER;
 
-    private void Start()
-    {
+    private void Start() {
         currentFunctionList = FunctionSequence.current;
-        propertyEvents = ItemEvent.list;
+        EVENTS = ItemEvent.list;
 
-        availableItems = AvailableItems.list;
-        recentItems = AvailableItems.recentItems;
+        parsers = ItemParser.history;
 
-        parsedItems = ItemParser.GetItems;
+        AVAILABLE_ITEMS = AvailableItems.Get;
 
-        itemGroups = ItemGroup.debug_groups;
-
-        player = Player.Instance;
-
-        verb = Verb.GetCurrent;
+        PLAYER = Player.Instance;
     }
-
     private static DebugManager _instance;
-    public static DebugManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
+    public static DebugManager Instance {
+        get {
+            if (_instance == null) {
                 _instance = GameObject.FindObjectOfType<DebugManager>().GetComponent<DebugManager>();
             }
 
