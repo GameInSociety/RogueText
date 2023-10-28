@@ -11,14 +11,15 @@ public class DebugManager : MonoBehaviour {
     // 2) flashlight (flashlight + battery)
     // 3) gardening (graine)
     // 4) doors & keys
-    // 5) boat (à voir)
+    // 5) boat (ï¿½ voir)
 
     [Space]
     [Header("[TILE]")]
     public Tile TILE;
 
     [Header("[PARSER]")]
-    public List<ItemParser> parsers = new List<ItemParser>();
+    public ItemParser previousParser;
+    public ItemParser currentParser;
 
     [Space]
     [Header("[FUNCTION]")]
@@ -44,7 +45,8 @@ public class DebugManager : MonoBehaviour {
         currentFunctionList = FunctionSequence.current;
         EVENTS = ItemEvent.list;
 
-        parsers = ItemParser.history;
+        currentParser = ItemParser.GetCurrent;
+        previousParser = ItemParser.GetPrevious;
 
         AVAILABLE_ITEMS = AvailableItems.Get;
 

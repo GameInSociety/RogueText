@@ -23,9 +23,6 @@ public class GameManager : MonoBehaviour {
         PhraseLoader.Instance.Load();
 
         SpecLoader.Instance.Load();
-        Debug.Log(SpecLoader.Instance.GetCat("shape").GetRandom());
-        Debug.Log(SpecLoader.Instance.GetCat("shape").GetRandom());
-        Debug.Log(SpecLoader.Instance.GetCat("shape").GetRandom());
         VerbLoader.Instance.Load();
         ItemLoader.Instance.Load();
 
@@ -36,6 +33,8 @@ public class GameManager : MonoBehaviour {
         Tile.SetCurrent(TileSet.current.GetTile(startCoords));
 
         Player.Instance.Move(startCoords);
+
+        ItemParser.NewParser();
 
         //ZombieManager.Instance.Init();
 

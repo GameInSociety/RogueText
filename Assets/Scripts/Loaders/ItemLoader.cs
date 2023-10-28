@@ -1,13 +1,8 @@
-﻿using JetBrains.Annotations;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Channels;
 using UnityEditor.PackageManager;
-using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
-using UnityEngine.Analytics;
 
 public class ItemLoader : DataDownloader {
 
@@ -136,8 +131,8 @@ public class ItemLoader : DataDownloader {
                 var s = cell.Split('%')[0];
                 cell = cell.Split('%')[1];
                 itemInfo.chance = int.Parse(s);
-            } catch (Exception e) {
-                Debug.LogError($"SPAWN CHANCE ERROR ({cell})({e})");
+            } catch {
+                Debug.LogError($"SPAWN CHANCE ERROR ({cell})");
             }
         }
         if (cell.Contains('*')) {
@@ -145,8 +140,8 @@ public class ItemLoader : DataDownloader {
                 var s = cell.Split('*')[1];
                 cell = cell.Split('*')[0];
                 itemInfo.amount = int.Parse(s);
-            } catch (Exception e) {
-                Debug.LogError($"SPAWN AMOUNT ERROR ({cell})({e})");
+            } catch {
+                Debug.LogError($"SPAWN AMOUNT ERROR ({cell})");
             }
         }
 

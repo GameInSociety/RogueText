@@ -38,7 +38,6 @@ public class SpecLoader : DataDownloader
 
         for (int i = 0; i < cells.Count; i++) {
             if (rowIndex == 0) {
-                Debug.Log("new cat : " + cells[i]);
                 cats.Add(new SpecCategory(cells[i]));
             } else {
                 if (string.IsNullOrEmpty(cells[i]) )

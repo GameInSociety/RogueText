@@ -38,6 +38,7 @@ public static class KeyWords {
 
                 return "";
             case KeyWord.VERB_NAME:
+            Debug.Log("dinzidnzidnzin");
                 return "ERROR(NULL VERB NAME)";
             case KeyWord.VERB_QUESTION:
                 return "ERROR(NULL VERB QUESTION)";

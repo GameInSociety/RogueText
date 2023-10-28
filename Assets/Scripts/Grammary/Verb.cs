@@ -80,13 +80,15 @@ public class Verb {
         return ints.ToArray();
     }
 
+    public int indexInText;
     public int getIndexInText(string text) {
         for (int i = 0; i < words.Length; i++) {
             string word = words[i];
             // get all the verbs
             if (Regex.IsMatch(text, @$"\b{word}\b")) {
                 currentNameIndex = i;
-                return text.IndexOf(word);
+                indexInText = text.IndexOf(word);
+                return indexInText;
             }
         }
         return -1;

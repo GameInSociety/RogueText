@@ -3,196 +3,157 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using System;
-using static UnityEditor.Progress;
-using UnityEngine.UIElements;
+using UnityEditor.Experimental.GraphView;
+using System.IO;
 
 [System.Serializable]
 public class ItemParser {
-
     // text entered by the player
-    public List<string> inputs= new List<string>();
 
+    // obsolete with group system
     // main prms
     public List<Item> potentialItems = new List<Item>();
-    public List<Verb> verbs = new List<Verb>();
-    public Verb firstVerb => verbs[0];
+    public List<ItemGroup> itemGroups = new List<ItemGroup>();
+
+    private Verb verb;
+    public Verb getVerb => verb;
     public Item firstItem => potentialItems[0];
+
     public int numericValueInInput;
 
-    public Item parentItem;
-    public enum Step {
-        none,
-        waitingForVerb,
-        waitingForItem,
-        waitingForSpecificItem,
-    }
-    public Step step;
-
-    // history
-    public List<ItemKey> itemHistory = new List<ItemKey>();
-
-
+    public bool onHold = false;
+    
+    // input
+    public List<string> inputs = new List<string>();
     public string mainInput => inputs[0];
     public string lastInput => inputs[inputs.Count - 1];
 
     public Item mainItem() {
         return potentialItems.First();
     }
+    //
+
+    // history
+    public List<ItemParser> history = new List<ItemParser>();
+
+    public List<ItemKey> itemHistory = new List<ItemKey>();
+    public Item parentItem;
 
     public void Parse(string _text) {
 
         // assigning text
         inputs.Add(_text);
 
-        fetchVerbs();
-        fetchItems();
-        fetchNumericValues();
-
-        foreach (var item in potentialItems) {
-            if ( item.numInInput == Word.Number.Plural) {
-                Debug.Log(item.debug_name + " is plural");
-            }
-        }
+        tryFetchVerbs();
+        tryFetchItems();
+        tryFetchNumericValues();
 
         // sending feedback if no verbs or item have been detexted
         if (!inputHasVerbAndItems())
             return;
-        if (!inputHasDistinctItems())
-            return;
+        onHold = false;
+        foreach (var itmGrp in itemGroups){
+            if (!itmGrp.itemsAreDistinct()){
+                if (onHold){
+                    TextManager.write($"there is no such {itmGrp.items[0].debug_name} present");
+                    NewParser();
+                } else {
+                    TextManager.write($"which {itmGrp.items[0].getWord("dog")} would you like to {verb.GetFull}");
+                    onHold = true;
+                }
+                return;
+            }
+            onHold = false;
+        }
 
-        // all items and vebs have been found and specified
+        // all itms and vebs have been found and specified
         // and triggering the function
         FunctionSequence.TrySequence();
     }
 
-    void fetchVerbs() {
-        verbs = Verb.verbs.FindAll(x => x.getIndexInText(mainInput) >= 0);
-    }
-    void fetchItems() {
+    void tryFetchItems(){
         AvailableItems.update();
-        potentialItems.AddRange(AvailableItems.Get.list.FindAll(x => x.getIndexInText(mainInput, Word.Number.Singular) >= 0));
-        potentialItems.AddRange(AvailableItems.Get.list.FindAll(x => x.getIndexInText(mainInput, Word.Number.Plural) >= 0));
-        potentialItems.OrderByDescending(x => x.indexInInput).ToList();
-    }
-
-    bool inputHasDistinctItems() {
-        List<Item> similarItems = tryGetSimilarItems();
-        if (similarItems != null) {
-            if ( numericValueInInput > 0) {
-                Debug.Log($"item {similarItems[0].debug_name} with {numericValueInInput} in input");
-                // don't isolate, keep X items in the list
-                numericValueInInput = Mathf.Clamp(numericValueInInput, 0, similarItems.Count);
-                similarItems.RemoveAt(numericValueInInput);
-                return true;
-            }
-
-            if (similarItems[0].numInInput == Word.Number.Plural) {
-                Debug.Log($"item {similarItems[0].debug_name} was plural in input (without numeric value), so keep all of them");
-                return true;
-            }
-
-            Item specificItem = getSpecificFromList(similarItems);
-            if (specificItem == null) {
-                if (step == Step.waitingForSpecificItem) {
-                    TextManager.write($"there is no such {similarItems[0].debug_name} present");
-                    clearParser();
-                } else {
-                    step = Step.waitingForSpecificItem;
-                    TextManager.write($"which {similarItems[0].getWord("dog")} would you like to {firstVerb.GetFull}");
-                }
-                return false;
-            }
-
-            // if an item has ben reseting the step for other items specifications
-            step = Step.none;
-            isolateItem(specificItem);
-
-            List<Item> list2 = tryGetSimilarItems();
-            if ( list2 != null) {
-                TextManager.write($"which {list2[0].getWord("dog")} would you like to {firstVerb.GetFull}", list2[0]);
-                Debug.Log("input still has similar items");
-                return false;
-            }
-
-            return true;
-        }
-
-        return true;
-    }
-
-    List<Item> tryGetSimilarItems() {
-        foreach (var item in potentialItems) {
-            List<Item> similarItems = potentialItems.FindAll(x => x.dataIndex == item.dataIndex);
-
-
-            if (similarItems.Count > 1) {
-                if (!similarItems.TrueForAll(x => x.specMatch(similarItems.First())))
-                    return similarItems;
-            }
-        }
-        return null;
-    }
-
-    public void isolateItem(Item item) {
-        potentialItems.RemoveAll(x => x.dataIndex == item.dataIndex);
-        potentialItems.Add(item);
-    }
-    Item getSpecificFromList(List<Item> targetItems) {
-        // try to find an item spec in the input
-        assignOrdinates(targetItems);
-        Spec spec = null;
-        return targetItems.Find(x => x.textHasSpecs(lastInput, out spec));
-    }
-
-    private void assignOrdinates(List<Item> list) {
-        for (int i = 0; i < list.Count; i++) {
-            string ordinal = GetOrdinal(i);
-            Spec ordinalSpec = list[i].getKeyInfo("ordinal");
-            if (ordinalSpec != null) {
-                ordinalSpec.searchValue = ordinal;
-                ordinalSpec.displayValue = ordinal;
+        var itms = getItemsFromText(lastInput);
+        if (itms.Count == 0 && verb != null){
+            var verbItem = Item.GetDataItem("no item");
+            if (verb.HasCell(verbItem)) {
+                itms.Add(verbItem);
+                Debug.Log($"found general universal for verb {verb.getWord}");
             } else {
-                list[i].setSpec(ordinal, ordinal, "ordinal");
+                Debug.Log($"no items were found for {mainInput}");
             }
+            return;
         }
+        potentialItems.AddRange(itms);
+
+        // create item groups here
+        for(int i = 0; i < itms.Count; ++i){
+            var itmGroup = itemGroups.Find(x=>x.index == itms[i].indexInInput);
+            if ( itmGroup == null){
+                Debug.Log($"no with index {itms[i].indexInInput}");
+                foreach (var itmGrp in itemGroups)
+                Debug.Log($"itm grp index {itmGrp.index}");
+                itmGroup = new ItemGroup(itms[i].indexInInput);
+                itemGroups.Add(itmGroup);
+            }
+
+            itmGroup.items.Add(itms[i]);
+        }
+
+        itemGroups.OrderByDescending(x => x.index);
+    }
+
+
+    List<Item> getItemsFromText (string text) {
+        var itms = new List<Item>();
+        itms.AddRange(AvailableItems.Get.list.FindAll(x => x.getIndexInText(text, Word.Number.Singular) >= 0));
+        itms.AddRange(AvailableItems.Get.list.FindAll(x => x.getIndexInText(text, Word.Number.Plural) >= 0));
+        return itms.OrderByDescending(x => x.indexInInput).ToList();
+    }
+
+    void tryFetchVerbs(){
+        if ( verb != null)
+            return;
+        List<Verb> verbs = Verb.verbs.FindAll(x => x.getIndexInText(lastInput) >= 0);
+        if (verbs.Count > 0)
+            verb = verbs[0];
     }
 
     public bool inputHasVerbAndItems() {
-        if (verbs.Count == 0) {
-            Debug.Log("no verbs");
+        if (verb == null) {
             // no verbs, but item
             if (potentialItems.Count > 0) {
                 // checking if the input is ALREADY waiting for a verb
-                if (step == Step.waitingForVerb) {
+                if (onHold) {
                     TextManager.write($"you can't do that with {potentialItems[0].getWord("the dog")}");
-                    clearParser();
+                    NewParser();
                 } else {
                     TextManager.write($"what do you want to do with {potentialItems[0].getWord("the dog")}");
-                    step = Step.waitingForVerb;
+                    onHold = true;
                 }
             }
             // no verbs or item
             else {
                 TextManager.write("!no verb or item");
-                clearParser();
+                NewParser();
             }
             return false;
         } else if (potentialItems.Count == 0) {
             // checking if the verb is autonomus (dig, eat, sleep etc...)
             var verbItem = Item.GetDataItem("no item");
-            if (verbs[0].HasCell(verbItem)) {
+            if (verb.HasCell(verbItem)) {
                 potentialItems.Add(verbItem);
                 Debug.Log("found general universal for verb");
                 return true;
             }
 
-            // no items, but verb
-            if (step == Step.waitingForItem) {
-                TextManager.write($"... i don't understand want you want to {firstVerb.getWord} {firstVerb.GetPreposition}");
-                clearParser();
+            // no itms, but verb
+            if (onHold) {
+                TextManager.write($"... i don't understand want you want to {verb.getWord} {verb.GetPreposition}");
+                NewParser();
             } else {
-                TextManager.write($"what do you want to {firstVerb.getWord} {firstVerb.GetPreposition}");
-                step = Step.waitingForItem;
+                TextManager.write($"what do you want to {verb.getWord} {verb.GetPreposition}");
+                onHold = true;
             }
             return false;
         }
@@ -203,7 +164,7 @@ public class ItemParser {
     }
     public bool allItemsAreIdentical() {
         return potentialItems.TrueForAll(x =>
-        // data index is the same
+        // data index is the same 
         x.dataIndex == potentialItems.First().dataIndex
         &&
         // item has no specs ( no differenciation )
@@ -245,8 +206,8 @@ public class ItemParser {
 
         // check if parent item
         // this means the parser will search INSIDE another item
-        // ex: player/body part, this will search a body part in the player
-        // instead of in all the available items
+        // ex: player/body group, this will search a body group in the player
+        // instead of in all the available itms
         if (key.Contains('/')) {
             var parts = key.Split(new char[] { '/' });
             parentItem = SearchItemInInput(parts[0]);
@@ -261,16 +222,16 @@ public class ItemParser {
             key = parts[1];
         }
 
-        var items = getPotentialItems(key);
+        var itms = getPotentialItems(key);
 
-        if (items.Count == 0) {
-            Logue.Add("no results with key " + key + " in available items");
+        if (itms.Count == 0) {
+            Logue.Add("no results with key " + key + " in available itms");
             modifiedKey = "error";
             return null;
         }
 
         // before sorting by type, check if the item's name appears in input
-        var item = items.Find(x => x.containedInText(lastInput));
+        var item = itms.Find(x => x.containedInText(lastInput));
 
         if (item != null) {
             type = SearchType.Input;
@@ -280,14 +241,14 @@ public class ItemParser {
         // if no results, sort by type
         switch (type) {
             case SearchType.First:
-                item = items.First();
+                item = itms.First();
                 break;
             case SearchType.Highest:
 
-                var highestProp = items.First().GetProperty(key);
+                var highestProp = itms.First().GetProperty(key);
                 var i = 0;
-                for (var itIndex = 1; itIndex < items.Count; itIndex++) {
-                    var it = items[itIndex];
+                for (var itIndex = 1; itIndex < itms.Count; itIndex++) {
+                    var it = itms[itIndex];
                     var prop = it.GetProperty(key);
 
                     if (prop == null) {
@@ -301,13 +262,13 @@ public class ItemParser {
                     }
                 }
 
-                item = items[i];
+                item = itms[i];
                 break;
             case SearchType.Random:
-                item = items[UnityEngine.Random.Range(0, items.Count)];
+                item = itms[UnityEngine.Random.Range(0, itms.Count)];
                 break;
             default:
-                item = items[0];
+                item = itms[0];
                 break;
         }
 
@@ -332,7 +293,7 @@ public class ItemParser {
 
     private List<Item> getPotentialItems(string content) {
         // first search in history
-        // IMPORTANT for target ... and target/body part
+        // IMPORTANT for target ... and target/body group
         // so that the target is the same and not searched twice
         var key = itemHistory.Find(x => x.key == content);
 
@@ -372,17 +333,17 @@ public class ItemParser {
 
         var tmp_items = new List<Item>();
 
-        // search for item in pending items
+        // search for item in pending itms
         if (parentItem != null) {
             Logue.Add("searching in " + parentItem.debug_name);
             tmp_items.AddRange(parentItem.getRecursive(3).FindAll(match));
             return tmp_items;
         }
 
-        // add available items
+        // add available itms
         tmp_items.AddRange(AvailableItems.Get.list.FindAll(match));
         if (tmp_items.Count > 0) {
-            Logue.Add("results in available items");
+            Logue.Add("results in available itms");
             return tmp_items;
         }
 
@@ -402,57 +363,48 @@ public class ItemParser {
     }
     #endregion
 
-    // est-ce vraiment perspicate ? le truc devrait être dans la fonction 
+    // est-ce vraiment perspicate ? le truc devrait ï¿½tre dans la fonction 
 
     #region numerical value
     public bool hasNumericValue() {
         return numericValueInInput > 0;
     }
-    private void fetchNumericValues() {
+    private void tryFetchNumericValues() {
 
         if (Regex.IsMatch(mainInput, @$"\ball\b")) {
             numericValueInInput = potentialItems.Count;
             return;
         }
 
-        foreach (var part in mainInput.Split(' ')) {
-            if (part.All(char.IsDigit) && int.TryParse(part, out numericValueInInput))
+        foreach (var group in mainInput.Split(' ')) {
+            if (group.All(char.IsDigit) && int.TryParse(group, out numericValueInInput))
                 break;
         }
     }
     #endregion
 
     #region singleton
+    private static ItemParser _prev;
     private static ItemParser _curr;
+    public static ItemParser GetPrevious{
+        get{
+            return _prev;
+        }
+    }
     public static ItemParser GetCurrent {
         get {
-            if (_curr == null)
-                _curr = new ItemParser();
             return _curr;
         }
     }
-    public static List<ItemParser> history = new List<ItemParser>();
-    public static void clearParser() {
-        Debug.Log("NEW PARSER");
-        history.Add(_curr);
+    public static void NewParser(){
+        if (_curr != null){
+            DebugManager.Instance.previousParser = _prev;
+            _prev = _curr;
+        }
         _curr = new ItemParser();
+        DebugManager.Instance.currentParser = _curr;
     }
     #endregion
 
-    public string GetOrdinal(int i) {
-        var ordinals = new string[10]
-        {
-            "first",
-            "second",
-            "third",
-            "fourth",
-            "fifth",
-            "sixth",
-            "seventh",
-            "eighth",
-            "ninth",
-            "tenth",
-        };
-        return ordinals[i];
-    }
+    
 }

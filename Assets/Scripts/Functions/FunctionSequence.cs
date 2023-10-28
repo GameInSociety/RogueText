@@ -46,7 +46,7 @@ public class FunctionSequence {
     public bool stopped = false;
     public bool _nextNode = false;
 
-    // je comprends pas vraiment pourquoi ça peutp pas simplement être "current != null" mais soite.
+    // je comprends pas vraiment pourquoi ï¿½a peutp pas simplement ï¿½tre "current != null" mais soite.
     public static bool SequenceFinished => current != null;
 
     public static void TrySequence() {
@@ -60,9 +60,10 @@ public class FunctionSequence {
             return;
         }
 
-        var sequence = ItemParser.GetCurrent.firstVerb.GetSequence(ItemParser.GetCurrent.mainItem());
+        var item = ItemParser.GetCurrent.mainItem();
+        var sequence = ItemParser.GetCurrent.getVerb.GetSequence(ItemParser.GetCurrent.mainItem());
         if (sequence == null) {
-            TextManager.write("input_noCombination", ItemParser.GetCurrent.mainItem());
+            TextManager.write($"you can't {ItemParser.GetCurrent.getVerb.GetFull} {item.getWord("the dog")}");
             return;
         }
 
@@ -153,7 +154,7 @@ public class FunctionSequence {
 
         // !!!!!!!!!!!! //
         // end of all sequences...
-        ItemParser.clearParser();
+        ItemParser.NewParser();
         ItemParser.GetCurrent.itemHistory.Clear();
         TextManager.Return();
         PropertyDescription.Describe();
@@ -167,7 +168,7 @@ public class FunctionSequence {
     void CallFunction(string line) {
 
         // c'est ici qu'une DEUXIEME passes d'input se fait.
-        // à priori, c'est comme un deuxième 
+        // ï¿½ priori, c'est comme un deuxiï¿½me 
         if (line.StartsWith('*')) {
             line = GetNewItem(line);
         }
@@ -198,14 +199,14 @@ public class FunctionSequence {
         // search for a new item 
         // this will search for a new item in the input.
         // it will override the current one, so consider creating a new one.
-        // à voir
+        // ï¿½ voir
         item = ItemParser.GetCurrent.SearchItemInInput(line);
         // the parser did not find the item in the input
         if (item == null) {
             Stop();
             return line;
         }
-        if (ItemParser.GetCurrent.step == ItemParser.Step.waitingForSpecificItem) {
+        if (ItemParser.GetCurrent.onHold) {
             Pause();
             return line;
         }
@@ -216,7 +217,7 @@ public class FunctionSequence {
     void JumpToSequence(string line) {
         line = line.Remove(0, 2);
         //var verb = ItemParser.getVerbInInput(line);
-        var verb = ItemParser.GetCurrent.firstVerb;
+        var verb = ItemParser.GetCurrent.getVerb;
         if (verb != null) {
             Debug.Log("found verb : " + line);
         } else {

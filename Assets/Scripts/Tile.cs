@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net.Configuration;
 using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
