@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class DebugManager : MonoBehaviour {
 
+
     // TESTS //
     // 1) plates (10x, tester les piles)
     // 2) flashlight (flashlight + battery)
@@ -16,7 +17,13 @@ public class DebugManager : MonoBehaviour {
     [Space]
     [Header("[TILE]")]
     public Tile TILE;
+    public List<Item> adjacentTiles;
 
+    [Space]
+    [Header("[DESCRIPTION]")]
+    public DescriptionGroup[] descriptionGroups;
+
+    [Space]
     [Header("[PARSER]")]
     public ItemParser previousParser;
     public ItemParser currentParser;

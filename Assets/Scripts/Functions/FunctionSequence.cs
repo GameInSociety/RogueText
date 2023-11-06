@@ -60,10 +60,10 @@ public class FunctionSequence {
             return;
         }
 
-        var item = ItemParser.GetCurrent.mainItem();
-        var sequence = ItemParser.GetCurrent.getVerb.GetSequence(ItemParser.GetCurrent.mainItem());
+        var item = ItemParser.GetCurrent.firstItem;
+        var sequence = ItemParser.GetCurrent.getVerb.GetSequence(ItemParser.GetCurrent.firstItem);
         if (sequence == null) {
-            TextManager.write($"you can't {ItemParser.GetCurrent.getVerb.GetFull} {item.getWord("the dog")}");
+            TextManager.write($"you can't {ItemParser.GetCurrent.getVerb.GetFull} {item.getText("the dog")}");
             return;
         }
 
@@ -72,7 +72,7 @@ public class FunctionSequence {
 
         newSequence(
             sequence.content,
-            ItemParser.GetCurrent.potentialItems[0],
+            ItemParser.GetCurrent.firstItem,
             Tile.GetCurrent
             );
 
@@ -206,7 +206,7 @@ public class FunctionSequence {
             Stop();
             return line;
         }
-        if (ItemParser.GetCurrent.onHold) {
+        if (ItemParser.GetCurrent.holds[1]) {
             Pause();
             return line;
         }

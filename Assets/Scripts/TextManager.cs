@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -77,7 +78,7 @@ public static class TextManager {
             }
 
             // get word from item
-            var newPart = targetItem.word.get(prms);
+            var newPart = targetItem.getText(prms);
 
             // replace target part with word, and continue
             text = text.Replace(partToReplace, newPart);
@@ -163,9 +164,6 @@ public static class TextManager {
     public static void AddLink(int index, int l) {
         add(TextUtils.GetLink(index, l));
     }
-    public static string getLink(int index, int l) {
-        return TextUtils.GetLink(index, l);
-    }
 
     public static void add(string str, Item _overrideItem) {
         addOverride(_overrideItem);
@@ -192,7 +190,7 @@ public static class TextManager {
         string str = "";
         for (int i = 0; i < list.Count; i++) {
             str += list[i];
-            str += getLink(i, list.Count);
+            str += TextUtils.GetLink(i, list.Count);
         }
         return str;
     }
@@ -202,35 +200,18 @@ public static class TextManager {
         return "nique toi";
     }
 
-    public static string listItems(List<Item> items) {
+    public static string NewItemDescription(List<Item> tmpItms, bool groupSimilar = true) {
 
-        var list = new List<Item>();
-        for (int i = 0; i < items.Count; i++) {
-            /*if (items[i].hasSpecs()) {
-                list.Add(items[i]);
-            } else */if (list.Find(x=> x.dataIndex == items[i].dataIndex) == null){
-                list.Add(items[i]);
-            }
-        }
+        var groups = DescriptionGroup.GetGroups(tmpItms);
 
-        var str = "";
-        for (int i = 0; i < list.Count; i++) {
-            int count = items.FindAll(x => x.dataIndex == list[i].dataIndex).Count;
-            if (count > 1)
-                str += $"{count} {list[i].getWord("dogs")}";
-            else
-                str += list[i].getWord("a dog");
-            /*if (list[i].hasSpecs()) {
-                str += list[i].getWord("a dog");
-            } else {
-                int count = items.FindAll(x => x.dataIndex == list[i].dataIndex).Count;
-                if ( count > 1)
-                    str += $"{count} {list[i].getWord("dogs")}";
-                else
-                    str += list[i].getWord("a dog");
-            }*/
-            str += getLink(i, list.Count);
+        DebugManager.Instance.descriptionGroups = groups.ToArray();
+
+        string str = "";
+        for (int i = 0; i < groups.Count; ++i) {
+            str += groups[i].getDescription(groupSimilar);
+            str += TextUtils.GetLink(i, groups.Count);
         }
+        Debug.Log("new item description : " + str);
         return str;
     }
 

@@ -12,10 +12,10 @@ public class Function {
     private List<string> parameters = new List<string>();
     // the pending props of the function list
 
-    public Item item;
+    public Item _item;
 
     public Item targetItem() {
-        return item;
+        return _item;
     }
 
     /*public bool HasItem(int i)
@@ -32,7 +32,7 @@ public class Function {
     }
 
     public virtual void TryCall(Item it) {
-        item = it;
+        _item = it;
 
         /*if (GetParam(0).StartsWith('*'))
         {

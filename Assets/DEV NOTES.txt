@@ -1,0 +1,74 @@
+les choses sur lesquelles je travaille :
+
+DANS L'ORDRE
+- specs
+
+PARSING
+
+DESCRIPTIONS
+
+ITEM
+- spliting item data & item.
+
+PROPERTIES
+- specs overall ( PASSE DU TEMPS A LA CONCEPTION VIELLE MERDE )
+
+- faire doc des fonctions
+- faire doc des propriétés.
+- faire le plus de liens entre les deux.
+- penser aux actions / props.
+- simplifier les fontions
+
+- merging specs, props and infos
+- faire les tests.
+
+
+WORLD GENERATION
+- put same prop in same tiles ( forest, roads, fields etc.. )
+- the first spec on item init is the "main" key
+when generating the world, the sea should be "dark", or som. each tile.
+getspecification doit regarder l'input à droite du mot et à gauche
+mais pour l'instant il va regarde dans tout l'input pour l'instnat
+- create scripable object with the world generation variables in them.
+
+ITEM NOTES
+- body part example :
+instead of writing the same actions and properties on each item,
+actions an properties could be on a type also.
+and additionnal actions and properties could be on specific items.
+this for an item OVERALL, so later
+
+TESTS
+- flashlight
+- gardening
+- open doors with key => testing search
+- search => in input, in the surroundings.
+// in the surroundings, if there are specifics, it will create a new parser.
+
+// PRONOUNS IN INPUT
+I YOU HE SHE IT WE THEY THEM US
+
+// PREPOSITIONS IN INPUT.
+ON UNDER NEAR BETWEEN ABOVE OVER NEXT TO BEHIND IN FRONT OF
+IN 
+IN => in the contained items
+the others => in the parent container.
+
+PARSING XP
+- "which hallway would you like to look at" => je voulais passer à autre chose parce que je m'en foutain
+=> j'ai dis une autre phrase verbée "look at door on the right" => "there's no such hallway present"
+if a new verb is parsed when a verb is present in the parser, new every thing
+
+create scriptableobject for parameters ( look interior/chancelockedinterior etc.. )
+qui sont static en ce moment
+
+DESCRIPTION GROUP
+item specs, group params
+forest 1 : dark forest on the right
+forest 2 : dark forest on the left
+fores 3 : dark forest on the front
+ 
+result :
+outside : you arrive in a *bushy* field, a dark forest STARTS on the right and front on you
+inside : the *bushy* field is in the back, the (dark) forest continues everywhere else.
+

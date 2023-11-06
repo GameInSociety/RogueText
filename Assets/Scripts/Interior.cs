@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Xml.Linq;
 using UnityEngine;
 
 public class Interior {
@@ -62,22 +64,9 @@ public class Interior {
         tileSet.width = TileSet.map.width;
         tileSet.height = TileSet.map.height;
 
-        var rooms = item.properties.FindAll(x => x.type == "room");
-
-        /*foreach (var room in rooms)
-        {
-            Debug.Log("room : " + room.name);
-        }*/
 
         // create room types
-        var tileNames = new List<string>
-        {
-            "bathroom",
-            "bedroom",
-            "children's room",
-            "kitchen",
-            "toilets"
-        };
+        var tileNames = item.infos.FindAll(x => x.StartsWith("room"));
 
         // create hallway
         var hallway_Coords = tileSet.Center;
@@ -104,9 +93,11 @@ public class Interior {
                 // pas ouf, ça changer avec la description des propriétes
                 doorItem.CreateProperty("dir / direction / south");*/
 
-                var dirItem = newHallwayTile.addItem("back");
-                var tileDoor = dirItem.addItem("door");
-                _ = tileDoor.addProperty("direction / back");
+                var orientation = Humanoid.Orientation.back;
+                var newDoor = newHallwayTile.addItem("door");
+                newDoor.setSpec(orientation.ToString(), $">on the {orientation}", orientation.ToString());
+                newDoor.setSpec("entrance");
+                newDoor.AddInfo("definite");
             }
 
             // check if room appears
@@ -115,26 +106,23 @@ public class Interior {
                 var side = new Coords(hallway_Dir.x, hallway_Dir.y);
                 side.Turn();
 
-                var coords = newHallwayTile.coords + side
-                    ;
+                var coords = newHallwayTile.coords + side;
 
-                if (tileSet.tiles.ContainsKey(coords)) {
+                if (tileSet.tiles.ContainsKey(coords))
                     continue;
-                }
 
-                var tileName = tileNames[Random.Range(0, tileNames.Count)];
+                int rnd = Random.Range(0, tileNames.Count);
+                var tileName = tileNames[rnd].Remove(0, 7);
                 var newRoomTile = Tile.create(coords, tileName);
-
-                _ = tileNames.Remove(tileName);
+                tileNames.RemoveAt(rnd);
 
                 tileSet.Add(coords, newRoomTile);
             }
 
             hallway_Coords += hallway_Dir;
 
-            if (Random.value < chanceHallwayTurn) {
+            if (Random.value < chanceHallwayTurn)
                 hallway_Dir.Turn();
-            }
 
             ++a;
 

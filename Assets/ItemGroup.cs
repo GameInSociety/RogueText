@@ -1,40 +1,70 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
+using System.Linq;
+using static UnityEditor.Progress;
+using Unity.Android.Types;
 
 [System.Serializable]
 public class ItemGroup {
-    public ItemGroup(int index){
-        this.index = index; 
+    public ItemGroup(int index, Word.Number num) {
+        this.index = index;
+        this.num = num;
     }
     public int index;
+    public Word.Number num;
     public List<Item> items = new List<Item>();
+    public string text;
 
-    public bool itemsAreDistinct(){
-        // check if player asked for a specific number of items
-        int numericValueInInput = 1;
-        if ( numericValueInInput > 0) {
-            Debug.Log($"item {items[0].debug_name} with {numericValueInInput} in input");
-            // don't isolate, keep X itms in the list
-            numericValueInInput = Mathf.Clamp(numericValueInInput, 0, items.Count);
-            items.RemoveAt(numericValueInInput);
-            return true;
+    public bool tryInit() {
+        if (Regex.IsMatch(text, @$"\ball\b")) {
+            // do nothing, not deleting any other item in the group
         }
 
-        // check if the item was plural in input
-        if (items[0].numInInput == Word.Number.Plural) {
-            Debug.Log($"item {items[0].debug_name} was plural in input (without numeric value), so keep all of them");
-            return true;
+        // check some 
+        if (Regex.IsMatch(text, @$"\bsome\b")) {
+            Debug.Log("found some in " + getFirst().debug_name);
+            float f = (float)items.Count / 2;
+            int half = (int)Mathf.Clamp(Mathf.Round(f), 1, items.Count);
+            if (half < items.Count)
+                items.RemoveRange(half, items.Count - half);
         }
 
-        // this means a specific item is required, so searching a spec
-        Item specificItem = getSpecific();
-        if (specificItem != null){
-            isolateItem(specificItem);
-            return true;
+        // check for numerics
+        foreach (var str in text.Split(' ')) {
+            int count = 0;
+            if (str.All(char.IsDigit) && int.TryParse(str, out count)) {
+                Debug.Log($"found number {count} in item group of {getFirst().debug_name}");
+                for (int i = count; i < items.Count; i++)
+                    items.RemoveAt(i);
+                break;
+            }
         }
 
-        return false;
+        if (num == Word.Number.Singular) {
+
+            bool specMatch = items.TrueForAll(x => x.specMatch(getFirst()));
+            if (getFirst().HasInfo("dif") && !specMatch) {
+                // check for distinct item
+                Item specificItem = getSpecific();
+                if (specificItem != null)
+                    items.RemoveAll(x => x != specificItem);
+                else
+                    return false;
+
+            } else {
+                if (items.Count > 1)
+                    items.RemoveRange(1, items.Count - 1);
+            }
+        }
+
+        return true;
+    }
+
+    public bool ItemAreTheSame() {
+        bool specMatch = items.TrueForAll(x => x.specMatch(getFirst()));
+        return !getFirst().HasInfo("dif") && specMatch;
     }
 
     Item getSpecific() {
@@ -52,7 +82,7 @@ public class ItemGroup {
                 ordinalSpec.searchValue = ordinal;
                 ordinalSpec.displayValue = ordinal;
             } else
-                items[i].setSpec(ordinal, ordinal, "ordinal");
+                items[i].setSpec(ordinal, ordinal, "ordinal", false);
         }
     }
 
@@ -73,7 +103,26 @@ public class ItemGroup {
         return ordinals[i];
     }
 
-    public void isolateItem(Item item) {
-        items.RemoveAll(x => x != item);
+    public Item getFirst() { return items[0]; }
+
+    public static List<ItemGroup> getItemGroups(List<Item> targetItems, string filter = "") {
+        var groups = new List<ItemGroup>();
+        int index = 0;
+        foreach (var item in targetItems) {
+            Word.Number num = Word.Number.None;
+            index = string.IsNullOrEmpty(filter) ? item.dataIndex : item.getIndexInText(filter, out num);
+            if (index >= 0) {
+                var itemgroup = groups.Find(x => x.index == index);
+                if (itemgroup == null) {
+                    itemgroup = new ItemGroup(index, num);
+                    itemgroup.text = filter;
+                    groups.Add(itemgroup);
+                }
+                itemgroup.items.Add(item);
+            }
+        }
+
+        groups.Sort((a, b) => a.index.CompareTo(b.index));
+        return groups;
     }
 }

@@ -14,7 +14,7 @@ public class Function_Time : Function {
     }
 
     void wait() {
-        int hours = ItemParser.GetCurrent.numericValueInInput;
+        int hours = ItemParser.GetCurrent.itemGroups[0].items.Count;
         TimeManager.Instance.Wait(hours);
     }
 }

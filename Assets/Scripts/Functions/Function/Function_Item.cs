@@ -15,7 +15,7 @@ public class Function_Item : Function {
         } else {
             targetItem().removeFromTile();
 
-            var count = ItemParser.GetCurrent.numericValueInInput;
+            var count = ItemParser.GetCurrent.itemGroups[0].items.Count;
 
             // say before it's in the inventory ( that way it doesn't say "your plate")
             if (count > 1)
@@ -103,10 +103,29 @@ public class Function_Item : Function {
 
     void describe() {
 
-        Debug.Log("item count " + ItemParser.GetCurrent.potentialItems.Count);
-        foreach (var item in ItemParser.GetCurrent.potentialItems) {
-            item.writeDescription();
+        ItemGroup group = ItemParser.GetCurrent.itemGroups[0];
+
+        var dGroup = new DescriptionGroup(group.items);
+
+        if (group.ItemAreTheSame()) {
+            if (group.items.Count > 1) {
+                _item.writeDescription("they're", "special dogs");
+            } else {
+                _item.writeDescription();
+            }
+        } else {
+
+            if (group.items.Count > 1) {
+                foreach (var item in ItemParser.GetCurrent.itemGroups[0].items) {
+                    item.writeDescription("there's", "a special dog");
+                }
+            } else {
+                _item.writeDescription();
+            }
+
+            
         }
+        
     }
 
 

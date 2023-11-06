@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Analytics;
 
 [System.Serializable]
 public class Tile : Item {
@@ -16,6 +15,7 @@ public class Tile : Item {
         tile.coords = _coords;
         return tile;
     }
+
 
     #region tile description
     public void describe() {
@@ -52,7 +52,7 @@ public class Tile : Item {
         // putting items that contain things and items that don't in the same list
         // (testing to see how it looks)
         List<Item> mainItms = getItems().FindAll(x => x as Tile == null);
-        string main_str = $"there's {TextManager.listItems(mainItms)}";
+        string main_str = $"there's {TextManager.NewItemDescription(mainItms)}";
         TextManager.write(main_str);
 
         // main items
@@ -66,7 +66,8 @@ public class Tile : Item {
             item.writeContainedItems();*/
 
         List<Item> tiles = getExits();
-        TextManager.write($"around you, {TextManager.listItems(tiles)}");
+        DebugManager.Instance.adjacentTiles = tiles;
+        TextManager.write($"around you, {TextManager.NewItemDescription(tiles, false)}");
 
         // humanoids now...
     }
@@ -79,6 +80,7 @@ public class Tile : Item {
         }
     }
 
+    
     public List<Item> getExits() {
 
         var orientations = new List<Humanoid.Orientation>
@@ -89,7 +91,7 @@ public class Tile : Item {
             Humanoid.Orientation.back
         };
 
-        List<Item> tiles = new List<Item>();
+        List<Item> exits = new List<Item>();
 
         foreach (var orientation in orientations) {
             var adjacentTile = getAdjacent(orientation);
@@ -98,24 +100,24 @@ public class Tile : Item {
                 continue;
             var opp_orientation = Humanoid.getOpp(orientation).ToString();
             // if the tile is enclosed (often an interior)
-            if (adjacentTile.hasProperty("enclosed")) {
-                var newDoor = addItem("door");
-                newDoor.addProperty("direction / " + orientation.ToString());
-                newDoor.setSpec(orientation.ToString(), $">on the {orientation}");
-                if (!adjacentTile.hasItem(opp_orientation)) {
-                    var oppositeDoor = adjacentTile.addItem("door");
-                    _ = oppositeDoor.addProperty("direction / " + opp_orientation);
-                    oppositeDoor.setSpec(opp_orientation, $">on the {orientation}");
-                }
+            if (adjacentTile.HasInfo("enclosed")) {
+
+                // there's a door
+                var door = getItemWithSpec(orientation.ToString());
+                if (door == null)
+                    door = addItem("door");
+                else
+                    Debug.LogError($"{debug_name} already has item with spec {orientation.ToString()}");
+                door.setSpec(orientation.ToString(), $">on the {orientation}", orientation.ToString());
+                exits.Add(door);
 
             } else if (Player.Instance.canSee()){
-                var newTile = Generate_Simple(adjacentTile.debug_name);
-                newTile.setSpec(orientation.ToString(), $">on the {orientation}");
-                tiles.Add(newTile);
+                adjacentTile.setSpec(orientation.ToString(), $">on the {orientation}", orientation.ToString());
+                exits.Add(adjacentTile);
             }
         }
 
-        return tiles;
+        return exits;
     }
 
 

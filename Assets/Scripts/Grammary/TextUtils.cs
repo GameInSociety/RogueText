@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TextUtils {
-    public static string GetLink(int index, int lenght) {
+    public static string GetLink(int index, int lenght, bool useAnd = true) {
         if (index == lenght - 1) {
             return "";
         }
@@ -12,11 +12,11 @@ public class TextUtils {
             return "";
         }
 
-        if (lenght == 2) {
+        if (lenght == 2 && useAnd) {
             return " and ";
         }
 
-        if (index == lenght - 2) {
+        if (index == lenght - 2 && useAnd) {
             return " and ";
         }
         // dernier

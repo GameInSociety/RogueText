@@ -448,7 +448,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.95191973
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2834,6 +2834,7 @@ MonoBehaviour:
   group: {fileID: 31390626}
   canvasGroup: {fileID: 1070853840}
   duration: 0.5
+  visible: 0
 --- !u!1 &1155866336
 GameObject:
   m_ObjectHideFlags: 0
@@ -4116,47 +4117,74 @@ MonoBehaviour:
     debug_name: debug name
     debug_randomID: 0
     className: 
-    infos: []
-    specs: []
     dataIndex: 0
-    currentWordIndex: 0
     words: []
     properties: []
+    infos: []
+    currentWordIndex: 0
+    specs: []
     mContainedItems: []
-    indexInInput: 0
-    numInInput: 0
     coords:
       x: 0
       y: 0
-  parsers: []
+  previousParser:
+    itemGroups: []
+    numericValueInInput: 0
+    onHold: 0
+    inputs: []
+    history: []
+    parentItem:
+      debug_name: debug name
+      debug_randomID: 0
+      className: 
+      dataIndex: 0
+      words: []
+      properties: []
+      infos: []
+      currentWordIndex: 0
+      specs: []
+      mContainedItems: []
+  currentParser:
+    itemGroups: []
+    numericValueInInput: 0
+    onHold: 0
+    inputs: []
+    history: []
+    parentItem:
+      debug_name: debug name
+      debug_randomID: 0
+      className: 
+      dataIndex: 0
+      words: []
+      properties: []
+      infos: []
+      currentWordIndex: 0
+      specs: []
+      mContainedItems: []
   currentFunctionList:
     lines: []
     item:
       debug_name: debug name
       debug_randomID: 0
       className: 
-      infos: []
-      specs: []
       dataIndex: 0
-      currentWordIndex: 0
       words: []
       properties: []
+      infos: []
+      currentWordIndex: 0
+      specs: []
       mContainedItems: []
-      indexInInput: 0
-      numInInput: 0
     tile:
       debug_name: debug name
       debug_randomID: 0
       className: 
-      infos: []
-      specs: []
       dataIndex: 0
-      currentWordIndex: 0
       words: []
       properties: []
+      infos: []
+      currentWordIndex: 0
+      specs: []
       mContainedItems: []
-      indexInInput: 0
-      numInInput: 0
       coords:
         x: 0
         y: 0
@@ -4164,7 +4192,7 @@ MonoBehaviour:
     _nextNode: 0
   colorWords: 0
   AVAILABLE_ITEMS:
-    list: []
+    currItems: []
     recentItems: []
     debug_presentInInput: []
   EVENTS: []
@@ -4172,15 +4200,13 @@ MonoBehaviour:
     debug_name: debug name
     debug_randomID: 0
     className: 
-    infos: []
-    specs: []
     dataIndex: 0
-    currentWordIndex: 0
     words: []
     properties: []
+    infos: []
+    currentWordIndex: 0
+    specs: []
     mContainedItems: []
-    indexInInput: 0
-    numInInput: 0
     previousCardinal: 0
     currentCarnidal: 0
     health: 0
@@ -4204,15 +4230,13 @@ MonoBehaviour:
       debug_name: debug name
       debug_randomID: 0
       className: 
-      infos: []
-      specs: []
       dataIndex: 0
-      currentWordIndex: 0
       words: []
       properties: []
+      infos: []
+      currentWordIndex: 0
+      specs: []
       mContainedItems: []
-      indexInInput: 0
-      numInInput: 0
 --- !u!1 &1998673411
 GameObject:
   m_ObjectHideFlags: 0

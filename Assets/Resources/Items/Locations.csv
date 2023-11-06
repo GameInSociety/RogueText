@@ -107,28 +107,52 @@ Item(describe)","move
 Player(move, tile)","leave 
 Player(move, relative, 0)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"house","Tile","s","in front of","dif","hidden / interior","room / bathroom","room / bedroom","room / children's room","room / kitchen","go 
+"house","Tile","s","in front of","dif
+interior
+room / bathroom
+room / children's room
+room / bedroom
+room / kitchen
+room / toilets","","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Interior(enter)","go in 
 Interior(enter)","leave 
 Interior(enter)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"farm","Tile","s","in front of","dif","hidden / interior","room / bathroom","room / bedroom","room / children's room","room / kitchen","go 
+"farm","Tile","s","in front of","dif
+interior
+room / bathroom
+room / children's room
+room / bedroom
+room / kitchen
+room / toilets","","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Interior(enter)","go in 
 Interior(enter)","leave 
 Interior(enter)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"cabin","Tile","s","in front of","dif","hidden / interior","","","","","go 
+"cabin","Tile","s","in front of","dif
+interior
+room / bathroom
+room / children's room
+room / bedroom
+room / kitchen
+room / toilets","","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Interior(enter)","go in 
 Interior(enter)","leave 
 Interior(enter)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"mansion","Tile","s","in front of","dif","hidden / interior","","","","","go 
+"mansion","Tile","s","in front of","dif
+interior
+room / bathroom
+room / children's room
+room / bedroom
+room / kitchen
+room / toilets","","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Interior(enter)","go in 

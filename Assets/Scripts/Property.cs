@@ -14,6 +14,23 @@ using static UnityEditor.Progress;
 
 [System.Serializable]
 public class Property {
+
+    // JUST TESTS FOR single line properties
+    // now problems are for EVENTS, that are complicated.
+    // on va encore changer les properties mais c'est pas grave,
+    // tu tiens sûrement quelque chose.
+    // ALLOWING US TO MERGE INFOS, PROPERTIES AND 
+
+    
+
+
+
+
+
+
+    /// <summary>
+    ///  START OF CURRENT PROPERTY
+    /// </summary>
     public string name;
     public bool enabled = false;
     public string type;

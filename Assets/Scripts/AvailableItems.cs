@@ -1,5 +1,11 @@
 using System.Collections.Generic;
+using System.Security.Policy;
+using System.Security.Principal;
+using System.Text.RegularExpressions;
 using UnityEngine;
+using System;
+using System.Linq;
+using static UnityEditor.Progress;
 
 [System.Serializable]
 public class AvailableItems {
@@ -14,25 +20,25 @@ public class AvailableItems {
         }
     }
     
-    public List<Item> list = new List<Item>();
+    public List<Item> currItems = new List<Item>();
     public List<Item> recentItems = new List<Item>();
     public List<Item> debug_presentInInput = new List<Item>();
 
     public Item findInTargetText(string text) {
-        return list.Find(x => x.containedInText(text));
+        return currItems.Find(x => x.containedInText(text));
     }
     public Item getItemOfType(string type) {
-        return list.Find(x => x.HasInfo(type));
+        return currItems.Find(x => x.HasInfo(type));
     }
     public Item getItemOfProperty(string property) {
-        return list.Find(x => x.hasProperty(property));
+        return currItems.Find(x => x.hasProperty(property));
     }
     public Item getItemOfName(string name) {
-        return list.Find(x => x.HasWord(name));
+        return currItems.Find(x => x.HasWord(name));
     }
 
     public void removeFromWorld(Item targetItem) {
-        foreach (var item in AvailableItems.Get.list) {
+        foreach (var item in AvailableItems.Get.currItems) {
             if (item.hasItem(targetItem)) {
                 Debug.Log($"removing {targetItem.debug_name} from {item.debug_name}");
                 item.RemoveItem(targetItem);
@@ -44,12 +50,13 @@ public class AvailableItems {
 
     public List<Item> searchInText(string text) {
 
-        List<Item> its = list.FindAll(x => x.containedInText(text));
+        List<Item> its = currItems.FindAll(x => x.containedInText(text));
         debug_presentInInput = its;
         return its;
     }
 
-    public static void update() {
+
+    public static void updateItems() {
 
         var newAvailableItems = new List<Item>();
         
@@ -63,6 +70,6 @@ public class AvailableItems {
         // the player and all it's things
         newAvailableItems.AddRange(Player.Instance.getRecursive(5));
 
-        Get.list = newAvailableItems;
+        Get.currItems = newAvailableItems;
     }
 }

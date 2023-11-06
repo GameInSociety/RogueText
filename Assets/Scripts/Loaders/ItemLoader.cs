@@ -69,7 +69,7 @@ public class ItemLoader : DataDownloader {
 
             if (cells[3].Length > 1) {
                 // ainsi que les locations peut être
-                newItem.word.locationPrep = cells[3];
+                newItem.word.preposition = cells[3];
             }
         }
 

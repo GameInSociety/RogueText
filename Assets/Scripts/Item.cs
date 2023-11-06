@@ -2,28 +2,47 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
-using TMPro;
-using Unity.Android.Types;
 using UnityEngine;
 
 [System.Serializable]
 public class Item {
 
-    // static things
-    public static List<AppearInfo> appearInfos = new List<AppearInfo>();
-    public static List<Item> dataItems = new List<Item>();
-
+    // DEBUG THINGS
     // the debug name, without string function for debug purposes
+    // only for serialization
     public string debug_name = "debug name";
     // the random id, to store hashcode
     public int debug_randomID;
+
+    // SHOULD BE IN ITEMDATA CLASS (no class yet)
+    // this class should only encapsulate the item data
+    public static List<AppearInfo> appearInfos = new List<AppearInfo>();
+    public static List<Item> dataItems = new List<Item>();
     // the class name of the item, it will serialize a new one if not null
     public string className;
+    public int dataIndex;
+    public List<Word> words = new List<Word>();
 
-    // un peu oublié à quoi ça ser ça
+    // word parameters not like the data item words.
+
+
+    /// <summary>
+    /// properties
+    /// </summary>
+    /// complicated, ITEM DATA should have properties ( mabye only string )
+    /// that way, the data properties would be there
+    /// but still, we could add, remove and handle properties in game
+    public List<Property> properties = new List<Property>();
+
+    // INFOS is a bit of a duplicate of property. but less complicated.
+    // not sure, maybe it could be in the item data class, but 
     public List<string> infos = new List<string>();
+
+    /// <summary>
+    /// WORD the recetn index of the word used
+    /// </summary>
+    public int currentWordIndex = 0;
 
     // les spécificit's de l'objet.
     // à reset à chaque passe.
@@ -33,23 +52,10 @@ public class Item {
 
     // interior
     // maybe the interior class would be a item type
+    // INTERIOR SHOULD BE CLASSES
     public Interior interior = null;
 
-    /// <summary>
-    /// declaration
-    /// </summary>
-    public int dataIndex;
-
-    /// <summary>
-    /// WORD
-    /// </summary>
-    public int currentWordIndex = 0;
-    public List<Word> words = new List<Word>();
-
-    /// <summary>
-    /// properties
-    /// </summary>
-    public List<Property> properties = new List<Property>();
+    
 
     #region info
     public void AddInfo(string str) {
@@ -74,10 +80,17 @@ public class Item {
         return specs.Find(x => x.key == str || x.displayValue == str || x.searchValue == str);
     }
 
-    public bool hasKey(string key) {
-        return hasSpecs() && specs.Find(x => x.searchValue == key) != null;
+    public bool hasSpecWithKey(string key) {
+        return getSpecWithKey(key) != null;
     }
-
+    public Spec getSpecWithKey(string key) {
+        if (specs == null)
+            return null;
+        return specs.Find(x => x.searchValue == key);
+    }
+    public Item getItemWithSpec(string key) {
+        return getContainedItems.Find(x => x.hasSpecWithKey(key));
+    }
     public bool hasSpec(string spec) {
         return hasSpecs() && specs.Find(x => x.key == spec) != null;
     }
@@ -90,21 +103,14 @@ public class Item {
             return false;
         
         if ( it.specs.Count != specs.Count){
-            Debug.Log($"{debug_name} spec match : not same count ({specs.Count}/{it.specs.Count})");
             return false;
         }
 
         // ça va jamais être égale parce que c'est pas des structs mais des objets
 
         for (int i = 0; i < it.specs.Count; i++) {
-            if (it.specs[i].searchValue != specs[i].searchValue) {
-                Debug.Log($"{debug_name} spec match : not same SEARCH VALUE ({it.specs[i].searchValue}/{specs[i].searchValue})");
+            if (it.specs[i].searchValue != specs[i].searchValue || it.specs[i].key != specs[i].key)
                 return false;
-            }
-            if (it.specs[i].key != specs[i].key) {
-                Debug.Log($"{debug_name} spec match : not same KEY ({it.specs[i].key}/{specs[i].key})");
-                return false;
-            }
         }
         return true;
     }
@@ -119,6 +125,11 @@ public class Item {
     public Spec setSpec(string search,string display = "", string key = "none", bool visible = true) {
         if (specs == null)
             specs = new List<Spec>();
+
+        if (string.IsNullOrEmpty(display))
+            display = search;
+        if (string.IsNullOrEmpty(key))
+            key = search;
 
         Spec spec = specs.Find(x => x.key != "none" && x.key == key);
         if ( spec == null) {
@@ -142,6 +153,14 @@ public class Item {
             var newProp = CreateProperty(prop_copy);
             properties.Add(newProp);
         }
+        if (HasInfo("dif")) {
+            //Debug.Log($"{debug_name} needs to be differenciated, adding specs");
+            Spec.Category cat = Spec.GetCat("color");
+            string specName = cat.GetRandomSpec();
+            Spec newSpec = setSpec(specName, specName, cat.name );
+            //Debug.Log($"adding spec {newSpec.displayValue} to {debug_name}");
+        }
+
     }
     #region contained items
     public bool containsItems() {
@@ -174,7 +193,7 @@ public class Item {
 
         mContainedItems.Add(item);
 
-        item.setSpec(debug_name, $">{getWord("in a dog")}", "container", false);
+        item.setSpec(debug_name, $">{getText("in a dog")}", "container", false);
 
         // vraiment pas sûr que ça devrait être ici
         item.generateItems();
@@ -259,101 +278,69 @@ public class Item {
         return item.hasItem(this);
     }
     public virtual void writeContainedItems(bool describeContainers = false) {
-        string list = TextManager.listItems(getItems());
-        string description = $"there's {list} {getWord("in a dog")}";
+        string list = TextManager.NewItemDescription(getItems());
+        string description = $"there's {list} {getText("in a dog")}";
         TextManager.write(description);
         AddInfo("discovered");
         return;
-        // Get Groups for description
-        var allGroups = new List<Group>();
-        foreach (var item in getItems()) {
-            var group = allGroups.Find(x => x.item.dataIndex == item.dataIndex);
-            if (group == null) {
-                // Create new group
-                var newGroup = new Group();
-                newGroup.amount = 1;
-                newGroup.item = item; 
-                allGroups.Add(newGroup);
-                item.word.defined = false;
-                continue;
-            }
-            // Found group, adding amount
-            ++group.amount;
+    }
+
+    public string getText(string prms) {
+
+        // FORM
+        // a special dog
+        // preposition/article/specs/name
+
+        // preposition "on a dog" => in the armory
+        var prepBound = @$"\bon\b";
+        if (Regex.IsMatch(word.text, prepBound))
+            prms = prms.Replace(prepBound, word.preposition);
+
+        // name + specs (getting before article to see if it starts with a vowel)
+        var name_group = word.text;
+        var specBound = @$"\bspecial\b";
+        if (hasSpecs() && Regex.IsMatch(prms, specBound)) {
+            int specIndex = prms.IndexOf("special");
+            prms = prms.Remove(specIndex , "special".Length + 1);
+            var front_specs = specs.FindAll(x => !x.displayValue.StartsWith('>'));
+            var back_specs = specs.FindAll(x => x.displayValue.StartsWith('>'));
+            if (front_specs.Count > 0) name_group = name_group.Insert(0, $"{getSpecText(front_specs)}");
+            if (back_specs.Count > 0) name_group = name_group.Insert(name_group.Length, $" {getSpecText(back_specs)}");
         }
 
-        var containerGroups = new List<Group>();
-        var itemGroups = new List<Group>();
-        if (describeContainers)
-            containerGroups = allGroups.FindAll(x => x.item.containsItems() && x.item.HasInfo("invisible"));
-
-        itemGroups = allGroups.FindAll(x => !x.item.HasInfo("invisible"));
-        if (containerGroups.Count > 0 && !containerGroups.First().item.HasInfo("invisible"))
-            itemGroups.Insert(0, containerGroups.First());
-        if (itemGroups.Count > 0) {
-            if (describeContainers)
-                TextManager.write("there's ");
-            else
-                TextManager.write("");
-
-            // Describe groups
-            var index = 0;
-            foreach (var group in itemGroups) {
-                if (group.item.word.defined) {
-                    TextManager.add("&the dog&", group.item);
-                } else {
-                    TextManager.add("&a dog&", group.item);
-                    group.item.word.defined = true;
-                }
-                TextManager.AddLink(index, itemGroups.Count);
-                ++index;
-            }
-
-            if (this != Tile.GetCurrent && itemGroups.Count > 0) {
-                if (word.defined) {
-                    TextManager.add(" &on the dog&", this);
-                } else {
-                    TextManager.add(" &on a dog&", this);
-                    word.defined = true;
+        // article
+        if (word.defined || HasInfo("definite")) {
+            var articleBound = @$"\ba\b";
+            prms = Regex.Replace(prms, articleBound, "the");
+        } else {
+            // a dog => some mittens
+            if (word.defaultNumber == Word.Number.Plural) {
+                var articleBound = @$"\ba\b";
+                prms = Regex.Replace(prms, articleBound, "some");
+            } else {
+                // a dog = an armory
+                if (Word.startWithVowel(name_group)) {
+                    var articleBound = @$"\ba\b";
+                    prms = Regex.Replace(prms, articleBound, "an");
                 }
             }
         }
-        foreach (var group in containerGroups) {
-            if (group.item.containsItems())
-                group.item.writeContainedItems();
-        }
-        AddInfo("discovered");
-    }
 
-    public string getWord(string prms) {
-        string str = "";
-        string bSpecs = getSpecText("!>");
-        string aSpecs = getSpecText(">");
-        if (!string.IsNullOrEmpty(bSpecs))
-            str += $" {bSpecs}";
-        str += word.get(prms);
-        if (!string.IsNullOrEmpty(aSpecs))
-            str += $" {aSpecs}";
-        return str;
+        
+
+        prms = prms.Replace("dog", name_group);
+        return prms;
     }
-    public string getSpecText(string filter = "") {
+    public string getSpecText(List<Spec> specs) {
         if (specs == null)
             return "";
         string str = "";
         List<Spec> list = specs.FindAll(x=>x.visible);
-        if (!string.IsNullOrEmpty(filter)) {
-            if (filter.StartsWith('!')) {
-                list = list.FindAll(x => !x.displayValue.StartsWith(filter.Remove(0, 1)));
-            } else {
-                list = list.FindAll(x => x.displayValue.StartsWith(filter));
-            }
-        }
         for (int i = 0; i < list.Count; i++) {
             string spectext = list[i].displayValue;
-            if (!string.IsNullOrEmpty(filter) && !filter.StartsWith('!'))
-                spectext = spectext.Remove(0, 1);
-            str += $"{spectext} {TextManager.getLink(i, list.Count)}";
+            if (spectext.StartsWith('>')) spectext = spectext.Remove(0, 1);
+            str += $"{spectext} {TextUtils.GetLink(i, list.Count, false)}";
         }
-
         return str;
     }
 
@@ -379,54 +366,35 @@ public class Item {
         return currentWordIndex >= 0;
     }
     public bool containedInText(string _text) {
-        return getIndexInText(_text) >= 0;
+        Word.Number num = Word.Number.None;
+        return getIndexInText(_text, out num) >= 0;
     }
-    public int[] getIndexesInText(string text, Word.Number num = Word.Number.Singular) {
-        List<int> ints = new List<int>();
+    public int getIndexInText(string text, out Word.Number num) {
+        num = Word.Number.None;
         foreach (var word in words) {
-            // return -1 if the default number is plural =>
-            // "take seeds""take scissors" => take all seeds etc..
-            if (num == Word.Number.Plural && word.number == Word.Number.Plural)
-                continue;
-            if (Regex.IsMatch(text, @$"\b{word.getText(num)}\b")) {
-
-                int index = 0;
-                while (index >= 0) {
-
-                    index = text.IndexOf(word.getText(num), index + 1);
-                    if (index < 0 || index >= text.Length)
-                        break;
-                    ints.Add(index);
-                }
-
+            for (int i = 0; i < 2; i++) {
+                num = (Word.Number)i;
+                string _word = word.getText(num);
+                if (Regex.IsMatch(text, @$"\b{_word}\b"))
+                    return text.IndexOf(_word);
             }
         }
-
-        return ints.ToArray();
-    }
-    public int indexInInput;
-    public Word.Number numInInput;
-    public int getIndexInText(string text, Word.Number num = Word.Number.Singular) {
-        foreach (var word in words) {
-            // return -1 if the default number is plural =>
-            // "take seeds""take scissors" => take all seeds etc..
-            if (num == Word.Number.Plural && word.number == Word.Number.Plural)
-                return -1;
-            if (Regex.IsMatch(text, @$"\b{word.getText(num)}\b")) {
-                indexInInput = text.IndexOf(word.getText(num));
-                numInInput = num;
-                return indexInInput;
-            }
-        }
-
+        num = Word.Number.None;
         return -1;
     }
     #endregion
+
     #region properties
     /// properties /// <summary>
     /// properties ///
     /// </summary>
     public virtual void writeDescription() {
+        writeDescription("it's", "a special dog");
+    }
+    public virtual void writeDescription(string starter, string prms) {
+
+        TextManager.write($"{starter} {getText(prms)}");
+
         if (hasProperties())
             WriteProperties();
 
@@ -435,9 +403,7 @@ public class Item {
 
         if (!hasProperties() && !containsItems()) {
             if (GetAppearInfo().CanContainItems())
-                TextManager.write("It's empty");
-            else
-                TextManager.write($"It's just {getWord("a dog")}");
+                TextManager.write("it's empty");
         }
     }
 
@@ -572,20 +538,18 @@ public class Item {
     public void WriteProperties() {
 
         var enabledPropCount = GetEnabledProperties().Count;
-
-        if (enabledPropCount > 0) {
-            TextManager.write("&the dog& is ", this);
-
-            for (var i = 0; i < enabledPropCount; i++) {
-                var property = GetEnabledProperties()[i];
-
-                TextManager.add(property.GetDescription());
-                TextManager.AddLink(i, enabledPropCount);
-
-            }
+        if (enabledPropCount == 0)
+            return;
+        
+        TextManager.add("it's ");
+        for (var i = 0; i < enabledPropCount; i++) {
+            var property = GetEnabledProperties()[i];
+            TextManager.add(property.GetDescription());
+            TextManager.AddLink(i, enabledPropCount);
         }
     }
     #endregion
+
     #region remove & destroy
     public static void Destroy(Item item) {
         ItemEvent.Remove(item);
@@ -598,6 +562,7 @@ public class Item {
         item.addItem(this);
     }
     #endregion
+
     #region tools
     public static Item GetDataItem(string key) {
         Item item;
@@ -617,11 +582,8 @@ public class Item {
 
     public static Item Generate_Simple(string name) {
         var copy = GetDataItem(name);
-
         var item = Generate(copy);
-
         item.Init(copy);
-
         return item;
     }
 
@@ -659,7 +621,7 @@ public class Item {
         newItem.dataIndex = copy.dataIndex;
         newItem.className = copy.className;
 
-        newItem.infos = copy.infos;
+        newItem.infos = new List<string>(copy.infos);
         // the word never changes, non ? pourquoi en copy
         newItem.words = copy.words;
 
