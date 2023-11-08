@@ -266,7 +266,6 @@ public class ItemParser {
             list = getPotentialItems(content, match);
 
             if (list != null && list.Count > 0) {
-                Logue.Add($"[{matchType}] : " + TextManager.NewItemDescription(list));
                 parentItem = null;
                 return list;
             }

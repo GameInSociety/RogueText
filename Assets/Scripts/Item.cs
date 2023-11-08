@@ -69,6 +69,9 @@ public class Item {
     }
     #endregion
     #region specs
+    public static bool allSpecMatch(List<Item> items) {
+        return items.TrueForAll(x => x.specMatch(items.First()));
+    }
     public Spec specContainedIn(string str) {
         Spec targetSpec = specs.Find(x => str.Contains(x.displayValue));
         return targetSpec;
@@ -82,6 +85,9 @@ public class Item {
 
     public bool hasSpecWithKey(string key) {
         return getSpecWithKey(key) != null;
+    }
+    public Spec getSpec(int i) {
+        return specs == null || i >= specs.Count ? null : specs[i];
     }
     public Spec getSpecWithKey(string key) {
         if (specs == null)
@@ -122,22 +128,29 @@ public class Item {
         spec = specs.Find(x => text.Contains(x.searchValue));
         return spec != null;
     }
-    public Spec setSpec(string search,string display = "", string key = "none", bool visible = true) {
+    public Spec setSpec(Spec spec) {
+        if (specs == null)
+            specs = new List<Spec>();
+        specs.Add(spec);
+        return spec;
+    }
+    public Spec setSpec(string display,string search = "", string key = "none", bool visible = true) {
         if (specs == null)
             specs = new List<Spec>();
 
-        if (string.IsNullOrEmpty(display))
-            display = search;
+        if (string.IsNullOrEmpty(search))
+            search = display;
         if (string.IsNullOrEmpty(key))
-            key = search;
+            key = display;
 
         Spec spec = specs.Find(x => x.key != "none" && x.key == key);
         if ( spec == null) {
-            spec = new Spec(search, display, key, visible);
+            spec = new Spec(display, search, key, visible);
             specs.Add(spec);
         } else {
-            spec.searchValue = search;
+            Debug.LogError($"{debug_name} already has spec with key {key}");
             spec.displayValue = display;
+            spec.searchValue = search;
             spec.key = key;
             spec.visible = visible;
         }
@@ -153,13 +166,7 @@ public class Item {
             var newProp = CreateProperty(prop_copy);
             properties.Add(newProp);
         }
-        if (HasInfo("dif")) {
-            //Debug.Log($"{debug_name} needs to be differenciated, adding specs");
-            Spec.Category cat = Spec.GetCat("color");
-            string specName = cat.GetRandomSpec();
-            Spec newSpec = setSpec(specName, specName, cat.name );
-            //Debug.Log($"adding spec {newSpec.displayValue} to {debug_name}");
-        }
+        
 
     }
     #region contained items
@@ -193,7 +200,16 @@ public class Item {
 
         mContainedItems.Add(item);
 
-        item.setSpec(debug_name, $">{getText("in a dog")}", "container", false);
+        if (item.HasInfo("dif")) {
+            //Debug.Log($"{debug_name} needs to be differenciated, adding specs");
+            Spec.Category cat = Spec.GetCat("color");
+            string spec_str = cat.GetRandomSpec();
+            Spec newSpec = item.setSpec(spec_str, spec_str, "main");
+            //Debug.Log($"adding spec {newSpec.displayValue} to {debug_name}");
+        }
+
+
+        item.setSpec($">{getText("in a dog")}", debug_name, "container", false);
 
         // vraiment pas sûr que ça devrait être ici
         item.generateItems();
@@ -278,7 +294,7 @@ public class Item {
         return item.hasItem(this);
     }
     public virtual void writeContainedItems(bool describeContainers = false) {
-        string list = TextManager.NewItemDescription(getItems());
+        string list = DescriptionGroup.NewDescription(getItems());
         string description = $"there's {list} {getText("in a dog")}";
         TextManager.write(description);
         AddInfo("discovered");

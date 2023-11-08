@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Linq;
 using static UnityEditor.Progress;
 using Unity.Android.Types;
+using System.Net.Configuration;
 
 [System.Serializable]
 public class ItemGroup {
@@ -44,8 +45,7 @@ public class ItemGroup {
 
         if (num == Word.Number.Singular) {
 
-            bool specMatch = items.TrueForAll(x => x.specMatch(getFirst()));
-            if (getFirst().HasInfo("dif") && !specMatch) {
+            if (getFirst().HasInfo("dif") && !Item.allSpecMatch(items)) {
                 // check for distinct item
                 Item specificItem = getSpecific();
                 if (specificItem != null)
@@ -63,8 +63,7 @@ public class ItemGroup {
     }
 
     public bool ItemAreTheSame() {
-        bool specMatch = items.TrueForAll(x => x.specMatch(getFirst()));
-        return !getFirst().HasInfo("dif") && specMatch;
+        return !getFirst().HasInfo("dif") && Item.allSpecMatch(items);
     }
 
     Item getSpecific() {

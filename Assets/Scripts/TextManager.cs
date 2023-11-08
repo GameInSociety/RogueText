@@ -200,20 +200,6 @@ public static class TextManager {
         return "nique toi";
     }
 
-    public static string NewItemDescription(List<Item> tmpItms, bool groupSimilar = true) {
-
-        var groups = DescriptionGroup.GetGroups(tmpItms);
-
-        DebugManager.Instance.descriptionGroups = groups.ToArray();
-
-        string str = "";
-        for (int i = 0; i < groups.Count; ++i) {
-            str += groups[i].getDescription(groupSimilar);
-            str += TextUtils.GetLink(i, groups.Count);
-        }
-        Debug.Log("new item description : " + str);
-        return str;
-    }
 
     public static string ToLowercaseNamingConvention(this string s, bool toLowercase) {
         if (toLowercase) {

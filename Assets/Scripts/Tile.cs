@@ -10,9 +10,13 @@ public class Tile : Item {
     // location of tile in world
     public Coords coords;
     public static bool itemsChanged = false;
-    public static Tile create(Coords _coords, string _name) {
+    public static Tile create(Coords _coords, string _name, string spec_str = "") {
         var tile = Generate_Special(_name) as Tile;
         tile.coords = _coords;
+
+        if (!string.IsNullOrEmpty(spec_str))
+            tile.setSpec(spec_str, spec_str, "main");
+
         return tile;
     }
 
@@ -52,7 +56,7 @@ public class Tile : Item {
         // putting items that contain things and items that don't in the same list
         // (testing to see how it looks)
         List<Item> mainItms = getItems().FindAll(x => x as Tile == null);
-        string main_str = $"there's {TextManager.NewItemDescription(mainItms)}";
+        string main_str = $"there's {DescriptionGroup.NewDescription(mainItms)}";
         TextManager.write(main_str);
 
         // main items
@@ -67,7 +71,7 @@ public class Tile : Item {
 
         List<Item> tiles = getExits();
         DebugManager.Instance.adjacentTiles = tiles;
-        TextManager.write($"around you, {TextManager.NewItemDescription(tiles, false)}");
+        TextManager.write($"around you, {DescriptionGroup.NewDescription(tiles, true)}");
 
         // humanoids now...
     }
@@ -108,11 +112,11 @@ public class Tile : Item {
                     door = addItem("door");
                 else
                     Debug.LogError($"{debug_name} already has item with spec {orientation.ToString()}");
-                door.setSpec(orientation.ToString(), $">on the {orientation}", orientation.ToString());
+                door.setSpec($">on the {orientation}", orientation.ToString(), orientation.ToString());
                 exits.Add(door);
 
             } else if (Player.Instance.canSee()){
-                adjacentTile.setSpec(orientation.ToString(), $">on the {orientation}", orientation.ToString());
+                adjacentTile.setSpec($">on the {orientation}", orientation.ToString(), orientation.ToString());
                 exits.Add(adjacentTile);
             }
         }

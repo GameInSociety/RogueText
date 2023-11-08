@@ -39,7 +39,7 @@ public class Spec {
         return cat;
     }
 
-    public Spec(string _searchValue, string _displayValue, string _key, bool _visible) {
+    public Spec(string _displayValue, string _searchValue,  string _key, bool _visible) {
         searchValue = _searchValue; displayValue = _displayValue; key = _key; this.visible = _visible;
     }
     public bool Null() {
@@ -47,6 +47,14 @@ public class Spec {
     }
     public string key;
     public string displayValue;
+    public string GetDisplayValue {
+        get {
+            return displayAfterWord()? displayValue.Remove(0, 1) : displayValue;
+        }
+    }
+    public bool displayAfterWord (){
+        return displayValue.StartsWith('>');
+    }
     public string searchValue;
     public bool visible;
 }

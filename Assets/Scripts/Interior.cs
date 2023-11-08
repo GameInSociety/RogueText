@@ -73,10 +73,12 @@ public class Interior {
         var hallway_Dir = new Coords(0, 1);
         var a = 0;
 
+        string hallwaySpec = Spec.GetCat("color").GetRandomSpec();
+
         while (tileNames.Count > 0) {
 
             // add new hallway tile
-            var newHallwayTile = Tile.create(hallway_Coords, "hallway");
+            var newHallwayTile = Tile.create(hallway_Coords, "hallway",hallwaySpec );
 
             if (tileSet.tiles.ContainsKey(hallway_Coords)) {
                 hallway_Coords += hallway_Dir;
@@ -95,7 +97,7 @@ public class Interior {
 
                 var orientation = Humanoid.Orientation.back;
                 var newDoor = newHallwayTile.addItem("door");
-                newDoor.setSpec(orientation.ToString(), $">on the {orientation}", orientation.ToString());
+                newDoor.setSpec($">on the {orientation}", orientation.ToString(), orientation.ToString());
                 newDoor.setSpec("entrance");
                 newDoor.AddInfo("definite");
             }

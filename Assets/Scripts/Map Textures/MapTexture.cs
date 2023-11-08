@@ -90,6 +90,11 @@ public class MapTexture : MonoBehaviour {
         TileSet.map.width = w;
         TileSet.map.height = h;
 
+        var specs = new List<string>();
+        for (int i = 0; i < tileInfos.Length; i++) {
+            specs.Add(Spec.GetCat("color").GetRandomSpec());
+        }
+
         for (var x = 0; x < w; x++) {
             for (var y = 0; y < h; y++) {
                 var coords = new Coords(x, y);
@@ -111,7 +116,8 @@ public class MapTexture : MonoBehaviour {
                         ) {
                         var tileInfo = tileInfos[i];
 
-                        var newTile = Tile.create(coords, tileInfo.name);
+                        string spec_str = specs[i];
+                        var newTile = Tile.create(coords, tileInfo.name, spec_str);
 
                         // get tile type from color
                         TileSet.map.Add(coords, newTile);

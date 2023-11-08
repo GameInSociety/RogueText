@@ -9,6 +9,7 @@ DESCRIPTIONS
 
 ITEM
 - spliting item data & item.
+- interior is a tile type
 
 PROPERTIES
 - specs overall ( PASSE DU TEMPS A LA CONCEPTION VIELLE MERDE )
@@ -59,8 +60,8 @@ PARSING XP
 => j'ai dis une autre phrase verbée "look at door on the right" => "there's no such hallway present"
 if a new verb is parsed when a verb is present in the parser, new every thing
 
-create scriptableobject for parameters ( look interior/chancelockedinterior etc.. )
-qui sont static en ce moment
+- CONFIRMATION
+=> "do you wish to sleep on the floor"
 
 DESCRIPTION GROUP
 item specs, group params
@@ -71,4 +72,3 @@ fores 3 : dark forest on the front
 result :
 outside : you arrive in a *bushy* field, a dark forest STARTS on the right and front on you
 inside : the *bushy* field is in the back, the (dark) forest continues everywhere else.
-

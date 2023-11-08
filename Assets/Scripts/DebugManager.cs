@@ -21,7 +21,7 @@ public class DebugManager : MonoBehaviour {
 
     [Space]
     [Header("[DESCRIPTION]")]
-    public DescriptionGroup[] descriptionGroups;
+    public List<DescriptionGroup> descriptionGroups = new List<DescriptionGroup>();
 
     [Space]
     [Header("[PARSER]")]
