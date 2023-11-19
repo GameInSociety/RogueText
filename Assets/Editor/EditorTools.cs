@@ -35,35 +35,16 @@ public class EditorTools : EditorWindow {
         GUILayout.Label("Time", EditorStyles.boldLabel);
 
         if (GUILayout.Button("Wait 1 hour")) {
-            TimeManager.Instance.Wait(1);
+            TimeManager.Wait(1);
         }
 
         if (GUILayout.Button("Wait 10 hours")) {
-            TimeManager.Instance.Wait(10);
+            TimeManager.Wait(10);
         }
     }
 
     void DrawTime() {
-        showTime = EditorGUILayout.BeginToggleGroup("Show Time", showTime);
-
-        if (!showTime) {
-            EditorGUILayout.EndToggleGroup();
-            return;
-        }
-
-        GUILayout.Label("Moves to next hours : " + TimeManager.Instance.currentMove + "/" + TimeManager.Instance.movesToNextHour, EditorStyles.label);
-        GUILayout.Label("Heure : " + TimeManager.Instance.timeOfDay, EditorStyles.label);
-        GUILayout.Label("Partie de la journée : " + TimeManager.Instance.currentPartOfDay, EditorStyles.label);
-
-        if (!TimeManager.Instance.raining) {
-            GUILayout.Label("Il va pleuvoir dans " + TimeManager.Instance.hoursLeftToRain + " heures", EditorStyles.label);
-        } else {
-            GUILayout.Label("Il va s'arrêter de pleuvoir dans " + TimeManager.Instance.hoursLeftToRain + " heures", EditorStyles.label);
-        }
-
-        GUILayout.Label("Jours passés : " + TimeManager.Instance.daysPasted, EditorStyles.label);
-
-        EditorGUILayout.EndToggleGroup();
+       
     }
 
     void DrawStates() {
@@ -76,10 +57,6 @@ public class EditorTools : EditorWindow {
 
         var gUIStyle = new GUIStyle();
         gUIStyle.richText = true;
-
-        foreach (var state in ConditionManager.GetInstance().conditions) {
-            GUILayout.Label(state.GetDebugText(), gUIStyle);
-        }
 
         EditorGUILayout.EndToggleGroup();
     }

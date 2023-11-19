@@ -1,24 +1,71 @@
-"NAME","","N.","PREP.","INF.","PROPERTIES","","","","","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","SEQUENCES","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
 "undead","Zombie","s","","humanoid
-target","condition / health / 10=10
-&fine/hit/hurt/badly hurt/criticaly hurt/dying
+target","health
 
-%subEmpty
-Prop(disable, steps)
-Prop(add, state / dead)
-Write(text, the undead lies on the ground)","","$action / attack
+value: 1 > 10
 
-%subEnable
-Write(text, &the dog& launches at you)
-*player/body part* Prop(enable, bleeding)
-Prop(update, steps, +2)
-Prop(disable, attack)","","","","","","","look 
-Item(describe)","hit / strike / attack
-*target* Prop(update, health, -*h.damage*)
-*target/r.body part* Prop(enable, bleeding)
-Write(text, you hit &the *target*& &on the *body part*& with your &*damage*&)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+description:
+fine / hit / hurt / badly hurt / criticaly hurt / dying
+
+onValue:0
+write(the undead is on the floor, not moving)
+disable(steps)","steps
+
+value: 10
+
+descrption:
+at reach, extremely close, pretty close, a few feet away, at a distance
+
+onValue:0
+trigger(attack)
+
+onAction:
+update(steps, -1)","! attack
+write(the undead attacks)
+[player.body part] enable(bleeding)
+[player] update(health, -1)
+update(steps, +2)","$ hit / strike / attack
+udpate(health, [damage])
+[body part] enable(bleeding)
+Write(you hit the undead on the *body part* with the *damage*)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "player
 self
 own
 my","Player","s","","humanoid
-player","","condition / thirst / 10","condition / hunger / 10","condition / sleep / 10","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+player","health
+
+value: 10
+
+description :
+fine / hit / hurt / badly hurt / criticaly hurt / dying
+
+onValue:0
+write(you are dead)
+endgame","thirst
+
+value: 0
+
+onHours:
+update(thirst, -1)
+
+onValue:0
+write(you're dying of thirst)
+update(health, -1)","hunger
+
+value: 0
+
+onHours:
+update(hunger, -1)
+
+onValue:0
+write(you're dying of hunger)
+update(health, -1)","sleep
+
+value: 0
+
+onHours:
+update(sleep, -1)
+
+onValue:0
+write(you're so tired you're dying)
+update(health, -1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

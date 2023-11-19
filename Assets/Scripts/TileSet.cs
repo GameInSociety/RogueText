@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class TileSet {
 
-    public static int ids = 0;
-    public int id = 0;
-
-    public static TileSet current;
-    public static TileSet map;
-
-    public Coords coords;
+    public static List<TileSet> tileSets = new List<TileSet>();
+    public static TileSet GetCurrent => tileSets[Player.Instance.tilesetId];
+    public static TileSet GetTileSet(int id) { return tileSets[id]; }
+    public static void SetCurrent (int id) { Player.Instance.tilesetId = id; }
+    public int timeScale = 10;
+    public static TileSet world => tileSets[0];
     public Coords playerCoords = Coords.Zero;
 
     public Dictionary<Coords, Tile> tiles = new Dictionary<Coords, Tile>();
@@ -28,20 +27,18 @@ public class TileSet {
         tiles.Add(c, newTile);
     }
 
-    public static void SetCurrent(TileSet _tileSet) {
-        current = _tileSet;
+    public static void ChangeTileSet(int id) {
+        // save currnet player coords
+        Player.Instance.coords = GetCurrent.playerCoords;
+        SetCurrent(id);
+        TimeManager.ChangeMovesPerHour(GetCurrent.timeScale);
+        MapTexture.Instance.UpdateInteriorMap();
+        Player.Instance.Move(Cardinal.None);
     }
 
     public Tile GetTile(Coords coords) {
-        if (tiles.ContainsKey(coords) == false) {
+        if (tiles.ContainsKey(coords) == false)
             return null;
-        }
-
         return tiles[coords];
     }
-
-    public void RemoveAt(Coords c) {
-        _ = tiles.Remove(c);
-    }
-
 }

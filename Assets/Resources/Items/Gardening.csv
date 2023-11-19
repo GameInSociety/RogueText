@@ -1,5 +1,5 @@
-"NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"seeds","","p","","","","","","","","eat 
+"NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","( verb sequence )","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"seeds","","p","","","","","","","","","","","","","eat 
 Condition(thirst, -2)
 Condition(hunger, +1)","look 
 Item(describe)","take 
@@ -8,56 +8,53 @@ Item(throw)","plant
 Item(destroy)
 Item(create, sprout)
 If(prop, fertile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"sprout","","s","","","type / itemName / apple?brocoli?tomato?carrot","iValue / growing / 50
-%subHours
-Prop(update, growing, -1)
+"sprout","","s","","","item name
+value: type(vegetable)
+description:[item name]","growing
 
-%subEmpty
-Item(create, *itemName*)
-Item(destroy, sprout)","iValue / watered / 10
-%subHours
-Prop(update, watered, -1)
+value: 0
 
-%subEmpty
-Prop(enable, drying)
-Prop(disable, watered)
+e:OnHours
+update(growing, +1)
 
-%subRain
-Prop(update, watered, +10)","$iValue / drying / 10
-%subHours
-Prop(update, drying, -1)
+OnValue:50
+disable(water)
+disable(drying)
+createItem($item name)
+destroy","water
 
-%subRain
-Prop(update, drying, +10)
-Prop(disable, drying)
-Prop(update, watered, +10)
-Prop(enable, watered)
+value: 3 > 10
 
-%subEmpty
-Prop(disable, growing)
-Prop(disable, drying)
-Prop(enable, dead)","$state / dead","eat 
-Condition(thirst, -2)
-Condition(hunger, +1)","look 
-Item(describe)","take 
-Item(pickUp)","throw 
-Item(throw)","unearth 
-Item(destroy)
-Write(text, the dog& is gone)","water 
-If(prop, !dead)
-Prop(require, water)
-Prop(update, drying, +*water*)
-Prop(disable, drying)
-Prop(update, watered, +*water*)
-Prop(enable, watered)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"watering can","","s","","","","","","","","look 
-Item(describe)","take 
-Item(pickUp)","fill 
-Prop(require, water)
-Prop(update, water, +*water*)","drink 
+e:OnRain
+update(water, +10)","*drying
+
+value: 0
+
+description:
+is perfectly watered / is turning yellow / is drying / completly dry
+
+e:OnRain
+update(drying, 0)
+enable(water)
+disable(drying)
+
+e:OnHours
+update(drying, +1)
+
+OnValue:10
+disable(growing)
+disable(drying)
+enable(dead)","*dead
+
+description: dead","$ water
+enable(water)
+update(water, +[water])
+update(drying, 0)
+disable(drying)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"watering can","","s","","","","","","","","","","","","","empty 
+createItem(puddle)
+[puddle] update(water, [water])
+update(water, 0)","fill 
+update(water, +[water])","drink 
 Condition(thirst, -1)
-Prop(update, water, -1)","throw 
-Item(throw)","empty 
-If(propValue, water)
-Item(create, puddle)
-*puddle Prop(update, *water*)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+Prop(update, water, -1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

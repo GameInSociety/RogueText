@@ -46,7 +46,7 @@ public class Word {
     }
     #endregion
 
-    public static bool startWithVowel(string str) {
+    public static bool StartsWithVowel(string str) {
         if (
             str[0] == 'a'
             ||

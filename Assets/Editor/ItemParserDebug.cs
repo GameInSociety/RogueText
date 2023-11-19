@@ -11,15 +11,4 @@ public class ItemParserDebug : EditorWindow {
         var window = (ItemParserDebug)GetWindow(typeof(ItemParserDebug));
         window.Show();
     }
-
-    void OnGUI() {
-        _ = GUILayout.Button("History");
-        foreach (var history in ItemParser.GetCurrent.itemHistory) {
-            GUILayout.Label(history.item.debug_name, EditorStyles.boldLabel);
-        }
-        _ = GUILayout.Button("Last Search");
-        foreach (var history in ItemParser.GetCurrent.itemHistory){
-            GUILayout.Label(history.item.debug_name, EditorStyles.boldLabel);
-        }
-    }
 }

@@ -163,14 +163,14 @@ namespace TextSpeech {
             if (onEndOfSpeechCallback != null)
                 onEndOfSpeechCallback();
         }
-        /** The sound level in the audio stream has changed. */
+        /** The sound level in the audio stream hasPart changed. */
         public void onRmsChanged(string _value) {
             var _rms = float.Parse(_value);
             if (onRmsChangedCallback != null)
                 onRmsChangedCallback(_rms);
         }
 
-        /** The user has started to speak. */
+        /** The user hasPart started to speak. */
         public void onBeginningOfSpeech(string _paramsNull) {
             if (onBeginningOfSpeechCallback != null)
                 onBeginningOfSpeechCallback();

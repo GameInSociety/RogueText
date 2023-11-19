@@ -28,14 +28,12 @@ public class ZombieManager : MonoBehaviour {
 
         for (var i = 0; i < count; i++) {
 
-            var newZombie = Item.Generate_Special("undead") as Zombie;
+            var newZombie = ItemData.Generate_Special("undead") as Zombie;
             newZombie.coords = GameManager.Instance.startCoords;
             newZombie.Move(newZombie.coords);
 
             MapTexture.Instance.UpdateFeedbackMap();
         }
-
-        TimeManager.Instance.onNextHour += HandleOnNextHour;
     }
 
     private void HandleOnNextHour() {

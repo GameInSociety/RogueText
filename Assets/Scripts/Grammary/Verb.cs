@@ -2,62 +2,47 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Android;
+using static UnityEngine.ParticleSystem;
 
 [System.Serializable]
 public class Verb {
 
-    public int col = 0;
-
     public static List<Verb> verbs = new List<Verb>();
-    public class Sequence {
-        public int id;
-        public string content;
-    }
-    public List<Sequence> cells = new List<Sequence>();
-
-    public bool HasCell(Item item) {
-        return cells.Find(x => x.id == item.dataIndex) != null;
-    }
-
-    public Sequence GetSequence(Item item) {
-        return cells.Find(x => x.id == item.dataIndex);
-    }
-
     public static void AddVerb(Verb verb) {
         verbs.Add(verb);
     }
 
+    public int indexInText;
     public string question = "";
     public string[] prepositions;
-
-    public string helpPhrase = "";
-
-    public bool universal = false;
-
     public string[] words;
     public int currentNameIndex = 0;
+
     public string GetFull => $"{getWord} {GetPreposition}";
     public string getWord => words[currentNameIndex];
     public string GetPreposition {
         get {
-            if (currentNameIndex >= prepositions.Length) {
+            if (currentNameIndex >= prepositions.Length)
                 return prepositions[0];
-            }
-
             return prepositions[currentNameIndex];
         }
     }
 
+    public string GetItemSequence(Item item) {
+        foreach (var sequence in item.GetData().sequences) {
+            foreach (var potVerb in sequence.verbs) {
+                if (words.Contains(potVerb)) {
+                    return sequence.text;
+                }
+            }
+        }
 
-    public void AddCell(int id, string content) {
-        var cell = new Sequence();
-        cell.id = id;
-        cell.content = content;
-        cells.Add(cell);
+        return null;
     }
 
     public int[] getIndexesInText(string text) {
@@ -80,7 +65,6 @@ public class Verb {
         return ints.ToArray();
     }
 
-    public int indexInText;
     public int getIndexInText(string text) {
         for (int i = 0; i < words.Length; i++) {
             string word = words[i];

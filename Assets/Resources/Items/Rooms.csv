@@ -1,38 +1,38 @@
-"NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"hallway","Tile","s","in","dif","","","","","","go 
+"NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"hallway","Tile","s","in","","","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"stairs","Tile","s","on","dif","","","","","","go 
+"stairs","Tile","s","on","","","","","","","go 
 Player(move, tile)","look 
 Item(describe)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"living room","Tile","s","in","enclosed","","","","","","go 
+"living room","Tile","s","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"kitchen","Tile","s","in","enclosed","","","","","","go 
+"kitchen","Tile","s","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"dining room","Tile","s","in","enclosed","","","","","","go 
+"dining room","Tile","s","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"children's room","Tile","s","in","enclosed","","","","","","go 
+"children's room","Tile","s","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","cut 
@@ -40,54 +40,54 @@ t","go in
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"bedroom","Tile","s","in","enclosed","","","","","","go 
+"bedroom","Tile","s","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"bathroom","Tile","s","in","enclosed","","","","","","go 
+"bathroom","Tile","s","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"toilets","Tile","p","in","enclosed","","","","","","go 
+"toilets","Tile","p","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"attic","Tile","s","in","enclosed","","","","","","go 
+"attic","Tile","s","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"basement","Tile","s","in","enclosed","","","","","","go 
+"basement","Tile","s","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"cellar","Tile","s","in","enclosed","","","","","","go 
+"cellar","Tile","s","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"office","Tile","s","in","enclosed","","","","","","go 
+"office","Tile","s","in","","enclosed","","","","","go 
 Player(move, tile)","look 
 Item(describe)","move 
 Player(move, tile)","go in 
 Player(move, tile)","leave 
 Player(move, relative, 4)","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"garage","Tile","s","in","enclosed","","","","","","look 
+"garage","Tile","s","in","","enclosed","","","","","look 
 Item(describe)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

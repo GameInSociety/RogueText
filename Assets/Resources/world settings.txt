@@ -1,0 +1,10 @@
+rain_duration_min:4
+rain_duration_max:40
+rain_start_min:20
+rain_start_max:50
+hours_dawn:4
+hours_morning:8
+hours_noon:12
+hours_afternoon:14
+hours_dusk:18
+hours_night:21

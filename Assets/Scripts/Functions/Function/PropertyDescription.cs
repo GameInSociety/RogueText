@@ -13,7 +13,6 @@ public static class PropertyDescription {
         if (!list.Contains(it)) {
             list.Add(it);
         }
-
         prop.changed = true;
     }
 
@@ -22,20 +21,19 @@ public static class PropertyDescription {
 
         for (var itIndex = 0; itIndex < list.Count; itIndex++) {
             var it = list[itIndex];
-            var props = it.properties.FindAll(x => x.changed);
+            var props = it.props.FindAll(x => x.changed);
 
-            if (itIndex > 0 && it.containedIn(list[itIndex - 1])) {
+            if (itIndex > 0 && it.IsAChildItemOf(list[itIndex - 1])) {
                 Debug.Log(it.debug_name + " is contained in " + list[itIndex - 1].debug_name);
-                TextManager.write("(d) its &dog& is ", it);
+                TextManager.Write("(d) its &dog& is ", it);
             } else {
-                TextManager.write("(d) &the dog& is ", it);
+                TextManager.Write("(d) &the dog& is ", it);
             }
 
 
             for (var i = 0; i < props.Count; i++) {
                 var prop = props[i];
-                TextManager.add(prop.GetDescription());
-                TextManager.AddLink(itIndex, props.Count);
+                TextManager.add($"{prop.GetDescription()} {TextUtils.GetLink(i, props.Count)}");
                 prop.changed = false;
             }
 

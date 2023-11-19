@@ -40,7 +40,7 @@ public class AndroidDebug : MonoBehaviour {
         RmsBar.sizeDelta = new Vector2(_size, 5);
     }
     void onBeginningOfSpeechCallback() {
-        AddLog("User has started to speak");
+        AddLog("User hasPart started to speak");
     }
     void onErrorCallback(string _params) {
         AddLog("Error: " + _params);

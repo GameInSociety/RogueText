@@ -58,30 +58,4 @@ public class TextUtils {
 
         return str;
     }
-
-    public static string GetPropertyContainerText(Property property) {
-        var phrases = new string[3]
-        {
-            "almost empty",
-            Random.value < 0.5f ? "half full" : "half empty",
-            "almost full",
-        };
-
-        var value = property.GetInt();
-
-        if (value == 0) {
-            return "empty of " + property.name;
-        }
-
-        if (value == property.value_max) {
-            return "full of " + property.name;
-        }
-
-        var lerp = (float)value / property.value_max;
-
-        var index = (int)(lerp * phrases.Length);
-        index = Mathf.Clamp(index, 0, phrases.Length - 1);
-        var text = phrases[index];
-        return "" + text + " of " + property.name;
-    }
 }

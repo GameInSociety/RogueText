@@ -1,11 +1,11 @@
 using DG.Tweening.Core.Easing;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class DebugManager : MonoBehaviour {
-
 
     // TESTS //
     // 1) plates (10x, tester les piles)
@@ -18,10 +18,8 @@ public class DebugManager : MonoBehaviour {
     [Header("[TILE]")]
     public Tile TILE;
     public List<Item> adjacentTiles;
+    public List<ItemGroup> debug_groups;
 
-    [Space]
-    [Header("[DESCRIPTION]")]
-    public List<DescriptionGroup> descriptionGroups = new List<DescriptionGroup>();
 
     [Space]
     [Header("[PARSER]")]
@@ -42,16 +40,13 @@ public class DebugManager : MonoBehaviour {
 
     [Space]
     [Header("[ITEM EVENTS]")]
-    public List<ItemEvent> EVENTS = new List<ItemEvent>();
+    public List<WorldAction> EVENTS = new List<WorldAction>();
 
     [Space]
     [Header("[PLAYER]")]
     public Player PLAYER;
 
     private void Start() {
-        currentFunctionList = FunctionSequence.current;
-        EVENTS = ItemEvent.list;
-
         currentParser = ItemParser.GetCurrent;
         previousParser = ItemParser.GetPrevious;
 

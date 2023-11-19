@@ -1,138 +1,25 @@
-"NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"body","Body","s","on","","","","","","","look
-Item(describe)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"head","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
+"NAME","","N.","PREP.","TYPES","types","PROPERTIES","","","PROPERTIES","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"body","Body","s","on","body part","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"head","","s","on","body part","","group:flesh","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"neck","","s","on","body part","","group:flesh","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"chest","","s","on","body part","","group:flesh","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"left arm","","s","on","body part
+arms","","group:flesh","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"right arm","","s","on","body part
+arms","","group:flesh","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"left hand","","s","on","body part
+hands","damage
 
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"neck","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
+value: 1","group:flesh","damage
 
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"chest","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"arms","BodyPart","p","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"left arm","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"right arm","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"hands","BodyPart","p","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"left hand","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","value / damage / 1","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"right hand","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","value / damage / 2","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"legs","BodyPart","p","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"left leg","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"right leg","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"feet","BodyPart","p","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"left foot","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","value / damage / 1","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"right foot","BodyPart","s","on","body part","$state / bleeding / 2
-%subHours
-Prop(update, bleeding, -1)
-
-%subEmpty
-Prop(update, bleeding, +2)
-*player* Prop(update, health, -1)","value / damage / 2","","","","look
-Item(describe)","unequip
-Player(unequip)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+value: 1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"right hand","","s","on","body part
+hands","value / damage / 2","group:flesh","value / damage / 2","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"left leg","","s","on","body part
+legs","","group:flesh","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"right leg","","s","on","body part
+legs","","group:flesh","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"left foot","","s","on","body part
+feet","value / damage / 1","group:flesh","value / damage / 1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"right foot","","s","on","body part
+feet","value / damage / 2","group:flesh","value / damage / 2","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

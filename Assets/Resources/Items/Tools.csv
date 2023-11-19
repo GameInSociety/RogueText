@@ -1,52 +1,43 @@
-"NAME","","N.","PREP.","INF.","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"mop","","s","","","","","","","","look 
-Item(describe)","take 
-Item(pickUp)","throw 
-Item(throw)","equip 
-Player(equip, weapon)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"shovel","","s","","","","","","","","look 
-Item(describe)","take 
-Item(pickUp)","throw 
-Item(throw)","equip 
-Player(equip, weapon)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"flashlight","","s","","","state / off","$container / battery / 0=10
-%subHours
-Prop(update, battery, -1)
+"NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"mop","","s","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"shovel","","s","","","dig
 
-%subEmpty
-Prop(remove, source of light)
-Prop(update, on, off)
-Prop(disable, battery)","","","","look 
-Item(describe)","take 
-Item(pickUp)","throw 
-Item(throw)","equip 
-Player(equip, misc)","make 
-Craft","turn on 
-If(prop, off)
-If(propValue, battery)
-Prop(enable, battery)
-Prop(create, type / source of light)
-Prop(update, off, on)","turn off 
-If(prop, on)
-Prop(remove, source of light)
-Prop(disable, battery)
-Prop(update, on, off)","charge 
-Item(require, battery)
-Prop(update, battery, +10)
-*battery* Item(destroy)","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"compas","","s","","","","","","","","look 
-Write(text, _north)","take 
-Item(pickUp)","throw 
-Item(throw)","make 
-Craft","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"scissors","","p","","","","","","","","look 
-Item(describe)","take 
-Item(pickUp)","throw 
-Item(throw)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"battery","","s","","","","","","","","look 
-Item(describe)","take 
-Item(pickUp)","throw 
-Item(throw)","put 
-Item(require, flashlight)
-*flashlight* Prop(update, battery, +10)
-Item(destroy)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+onVerb:
+enable(bleeding)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"flashlight","","s","","","on
+
+value: 0 > 1
+
+description:
+off / on","battery
+
+value: 0 > 10
+
+description:
+out of battery, almost out of battery, running low on battery, still has some battery left, almost full of battery, full of battery
+
+OnValue:>0
+update(on, 1)
+enable(source of light)
+
+OnValue:0
+update(on, 0)
+disable(battery)
+write(the flashlight is out of battery)
+
+e:OnHours
+update(battery, -1)","*source of light
+
+description: emits light","equip
+body part: hand","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","$ turn on
+enable(battery)","$ turn off
+disable(battery)
+update(on, 0)","$ charge
+update(battery, [battery.charge] )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"compas","","s","","","$ look
+write(_north)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"scissors","","p","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"battery","","s","","","$ put
+[flashlight] update(battery, [battery.charge])","charge
+value: 0 > 10","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

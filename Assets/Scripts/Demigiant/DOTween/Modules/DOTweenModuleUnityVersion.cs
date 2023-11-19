@@ -20,7 +20,7 @@ namespace DG.Tweening {
         /// <summary>Tweens a Material's color using the given gradient
         /// (NOTE 1: only uses the colors of the gradient, not the alphas - NOTE 2: creates a Sequence, not a Tweener).
         /// Also stores the image as the tween's target so it can be used for filtered operations</summary>
-        /// <param name="gradient">The gradient to use</param><param name="duration">The duration of the tween</param>
+        /// <getParam name="gradient">The gradient to use</getParam><getParam name="duration">The duration of the tween</getParam>
         public static Sequence DOGradientColor(this Material target, Gradient gradient, float duration) {
             var s = DOTween.Sequence();
             var colors = gradient.colorKeys;
@@ -42,9 +42,9 @@ namespace DG.Tweening {
         /// <summary>Tweens a Material's named color property using the given gradient
         /// (NOTE 1: only uses the colors of the gradient, not the alphas - NOTE 2: creates a Sequence, not a Tweener).
         /// Also stores the image as the tween's target so it can be used for filtered operations</summary>
-        /// <param name="gradient">The gradient to use</param>
-        /// <param name="property">The name of the material property to tween (like _Tint or _SpecColor)</param>
-        /// <param name="duration">The duration of the tween</param>
+        /// <getParam name="gradient">The gradient to use</getParam>
+        /// <getParam name="property">The name of the material property to tween (like _Tint or _SpecColor)</getParam>
+        /// <getParam name="duration">The duration of the tween</getParam>
         public static Sequence DOGradientColor(this Material target, Gradient gradient, string property, float duration) {
             var s = DOTween.Sequence();
             var colors = gradient.colorKeys;
@@ -118,7 +118,7 @@ namespace DG.Tweening {
         /// It can be used inside a coroutine as a yield.
         /// <para>Example usage:</para><code>yield return myTween.WaitForElapsedLoops(2);</code>
         /// </summary>
-        /// <param name="elapsedLoops">Elapsed loops to wait for</param>
+        /// <getParam name="elapsedLoops">Elapsed loops to wait for</getParam>
         public static CustomYieldInstruction WaitForElapsedLoops(this Tween t, int elapsedLoops, bool returnCustomYieldInstruction) {
             if (!t.active) {
                 if (Debugger.logPriority > 0) Debugger.LogInvalidTween(t);
@@ -132,7 +132,7 @@ namespace DG.Tweening {
         /// It can be used inside a coroutine as a yield.
         /// <para>Example usage:</para><code>yield return myTween.WaitForPosition(2.5f);</code>
         /// </summary>
-        /// <param name="position">Position (loops included, delays excluded) to wait for</param>
+        /// <getParam name="position">Position (loops included, delays excluded) to wait for</getParam>
         public static CustomYieldInstruction WaitForPosition(this Tween t, float position, bool returnCustomYieldInstruction) {
             if (!t.active) {
                 if (Debugger.logPriority > 0) Debugger.LogInvalidTween(t);
@@ -167,9 +167,9 @@ namespace DG.Tweening {
 
         /// <summary>Tweens a Material's named texture offset property with the given ID to the given value.
         /// Also stores the material as the tween's target so it can be used for filtered operations</summary>
-        /// <param name="endValue">The end value to reach</param>
-        /// <param name="propertyID">The ID of the material property to tween (also called nameID in Unity's manual)</param>
-        /// <param name="duration">The duration of the tween</param>
+        /// <getParam name="endValue">The end value to reach</getParam>
+        /// <getParam name="propertyID">The ID of the material property to tween (also called nameID in Unity's manual)</getParam>
+        /// <getParam name="duration">The duration of the tween</getParam>
         public static TweenerCore<Vector2, Vector2, VectorOptions> DOOffset(this Material target, Vector2 endValue, int propertyID, float duration) {
             if (!target.HasProperty(propertyID)) {
                 if (Debugger.logPriority > 0) Debugger.LogMissingMaterialProperty(propertyID);
@@ -182,9 +182,9 @@ namespace DG.Tweening {
 
         /// <summary>Tweens a Material's named texture scale property with the given ID to the given value.
         /// Also stores the material as the tween's target so it can be used for filtered operations</summary>
-        /// <param name="endValue">The end value to reach</param>
-        /// <param name="propertyID">The ID of the material property to tween (also called nameID in Unity's manual)</param>
-        /// <param name="duration">The duration of the tween</param>
+        /// <getParam name="endValue">The end value to reach</getParam>
+        /// <getParam name="propertyID">The ID of the material property to tween (also called nameID in Unity's manual)</getParam>
+        /// <getParam name="duration">The duration of the tween</getParam>
         public static TweenerCore<Vector2, Vector2, VectorOptions> DOTiling(this Material target, Vector2 endValue, int propertyID, float duration) {
             if (!target.HasProperty(propertyID)) {
                 if (Debugger.logPriority > 0) Debugger.LogMissingMaterialProperty(propertyID);

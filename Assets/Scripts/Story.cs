@@ -18,24 +18,24 @@ public class Story : MonoBehaviour {
     }
 
     public bool GetParam(string key) {
-        var param = _params.Find(x => x.key == key);
+        var getParam = _params.Find(x => x.key == key);
 
-        if (param == null) {
-            Debug.LogError("couldn't find param " + key);
+        if (getParam == null) {
+            Debug.LogError("couldn't find getParam " + key);
             return false;
         }
 
-        return param.value;
+        return getParam.value;
     }
 
     public void SetParam(string key, bool value) {
-        var param = _params.Find(x => x.key == key);
+        var getParam = _params.Find(x => x.key == key);
 
-        if (param == null) {
-            Debug.LogError("couldn't find param " + key);
+        if (getParam == null) {
+            Debug.LogError("couldn't find getParam " + key);
             return;
         }
 
-        param.value = value;
+        getParam.value = value;
     }
 }
