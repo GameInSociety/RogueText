@@ -10,6 +10,12 @@ using static UnityEngine.ParticleSystem;
 using System.Runtime.InteropServices;
 using UnityEditor;
 
+/// <summary>
+/// this class is for action execution only.
+/// it's used to specify item to interact with
+/// NOT for description.
+/// for description, see ItemDescription.cs
+/// </summary>
 [System.Serializable]
 public class ItemGroup {
     public string debug_name;
@@ -24,13 +30,11 @@ public class ItemGroup {
     public Item first => items[0];
     public string text;
 
-    [System.Serializable]
-    public class DescriptionParameters {
-        public bool groupItems = false;
-        public string debug_description;
-    }
+    public bool TryInit() {
 
-    public bool tryInit() {
+        if (items.Count == 1)
+            return true;
+
         if (Regex.IsMatch(text, @$"\ball\b")) {
             // do nothing, not deleting any other item in the group
         }
@@ -57,9 +61,9 @@ public class ItemGroup {
 
         if (num == Word.Number.Singular) {
 
-            if (first.HasProp("dif") && !Item.AllSpecMatch(items)) {
+            if (first.HasProp("dif") ) {
                 // check for distinct item
-                Item specificItem = getSpecific();
+                Item specificItem = GetSpecificItem();
                 if (specificItem != null)
                     items.RemoveAll(x => x != specificItem);
                 else
@@ -74,26 +78,27 @@ public class ItemGroup {
         return true;
     }
 
-    public bool ItemAreTheSame() {
-        return !first.HasProp("dif") && Item.AllSpecMatch(items);
-    }
 
-    Item getSpecific() {
+    private Item GetSpecificItem() {
         // try to find an item spec in the input
-        assignOrdinates();
-        Spec spec = null;
+        AssignOrdinalProps();
+        Property prop = null;
         string text = ItemParser.GetCurrent.lastInput;
-        return items.Find(x => x.textHasSpecs(text, out spec));
+        return items.Find(x => x.CheckPropsInText(text, out prop));
     }
-    private void assignOrdinates() {
+    private void AssignOrdinalProps() {
         for (int i = 0; i < items.Count; i++) {
             string ordinal = GetOrdinal(i);
-            Spec ordinalSpec = items[i].getKeyInfo("ordinal");
-            if (ordinalSpec != null) {
-                ordinalSpec.searchValue = ordinal;
-                ordinalSpec.displayValue = ordinal;
-            } else
-                items[i].setSpec(ordinal, ordinal, "ordinal", false);
+            var ordinal_prop = items[i].GetProp("ordinal");
+            if (ordinal_prop != null) {
+                /*ordinal_prop.searchValue = ordinal;
+                ordinal_prop.displayValue = ordinal;*/
+            } else {
+                ordinal_prop = new Property();
+                ordinal_prop.name = "ordinal";
+                ordinal_prop.AddPart("search", ordinal);
+            }
+            items[i].SetProp($"ordinal / search:{ordinal}");
         }
     }
 
@@ -120,7 +125,7 @@ public class ItemGroup {
         int index = 0;
         foreach (var item in targetItems) {
             Word.Number num = Word.Number.None;
-            index = string.IsNullOrEmpty(filter) ? item.GetData().index : item.getIndexInText(filter, out num);
+            index = string.IsNullOrEmpty(filter) ? item.GetData().index : item.GetIndexInText(filter, out num);
             if (index >= 0) {
                 var itemgroup = groups.Find(x => x.index == index);
                 if (itemgroup == null) {
@@ -136,134 +141,5 @@ public class ItemGroup {
         groups.Sort((a, b) => a.index.CompareTo(b.index));
         return groups;
     }
-    public List<ItemGroup> SplitBySpecs(int splitLayer) {
-        var groups = new List<ItemGroup>();
-        foreach (var item in items) {
-            Word.Number num = Word.Number.None;
-            var itemgroup = groups.Find(x => x.index == index && x.first.getSpec(splitLayer).displayValue == item.getSpec(splitLayer).displayValue);
-            if (itemgroup == null) {
-                itemgroup = new ItemGroup(index, num);
-                itemgroup.debug_name = item.getSpec(splitLayer).displayValue;
-                groups.Add(itemgroup);
-            }
-            itemgroup.items.Add(item);
-        }
-        return groups;
-    }
 
-    public string GetDescription(bool detailItems= false) {
-
-        // aller à l'envers.
-        // toujours partir de la liste d'objet
-        // et s'il s'avère que les objects partage une prop, et n'ont pas d'objets visibles,
-        // les regrouper.
-
-        // if only one item, always detailed description
-        // "special dogs" will display properties descriptions, so nothing if there's none.
-        // NOTE PEUT ËTRE : "very special dog" met des descriptions plus poussées ?
-        if (items.Count == 1)
-            return $"{first.GetText("a special dog")}";
-
-        if ( detailItems) {
-            // if the tmpItems have all the same specs, no need to list them
-            // ( a white house and a white house ) becomes (2 white houses)
-            if (Item.AllSpecMatch(items)) // peut être là rajouter le spec layer ?
-                return $"{items.Count} {first.GetText("special dogs")}";
-
-            int specLayer = 0; // 1 si on va chercher plus loin etc.. mais pas sûr que ça va aller plus loin
-            // spliting the group by other groups with specs
-            childGroups = SplitBySpecs(0);
-                string str = "";
-            foreach (var childGroup in childGroups) {
-                // a road on the right, on the left and on the 
-                for (int i = 0; i < childGroup.items.Count; i++) {
-                    if (i > 0) 
-                        str += $"and {childGroup.items[i].getSpec(1).GetDisplayValue}";
-                    else
-                        str += $"{childGroup.items[i].GetText("a special dog")}";
-
-                    if (childGroup.items[i].HasChildItems()) {
-                        var childItems = childGroup.items[i].GetChildItems("visibility", "1");
-                        str += $"\nyou see {GetDescription(childItems, false)}.\n";
-                    }
-                }
-            }
-
-            return str;
-        }
-
-        // grouped tmpItems 
-        // meaning => "3 houses" au lieu de "an ashy house, a big house and a brick house"
-        if (items.Count > 1)
-            return $"{items.Count} {first.GetText("dogs")}";
-        else {
-            if (first.HasProp("dif"))
-                return $"{first.GetText("a special dog")}";
-            else
-                return $"{first.GetText("a dog")}";
-        }
-    }
-    public static string GetDescription(List<Item> items, bool detailItems) {
-
-        /// TEST DESCRIPTION surrounding tiles ( et autres à voir )
-
-        var tmpItems = new List<Item>(items);
-
-        var b = 0;
-
-        var description = "";
-        while (tmpItems.Count > 0) {
-            
-            // display next item
-            Item item = tmpItems[0];
-
-
-            if (item.HasChildItems() && item.GetChildItems("visibility", "1").Count > 0) {
-                var childItems = item.GetChildItems("visibility", "1");
-                description += $"you see {childItems.Count} {childItems[0].GetText("dogs")} in ";
-            } else {
-
-            }
-
-            var phrase = $"{item.GetText("a special dog")}";
-            description += $"{phrase}";
-            tmpItems.RemoveAt(0);
-
-
-
-            // ici, très loin, tu vois aussi des tours, des grands batiments des ponts etc...
-            // tu check la visibility dans les directions
-
-
-            // group similar tmpItems
-            var similarItems = tmpItems.FindAll(x =>
-            x.dataIndex == item.dataIndex &&
-            x.getSpec(0).displayValue == item.getSpec(0).displayValue &&
-            (!x.HasChildItems() ||
-            (x.HasChildItems() && x.GetChildItems("visibility", "1").Count ==0)
-            ));
-            foreach (var sim in similarItems) {
-                description += $" and {sim.getSpec(1).GetDisplayValue}";
-                tmpItems.Remove(sim);
-            }
-
-            description += "\n";
-
-            ++b;
-            if (b > 10)
-                return "broke";
-        }
-        return description;
-
-
-        return GetDescription(GetGroups(tmpItems), detailItems);
-    }
-    public static string GetDescription(List<ItemGroup> groups, bool detailItems) {
-        var text = "";
-        for (int i = 0; i < groups.Count; i++) {
-            text += groups[i].GetDescription(detailItems);
-            text += TextUtils.GetLink(i, groups.Count);
-        }
-        return text;
-    }
 }

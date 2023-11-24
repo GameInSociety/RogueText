@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEngine;
 
 public class DebugManager : MonoBehaviour {
@@ -36,11 +37,13 @@ public class DebugManager : MonoBehaviour {
 
     [Space]
     [Header("[AVAILABLE ITEMS]")]
-    public AvailableItems AVAILABLE_ITEMS;
+    public List<Item> availableItems;
 
     [Space]
     [Header("[ITEM EVENTS]")]
     public List<WorldAction> EVENTS = new List<WorldAction>();
+
+    public List<ItemDescription.DescriptionGroup_Debug> debugDescriptions;
 
     [Space]
     [Header("[PLAYER]")]
@@ -50,7 +53,7 @@ public class DebugManager : MonoBehaviour {
         currentParser = ItemParser.GetCurrent;
         previousParser = ItemParser.GetPrevious;
 
-        AVAILABLE_ITEMS = AvailableItems.Get;
+        availableItems = AvailableItems.currItems;
 
         PLAYER = Player.Instance;
     }

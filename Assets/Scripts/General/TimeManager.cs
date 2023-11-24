@@ -76,8 +76,8 @@ public static class TimeManager {
         NextHour(1);
     }
 
-    public static void NextHour(int hours) {
-        for (var i = 0; i < hours; i++) {
+    public static void NextHour(int count) {
+        for (var i = 0; i < count; i++) {
             ++hours;
             if (raining)
                 WorldEvent.TriggerEvent("onRain");
@@ -87,7 +87,7 @@ public static class TimeManager {
                 NextDay();
             }
 
-            WorldEvent.TriggerEvent("onRain");
+            WorldEvent.TriggerEvent("onHours");
         }
 
     }

@@ -55,7 +55,9 @@ public class MapTexture : MonoBehaviour {
         }
 
         foreach (var coords in TileSet.GetCurrent.tiles.Keys) {
-            interiorMap_Texture.SetPixel(coords.x, coords.y, Color.green);
+            TileInfo t = System.Array.Find(tileInfos, x => x.name == TileSet.GetCurrent.GetTile(coords).debug_name);
+            interiorMap_Texture.SetPixel(coords.x, coords.y, t.color);
+
         }
 
         interiorMap_Texture.Apply();
@@ -72,9 +74,13 @@ public class MapTexture : MonoBehaviour {
         TileSet.world.width = w;
         TileSet.world.height = h;
 
-        var specs = new List<string>();
+        var props = new List<string>();
         for (int i = 0; i < tileInfos.Length; i++) {
-            specs.Add(Spec.GetCat("color").GetRandomSpec());
+            var data = ItemData.GetItemData(tileInfos[i].name);
+            var dif = data.properties.Find(x => x.name == "dif");
+            if (dif != null) {
+                props.Add(dif.GetDescription());
+            }
         }
 
         for (var x = 0; x < w; x++) {
@@ -83,9 +89,9 @@ public class MapTexture : MonoBehaviour {
 
                 var pixelColor = mainMap_Texture.GetPixel(x, y);
 
-                if (pixelColor == Color.black) {
+                // void
+                if (pixelColor == Color.black)
                     continue;
-                }
 
                 for (var i = 0; i < tileInfos.Length; i++) {
 
@@ -98,8 +104,8 @@ public class MapTexture : MonoBehaviour {
                         ) {
                         var tileInfo = tileInfos[i];
 
-                        string spec_str = specs[i];
-                        var newTile = Tile.create(coords, tileInfo.name, spec_str);
+                        string prop_str = props[i];
+                        var newTile = Tile.Create(coords, tileInfo.name, prop_str);
 
                         // get tile type from color
                         TileSet.world.Add(coords, newTile);

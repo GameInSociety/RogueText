@@ -5,6 +5,8 @@ using UnityEngine.Analytics;
 public class VerbLoader : TextParser {
     public static VerbLoader Instance;
 
+    public Verb[] verbs_debug;
+
     private void Awake() {
         Instance = this;
     }
@@ -31,6 +33,7 @@ public class VerbLoader : TextParser {
             Debug.Log(line_Index + item);
         }*/
 
+        newVerb.debug_word = names[0];
         newVerb.words = new string[names.Length];
 
         for (var nameIndex = 0; nameIndex < names.Length; nameIndex++) {
@@ -47,5 +50,11 @@ public class VerbLoader : TextParser {
 
         Verb.AddVerb(newVerb);
 
+    }
+
+    public override void FinishLoading() {
+        base.FinishLoading();
+
+        VerbLoader.Instance.verbs_debug = Verb.verbs.ToArray();
     }
 }

@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEngine;
 
 [System.Serializable]
@@ -15,7 +17,6 @@ public class Item {
     public int debug_randomID;
 
     public List<Property> props = new List<Property>();
-    public List<Spec> specs;
     public int wordIndex = 0;
     [SerializeField]
     private List<Item> mChildItems;
@@ -28,127 +29,49 @@ public class Item {
         }
     }
 
-    #region specs
-    public static bool AllSpecMatch(List<Item> items) {
-        return items.TrueForAll(x => x.specMatch(items.First()));
-    }
-    public Spec specContainedIn(string str) {
-        Spec targetSpec = specs.Find(x => str.Contains(x.displayValue));
-        return targetSpec;
-    }
-
-    public Spec getKeyInfo(string str) {
-        if ( specs == null)
-            return null;
-        return specs.Find(x => x.key == str || x.displayValue == str || x.searchValue == str);
-    }
-
-    public bool hasSpecWithKey(string key) {
-        return getSpecWithKey(key) != null;
-    }
-    public Spec getSpec(int i) {
-        return specs == null || i >= specs.Count ? null : specs[i];
-    }
-    public Spec getSpecWithKey(string key) {
-        if (specs == null)
-            return null;
-        return specs.Find(x => x.searchValue == key);
-    }
-    public Item getItemWithSpec(string key) {
-        return GetChildItems().Find(x => x.hasSpecWithKey(key));
-    }
-    public bool hasSpec(string spec) {
-        return hasSpecs() && specs.Find(x => x.key == spec) != null;
-    }
-    public bool hasSpecs() {
-        return specs != null;
-    }
-    public bool specMatch(Item it) {
-
-        if (specs == null)
-            return false;
-        
-        if ( it.specs.Count != specs.Count){
-            return false;
-        }
-
-        // ça va jamais être égale parce que c'est pas des structs mais des objets
-
-        for (int i = 0; i < it.specs.Count; i++) {
-            if (it.specs[i].searchValue != specs[i].searchValue || it.specs[i].key != specs[i].key)
-                return false;
-        }
-        return true;
-    }
-    public bool textHasSpecs(string text, out Spec spec) {
-        if (!hasSpecs()) {
-            spec = null;
-            return false;
-        }
-        spec = specs.Find(x => text.Contains(x.searchValue));
-        return spec != null;
-    }
-    public Spec setSpec(Spec spec) {
-        if (specs == null)
-            specs = new List<Spec>();
-        specs.Add(spec);
-        return spec;
-    }
-    public Spec setSpec(string display,string search = "", string key = "none", bool visible = true) {
-        if (specs == null)
-            specs = new List<Spec>();
-
-        if (string.IsNullOrEmpty(search))
-            search = display;
-        if (string.IsNullOrEmpty(key))
-            key = display;
-
-        Spec spec = specs.Find(x => x.key != "none" && x.key == key);
-        if ( spec == null) {
-            spec = new Spec(display, search, key, visible);
-            specs.Add(spec);
-        } else {
-            Debug.LogError($"{debug_name} already hasPart spec with key {key}");
-            spec.displayValue = display;
-            spec.searchValue = search;
-            spec.key = key;
-            spec.visible = visible;
-        }
-        return spec;
-    }
-    #endregion
-
     /// <summary>
     /// HANDLING OF CHILD ITEMS CONTAINED IN THIS ITEMS
     /// </summary>
     /// <returns></returns>
 
-    #region contained items
+    #region child items
     public bool HasChildItems() {
         return mChildItems != null && mChildItems.Count > 0;
     }
-
-
     public List<Item> GetChildItems() {
         return mChildItems;
     }
     public List<Item> GetChildItems(string propertyFilter, string propertyValue = "") {
         
         var filteredItems = mChildItems.FindAll(x => x.HasProp(propertyFilter));
-        foreach (var item in filteredItems)
-            Debug.Log($"found item with property {propertyFilter}");
         if (!string.IsNullOrEmpty(propertyValue))
-            filteredItems.RemoveAll(x => x.GetProp(propertyFilter).getPart("value").text != propertyValue);
+            filteredItems.RemoveAll(x => x.GetProp(propertyFilter).GetPart("value").text != propertyValue);
 
         return filteredItems;
+    }
+    public Item GetChildItem(string propertyFilter, string propertyValue = "") {
+        var item = mChildItems.Find(x => x.HasProp(propertyFilter));
+
+        if (item != null && !string.IsNullOrEmpty(propertyValue)) {
+            if (item.GetProp(propertyFilter).GetTextValue() == propertyValue)
+                return item;
+            return null;
+        }
+
+        return item;
+    }
+    public List<Item> GetChildItems(int depth) {
+        var items = new List<Item> { this };
+        if (depth == 0 || mChildItems == null)
+            return items;
+        foreach (var it in mChildItems)
+            items.AddRange(it.GetChildItems(depth - 1));
+        return items;
     }
     public bool IsAChildItemOf(Item item) {
         return item.hasItem(this);
     }
-    public virtual void WriteChildItems(bool describeContainers = false) {
-        foreach (ItemGroup group in ItemGroup.GetGroups(GetChildItems()))
-            TextManager.Write(group.GetDescription());
-    }
+   
 
     public void GenerateChildItems(Property prop = null) {
         
@@ -157,7 +80,9 @@ public class Item {
             if (!HasProp("contents"))
                 return;
             prop = GetProp("contents");
-            props.Remove(prop);
+            if (!prop.enabled)
+                return;
+            prop.enabled = false;
         }
 
         if (mChildItems == null)
@@ -177,8 +102,9 @@ public class Item {
                         amount = int.Parse(strs[0]);
                         percent = int.Parse(strs[1].Remove(strs[1].Length - 1));
                     } catch (Exception ex) {
-                        Debug.LogError($"{debug_name} contents parse error on : {it_name} ({strs[0]}) ({strs[1]})");
-                        Debug.LogError(ex.Message);
+                        Debug.LogError($"error on item generation :{debug_name}" +
+                            $"\n{ex.Message}");
+                        Debug.LogError($"{debug_name} mw_prop parse error on : {it_name} ({strs[0]}) ({strs[1]})");
                     }
                 } else {
                     if (part.text.Contains('%'))
@@ -197,40 +123,41 @@ public class Item {
         }
     }
     #endregion
-    #region item creation
+
+    #region child item creation
     public Item CreateChildItem(string name) {
         var newItem = ItemData.Generate_Simple(name);
         return CreateChildItem(newItem);
     }
     public Item CreateChildItem(Item item) {
+        // vraiment pas sûr que ça devrait être ici
+        item.GenerateChildItems();
+        AddChildItem(item);
+        return item;
+    }
+
+    public void AddChildItem(Item item) {
+
         if (mChildItems == null)
             mChildItems = new List<Item>();
 
         mChildItems.Add(item);
 
-        if (item.HasProp("dif")) {
-            //Debug.Log($"{data.name} needs to be differenciated, adding specs");
-            Spec.Category cat = Spec.GetCat("color");
-            string spec_str = cat.GetRandomSpec();
-            Spec newSpec = item.setSpec(spec_str, spec_str, "main");
-            //Debug.Log($"adding spec {newSpec.displayValue} to {data.name}");
-        }
+        var weightProp = GetProp("weight");
+        var oWeightProp = item.GetProp("weight");
 
+        if ( weightProp != null && oWeightProp != null)
+            weightProp.SetValue(oWeightProp.GetNumValue());
 
-        item.setSpec($">{GetText("in a dog")}", debug_name, "container", false);
-
-        // vraiment pas sûr que ça devrait être ici
-        item.GenerateChildItems();
-
-        return item;
+        item.SetProp($"contained / search:{debug_name}");
     }
 
     // remove item
     public void RemoveFromTile() {
-        var tmp = Tile.GetCurrent.getRecursive(4);
+        var tmp = Tile.GetCurrent.GetChildItems(4);
         foreach (var item in tmp) {
             if (item.hasItem(this)) {
-                Debug.Log(item.debug_name + " hasPart item : " + debug_name);
+                Debug.Log(item.debug_name + " HasPart item : " + debug_name);
                 item.RemoveItem(this);
                 break;
             }
@@ -261,6 +188,17 @@ public class Item {
         return mChildItems != null && mChildItems.Contains(item);
     }
 
+    public bool SimilarPropsAs(Item otherItem) {
+        bool similarProps = false;
+        if (GetVisibleProps().Count > 0 && otherItem.GetVisibleProps().Count > 0) {
+            similarProps = GetVisibleProps()[0].GetDescription() == otherItem.GetVisibleProps()[0].GetDescription();
+            if (similarProps) {
+                Debug.Log($"{debug_name} is very similar to {otherItem.debug_name}");
+            }
+        }
+        return otherItem.dataIndex == dataIndex == similarProps;
+    }
+
     public bool sameTypeAs(Item otherItem) {
         if (otherItem == null)
             return false;
@@ -276,92 +214,72 @@ public class Item {
     }
     #endregion
 
-    #region socket
+    #region description
 
-    public string GetText(string prms) {
+    public string GetText(string prms, int propLayer = 0) {
 
         // FORM
         // a special dog
         // preposition/article/specs/name
 
-        // preposition "on a dog" => in the armory
-        var prepBound = @$"\bon\b";
-        if (Regex.IsMatch(GetWord().text, prepBound))
-            prms = prms.Replace(prepBound, GetWord().preposition);
+        // name : dog / dogs
+        var text = GetWord().text;
+        if (prms.Contains("dogs") && GetWord().defaultNumber != Word.Number.Plural)
+            text = $"{text}s";
 
-        // name + specs (getting before article to see if it starts with a vowel)
-        var name_group = GetWord().text;
-        var specBound = @$"\bspecial\b";
-        if (hasSpecs() && Regex.IsMatch(prms, specBound)) {
-            int specIndex = prms.IndexOf("special");
-            prms = prms.Remove(specIndex , "special".Length + 1);
-            var front_specs = specs.FindAll(x => !x.displayValue.StartsWith('>'));
-            var back_specs = specs.FindAll(x => x.displayValue.StartsWith('>'));
-            if (front_specs.Count > 0) name_group = name_group.Insert(0, $"{getSpecText(front_specs)} ");
-            if (back_specs.Count > 0) name_group = name_group.Insert(name_group.Length, $" {getSpecText(back_specs)}");
+        // props : special dog
+        var propskeybound = @$"\bspecial\b";
+        if (Regex.IsMatch(prms, propskeybound)) {
+            if (GetVisibleProps(propLayer).Count > 0) {
+                // add describable props
+                var before = GetVisibleProps(propLayer).FindAll(x => !x.HasPart("after word"));
+                var after = GetVisibleProps(propLayer).FindAll(x => x.HasPart("after word"));
+                if (before.Count > 0) text = text.Insert(0, $"{Property.GetDescription(before)} ");
+                if (after.Count > 0) text = text.Insert(text.Length, $" {Property.GetDescription(after)}");
+            }
+
         }
 
         // article
-        if (GetWord().defined || HasProp("definite")) {
-            var articleBound = @$"\ba\b";
-            prms = Regex.Replace(prms, articleBound, "the");
-        } else {
-            // a dog => some mittens
-            if (GetWord().defaultNumber == Word.Number.Plural) {
-                var articleBound = @$"\ba\b";
-                prms = Regex.Replace(prms, articleBound, "some");
-            } else {
-                // a dog = an armory
-                if (Word.StartsWithVowel(name_group)) {
-                    var articleBound = @$"\ba\b";
-                    prms = Regex.Replace(prms, articleBound, "an");
-                }
-            }
+        var articlebound = @$"\ba\b";
+        if (Regex.IsMatch(prms, articlebound)) {
+            var article = "a";
+            if (GetWord().defined || HasProp("definite")) {
+                article = "the";
+            } else if (GetWord().defaultNumber == Word.Number.Plural)
+                article = "some";
+            else if (Word.StartsWithVowel(text))
+                article = "an";
+            text = text.Insert(0, $"{article} ");
+        } else if (Regex.IsMatch(prms, @$"\bthe\b")) {  
+            text = text.Insert(0, $"the ");
         }
 
-        // plural / singular : name group
-        if (prms.Contains("dogs")) {
-            prms = prms.Replace("dogs", GetWord().defaultNumber == Word.Number.Plural ? name_group : $"{name_group}s") ;
-        } else {
-            prms = prms.Replace("dog", name_group);
-        }
+        // preposition "on a dog" => in the armory
+        var prepBound = @$"\bon\b";
+        if (Regex.IsMatch(prms, prepBound))
+            text = text.Insert(0, $"{GetWord().preposition} ");
 
 
-        return prms;
-    }
-    public string getSpecText(List<Spec> specs) {
-        if (specs == null)
-            return "";
-        string str = "";
-        List<Spec> list = specs.FindAll(x=>x.visible);
-        for (int i = 0; i < list.Count; i++) {
-            string spectext = list[i].displayValue;
-            if (spectext.StartsWith('>')) spectext = spectext.Remove(0, 1);
-            str += $"{spectext}{TextUtils.GetLink(i, list.Count, false)}";
-        }
-        return str;
+        return text;
     }
 
-    [System.Serializable]
-    public class Group {
-        public Item item;
-        public int amount;
+    public virtual void WriteDescription() {
+        WriteDescription("it's", "a special dog");
     }
-    // description depth here
-    public List<Item> getRecursive(int depth) {
-        var items = new List<Item> { this };
-        if (depth == 0 || mChildItems == null)
-            return items;
-        foreach (var it in mChildItems)
-            items.AddRange(it.getRecursive(depth - 1));
-        return items;
-    }
+    public virtual void WriteDescription(string starter, string prms) {
 
-    #endregion
-    #region search
+        TextManager.Write($"{starter} {GetText(prms)}");
+
+        if (HasChildItems())
+            WriteChildItems();
+    }
+    public virtual void WriteChildItems() {
+        TextManager.Write(ItemDescription.NewDescription(GetChildItems()));
+    }
     #endregion
 
-    #region search
+    #region word
     public Word GetWord() {
         return GetData().words[wordIndex];
     }
@@ -369,11 +287,11 @@ public class Item {
         wordIndex = GetData().words.FindIndex(x => x.text == _text);
         return wordIndex >= 0;
     }
-    public bool containedInText(string _text) {
+    public bool IsContainedInText(string _text) {
         Word.Number num = Word.Number.None;
-        return getIndexInText(_text, out num) >= 0;
+        return GetIndexInText(_text, out num) >= 0;
     }
-    public int getIndexInText(string text, out Word.Number num) {
+    public int GetIndexInText(string text, out Word.Number num) {
         num = Word.Number.None;
         foreach (var word in GetData().words) {
             for (int i = 0; i < 2; i++) {
@@ -383,32 +301,62 @@ public class Item {
                     return text.IndexOf(_word);
             }
         }
+
+        foreach (var prop in GetVisibleProps(10)) {
+            if (Regex.IsMatch(text, @$"\b{prop.GetDescription()}\b")){
+                Debug.Log($"found item {debug_name} with mw_prop description {prop.GetDescription()}");
+                return text.IndexOf(prop.GetDescription());
+            }
+
+            var searchProp = prop.GetPart("search");
+            if (searchProp != null && Regex.IsMatch(text, @$"\b{searchProp.text}\b")) {
+                Debug.Log($"found item {debug_name} with mw_prop search input {searchProp.text}");
+                return text.IndexOf(searchProp.text);
+            }
+        }
+
         num = Word.Number.None;
         return -1;
     }
     #endregion
 
-    #region description
-    public virtual void WriteDescription() {
-        WriteDescription("it's", "a special dog");
-    }
-    public virtual void WriteDescription(string starter, string prms) {
-
-        TextManager.Write($"{starter} {GetText(prms)}");
-
-        Debug.Log("need new way of writing properties");
-
-        if (HasChildItems())
-            WriteChildItems(true);
-    }
-    #endregion
-
     #region properties
-    // ADD
-    public void AddProp(string name) {
-        Property prop = new Property();
+    /// <summary>
+    /// CREATION
+    /// </summary>
+    /// <param name="prms"></param>
+    /// <returns></returns>
+    public Property SetProp(string prms) {
+
+        var parts = prms.Split(" / ");
+        var name = parts[0];
+
+        var prop = GetProp(name);
+        if (prop != null) {
+            for (int i = 1; i < parts.Length; i++) {
+                try {
+                    var strs = parts[i].Split(':');
+                    var part = prop.GetPart(strs[0]);
+                    part.text = strs[1];
+                } catch (Exception e) {
+                    Debug.LogError($"error when setting mw_prop {name} : part {parts[i]}");
+                    Debug.LogError(e.Message);
+                }
+            }
+            return prop;
+        }
+
+        prop = new Property();
         prop.name = name;
+
+        for (int i = 1; i < parts.Length; i++) {
+            var part = parts[i].Split(':');
+            prop.AddPart(part[0], part[1]);
+        }
+
         props.Add(prop);
+
+        return prop;
     }
     //
 
@@ -448,14 +396,7 @@ public class Item {
         return enabled ? props.FindAll(x => x.enabled) : props;
     }
     public Property GetProp(string name) {
-        var property = props.Find(x => x.name == name);
-
-        if (property == null) {
-            Debug.LogError("property : " + name + " doesn't exist in item " + GetWord().text);
-            return null;
-        }
-
-        return property;
+        return props.Find(x => x.name == name);
     }
     public bool HasItemWithProp(string propertyName) {
         return GetChildItems().Find(x => x.HasProp(propertyName)) != null;
@@ -485,18 +426,39 @@ public class Item {
 
         PropertyDescription.Add(this, prop);
     }
+    #endregion
 
-    public void WriteProperties() {
-
-        var enabledPropCount = GetProps().Count;
-        if (enabledPropCount == 0)
-            return;
-        
-        TextManager.add("it's ");
-        for (var i = 0; i < enabledPropCount; i++) {
-            var property = GetProps()[i];
-            TextManager.add($"{property.GetDescription()} {TextUtils.GetLink(0, enabledPropCount)}");
+    #region visible props ?
+    public bool CheckPropsInText(string text, out Property prop) {
+        if (!HasProps()) {
+            prop = null;
+            return false;
         }
+        prop = props.Find(x=> x.HasPart("search") && text.Contains(x.GetPart("search").text));
+        if (prop != null) return true;
+        prop = props.Find(x => text.Contains(x.GetDescription()));
+        if(prop!= null) return true;
+
+        return false;
+    }
+    public bool HasVisibleProps() {
+        return GetVisibleProps().Count > 0;
+    }
+    public List<Property> GetVisibleProps(int layer = 0) {
+        var visibleProps = props.FindAll(x => x.HasPart("description") && !x.HasPart("layer"));
+        if ( layer > 0) {
+            var layeredProps = props.FindAll(x => x.HasPart("layer") && x.GetNumValue("layer") <= layer);
+            visibleProps.AddRange(layeredProps);
+        }
+        return visibleProps;
+    }
+    public Property GetVisibleProp(int i) {
+        var visibleProps = GetVisibleProps();
+        if (visibleProps.Count >= i)
+            return visibleProps[i];
+
+        return null;
+
     }
     #endregion
 
@@ -505,11 +467,11 @@ public class Item {
         WorldEvent.RemoveWorldEventsWithItem(item);
         foreach (var prop in item.props)
             prop.Destroy();
-        AvailableItems.Get.removeFromWorld(item);
+        AvailableItems.RemoveFromWorld(item);
     }
     public void TransferTo(Item item) {
-        AvailableItems.Get.removeFromWorld(this);
-        item.CreateChildItem(this);
+        item.AddChildItem(this);
+        AvailableItems.RemoveFromWorld(this);
     }
     #endregion
 

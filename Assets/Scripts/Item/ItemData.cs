@@ -23,8 +23,8 @@ public class ItemData {
             text = _seq;
         }
 
-        public string[] verbs;
         public string text;
+        public string[] verbs;
     }
 
     public string name {
@@ -36,10 +36,18 @@ public class ItemData {
     public List<Property> properties = new List<Property>();
     public List<Sequence> sequences = new List<Sequence>();
     #region static
+    public static ItemData GetItemData(string key) {
+        var id = GetItemDataIndex(key);
+        if ( id == -1) {
+            Debug.LogError($"found no item data with key {key}");
+            return null;
+        }
+        return itemDatas[id];
+    }
     public static int GetItemDataIndex(string key) {
         int index = -1;
-        if (key.StartsWith("type:")) {
-            key = key.Remove(0, 5);
+        if (key.StartsWith("type")) {
+            key = TextUtils.Extract('(', key);
             index = GetDataOfType(key);
         } else
             index = itemDatas.FindIndex(x => x.words.Find(x => x.text == key) != null);
@@ -52,7 +60,11 @@ public class ItemData {
     }
 
     public static int GetDataOfType(string type) {
-        int index = itemDatas.FindIndex(x => x.properties.Find(x => x.name == type) != null);
+        int index = itemDatas.FindIndex(x => 
+        x.properties.Find(x=> x.name == "types") != null
+        &&
+        x.properties.Find(x=> x.name == "types").GetPart(type) != null
+        );
         if (index == -1) {
             Debug.LogError("no type " + type + " in item datas");
             return -1;

@@ -5,6 +5,7 @@ using UnityEngine;
 using System;
 using UnityEditor.Experimental.GraphView;
 using System.IO;
+using System.Security.Policy;
 
 [System.Serializable]
 public class ItemParser {
@@ -28,15 +29,16 @@ public class ItemParser {
 
         // assigning text
         inputs.Add(_text);
+        TextManager.Write($"<color=red>  {_text} </color>");
 
-        tryFetchVerbs();
-        tryFetchItems();
+        FetchVerb();
+        FetchItems();
         // sending feedback if no verbs or item have been detexted
-        if (!inputHasVerbAndItems())
+        if (!InputHasItemsAndVerbs())
             return;
 
         foreach (var itmGrp in itemGroups){
-            if (!itmGrp.tryInit()) {
+            if (!itmGrp.TryInit()) {
                 string hold = $"which {itmGrp.items[0].GetText("dog")} would you like to {verb.GetFull}";
                 string fail = $"there is no such {itmGrp.items[0].GetText("dog")} present";
                 HoldParser(hold, fail, 1);
@@ -47,28 +49,40 @@ public class ItemParser {
 
         // t'as fait ce truc qui est un peu débile mais PAS TANT QUE ça.
         // parce que d'ici tu peux check TOUS les items avec lesquels le verb peut intéragir.
+
+        var sequence = verb.GetItemSequence(first.GetData());
+        TriggerAction(sequence);
         
-        var sequence = verb.GetItemSequence(first);
+    }
+
+    public void TriggerAction(string sequence) {
         if (sequence == null) {
             TextManager.Write($"you can't {verb.GetFull} {first.GetText("the dog")}");
+            NewParser();
             return;
         }
-        Debug.Log("calling text : " + sequence);
 
-        WorldAction newEvent = new WorldAction(first, Tile.GetCurrent.coords, Player.Instance.wordIndex, sequence);
+        Debug.Log($"sequence {sequence}");
+
+        WorldAction newEvent = new WorldAction(itemGroups.First(), Tile.GetCurrent.coords, Player.Instance.wordIndex, sequence);
         newEvent.Call();
+
+        NewParser();
     }
 
-    void tryFetchItems(){
-        if (itemGroups.Count > 0)
+    void FetchItems(){
+        if (itemGroups.Count > 0) {
             return;
+        }
         AvailableItems.updateItems();
-        itemGroups = ItemGroup.GetGroups(AvailableItems.Get.currItems, lastInput);
+        itemGroups = ItemGroup.GetGroups(AvailableItems.currItems, lastInput);
     }
 
-    void tryFetchVerbs(){
-        if ( verb != null)
+    void FetchVerb(){
+        if ( !Verb.IsNull(verb) ) {
+            Debug.Log($"the verb {verb.GetCurrentWord} is already in the input");
             return;
+        }
         List<Verb> verbs = Verb.verbs.FindAll(x => x.getIndexInText(lastInput) >= 0);
         if (verbs.Count > 0)
             verb = verbs[0];
@@ -85,8 +99,8 @@ public class ItemParser {
             holds[id] = true;
     }
 
-    public bool inputHasVerbAndItems() {
-        if (verb == null) {
+    public bool InputHasItemsAndVerbs() {
+        if (Verb.IsNull(verb)) {
             // no verbs, but item
             if (itemGroups.Count > 0) {
                 // checking if the input is ALREADY waiting for a verb
@@ -101,25 +115,22 @@ public class ItemParser {
             return false;
 
         } else if (itemGroups.Count == 0) {
+
+            var sequence = verb.GetItemSequence(ItemData.GetItemData("no item"), false);
+            if ( sequence != null) {
+                itemGroups.Add(new ItemGroup(0, Word.Number.Singular));
+                itemGroups.First().items.Add(AvailableItems.NoItem());
+                return true;
+            }
+
             // no itms, but verb
-            string fail = $"... i don't understand want you want to {verb.getWord} {verb.GetPreposition}";
-            string hold = $"what do you want to {verb.getWord} {verb.GetPreposition}";
+            string fail = $"... i don't understand want you want to {verb.GetCurrentWord} {verb.GetPreposition}";
+            string hold = $"what do you want to {verb.GetCurrentWord} {verb.GetPreposition}";
             HoldParser(hold, fail, 0);
             return false;
         }
         Confirm(0);
         return true;
-    }
-    public bool inputContains(string itemName) {
-        return itemGroups.Find(x => x.first.debug_name == itemName) != null;
-    }
-    public bool allItemsAreIdentical() {
-        return itemGroups.TrueForAll(x =>
-        // data index is the same 
-        x.first.sameTypeAs(itemGroups.First().first)
-        &&
-        // item hasPart no specs ( no differenciation )
-        !x.first.HasProp("dif"));
     }
 
     #region singleton

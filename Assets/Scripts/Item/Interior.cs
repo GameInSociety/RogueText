@@ -6,55 +6,50 @@ using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.GameCenter;
 
-public class Interior : Item {
-
-    public int tilesetId = -1;
+public static class Interior {
 
     #region enter / exit
-    public void Enter() {
-        if ( tilesetId< 0 ) {
-            // create tile set
-            InitTileSet();
+    public static void Enter(Item item) {
+
+        if (!item.HasProp("tilesetId")) {
+            int id = TileSet.tileSets.Count;
+            item.SetProp($"tilesetId / value:{id}");
+            // Create tile set
+            InitTileSet(item);
         }
-        // save coords
-        TileSet.world.playerCoords = Player.Instance.coords;
 
+        int tilesetId = item.GetProp("tilesetId").GetNumValue();
+
+        TileSet.world.startCoords = Player.Instance.coords;
         TileSet.ChangeTileSet(tilesetId);
-        Player.Instance.Move(Cardinal.None);
-
     }
     #endregion
 
-    public void InitTileSet() {
+    static void InitTileSet(Item item) {
 
-        /// create tile set 
+        /// Create tile set 
 		TileSet tileSet = new TileSet();
         tileSet.width = TileSet.world.width;
         tileSet.height = TileSet.world.height;
-        tileSet.playerCoords = tileSet.Center;
+        tileSet.startCoords = tileSet.Center;
         tileSet.timeScale = 4;
 
-        tilesetId = TileSet.tileSets.Count;
         TileSet.tileSets.Add(tileSet);
 
-        // create room types
-        var rooms = GetProp("rooms");
-        var tileNames = rooms.getPart("tiles").text.Split('\n').ToList();
-        foreach (var tileName in tileNames) {
-            Debug.Log(tileName);
-        }
-
-        // create hallway
+        // Create room types
+        var rooms = item.GetProp("rooms");
+        var tileNames = rooms.GetPart("tiles").text.Split('\n').ToList();
+        // Create hallway
         var hallway_Coords = tileSet.Center;
         var hallway_Dir = new Coords(0, 1);
         var a = 0;
 
-        string hallwaySpec = Spec.GetCat("color").GetRandomSpec();
+        string hallwaySpec = Spec.GetCat("shape").GetRandomSpec();
 
         while (tileNames.Count > 0) {
 
             // add new hallway tile
-            var newHallwayTile = Tile.create(hallway_Coords, "hallway",hallwaySpec );
+            var newHallwayTile = Tile.Create(hallway_Coords, "hallway",hallwaySpec );
 
             if (tileSet.tiles.ContainsKey(hallway_Coords)) {
                 hallway_Coords += hallway_Dir;
@@ -73,9 +68,9 @@ public class Interior : Item {
 
                 var orientation = Humanoid.Orientation.back;
                 var newDoor = newHallwayTile.CreateChildItem("door");
-                newDoor.setSpec($">on the {orientation}", orientation.ToString(), orientation.ToString());
-                newDoor.setSpec("entrance");
-                newDoor.AddProp("definite");
+                newDoor.SetProp($"orientation / description:on the {orientation} / search:{orientation} / after word:yes");
+                newDoor.SetProp("entrance / description:entrance");
+                newDoor.SetProp("definite");
             }
 
             // check if room appears
@@ -90,8 +85,8 @@ public class Interior : Item {
                     continue;
 
                 int rnd = Random.Range(0, tileNames.Count);
-                var tileName = tileNames[rnd].Remove(0, 7);
-                var newRoomTile = Tile.create(coords, tileName);
+                var tileName = tileNames[rnd];
+                var newRoomTile = Tile.Create(coords, tileName);
                 tileNames.RemoveAt(rnd);
 
                 tileSet.Add(coords, newRoomTile);

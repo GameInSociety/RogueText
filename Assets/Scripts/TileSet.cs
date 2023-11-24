@@ -10,7 +10,7 @@ public class TileSet {
     public static void SetCurrent (int id) { Player.Instance.tilesetId = id; }
     public int timeScale = 10;
     public static TileSet world => tileSets[0];
-    public Coords playerCoords = Coords.Zero;
+    public Coords startCoords = Coords.Zero;
 
     public Dictionary<Coords, Tile> tiles = new Dictionary<Coords, Tile>();
     public int width;
@@ -29,8 +29,8 @@ public class TileSet {
 
     public static void ChangeTileSet(int id) {
         // save currnet player coords
-        Player.Instance.coords = GetCurrent.playerCoords;
         SetCurrent(id);
+        Player.Instance.coords = GetCurrent.startCoords;
         TimeManager.ChangeMovesPerHour(GetCurrent.timeScale);
         MapTexture.Instance.UpdateInteriorMap();
         Player.Instance.Move(Cardinal.None);

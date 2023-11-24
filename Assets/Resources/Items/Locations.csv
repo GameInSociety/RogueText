@@ -1,69 +1,83 @@
 "NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
 "plain","Tile","s","on","","dif
-description:(adj)color","","$ leave 
+value:spec=shape
+description:[value]","","$ leave 
 [entrance] move","","","","","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "field","Tile","s","in","","dif
-description:(adj)color","contents
+value:spec=color
+description:[value]","contents
 
-apple: 30 * 5%
-house: 2
-mansion:1
-seeds: 5
-tree: 99%","$ leave 
+fridge:1
+apple:1","$ leave 
 [entrance] move","","","","","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "clearing","Tile","s","in","","dif
-description:(adj)color","","$ leave 
+value:spec=color
+description:[value]","","$ leave 
 [entrance] move","","","","","go back 
 Player(move, tile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "hill","Tile","s","on","","dif
-description:(adj)color","","$ leave 
+value:spec=color
+description:[value]","","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "mountain","Tile","s","on","","dif
-description:(adj)color","block","$ leave 
+value:spec=color
+description:[value]","block","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "forest","Tile","s","in","","dif
-description:(adj)color","","$ leave 
+value:spec=color
+description:[value]","","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "boscage
 bushy area
 shrub
 greenery","Tile","s","in","","dif
-description:(adj)color","","$ leave 
+value:spec=color
+description:[value]","","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "sea","Tile","s","near","","dif
-description:(adj)color","block","$ leave 
+value:spec=color
+description:[value]","block","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "lake","Tile","s","near","","dif
-description:(adj)color","block","$ leave 
+value:spec=color
+description:[value]","block","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "river","Tile","s","along","","dif
-description:(adj)color","block","$ leave 
+value:spec=color
+description:[value]","block","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "beach
 shore
 seaside
 shoreline","Tile","s","on","","dif
-description:(adj)color","","$ leave 
+value:spec=color
+description:[value]","","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "road","Tile","s","on","","dif
-description:(adj)color","","$ leave 
+value:spec=shape
+description:[value]","","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "village road","Tile","s","on","","dif
-description:(adj)color","","$ leave 
+value:spec=color
+description:[value]","","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "costal road","Tile","s","on","","dif
-description:(adj)color","","$ leave 
+value:spec=color
+description:[value]","","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "path","Tile","s","on","","dif
-description:(adj)color","","$ leave 
+value:spec=color
+description:[value]","","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "bridge","Tile","s","on","","dif
-description:(adj)color","","$ leave 
+value:spec=color
+description:[value]","","$ leave 
 [entrance] move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "house","Interior","s","in front of","","dif
-description:(adj)color","rooms
+value:spec=color
+description:[value]","rooms
 tiles:
 bathroom
 children's room
@@ -74,7 +88,8 @@ toilets","$ leave
 
 value: 1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "farm","Interior","s","in front of","","dif
-description:(adj)color","rooms
+value:spec=color
+description:[value]","rooms
 tiles:
 bathroom
 children's room
@@ -85,7 +100,8 @@ toilets","$ leave
 
 value: 1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "cabin","Interior","s","in front of","","dif
-description:(adj)color","rooms
+value:spec=color
+description:[value]","rooms
 tiles:
 bathroom
 children's room
@@ -96,7 +112,8 @@ toilets","$ leave
 
 value: 1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "mansion","Interior","s","in front of","","dif
-description:(adj)color","rooms
+value:spec=color
+description:[value]","rooms
 tiles:
 bathroom
 children's room

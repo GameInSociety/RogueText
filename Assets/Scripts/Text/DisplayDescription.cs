@@ -117,7 +117,12 @@ public class DisplayDescription : MonoBehaviour {
         uiText.text = "";
     }
 
+    public void QuickUpdate() {
+        uiText.text = text_target;
+    }
+
     public void renew() {
+        uiText.text = text_target;
         uiText_Old.text += uiText.text;
 
         Reset();
@@ -143,20 +148,7 @@ public class DisplayDescription : MonoBehaviour {
         //uiText.text += "\n____________________\n";
         scrollRect.verticalNormalizedPosition = 0f;
 
-        CancelInvoke("Delay");
-        Invoke("Delay", 0f);
-    }
-
-    public void Delay() {
-        if (useAIForNextText) {
-            useAIForNextText = false;
-
-            DallE.Instance.SendImageRequest(text_target);
-
-            ChatGPT.Instance.SendReply(text_target);
-        } else {
-            UpdateDescription(text_target);
-        }
+        UpdateDescription(text_target);
     }
 
     void HandleOnSendReply(string text) {

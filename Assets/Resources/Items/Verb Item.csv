@@ -1,5 +1,5 @@
 "NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"no item","","s","","","$ sleep
+"no item","Universal","s","","","$ sleep
 write(you sleep on the floor)
 [player] update(sleep, +1)
 [player] update(health, -1)","$ move

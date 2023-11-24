@@ -4,17 +4,14 @@
 
 onVerb:
 enable(bleeding)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"flashlight","","s","","","on
-
+"flashlight","","s","","tools","on
 value: 0 > 1
-
-description:
-off / on","battery
+description: off / on","battery
 
 value: 0 > 10
 
 description:
-out of battery, almost out of battery, running low on battery, still has some battery left, almost full of battery, full of battery
+out of battery / almost out of battery / running low on battery / still has some battery left / almost full of battery / full of battery
 
 OnValue:>0
 update(on, 1)
@@ -29,15 +26,15 @@ e:OnHours
 update(battery, -1)","*source of light
 
 description: emits light","equip
-body part: hand","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+body part: hand","weight:2","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","$ turn on
 enable(battery)","$ turn off
 disable(battery)
 update(on, 0)","$ charge
 update(battery, [battery.charge] )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"compas","","s","","","$ look
-write(_north)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"scissors","","p","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"battery","","s","","","$ put
+"compas","","s","","tools","$ look
+write(_north)","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"scissors","","p","","tools","","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"battery","","s","","tools","$ put
 [flashlight] update(battery, [battery.charge])","charge
-value: 0 > 10","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+value: 0 > 10","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

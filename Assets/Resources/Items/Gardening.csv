@@ -1,5 +1,5 @@
 "NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","( verb sequence )","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"seeds","","p","","","","","","","","","","","","","eat 
+"seeds","","p","","","weight:0","","","","","","","","","","eat 
 Condition(thirst, -2)
 Condition(hunger, +1)","look 
 Item(describe)","take 
@@ -8,9 +8,8 @@ Item(throw)","plant
 Item(destroy)
 Item(create, sprout)
 If(prop, fertile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"sprout","","s","","","item name
-value: type(vegetable)
-description:[item name]","growing
+"sprout","","s","","","weight:1","item name
+description:type:vegetable","growing
 
 value: 0
 
@@ -20,7 +19,7 @@ update(growing, +1)
 OnValue:50
 disable(water)
 disable(drying)
-createItem($item name)
+createItem([item name.description])
 destroy","water
 
 value: 3 > 10
@@ -50,8 +49,8 @@ description: dead","$ water
 enable(water)
 update(water, +[water])
 update(drying, 0)
-disable(drying)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"watering can","","s","","","","","","","","","","","","","empty 
+disable(drying)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"watering can","","s","","","weight:3","","","","","","","","","","empty 
 createItem(puddle)
 [puddle] update(water, [water])
 update(water, 0)","fill 

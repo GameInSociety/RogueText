@@ -14,7 +14,7 @@ public class WorldAction {
 
     public static List<WorldAction> worldActions = new List<WorldAction>();
 
-    public Item item;
+    public ItemGroup itemGroup;
     public Coords tileCoords;
     public int tileSetId;
     public Tile tile => TileSet.GetTileSet(tileSetId).GetTile(tileCoords);
@@ -25,7 +25,14 @@ public class WorldAction {
     public bool stop = false;
 
     public WorldAction(Item item, Coords tileCoords, int tileSetId, string sequence) {
-        this.item = item;
+        itemGroup = new ItemGroup(0, Word.Number.Singular);
+        itemGroup.items = new List<Item> { item };
+        this.tileCoords = tileCoords;
+        this.tileSetId = tileSetId;
+        this.sequence = sequence;
+    }
+    public WorldAction(ItemGroup itemGroup, Coords tileCoords, int tileSetId, string sequence) {
+        this.itemGroup = itemGroup;
         this.tileCoords = tileCoords;
         this.tileSetId = tileSetId;
         this.sequence = sequence;
@@ -40,8 +47,6 @@ public class WorldAction {
     public void Call() {
 
         current = this;
-        Debug.Log("calling event : ");
-        Debug.Log($"item : {item.debug_name}");
 
         string[] lines = sequence.Split('\n');
         foreach (var line in lines) {

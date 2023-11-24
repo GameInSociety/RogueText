@@ -52,16 +52,14 @@ public class Player : Humanoid {
     }
 
     public void MoveToTile(Tile tile) {
-        if (tile != null) {
-            Debug.Log("moving to tile : " + tile.debug_name + " / " + tile.debug_randomID);
+        Debug.Log("moving to tile : " + tile.debug_name + " / " + tile.debug_randomID);
 
-            if (tile.coords == coords) {
-                TextManager.Write("You are already &on the dog&", tile);
-                return;
-            }
-
-            Move(tile.coords);
+        if (tile.coords == coords) {
+            TextManager.Write("you are already there");
+            return;
         }
+
+        Move(tile.coords);
 
     }
 

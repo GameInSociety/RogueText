@@ -12,14 +12,15 @@ public class Tile : Item {
     // location of tile in world
     public Coords coords;
     public static bool itemsChanged = false;
-    public static Tile create(Coords _coords, string _name, string spec_str = "") {
+    public static Tile Create(Coords _coords, string _name, string prop_text = "") {
 
         var tile = ItemData.Generate_Special(_name) as Tile;
 
         tile.coords = _coords;
 
-        if (!string.IsNullOrEmpty(spec_str))
-            tile.setSpec(spec_str, spec_str, "main");
+        if (!string.IsNullOrEmpty(prop_text)) {
+            tile.SetProp($"dif / description:{prop_text}");
+        }
 
         return tile;
     }
@@ -39,7 +40,7 @@ public class Tile : Item {
 
         GenerateChildItems();
         WriteDescription();
-        writeHumanoids();
+        WriteHumanoids();
         TimeManager.writeTimeOfDay();
         TimeManager.writeWeatherDescription();
 
@@ -50,45 +51,59 @@ public class Tile : Item {
         //base.WriteDescription();
 
         // "you're on a tile...
-        TextManager.Write(getDescriptionType, this);
+        string intro = GetDescriptionType;
+        TextManager.Write(intro);
+        SetProp("definite");
 
         // putting items that contain things and items that don't in the same list
         // (testing to see how it looks)
-        var mainItms = GetChildItems().FindAll(x => x as Tile == null);
-        var groups = ItemGroup.GetGroups(mainItms);
-        string main_str = $"there's {ItemGroup.GetDescription(groups, false)}";
-        TextManager.Write(main_str);
-
-        // main items
-        /*List<Item> mainItms = getItems().FindAll(x => !x.HasChildItems() && x as Tile == null);
-        string main_str = $"there's {TextManager.listItems(mainItms)}";
-        TextManager.Write(main_str);
-
-        // containers
-        List<Item> containers = getItems().FindAll(x => x.HasChildItems() && x as Tile == null);
-        foreach (var item in containers)
-            item.WriteChildItems();*/
-
-        List<Item> tiles = GetAdjacentTiles();
-        foreach (var tile in tiles) {
-            tile.GenerateChildItems();
+        if (HasChildItems()) {
+            var mainItms = GetChildItems().FindAll(x => x as Tile == null);
+            string main_str = $"there's {ItemDescription.NewDescription(mainItms, "show props")}";
+            TextManager.Write(main_str);
         }
+
+        AdjacentTilesDescription();
+    }
+
+    public void AdjacentTilesDescription() {
+        List<Item> tiles = GetAdjacentTiles();
         DebugManager.Instance.adjacentTiles = tiles;
+        foreach (var tile in tiles)
+            tile.GenerateChildItems();
+
+        List<Item> similarTiles = tiles.FindAll(x => x.GetVisibleProp(0).GetDescription() == GetVisibleProp(0).GetDescription());
+        if ( similarTiles.Count > 0 ) {
+            string text = $"{GetText("the dog")} continues ";
+            foreach (var item in similarTiles) {
+                text += $"{item.GetProp("orientation").GetDescription()}, ";
+                tiles.Remove(item);
+            }
+            TextManager.Write(text);
+        }
+
         var tileGroups = ItemGroup.GetGroups(tiles);
         DebugManager.Instance.debug_groups = tileGroups;
-        //string description = ItemGroup.GetDescription(tileGroups, true);
-        string description = ItemGroup.GetDescription(tiles, true);
+        //string description = ItemGroup.NewDescription(tileGroups, true);
+        string description = ItemDescription.NewDescription(tiles, "split lines, show props");
         TextManager.Write($"around you,\n{description}");
-
-
-        // humanoids now...
     }
-    public string getDescriptionType {
+
+    public string GetDescriptionType {
         get {
-            if (HasProp("definite"))
-                return GetPrevious != null && GetPrevious.coords == coords ? "tile_wait" : "tile_goback";
-            else
-                return GetPrevious != null && sameTypeAs(GetPrevious) && GetPrevious.coords != coords ? "tile_continue" : "tile_discover";
+            if (HasProp("definite")) {
+                if (GetPrevious != null && GetPrevious.coords == coords) {
+                    return $"you're still {GetText("on the special dog")}";
+                } else {
+                    return $"you're back {GetText("on the special dog")}";
+                }
+            } else {
+                if (GetPrevious != null && sameTypeAs(GetPrevious) && GetPrevious.coords != coords) {
+                    return $"you continue {GetText("on the dog")}";
+                } else {
+                    return $"you're {GetText("on a special dog")}";
+                }
+            }
         }
     }
 
@@ -110,21 +125,16 @@ public class Tile : Item {
             // skip if the tile is null (a void)
             if (adjacentTile == null)
                 continue;
-            var opp_orientation = Humanoid.getOpp(orientation).ToString();
             // if the tile is enclosed (often an interior)
             if (adjacentTile.HasProp("enclosed")) {
-
-                // there's a door
-                var door = getItemWithSpec(orientation.ToString());
-                if (door == null)
-                    door = CreateChildItem("door");
-                else
-                    Debug.LogError($"{debug_name} already hasPart item with spec {orientation.ToString()}");
-                door.setSpec($">on the {orientation}", orientation.ToString(), orientation.ToString());
-                exits.Add(door);
+                // there's a tileDoor
+                var tileDoor = GetChildItems()?.Find(x=> x.HasProp("orientation") && x.GetProp("orientation").GetPart("search").text == orientation.ToString());
+                if (tileDoor == null)
+                    tileDoor = CreateChildItem("door");
+                tileDoor.SetProp($"orientation / description:on the {orientation} / search:{orientation} / after word:yes");
 
             } else if (Player.Instance.canSee()){
-                adjacentTile.setSpec($">on the {orientation}", orientation.ToString(), orientation.ToString());
+                adjacentTile.SetProp($"orientation / description:on the {orientation} / search:{orientation} / after word:yes");
                 exits.Add(adjacentTile);
             }
         }
@@ -147,7 +157,7 @@ public class Tile : Item {
     }
     #endregion
 
-    public void writeHumanoids() {
+    public void WriteHumanoids() {
 
         
     }
@@ -185,10 +195,14 @@ public class Tile : Item {
 
         DebugManager.Instance.TILE = tile;
         _current = tile;
+        tile.SetProp("standing / description:you're standing on it / search:standing on / layer:1 ");
     }
 
     public static void SetPrevious(Tile tile) {
         _previous = tile;
+        if (tile == null)
+            return;
+        tile.DeleteProperty("standing");
     }
 
 }

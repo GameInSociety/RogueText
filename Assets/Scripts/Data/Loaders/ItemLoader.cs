@@ -34,13 +34,19 @@ public class ItemLoader : DataDownloader {
         if (cells.Count > 0 && string.IsNullOrEmpty(cells[0])) {
             return;
         }
-        // create new item
+
+        if (string.IsNullOrEmpty(cells[0])) {
+            LoadProperties(ItemData.itemDatas[currIndex], cells);
+            return;
+        }
+
+        // Create new item
         var newItemData = new ItemData();
         var nameCell = cells[0];
         newItemData.debugName = nameCell;
         var synonyms = nameCell.Split('\n');
 
-        // hasPart specific class name
+        // HasPart numberSpecific class name
         if (!string.IsNullOrEmpty(cells[1]))
             newItemData.className = cells[1];
 
@@ -58,31 +64,34 @@ public class ItemLoader : DataDownloader {
 
         if (!string.IsNullOrEmpty(cells[4])) {
             string[] types = cells[4].Split('\n');
+            var prop = new Property();
+            prop.name = "types";
             for (int i = 0; i < types.Length; i++) {
-                if (string.IsNullOrEmpty(types[i]) ) {  continue; }
-                var type_prop = new Property();
-                type_prop.name = types[i] + " (type)";
-                newItemData.properties.Add(type_prop);
+                if (string.IsNullOrEmpty(types[i])) { continue; }
+                prop.AddPart(types[i], "");
             }
+            newItemData.properties.Add(prop);
+
         }
-        
+
 
         //newItem.index = rowIndex-1;
         newItemData.index = currIndex;
         // add to item list
+        LoadProperties(newItemData, cells);
+
         ItemData.itemDatas.Add(newItemData);
-        LoadProperties(cells);
         ++currIndex;
     }
 
-    void LoadProperties(List<string> cells) {
+    void LoadProperties(ItemData data, List<string> cells) {
 
         if (cells.Count <= 5)
             return;
 
         for (var i = 5; i < cells.Count; i++) {
             if (string.IsNullOrEmpty(cells[i]))
-                break;
+                continue;
 
             // $ = verb action // ! = item action ( ex : undead attacks )
             if (cells[i].StartsWith('$') || cells[i].StartsWith('!')) {
@@ -90,16 +99,15 @@ public class ItemLoader : DataDownloader {
                 try {
                     var verbs = cellParts[0].Remove(0, 2);
                     var seq = new ItemData.Sequence(verbs, cellParts[1]);
-                    ItemData.itemDatas[currIndex].sequences.Add(seq);
+                    data.sequences.Add(seq);
                 } catch (Exception e) {
-                    Debug.Log($"error on loading sequence (item:{ItemData.itemDatas[currIndex].debugName}) (cell:{cells[i]})");
+                    Debug.Log($"error on loading sequence (item:{data.debugName}) (cell:{cells[i]})");
                     Debug.LogError(e.Message);
                 }
-                
                 continue;
             }
 
-            ItemData.itemDatas[currIndex].properties.Add(new Property(cells[i]));
+            data.properties.Add(new Property(cells[i]));
         }
     }
 

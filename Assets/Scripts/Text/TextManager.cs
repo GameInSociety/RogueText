@@ -55,7 +55,7 @@ public static class TextManager {
     }
 
     public static void AddLink(int index, int l) {
-        add(TextUtils.GetLink(index, l));
+        add(TextUtils.GetCommas(index, l));
     }
 
     public static void add(string str, Item _overrideItem) {

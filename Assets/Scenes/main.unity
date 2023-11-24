@@ -312,7 +312,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.75160044
+  m_Size: 0.84558654
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -808,7 +808,7 @@ MonoBehaviour:
   - Nature
   - Rooms
   - Tools
-  - Undefined Item
+  - Undefined
   - Vehicles
   - Verb Item
   - Weapons
@@ -832,7 +832,7 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 627c4da883f7db34a81daa2bee3535b6, type: 3}
   - {fileID: 4900000, guid: 1fd0539ff11d0414da8ef68414797b8b, type: 3}
   - {fileID: 4900000, guid: 251c62b807ddd5b46b8bd1910e43fd8a, type: 3}
-  sheet: 
+  sheet: '  '
   row: 0
   col: 0
   url: https://docs.google.com/spreadsheets/d/1J7DQfy9bEuvbxmnFNVD-U-pBuExX0amlt_KDc81CNcI/edit#gid=0
@@ -1586,6 +1586,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   url: https://docs.google.com/spreadsheets/d/1bbs4r8pglPjvOmLm7GE7HJLqCK1faMQwiQ-0k4QqDHE/edit#gid=0
   targetAsset: {fileID: 4900000, guid: a034490cc0b1e6f41b103b9f871fa052, type: 3}
+  verbs_debug: []
 --- !u!1 &521048788
 GameObject:
   m_ObjectHideFlags: 0
@@ -3711,7 +3712,6 @@ MonoBehaviour:
     dataIndex: 0
     debug_randomID: 0
     props: []
-    specs: []
     wordIndex: 0
     mChildItems: []
     coords:
@@ -3722,6 +3722,7 @@ MonoBehaviour:
   previousParser:
     itemGroups: []
     verb:
+      debug_word: 
       indexInText: 0
       question: 
       prepositions: []
@@ -3732,6 +3733,7 @@ MonoBehaviour:
   currentParser:
     itemGroups: []
     verb:
+      debug_word: 
       indexInText: 0
       question: 
       prepositions: []
@@ -3740,16 +3742,14 @@ MonoBehaviour:
     holds: 00000000
     inputs: []
   colorWords: 0
-  AVAILABLE_ITEMS:
-    currItems: []
-    recentItems: []
+  availableItems: []
   EVENTS: []
+  debugDescriptions: []
   PLAYER:
     debug_name: 
     dataIndex: 0
     debug_randomID: 0
     props: []
-    specs: []
     wordIndex: 0
     mChildItems: []
     previousCardinal: 0
@@ -3769,7 +3769,6 @@ MonoBehaviour:
       dataIndex: 0
       debug_randomID: 0
       props: []
-      specs: []
       wordIndex: 0
       mChildItems: []
 --- !u!1 &1998673411

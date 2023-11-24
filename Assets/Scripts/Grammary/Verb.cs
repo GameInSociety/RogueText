@@ -1,13 +1,8 @@
-﻿using JetBrains.Annotations;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Android;
-using static UnityEngine.ParticleSystem;
 
 [System.Serializable]
 public class Verb {
@@ -17,14 +12,15 @@ public class Verb {
         verbs.Add(verb);
     }
 
+    public string debug_word;
     public int indexInText;
     public string question = "";
     public string[] prepositions;
     public string[] words;
     public int currentNameIndex = 0;
 
-    public string GetFull => $"{getWord} {GetPreposition}";
-    public string getWord => words[currentNameIndex];
+    public string GetFull => $"{GetCurrentWord} {GetPreposition}";
+    public string GetCurrentWord => words[currentNameIndex];
     public string GetPreposition {
         get {
             if (currentNameIndex >= prepositions.Length)
@@ -33,8 +29,27 @@ public class Verb {
         }
     }
 
-    public string GetItemSequence(Item item) {
-        foreach (var sequence in item.GetData().sequences) {
+    public static bool IsNull(Verb verb) {
+        return verb == null || (verb != null && string.IsNullOrEmpty(verb.debug_word));
+    }
+    public string GetItemSequence(ItemData data, bool checkUndefined = true) {
+
+        // get all the sequences int the data
+        foreach (var sequence in data.sequences) {
+            // see if one of the verbs of the sequenbe match this verb
+            foreach (var potVerb in sequence.verbs) {
+                if (words.Contains(potVerb))
+                    return sequence.text;
+            }
+        }
+
+        if (!checkUndefined)
+            return null;
+
+        // IF NOT, match with the undefined action
+        var undefinedItem = ItemData.GetItemData("undefined");
+
+        foreach (var sequence in undefinedItem.sequences) {
             foreach (var potVerb in sequence.verbs) {
                 if (words.Contains(potVerb)) {
                     return sequence.text;

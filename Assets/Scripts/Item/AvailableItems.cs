@@ -7,31 +7,26 @@ using System;
 using System.Linq;
 using static UnityEditor.Progress;
 
-[System.Serializable]
-public class AvailableItems {
+public static  class AvailableItems {
+    public static List<Item> currItems = new List<Item>();
+    public static List<Item> testItems = new List<Item>();
+    private static Item noItem;
+    public static Item NoItem() {
 
-    private static AvailableItems _inst;
-    public static AvailableItems Get {
-        get {
-            if ( _inst == null )
-                _inst = new AvailableItems();
-
-            return _inst;
-        }
+        if ( noItem == null)
+            noItem = ItemData.Generate_Simple("no item");
+        return noItem;
     }
-    
-    public List<Item> currItems = new List<Item>();
-    public List<Item> recentItems = new List<Item>();
 
-    public Item getItemOfProperty(string property) {
+    public static Item getItemOfProperty(string property) {
         return currItems.Find(x => x.HasProp(property));
     }
-    public Item getItemOfName(string name) {
+    public static Item getItemOfName(string name) {
         return currItems.Find(x => x.HasWord(name));
     }
 
-    public void removeFromWorld(Item targetItem) {
-        foreach (var item in AvailableItems.Get.currItems) {
+    public static void RemoveFromWorld(Item targetItem) {
+        foreach (var item in currItems) {
             if (item.hasItem(targetItem)) {
                 Debug.Log($"removing {targetItem.debug_name} from {item.debug_name}");
                 item.RemoveItem(targetItem);
@@ -44,18 +39,16 @@ public class AvailableItems {
 
     public static void updateItems() {
 
-        var newAvailableItems = new List<Item>();
-        
+        currItems.Clear();
+
         // the tile and all it's contained items
-        newAvailableItems.AddRange(Tile.GetCurrent.getRecursive(2));
+        currItems.AddRange(Tile.GetCurrent.GetChildItems(2));
         // it's important that it's after the tile, otherwise the parser will search the inventory first (ex: take plate, you already have it)
         // add spec "my" ou "inventory"// add different keys to specs (my+inventory+in bag)
         // ah non. parce que ça peut être un container aussi. "take field plate". "take bag plate". ça y est toujorus ça ?
         // the surrouning tiles
-        newAvailableItems.AddRange(Tile.GetCurrent.GetAdjacentTiles());
+        currItems.AddRange(Tile.GetCurrent.GetAdjacentTiles());
         // the player and all it's things
-        newAvailableItems.AddRange(Player.Instance.getRecursive(5));
-
-        Get.currItems = newAvailableItems;
+        currItems.AddRange(Player.Instance.GetChildItems(5));
     }
 }

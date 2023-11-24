@@ -33,7 +33,7 @@ public static class PropertyDescription {
 
             for (var i = 0; i < props.Count; i++) {
                 var prop = props[i];
-                TextManager.add($"{prop.GetDescription()} {TextUtils.GetLink(i, props.Count)}");
+                TextManager.add($"{prop.GetDescription()} {TextUtils.GetCommas(i, props.Count)}");
                 prop.changed = false;
             }
 

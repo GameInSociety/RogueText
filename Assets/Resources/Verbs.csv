@@ -1,5 +1,13 @@
 help,how,,
-go,where,to,
+"go
+move
+advance
+walk
+continue
+keep going
+enter
+get in
+go in",where,to,
 "open
 look inside",what,"*
 *",
@@ -7,6 +15,7 @@ close,what,,
 eat,what,,
 sleep,where,on,
 "look
+look at
 observe",what,"at
 *
 *",
@@ -15,16 +24,8 @@ pick up",what,"*
 *",
 fill,what,,
 drink,what,,
-"move
-advance
-walk
-continue
-keep going",where,towards,
 read,what,,
 cut,what,,
-"go in
-enter",where,"to
-",
 throw,what,,
 "equip
 put on

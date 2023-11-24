@@ -29,7 +29,7 @@ public class Body : Item {
                 return;
             }
 
-            var equipedItem = part.GetChildItems().Find(x => x.GetProp("equipment").getText("target") == prop.getText("target"));
+            var equipedItem = part.GetChildItems().Find(x => x.GetProp("equipment").GetPart("target").text == prop.GetPart("target").text);
 
             if (equipedItem != null) {
                 TextManager.Write("I'm already wearing &a dog&", equipedItem);
@@ -39,7 +39,7 @@ public class Body : Item {
             tmpParts.Add(part);
         }
         if (tmpParts.Count > 0) {
-            AvailableItems.Get.removeFromWorld(item);
+            AvailableItems.RemoveFromWorld(item);
             foreach (var bodyPart in tmpParts) {
                 _ = bodyPart.CreateChildItem(item);
                 bodyPart.WriteDescription();
@@ -72,7 +72,7 @@ public class Body : Item {
             return;
         }
 
-        if (Player.Instance.GetBody.getRecursive(3).Find(x => x.hasItem(item)) != null) {
+        if (Player.Instance.GetBody.GetChildItems(3).Find(x => x.hasItem(item)) != null) {
             // target part : an item
             // removing item from body part
             var properties = item.GetProps("equipment");
