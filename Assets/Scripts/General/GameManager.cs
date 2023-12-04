@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour {
         Instance = this;
     }
 
-    // Start is called before the first frame update
+    // Start is called before the GetMainItem frame Update
     void Start() {
 
         PhraseLoader.Instance.Load();

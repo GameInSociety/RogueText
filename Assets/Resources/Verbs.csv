@@ -7,7 +7,8 @@ continue
 keep going
 enter
 get in
-go in",where,to,
+go in
+return",where,to,
 "open
 look inside",what,"*
 *",
@@ -16,7 +17,8 @@ eat,what,,
 sleep,where,on,
 "look
 look at
-observe",what,"at
+observe
+describe",what,"at
 *
 *",
 "take
@@ -39,9 +41,6 @@ place",where,in,
 go out
 exit",from where,"from
 from",
-"go back
-return",where,"to
-to",
 break,what,,
 tear,what,,
 "make
@@ -53,6 +52,10 @@ plant,what,,
 unearth,what,,
 water,what,,
 dig,where or what,,
+"how
+what
+who
+which",know,,
 wait,how long,,
 empty,what,,
 charge,what,,

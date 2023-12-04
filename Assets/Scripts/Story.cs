@@ -21,7 +21,7 @@ public class Story : MonoBehaviour {
         var getParam = _params.Find(x => x.key == key);
 
         if (getParam == null) {
-            Debug.LogError("couldn't find getParam " + key);
+            Debug.LogError("couldn't find GetPart " + key);
             return false;
         }
 
@@ -32,7 +32,7 @@ public class Story : MonoBehaviour {
         var getParam = _params.Find(x => x.key == key);
 
         if (getParam == null) {
-            Debug.LogError("couldn't find getParam " + key);
+            Debug.LogError("couldn't find GetPart " + key);
             return;
         }
 

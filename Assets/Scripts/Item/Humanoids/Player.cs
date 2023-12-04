@@ -6,12 +6,8 @@ public class Player : Humanoid {
 
     public static Player Instance;
 
-    public Item Inventory;
-
     public override void Init() {
         base.Init();
-        Inventory = CreateChildItem("bag");
-        Inventory.CreateChildItem("plate");
     }
 
     #region vision
@@ -38,7 +34,7 @@ public class Player : Humanoid {
             return;
         }
 
-        // first of all, advance time ( and items states etc... )
+        // GetMainItem of all, advance time ( and items states etc... )
         TimeManager.AdvanceTime();
 
         base.Move(targetCoords);

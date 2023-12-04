@@ -46,26 +46,26 @@ endgame","thirst
 value: 0
 
 onHours:
-update(thirst, -1)
+update(thirst, +1)
 
-onValue:0
+onValue:10
 write(you're dying of thirst)
 update(health, -1)","hunger
 
 value: 0
 
 onHours:
-update(hunger, -1)
+update(hunger, +1)
 
-onValue:0
+onValue:10
 write(you're dying of hunger)
 update(health, -1)","sleep
 
 value: 0
 
 onHours:
-update(sleep, -1)
+update(sleep, +1)
 
-onValue:0
+onValue:10
 write(you're so tired you're dying)
 update(health, -1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

@@ -66,7 +66,7 @@ public class ItemDescription {
                     }
 
                     if (item.HasChildItems()) {
-                        var childItems = item.GetChildItems("visibility");
+                        var childItems = item.GetChildItemsWithProp("visibility");
                         if (childItems.Count > 0)
                             text += $". there's {NewDescription(childItems)} in it.\n";
                     }

@@ -6,6 +6,7 @@ using System;
 using UnityEditor.Experimental.GraphView;
 using System.IO;
 using System.Security.Policy;
+using System.Security.Principal;
 
 [System.Serializable]
 public class ItemParser {
@@ -13,10 +14,14 @@ public class ItemParser {
 
     // obsolete with group system
     // main prms
-    public List<ItemGroup> itemGroups = new List<ItemGroup>();
+    public List<ItemGroup> mainGroups = new List<ItemGroup>();
+    public List<ItemGroup> otherGroups = new List<ItemGroup>();
+    public List<Property> properties = new List<Property>();
 
     public Verb verb;
-    public Item first => itemGroups[0].items.First();
+    public Item GetMainItem(int i= 0) {
+        return mainGroups[i].first;
+    }
 
     public bool[] holds = new bool[4];
 
@@ -24,6 +29,7 @@ public class ItemParser {
     public List<string> inputs = new List<string>();
     public string mainInput => inputs[0];
     public string lastInput => inputs[inputs.Count - 1];
+    public int integer;
     //
     public void Parse(string _text) {
 
@@ -31,51 +37,137 @@ public class ItemParser {
         inputs.Add(_text);
         TextManager.Write($"<color=red>  {_text} </color>");
 
+        FetchIntegers();
         FetchVerb();
         FetchItems();
         // sending feedback if no verbs or item have been detexted
         if (!InputHasItemsAndVerbs())
             return;
 
-        foreach (var itmGrp in itemGroups){
-            if (!itmGrp.TryInit()) {
-                string hold = $"which {itmGrp.items[0].GetText("dog")} would you like to {verb.GetFull}";
-                string fail = $"there is no such {itmGrp.items[0].GetText("dog")} present";
-                HoldParser(hold, fail, 1);
-                return;
-            }
-            Confirm(1);
-        }
+        // no doing this anymore for "other groups", putting this aside.
+        if (!CanDistinguishItems())
+            return;
 
         // t'as fait ce truc qui est un peu débile mais PAS TANT QUE ça.
         // parce que d'ici tu peux check TOUS les items avec lesquels le verb peut intéragir.
 
-        var sequence = verb.GetItemSequence(first.GetData());
-        TriggerAction(sequence);
+        TriggerAction();
         
     }
 
-    public void TriggerAction(string sequence) {
-        if (sequence == null) {
-            TextManager.Write($"you can't {verb.GetFull} {first.GetText("the dog")}");
+    void FetchIntegers() {
+        integer = -1;
+        string str = Regex.Match(lastInput, @"\d+").Value;
+        if (string.IsNullOrEmpty(str)) return;
+        integer = int.Parse(str);
+    }
+
+    public bool CanDistinguishItems() {
+        foreach (var itmGrp in mainGroups) {
+            if (!itmGrp.TryInit()) {
+                //string hold = $"which {itmGrp.items[0].GetText("dog")} would you like to {verb.GetFull}";
+                string hold = "";
+                foreach (var itm in itmGrp.items) {
+                    hold += $"{itm.GetText("the special dog")}, ";
+                }
+                hold += " ?";
+
+                string fail = $"there is no such {itmGrp.items[0].GetText("dog")} present";
+                HoldParser(hold, fail, 1);
+                return false;
+            }
+            Confirm(1);
+        }
+        foreach (var itmGrp in otherGroups) {
+            if (!itmGrp.TryInit()) {
+                //string hold = $"which {itmGrp.items[0].GetText("dog")} would you like to {verb.GetFull}";
+                string hold = "";
+                foreach (var itm in itmGrp.items) {
+                    hold += $"{itm.GetText("the special dog")}, ";
+                }
+                hold += " ?";
+
+                string fail = $"there is no such {itmGrp.items[0].GetText("dog")} present";
+                HoldParser(hold, fail, 1);
+                return false ;
+            }
+            Confirm(1);
+        }
+        return true;
+    }
+
+    public void TriggerAction() {
+        for (int i = 0; i < mainGroups.Count; i++) {
+            var sequence = verb.GetItemSequence(GetMainItem(i).GetData());
+
+            if (sequence == null) continue;
+
+            WorldAction newEvent = new WorldAction(mainGroups[i], Tile.GetCurrent.coords, Player.Instance.wordIndex, sequence);
+            newEvent.Call();
             NewParser();
             return;
         }
 
-        Debug.Log($"sequence {sequence}");
-
-        WorldAction newEvent = new WorldAction(itemGroups.First(), Tile.GetCurrent.coords, Player.Instance.wordIndex, sequence);
-        newEvent.Call();
-
+        TextManager.Write($"you can't {verb.GetFull} {GetMainItem(0).GetText("the dog")}");
         NewParser();
     }
 
+    /// <summary>
+    /// this list is use for item link purpuses.
+    /// it is flipped because the first items may be props for spec item.
+    /// il y avait une raison.
+    /// "take apple from the left hand to the back"
+    /// sinon il prend left hand avant back.
+    /// ça va poser probleme mais on verra peut être pas.
+    /// </summary>
+    /// <returns></returns>
+    public List<Item> GetOptionalItems() {
+        var tmps = new List<Item>();
+        for (int i = otherGroups.Count-1; i >= 0; i--)
+            tmps.AddRange(otherGroups[i].items);
+        return tmps;
+    }
+
     void FetchItems(){
-        if (itemGroups.Count > 0) {
+        string text = lastInput;
+        if (!Verb.IsNull(verb))
+            text = text.Substring(verb.GetCurrentWord.Length);
+        if (otherGroups.Count > 0) {
             return;
         }
         AvailableItems.updateItems();
-        itemGroups = ItemGroup.GetGroups(AvailableItems.currItems, lastInput);
+
+        var groups = new List<ItemGroup>();
+        foreach (var item in AvailableItems.currItems) {
+            Word.Number num = Word.Number.None;
+            var indexInInput = item.GetIndexInText(lastInput, out num);
+            var prop = (Property)null;
+            if (indexInInput < 0)
+                prop = item.GetPropInText(lastInput, out indexInInput);
+
+            if (indexInInput >= 0) {
+                var itemgroup = groups.Find(x => x.index == indexInInput && x.first.dataIndex == item.dataIndex );
+                if (itemgroup == null) {
+                    itemgroup = new ItemGroup(indexInInput, num);
+                    itemgroup.debug_name = prop == null ? $"{item.debug_name} (from item)" : $"{item.debug_name} (from property : {prop.name})";
+                    itemgroup.text = lastInput;
+                    groups.Add(itemgroup);
+                }
+                itemgroup.items.Add(item);
+            }
+        }
+
+        if (groups.Count == 0)
+            return;
+
+        groups.Sort((a, b) => a.index.CompareTo(b.index));
+        mainGroups = new List<ItemGroup>() { groups[0] };
+        for (int i = 1; i < groups.Count; i++) {
+            if (groups[i].index == mainGroups[0].index)
+                mainGroups.Add(groups[i]);
+            else
+                otherGroups.Add(groups[i]);
+        }
     }
 
     void FetchVerb(){
@@ -83,9 +175,26 @@ public class ItemParser {
             Debug.Log($"the verb {verb.GetCurrentWord} is already in the input");
             return;
         }
-        List<Verb> verbs = Verb.verbs.FindAll(x => x.getIndexInText(lastInput) >= 0);
-        if (verbs.Count > 0)
-            verb = verbs[0];
+        List<Verb> verbs = Verb.verbs.FindAll(x => x.GetIndexInText(lastInput) >= 0);
+        if (verbs.Count == 0)
+            return;
+
+        var smallestIndex = 0;
+        foreach (var item in verbs) {
+            if ( item.indexInText < smallestIndex) {
+                smallestIndex = item.indexInText;
+            }
+        }
+        verbs = verbs.FindAll(x => x.indexInText == smallestIndex);
+        if (verbs.Count == 0)
+            return;
+        // get longest verb
+        Verb longestVerb = verbs[0];
+        foreach (var item in verbs) {
+            if (item.GetCurrentWord.Length > longestVerb.GetCurrentWord.Length)
+                longestVerb = item;
+        }
+        verb = longestVerb;
     }
 
     public void Confirm(int id) {
@@ -102,10 +211,10 @@ public class ItemParser {
     public bool InputHasItemsAndVerbs() {
         if (Verb.IsNull(verb)) {
             // no verbs, but item
-            if (itemGroups.Count > 0) {
+            if (mainGroups.Count > 0) {
                 // checking if the input is ALREADY waiting for a verb
-                string fail = $"you can't do that with {itemGroups[0].first.GetText("the dog")}";
-                string hold = $"what do you want to do with {itemGroups[0].first.GetText("the dog")}";
+                string fail = $"you can't do that with {GetMainItem(0).GetText("the dog")}";
+                string hold = $"what do you want to do with {GetMainItem(0).GetText("the dog")}";
                 HoldParser(hold, fail, 0);
                 return false;
             }
@@ -114,12 +223,12 @@ public class ItemParser {
             NewParser();
             return false;
 
-        } else if (itemGroups.Count == 0) {
+        } else if (mainGroups.Count == 0) {
 
             var sequence = verb.GetItemSequence(ItemData.GetItemData("no item"), false);
             if ( sequence != null) {
-                itemGroups.Add(new ItemGroup(0, Word.Number.Singular));
-                itemGroups.First().items.Add(AvailableItems.NoItem());
+                mainGroups.Add(new ItemGroup(0, Word.Number.Singular));
+                mainGroups.First().items.Add(AvailableItems.NoItem());
                 return true;
             }
 

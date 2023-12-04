@@ -22,7 +22,7 @@ public class WorldAction {
 
     public static WorldAction current;
 
-    public bool stop = false;
+    public bool failed = false;
 
     public WorldAction(Item item, Coords tileCoords, int tileSetId, string sequence) {
         itemGroup = new ItemGroup(0, Word.Number.Singular);
@@ -47,19 +47,27 @@ public class WorldAction {
     public void Call() {
 
         current = this;
+        failed = false;
 
-        string[] lines = sequence.Split('\n');
-        foreach (var line in lines) {
-            Function.Call(this, line);
-            if (stop) {
-                Debug.Log($"text {sequence} stopped at {line}");
-                stop = false;
-                break;
+        var sequences = sequence.Split("\n%\n");
+
+        for (int i = 0; i < sequences.Length; i++) {
+            var currSeq = sequences[i];
+            string[] lines = currSeq.Split('\n');
+            foreach (var line in lines) {
+                Function.Call(this, line);
+                if (failed) {
+                    Debug.Log($"text {currSeq} stopped at {line}");
+                    break;
+                }
             }
+            if ( failed )
+                continue;
+            break;
         }
     }
-    public void Stop() {
-        stop = true;
+    public void Fail() {
+        failed = true;
     }
     #endregion
 

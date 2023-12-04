@@ -82,9 +82,6 @@ public class Tile : Item {
             TextManager.Write(text);
         }
 
-        var tileGroups = ItemGroup.GetGroups(tiles);
-        DebugManager.Instance.debug_groups = tileGroups;
-        //string description = ItemGroup.NewDescription(tileGroups, true);
         string description = ItemDescription.NewDescription(tiles, "split lines, show props");
         TextManager.Write($"around you,\n{description}");
     }
@@ -195,14 +192,13 @@ public class Tile : Item {
 
         DebugManager.Instance.TILE = tile;
         _current = tile;
-        tile.SetProp("standing / description:you're standing on it / search:standing on / layer:1 ");
+        tile.SetProp("orientation / description:you're standing on it / search:standing on / layer:1 ");
     }
 
     public static void SetPrevious(Tile tile) {
         _previous = tile;
         if (tile == null)
             return;
-        tile.DeleteProperty("standing");
     }
 
 }

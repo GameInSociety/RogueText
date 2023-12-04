@@ -17,10 +17,10 @@ public class BodyPart : Item {
         {
             TextManager.Write("I'm wearing ");
 
-            for (int i = 0;i < GetChildItems.Count;i++)
+            for (int i = 0;i < GetChildItemsWithProp.Count;i++)
             {
-                TextManager.Add("&a dog&", GetChildItems[i]);
-                TextManager.AddLink(i, GetChildItems.Count);
+                TextManager.Add("&a dog&", GetChildItemsWithProp[i]);
+                TextManager.AddLink(i, GetChildItemsWithProp.Count);
             }
 
             TextManager.Add(" on my &dog&", this);

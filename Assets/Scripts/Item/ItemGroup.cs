@@ -26,6 +26,7 @@ public class ItemGroup {
     public int index;
     public Word.Number num;
     public List<Item> items = new List<Item>();
+    public List<Property> linkedProps = new List<Property>();
     public List<ItemGroup> childGroups = new List<ItemGroup>();
     public Item first => items[0];
     public string text;
@@ -48,31 +49,36 @@ public class ItemGroup {
                 items.RemoveRange(half, items.Count - half);
         }
 
-        // check for numerics
-        foreach (var str in text.Split(' ')) {
-            int count = 0;
-            if (str.All(char.IsDigit) && int.TryParse(str, out count)) {
-                Debug.Log($"found number {count} in item group of {first.debug_name}");
-                for (int i = count; i < items.Count; i++)
-                    items.RemoveAt(i);
-                break;
+
+        string digit_str = Regex.Match(text, @"\d+").Value;
+        int digit = 0;
+        if ( int.TryParse(digit_str, out digit)) {
+            if ( digit >= items.Count) {
+                TextManager.Write($"they are only {items.Count} {first.GetText("dogs")}");
+                return false;
             }
+            for (int i = digit; i < items.Count; i++)
+                items.RemoveAt(i);
         }
 
         if (num == Word.Number.Singular) {
 
-            if (first.HasProp("dif") ) {
-                // check for distinct item
-                Item specificItem = GetSpecificItem();
-                if (specificItem != null)
-                    items.RemoveAll(x => x != specificItem);
-                else
-                    return false;
-
+            // will look for a specific item any way
+            Item specificItem = GetSpecificItem();
+            if (specificItem != null) {
+                Debug.Log($"found specific item {specificItem.debug_name}");
+                items.RemoveAll(x => x != specificItem);
             } else {
-                if (items.Count > 1)
+                // but will return a probleme only if the item has dif
+                if (first.HasProp("dif")) {
+                    return false;
+                } else {
+                    Debug.Log($"removing all other {first.debug_name}");
                     items.RemoveRange(1, items.Count - 1);
+                }
             }
+
+            
         }
 
         return true;
@@ -82,9 +88,17 @@ public class ItemGroup {
     private Item GetSpecificItem() {
         // try to find an item spec in the input
         AssignOrdinalProps();
-        Property prop = null;
         string text = ItemParser.GetCurrent.lastInput;
-        return items.Find(x => x.CheckPropsInText(text, out prop));
+        var i = 0;
+        foreach (var item in items) {
+            var prop = item.GetPropInText(text, out i);
+            if ( prop != null) {
+                Debug.Log($"found prop {prop.name}");
+                return item;
+            }
+        }
+        Debug.Log($"no prop to distinguish {first.debug_name}");
+        return null;
     }
     private void AssignOrdinalProps() {
         for (int i = 0; i < items.Count; i++) {
@@ -102,10 +116,11 @@ public class ItemGroup {
         }
     }
 
+
     public string GetOrdinal(int i) {
         var ordinals = new string[10]
         {
-            "first",
+            "GetMainItem",
             "second",
             "third",
             "fourth",
@@ -117,29 +132,6 @@ public class ItemGroup {
             "tenth",
         };
         return ordinals[i];
-    }
-
-
-    public static List<ItemGroup> GetGroups(List<Item> targetItems, string filter = "") {
-        var groups = new List<ItemGroup>();
-        int index = 0;
-        foreach (var item in targetItems) {
-            Word.Number num = Word.Number.None;
-            index = string.IsNullOrEmpty(filter) ? item.GetData().index : item.GetIndexInText(filter, out num);
-            if (index >= 0) {
-                var itemgroup = groups.Find(x => x.index == index);
-                if (itemgroup == null) {
-                    itemgroup = new ItemGroup(index, num);
-                    itemgroup.debug_name = item.debug_name;
-                    itemgroup.text = filter;
-                    groups.Add(itemgroup);
-                }
-                itemgroup.items.Add(item);
-            }
-        }
-
-        groups.Sort((a, b) => a.index.CompareTo(b.index));
-        return groups;
     }
 
 }

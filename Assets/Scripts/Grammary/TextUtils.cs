@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TextUtils {
+
+    public static string WordWithNumber(string word, int number) {
+        if (number <= 1)
+            return word;
+        return word + "s";
+
+    }
+
     public static string Extract(char c, string text) {
         char endC = ')';
         switch (c) {

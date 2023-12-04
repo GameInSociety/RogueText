@@ -34,7 +34,7 @@ public static class WorldData
     public static string get(string name) {
         parameter p = parameters.Find(x => x.name == name);
         if (string.IsNullOrEmpty(p.name)) {
-            Debug.LogError($"WorldData : no getParam named {name}");
+            Debug.LogError($"WorldData : no GetPart named {name}");
             return "";
         }
         return p.value;
@@ -43,7 +43,7 @@ public static class WorldData
     public static float getFloat(string name) {
         parameter p = parameters.Find(x => x.name == name);
         if (string.IsNullOrEmpty(p.name)) {
-            Debug.LogError($"WorldData : no getParam named {name}");
+            Debug.LogError($"WorldData : no GetPart named {name}");
             return -1f;
         }
         float f = -1f;
@@ -57,7 +57,7 @@ public static class WorldData
     public static int getInt(string name) {
         parameter p = parameters.Find(x => x.name == name);
         if (string.IsNullOrEmpty(p.name)) {
-            Debug.LogError($"no world data getParam named {name}");
+            Debug.LogError($"no world data GetPart named {name}");
             return -1;
         }
         return int.Parse(p.value);

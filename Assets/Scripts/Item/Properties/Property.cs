@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 [System.Serializable]
 public class Property {
 
+    // in data
     [System.Serializable]
     public class Part {
         public string key;
@@ -25,6 +26,7 @@ public class Property {
     // peut être tout le temps mettre "*" quand il est disabled
     // juste sauver un peu de mémoire mais bon...
     public bool enabled = false;
+    public bool destroy = false;
     public List<Part> parts;
 
     // à revoir
@@ -113,6 +115,11 @@ public class Property {
     // value can be number or text. but it's alway dynamic
     public int GetNumValue(string key = "value") {
         Part part = GetPart(key);
+        if ( part == null)
+        {
+            Debug.LogError($"get num value : prop {name} doesn't have part with key {key}");
+            return 0;
+        }
 
         if (part.text.Contains("?")) {
             string[] prts = part.text.Split(" ? ");
@@ -123,11 +130,11 @@ public class Property {
             AddPart("max", max.ToString());
         }
 
-        if (part.text.Contains("m")) {
-            string[] prts = part.text.Split(" m ");
+        if (part.text.Contains('m')) {
+            string[] prts = part.text.Split('m');
             int min = int.Parse(prts[0]);
             int max = int.Parse(prts[1]);
-            part.text = $"{min}";
+            part.text = min.ToString();
             AddPart("max", max.ToString());
         }
 
@@ -139,42 +146,52 @@ public class Property {
         return num;
     }
     public string GetTextValue() {
+        var part = GetPart("name");
+        if (part == null)
+            return $"property {name} has no part (name)";
 
-
-        if (GetPart("value").text.Contains('=')) {
-            var strs = GetPart("value").text.Split('=');
+        if (part.text.Contains('=')) {
+            var strs = part.text.Split('=');
             switch (strs[0]) {
                 case "type":
                     var itemname = ItemData.GetItemData(strs[1]).name;
-                    GetPart("value").text = itemname;
+                    part.text = itemname;
                     Debug.Log($"changed value of {name} to {itemname}");
                     break;
                 case "spec":
-                    GetPart("value").text = Spec.GetCat(strs[1]).GetRandomSpec();
+                    part.text = Spec.GetCat(strs[1]).GetRandomSpec();
                     break;
             }
         }
 
-        return GetPart("value").text;
+        return part.text;
 
     }
-    public void SetValue(int num) {
+    public void SetValue(int num, string part = "value") {
         GetPart("value").text = num.ToString();
     }
     #endregion
 
     #region description
     public string GetDescription() {
+
         if (!HasPart("description")) return "error : no item description";
+        
         var description = GetPart("description").text;
+        
         if (description.Contains("/")) {
             var prts = description.Split(" / ");
-            var lerp = (float)GetNumValue() / GetNumValue("max") * prts.Length;
+
+            int max = HasPart("max") ? GetNumValue("max") : 10;
+            var lerp = (float)GetNumValue() / max * prts.Length;
             return prts[(int)lerp];
         }
 
-        if (description == "[value]")
-            return GetTextValue();
+        if ( description.Contains("[value]"))
+            description = description.Replace("[value]", GetNumValue().ToString());
+        if ( description.Contains("[name]"))
+            description = description.Replace("[name]", GetTextValue().ToString());
+
         if (description.Contains('/'))
             return "didn't implemant split description yet";
         return description;
@@ -189,49 +206,14 @@ public class Property {
     }
     #endregion
 
-    public bool destroy = false;
     public void Destroy() {
         destroy = true;
     }
-
-    #region events
-    public string getEvent(string key) {
-        Part p = GetPart(key);
-        return p.text;
-    }
-    #endregion
-
     #region update
-    public void update(string newContent) {
-
-        if (!HasPart("value")) {
-            Debug.LogError($"property {name} HasPart no value, can't update");
-            return;
-        }
-
-        var add = false;
-        var remove = false;
-
-        if (newContent.StartsWith('+')) {
-            newContent = newContent.Remove(0, 1);
-            add = true;
-        }
-
-        if (newContent.StartsWith('-')) {
-            newContent = newContent.Remove(0, 1);
-            remove = true;
-        }
-
-        int dif;
-        int num = GetNumValue();
-        if (int.TryParse(newContent, out dif)) {
-            var newValue = dif;
-            if (add)
-                newValue = num + dif;
-            else if (remove)
-                newValue = num - dif;
-            SetValue(newValue);
-        }
+    public enum UpdateType {
+        None,
+        Add,
+        Substract,
     }
     #endregion
 }

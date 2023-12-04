@@ -2,10 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEditor.Search;
 using UnityEngine;
 
 [System.Serializable]
@@ -41,24 +44,13 @@ public class Item {
     public List<Item> GetChildItems() {
         return mChildItems;
     }
-    public List<Item> GetChildItems(string propertyFilter, string propertyValue = "") {
+    public List<Item> GetChildItemsWithProp(string propertyFilter, string propertyValue = "") {
         
         var filteredItems = mChildItems.FindAll(x => x.HasProp(propertyFilter));
         if (!string.IsNullOrEmpty(propertyValue))
             filteredItems.RemoveAll(x => x.GetProp(propertyFilter).GetPart("value").text != propertyValue);
 
         return filteredItems;
-    }
-    public Item GetChildItem(string propertyFilter, string propertyValue = "") {
-        var item = mChildItems.Find(x => x.HasProp(propertyFilter));
-
-        if (item != null && !string.IsNullOrEmpty(propertyValue)) {
-            if (item.GetProp(propertyFilter).GetTextValue() == propertyValue)
-                return item;
-            return null;
-        }
-
-        return item;
     }
     public List<Item> GetChildItems(int depth) {
         var items = new List<Item> { this };
@@ -71,8 +63,6 @@ public class Item {
     public bool IsAChildItemOf(Item item) {
         return item.hasItem(this);
     }
-   
-
     public void GenerateChildItems(Property prop = null) {
         
         // juste an action
@@ -83,6 +73,11 @@ public class Item {
             if (!prop.enabled)
                 return;
             prop.enabled = false;
+        }
+
+        if (prop.parts == null) {
+            Debug.Log($"no prop parts for {debug_name}");
+            return;
         }
 
         if (mChildItems == null)
@@ -146,26 +141,25 @@ public class Item {
         var weightProp = GetProp("weight");
         var oWeightProp = item.GetProp("weight");
 
-        if ( weightProp != null && oWeightProp != null)
-            weightProp.SetValue(oWeightProp.GetNumValue());
+        if ( weightProp != null && oWeightProp != null) {
+            int value = weightProp.GetNumValue();
+            weightProp.SetValue(value + oWeightProp.GetNumValue());
+        }
 
         item.SetProp($"contained / search:{debug_name}");
     }
 
     // remove item
-    public void RemoveFromTile() {
-        var tmp = Tile.GetCurrent.GetChildItems(4);
-        foreach (var item in tmp) {
-            if (item.hasItem(this)) {
-                Debug.Log(item.debug_name + " HasPart item : " + debug_name);
-                item.RemoveItem(this);
-                break;
-            }
-        }
-    }
     public void RemoveItem(Item item) {
         if (!mChildItems.Contains(item)) {
             Debug.LogError($"{debug_name} doesn't contain {item.debug_name}");
+        }
+        var weightProp = GetProp("weight");
+        var oWeightProp = item.GetProp("weight");
+
+        if (weightProp != null && oWeightProp != null) {
+            int value = weightProp.GetNumValue();
+            weightProp.SetValue(value - oWeightProp.GetNumValue());
         }
         mChildItems.Remove(item);
     }
@@ -176,12 +170,6 @@ public class Item {
         var tmpItem = mChildItems.Find(x => x.HasWord(itemName));
 
         return tmpItem;
-    }
-
-    public bool hasItem(string itemName) {
-        if (mChildItems == null)
-            return false;
-        return mChildItems.Find(x => x.GetWord().text == itemName) != null;
     }
 
     public bool hasItem(Item item) {
@@ -281,42 +269,46 @@ public class Item {
 
     #region word
     public Word GetWord() {
-        return GetData().words[wordIndex];
+        return wordIndex < 0 ? GetData().words[0] : GetData().words[wordIndex];
     }
     public bool HasWord(string _text) {
         wordIndex = GetData().words.FindIndex(x => x.text == _text);
         return wordIndex >= 0;
     }
-    public bool IsContainedInText(string _text) {
-        Word.Number num = Word.Number.None;
-        return GetIndexInText(_text, out num) >= 0;
-    }
     public int GetIndexInText(string text, out Word.Number num) {
         num = Word.Number.None;
+        var wIndex = 0;
         foreach (var word in GetData().words) {
             for (int i = 0; i < 2; i++) {
                 num = (Word.Number)i;
                 string _word = word.getText(num);
-                if (Regex.IsMatch(text, @$"\b{_word}\b"))
+                if (Regex.IsMatch(text, @$"\b{_word}\b")) {
+                    wordIndex = wIndex;
                     return text.IndexOf(_word);
+                }
             }
-        }
-
-        foreach (var prop in GetVisibleProps(10)) {
-            if (Regex.IsMatch(text, @$"\b{prop.GetDescription()}\b")){
-                Debug.Log($"found item {debug_name} with mw_prop description {prop.GetDescription()}");
-                return text.IndexOf(prop.GetDescription());
-            }
-
-            var searchProp = prop.GetPart("search");
-            if (searchProp != null && Regex.IsMatch(text, @$"\b{searchProp.text}\b")) {
-                Debug.Log($"found item {debug_name} with mw_prop search input {searchProp.text}");
-                return text.IndexOf(searchProp.text);
-            }
+            ++wIndex;
         }
 
         num = Word.Number.None;
         return -1;
+    }
+    public Property GetPropInText(string text, out int textIndex) {
+        foreach (var prop in GetAllVisibleProps()) {
+            var description = prop.GetDescription();
+            if (Regex.IsMatch(text, @$"\b{description}\b")) {
+                textIndex = text.IndexOf(description);
+                return prop;
+            }
+
+            var searchProp = prop.GetPart("search");
+            if (searchProp != null && Regex.IsMatch(text, @$"\b{searchProp.text}\b")) {
+                textIndex = text.IndexOf(searchProp.text);
+                return prop;
+            }
+        }
+        textIndex = -1;
+        return null;
     }
     #endregion
 
@@ -337,7 +329,10 @@ public class Item {
                 try {
                     var strs = parts[i].Split(':');
                     var part = prop.GetPart(strs[0]);
-                    part.text = strs[1];
+                    if (part == null)
+                        prop.AddPart(strs[0], strs[1]);
+                    else
+                        part.text = strs[1];
                 } catch (Exception e) {
                     Debug.LogError($"error when setting mw_prop {name} : part {parts[i]}");
                     Debug.LogError(e.Message);
@@ -429,35 +424,26 @@ public class Item {
     #endregion
 
     #region visible props ?
-    public bool CheckPropsInText(string text, out Property prop) {
-        if (!HasProps()) {
-            prop = null;
-            return false;
-        }
-        prop = props.Find(x=> x.HasPart("search") && text.Contains(x.GetPart("search").text));
-        if (prop != null) return true;
-        prop = props.Find(x => text.Contains(x.GetDescription()));
-        if(prop!= null) return true;
-
-        return false;
-    }
     public bool HasVisibleProps() {
         return GetVisibleProps().Count > 0;
     }
-    public List<Property> GetVisibleProps(int layer = 0) {
-        var visibleProps = props.FindAll(x => x.HasPart("description") && !x.HasPart("layer"));
-        if ( layer > 0) {
-            var layeredProps = props.FindAll(x => x.HasPart("layer") && x.GetNumValue("layer") <= layer);
-            visibleProps.AddRange(layeredProps);
+    public List<Property> GetAllVisibleProps() {
+        return props.FindAll(x => x.HasPart("description") || x.HasPart("search"));
+    }
+    public List<Property> GetVisibleProps(int layer =0) {
+        var visibleProps = props.FindAll(x => x.HasPart("description") && !x.HasPart("layer") && !x.HasPart("key"));
+        if (layer > 0) {
+            var layeredProps = props.FindAll(x => x.HasPart("layer"));
+            foreach (var prop in layeredProps) {
+                int l = 0;
+                if (int.TryParse(prop.GetPart("layer").text, out l) && l <= layer)
+                    visibleProps.Add(prop);
+            }
         }
         return visibleProps;
     }
     public Property GetVisibleProp(int i) {
-        var visibleProps = GetVisibleProps();
-        if (visibleProps.Count >= i)
-            return visibleProps[i];
-
-        return null;
+        return GetVisibleProps()[i];
 
     }
     #endregion
@@ -470,8 +456,8 @@ public class Item {
         AvailableItems.RemoveFromWorld(item);
     }
     public void TransferTo(Item item) {
-        item.AddChildItem(this);
         AvailableItems.RemoveFromWorld(this);
+        item.AddChildItem(this);
     }
     #endregion
 

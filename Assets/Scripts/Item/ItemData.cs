@@ -63,8 +63,7 @@ public class ItemData {
         int index = itemDatas.FindIndex(x => 
         x.properties.Find(x=> x.name == "types") != null
         &&
-        x.properties.Find(x=> x.name == "types").GetPart(type) != null
-        );
+        x.properties.Find(x=> x.name == "types").HasPart(type) );
         if (index == -1) {
             Debug.LogError("no type " + type + " in item datas");
             return -1;
@@ -72,8 +71,10 @@ public class ItemData {
         return index;
     }
     public static List<int> GetDatasOfType(string type) {
+
         var ints = Enumerable.Range(0, itemDatas.Count).Where(i => 
-        itemDatas[i].properties.Find(x => x.name == type) != null
+        itemDatas[i].properties.Find(x=> x.name == "types") != null &&
+        itemDatas[i].properties.Find(x => x.name == "types").HasPart(type)
         ).ToList();
         return ints;
     }
@@ -81,6 +82,7 @@ public class ItemData {
         var dataIndex = GetItemDataIndex(name);
         var item = new Item();
         item.dataIndex = dataIndex;
+        item.debug_randomID = UnityEngine.Random.Range(0, 1000);
         item.Init();
         return item;
     }
@@ -95,6 +97,7 @@ public class ItemData {
 
         var item = new Item();
         item.dataIndex = index;
+        item.debug_randomID = UnityEngine.Random.Range(0, 1000);
         var serializedParent = JsonConvert.SerializeObject(item);
         var obj = JsonConvert.DeserializeObject(serializedParent, ItemType);
         ((Item)obj).Init();

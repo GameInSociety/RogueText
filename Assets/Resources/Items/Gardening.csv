@@ -9,7 +9,8 @@ Item(destroy)
 Item(create, sprout)
 If(prop, fertile)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "sprout","","s","","","weight:1","item name
-description:type:vegetable","growing
+name:type=vegetable
+description:[name]","growing
 
 value: 0
 

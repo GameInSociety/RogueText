@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using UnityEditorInternal;
 using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Function {
 
@@ -18,7 +20,16 @@ public class Function {
     static string[] prms;
     static Item item;
 
-    public static string getParam(int i) {
+    public Item GetItem(string str) {
+        return null;
+    }
+
+    public Property GetProp(string str) {
+        return null;
+    }
+
+
+    public static string GetPart(int i) {
         if (i >= prms.Length)
             return "no contents";
         return prms[i];
@@ -26,19 +37,28 @@ public class Function {
 
     static void Fail(string message) {
         TextManager.Write(message);
+        currentEvent.Fail();
     }
 
-    public static bool noParams() { return prms.Length > 0; }
-    public static bool hasParam(int i) { return i < prms.Length; }
-    public static int paramLength() { return prms.Length; }
-    public static int parseParam(int i) { return int.Parse(prms[i]); }
+    public static bool NoParts() { return prms.Length > 0; }
+    public static bool HasPart(int i) { return i < prms.Length; }
+    public static int PartCount() { return prms.Length; }
+    public static int ParsePart(int i) { return int.Parse(prms[i]); }
     public static void Call(WorldAction _event, string line) {
 
         currentEvent = _event;
 
         // search for []
         // 
-        item = currentEvent.itemGroup.items.First();
+        if (line.StartsWith('[')) {
+            var itemKey = TextUtils.Extract('[', line);
+            Debug.Log($"content key {itemKey}");
+            item = ItemLink.GetItem(itemKey);
+            line = line.Remove(0, itemKey.Length + 3);
+            Debug.Log($"new line {line}");
+        } else {
+            item = currentEvent.itemGroup.items.First();
+        }
 
         var functionName = line;
 
@@ -54,12 +74,17 @@ public class Function {
             functionName,
             BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
 
+        if (info == null) {
+            Debug.LogError($"no method named {functionName} found");
+            TextManager.Write($"no method named {functionName} found");
+            return;
+        }
         info.Invoke(null, null);
     }
 
     #region write
     static void write() {
-        switch (getParam(0)) {
+        switch (GetPart(0)) {
             case "_north":
                 var orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
                 TextManager.Write($"the north is on the {orientation.ToString()}");
@@ -71,7 +96,7 @@ public class Function {
                 TimeManager.writeTimeOfDay();
                 break;
             default:
-                TextManager.Write(getParam(0));
+                TextManager.Write(GetPart(0));
                 break;
         }
     }
@@ -79,8 +104,9 @@ public class Function {
 
     #region time
     static void wait() {
-        int hours = currentEvent.itemGroup.items.Count;
-        TimeManager.Wait(hours);
+        int count = ItemParser.GetCurrent.integer < 0 ? 1 : ItemParser.GetCurrent.integer;
+        TimeManager.Wait(count);
+        TextManager.Write($"{count} {TextUtils.WordWithNumber("hour", count)} pass by");
     }
     #endregion
 
@@ -108,17 +134,17 @@ public class Function {
                 Player.Instance.Move(orientation);
         }
 
-        if (!hasParam(0)) {
-            TextManager.Write($"can't go to {item.GetText("the dog")}");
+        if (!HasPart(0)) {
+            Fail($"can't go to {item.GetText("the dog")}");
             return;
         }
 
-        var moveOrientation = (Humanoid.Orientation)parseParam(1);
+        var moveOrientation = (Humanoid.Orientation)ParsePart(1);
         Player.Instance.Move(Humanoid.OrientationToCardinal(moveOrientation));
     }
 
     static void orient() {
-        var lookOrientation = (Player.Orientation)parseParam(0);
+        var lookOrientation = (Player.Orientation)ParsePart(0);
         Player.Instance.Orient(lookOrientation);
     }
 
@@ -138,74 +164,47 @@ public class Function {
 
         var weightProp = item.GetProp("weight");
         if ( weightProp == null) {
-            TextManager.Write($"{itmText} can't be moved");
+            Fail($"{itmText} can't be moved");
             return;
         }
 
-        var targetItem = ItemLink.GetItem("$contents");
-        if (targetItem == null) {
-            var itemName = getParam(0);
-            targetItem = ItemLink.GetItem(itemName);
-        }
+        var itemName = GetPart(0);
+        var targetItem = ItemLink.GetItem(itemName);
 
         if ( targetItem == null) {
-            TextManager.Write($"nowhere to put {itmText} in");
+            Fail($"nowhere to put {itmText} in");
             return;
         }
 
         // this is just where you check the nextWeight, not add them.
-        // i'll never need to check if at the initialization of the game.
+        // targetValue'll never need to check if at the initialization of the game.
         // I add nextWeight in the transfer to function
         var targetWeightProp = targetItem.GetProp("weight");
         if ( targetWeightProp != null) {
             var otherWeight = targetWeightProp.GetNumValue();
-            var maxWeight = targetWeightProp.GetNumValue("maxWeight");
+            var maxWeight = targetWeightProp.GetNumValue("max");
             var nextWeight = weightProp.GetNumValue() * currentEvent.itemGroup.items.Count;
             if ( otherWeight + nextWeight > maxWeight) {
-                TextManager.Write($"{item.GetText($"the dog")} is too big or heavy for {itmText}");
+                Fail($"{itmText} is too big or heavy for {targetItem.GetText($"the dog")} ");
                 return;
             }
         }
+        
 
         foreach (var it in currentEvent.itemGroup.items) {
+            if (targetItem.hasItem(it)) {
+                Fail($"{targetItem.GetText("the dog")} already contains {it.GetText("the dog")}");
+                return;
+            }
             it.TransferTo(targetItem);
         }
 
         if (!Verb.IsNull(ItemParser.GetCurrent.verb)) {
-            TextManager.Write($"you {ItemParser.GetCurrent.verb.GetCurrentWord} {itmText} {targetItem.GetText("in the dog")}");
+            TextManager.Write($"you {ItemParser.GetCurrent.verb.GetCurrentWord} {itmText} in {targetItem.GetText("the dog")}");
         } else {
-            TextManager.Write($"{itmText} are now {targetItem.GetText("in the dog")}");
+            TextManager.Write($"{itmText} are now in {targetItem.GetText("the dog")}");
         }
     }
-    static void pickUp() {
-        if (Player.Instance.Inventory.hasItem(item)) {
-            TextManager.Write("inventory_pickUp_already", item);
-            return;
-        }
-
-        item.RemoveFromTile(); 
-
-        foreach (var item in currentEvent.itemGroup.items) {
-            Player.Instance.Inventory.CreateChildItem(item);
-        }
-
-        string feedback = ItemDescription.NewDescription(currentEvent.itemGroup.items);
-        TextManager.Write($"you took {feedback}");
-    }
-
-    static void @throw() {
-        if (item == null) {
-            TextManager.Write("inventory_throw_nothing");
-            return;
-        }
-
-        // remove && add
-        Player.Instance.Inventory.RemoveItem(item);
-        _ = currentEvent.tile.CreateChildItem(item);
-
-        TextManager.Write("inventory_throw_sucess", item);
-    }
-
 
     static void destroy() {
         Item.Destroy(item);
@@ -213,9 +212,9 @@ public class Function {
 
     static void createItem() {
 
-        var amount = hasParam(1) ? parseParam(1) : 1;
+        var amount = HasPart(1) ? ParsePart(1) : 1;
 
-        var itemType = getParam(0);
+        var itemType = GetPart(0);
         var item = currentEvent.tile.CreateChildItem(itemType);
 
         for (var i = 1; i < amount; i++) {
@@ -227,23 +226,16 @@ public class Function {
         }
     }
 
-    static void require() {
-        if (hasParam(1)) {
-            var item_name = getParam(0);
-            var targetItem = AvailableItems.getItemOfName(item_name);
+    static void describe() {
 
-            if (targetItem == null) {
-                // found no item in container, inventory or tile
-                // break flow of actions
-                TextManager.Write($"there's no {item_name} around");
-                currentEvent.Stop();
+        Debug.Log($"content group name : {currentEvent.itemGroup.debug_name}");
+
+        foreach (var prop in currentEvent.itemGroup.linkedProps) {
+            if (prop.HasPart("key")) {
+                TextManager.Write($"{prop.GetDescription()}");
                 return;
             }
-            return;
         }
-    }
-
-    static void describe() {
 
         if ( currentEvent.itemGroup.items.Count == 1) {
 
@@ -253,7 +245,7 @@ public class Function {
             }
 
             if ( item.GetVisibleProps(1).Count > 0)
-                TextManager.Write($"it's {Property.GetDescription(item.GetVisibleProps(1))}");
+                TextManager.Write($"{item.GetText("the dog")} is {Property.GetDescription(item.GetVisibleProps(1))}");
 
             if (item.HasChildItems()) {
                 var description = ItemDescription.NewDescription(item.GetChildItems());
@@ -262,14 +254,8 @@ public class Function {
             return;
         }
 
-        TextManager.Write($"it's {ItemDescription.NewDescription(currentEvent.itemGroup.items, "show props")}");
+        TextManager.Write($"{item.GetText("the dog")} is {ItemDescription.NewDescription(currentEvent.itemGroup.items, "show props")}");
         return;
-
-        for (int i = 0; i < currentEvent.itemGroup.items.Count; i++) {
-            var it = currentEvent.itemGroup.items[i];
-            var start = i == 0 ? "there's one," : "another,";
-            TextManager.Write($"{start} {Property.GetDescription(it.GetVisibleProps(1))}");
-        }
 
 
     }
@@ -277,79 +263,123 @@ public class Function {
 
     #region props
     static void disable() {
-        var line = getParam(0);
+        var line = GetPart(0);
         var property = item.props.Find(x => x.name == line);
         item.DisableProperty(line);
     }
 
     static void enable() {
-        var prop_name = getParam(0);
+        var prop_name = GetPart(0);
         var property = item.props.Find(x => x.name == prop_name);
         if (property == null) {
-            Debug.LogError("ACTION_ENABLEPROPERY : did not find property : " + prop_name + " on " + item.debug_name);
+            Debug.LogError("ACTION_ENABLEPROPERY : did not find prop : " + prop_name + " on " + item.debug_name);
             return;
         }
         item.EnableProperty(prop_name);
     }
 
     static void trigger() {
-        var prop = item.GetProp($"!{getParam(0)}");
+        var prop = item.GetProp($"!{GetPart(0)}");
         string seq = prop.GetPart("main").text;
         var action = new WorldAction(item, currentEvent.tileCoords, currentEvent.tileSetId, seq);
         action.Call(); 
     }
 
     static void check() {
-        var propertyName = getParam(0);
+        var propertyName = GetPart(0);
         var property = item.GetProp(propertyName);
 
         if (property.GetNumValue() <= 0) {
             TextManager.Write("No " + property.name);
-            currentEvent.Stop();
+            currentEvent.Fail();
             return;
         }
     }
 
     static void update() {
-        var propName = getParam(0);
-        var property = item.GetProp(propName);
-        if (!property.enabled) {
-            Debug.Log($"trying to update prop {propName} but it's disabled... all good");
+        var propName = GetPart(0);
+        var prop = item.GetProp(propName);
+        if ( prop == null) {
+            Debug.LogError($"no prop with the name {propName} on content {item.debug_name}");
+            return;
+        }
+        if (!prop.enabled) {
+            Debug.Log($"trying to Update prop {propName} but it's disabled... all good");
             return;
         }
 
-        var line = getParam(1);
-        property.update(line);
+        var line = GetPart(1);
 
-        if (property.HasPart("onValue")) {
+        // check if substract, simple set or add
+        Property.UpdateType updateType = Property.UpdateType.None;
+        if (line.StartsWith('+'))
+            updateType = Property.UpdateType.Add;
+        else if (line.StartsWith('-'))
+            updateType = Property.UpdateType.Substract;
+        if (updateType != Property.UpdateType.None) line = line.Substring(1);
+
+        int targetValue = 0;
+        // check if link to other prop
+        if (line.StartsWith('$')){
+            Debug.Log($"searching prop {line}");
+            line = line.Substring(1);
+            targetValue = ItemLink.GetPropertyValue(line, item);
+            Debug.Log($"change property {prop.name} (value : {targetValue})");
+            Debug.Log($"update type : {updateType}");
+        } else {
+            targetValue = int.Parse( line );
+        }
+
+        int value = prop.GetNumValue();
+        switch (updateType) {
+            case Property.UpdateType.None:
+                prop.SetValue(targetValue);
+                break;
+            case Property.UpdateType.Add:
+                prop.SetValue(value + targetValue);
+                break;
+            case Property.UpdateType.Substract:
+                prop.SetValue(value - targetValue);
+                break;
+        }
+
+        property_checkEvents(prop);
+
+        if (prop.HasPart("description")) {
+            TextManager.Write(prop.GetDescription());
+        }
+
+        PropertyDescription.Add(item, prop);
+    }
+    static void property_checkEvents(Property prop) {
+        if (prop.HasPart("onValue")) {
+            Debug.Log($"checking event : {prop.GetPart("onValue").text}");
             bool call = false;
+            var text = prop.GetPart("onValue").text;
+            var returnIndex = text.IndexOf('\n');
+            Debug.Log($"before : {text.Remove(returnIndex)}");
+            Debug.Log($"after : {text.Remove(0, returnIndex+1)}");
 
-            string[] contents = property.GetPart("onValue").text.Split(new char[1] {'\n'}, 1);
-
-
-            string value = contents[0];
-            Debug.Log($"ON PROP VALUE : {property.name} with value :{value} and text :{contents[1]}");
-
+            var value = text.Remove(returnIndex);
+            var sequence = text.Remove(0, returnIndex + 1);
+            Debug.Log($"ON PROP VALUE : {prop.name} with value :{value} and text :{sequence}");
             if (value.StartsWith('>')) {
                 int i = int.Parse(value.Remove(0, 1));
-                call = property.GetNumValue() > i;
+                call = prop.GetNumValue() > i;
             } else if (value.StartsWith('<')) {
                 int i = int.Parse(value.Remove(0, 1));
-                call = property.GetNumValue() < i;
+                call = prop.GetNumValue() < i;
             } else {
                 int i = int.Parse(value);
-                call = property.GetNumValue() == i;
+                call = prop.GetNumValue() == i;
             }
 
             if (call) {
-                Debug.Log($"calling event on value prop of {property.name}");
-                string sequence = contents[1];
+                Debug.Log($"calling event on value prop of {prop.name}");
                 WorldAction tileEvent = new WorldAction(item, currentEvent.tileCoords, currentEvent.tileSetId, sequence);
                 tileEvent.Call();
             }
         }
-
-        PropertyDescription.Add(item, property);
     }
     #endregion
 

@@ -28,7 +28,6 @@ public static  class AvailableItems {
     public static void RemoveFromWorld(Item targetItem) {
         foreach (var item in currItems) {
             if (item.hasItem(targetItem)) {
-                Debug.Log($"removing {targetItem.debug_name} from {item.debug_name}");
                 item.RemoveItem(targetItem);
                 return;
             }
@@ -43,7 +42,7 @@ public static  class AvailableItems {
 
         // the tile and all it's contained items
         currItems.AddRange(Tile.GetCurrent.GetChildItems(2));
-        // it's important that it's after the tile, otherwise the parser will search the inventory first (ex: take plate, you already have it)
+        // it's important that it's after the tile, otherwise the parser will search the inventory GetMainItem (ex: take plate, you already have it)
         // add spec "my" ou "inventory"// add different keys to specs (my+inventory+in bag)
         // ah non. parce que ça peut être un container aussi. "take field plate". "take bag plate". ça y est toujorus ça ?
         // the surrouning tiles

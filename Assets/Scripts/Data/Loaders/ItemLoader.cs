@@ -13,7 +13,6 @@ public class ItemLoader : DataDownloader {
     int currIndex = 0;
     public ItemData[] items_debug;
 
-
     private void Awake() {
         Instance = this;
     }
@@ -107,7 +106,11 @@ public class ItemLoader : DataDownloader {
                 continue;
             }
 
-            data.properties.Add(new Property(cells[i]));
+            var prop = new Property(cells[i]);
+            if ( PropertyTest.Instance.properties.Find(x=> x.name == prop.name) == null) {
+                PropertyTest.Instance.properties.Add(prop);
+            }
+            data.properties.Add(prop);
         }
     }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Test : MonoBehaviour {
     public string item_name;
 
-    // Start is called before the first frame update
+    // Start is called before the GetMainItem frame Update
     void Start() {
 
     }

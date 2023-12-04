@@ -54,6 +54,7 @@ public class WorldEvent {
     }
 
     public static void RemoveWorldEventsWithItem(Item item) {
+        return;
         foreach (var worldEvent in worldEvents)
             worldEvent.actions.RemoveAll(x => x.itemGroup.items.First() == item);
     }

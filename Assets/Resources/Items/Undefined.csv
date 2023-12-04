@@ -1,7 +1,11 @@
 "NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"undefined","","s","","","$ look / open
+"undefined","","s","","","$ look / open / how
 describe","$ move / go
 move","$ put
-transferTo($contents)","$ throw
+transferTo(*$weight/max)","$ throw
+transferTo(*$weight/max)
+%
 transferTo(tile)","$ pick up
-transferTo(player.bag)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+transferTo(player.$weight/max)","$ eat
+[player] update(hunger, +$[$food].food)
+[$food] update(food, -$food)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

@@ -3,9 +3,10 @@
 write(you sleep on the floor)
 [player] update(sleep, +1)
 [player] update(health, -1)","$ move
-move(relative, 0)","$ go back 
-move(relative, 4)","$ wait
+move(relative, 0)","$ wait
 wait(1)","$ hit
 [target.body part] enable(bleeding)
 [target] update(health, $damage)
-write(you hit &the *target*& &on the *body part*& with your &*damage*&)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+write(you hit &the *target*& &on the *body part*& with your &*damage*&)","$ eat
+[player] update(hunger, +$[$food].food)
+[$food] update(food, -$food)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

@@ -80,7 +80,7 @@ public class Verb {
         return ints.ToArray();
     }
 
-    public int getIndexInText(string text) {
+    public int GetIndexInText(string text) {
         for (int i = 0; i < words.Length; i++) {
             string word = words[i];
             // get all the verbs

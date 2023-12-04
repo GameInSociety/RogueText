@@ -312,7 +312,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.84558654
+  m_Size: 0.6764173
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1193,277 +1193,277 @@ MonoBehaviour:
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: field
     color: {r: 0.85658044, g: 0.88235295, b: 0.41522488, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: clearing
     color: {r: 0.628, g: 0.8235294, b: 0.49048445, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: hill
     color: {r: 0.74264705, g: 0.54389584, b: 0.33309907, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: mountain
     color: {r: 0.52205884, g: 0.38549086, b: 0.23799743, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: forest
     color: {r: 0.1813365, g: 0.31617647, b: 0.1813365, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: boscage
     color: {r: 0.3328287, g: 0.5955882, b: 0.3328287, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: sea
     color: {r: 0.2901961, g: 0.4862745, b: 0.61960787, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: lake
     color: {r: 0.47437286, g: 0.6612501, b: 0.78676474, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: river
     color: {r: 0.7305091, g: 0.83559984, b: 0.9056604, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: beach
     color: {r: 0.7840519, g: 0.684, b: 0.2700584, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: road
     color: {r: 0.85294116, g: 0.85294116, b: 0.85294116, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: village road
     color: {r: 0.85294116, g: 0.797, b: 0.809, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: costal road
     color: {r: 0.854902, g: 0.854902, b: 0.854902, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: path
     color: {r: 0.854902, g: 0.854902, b: 0.678, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: bridge
     color: {r: 0.31617647, g: 0.31617647, b: 0.24178201, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: plain
     color: {r: 0.7372549, g: 0.36078432, b: 0.36078432, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts:
       - key: main
         text: house
       - key: house
         text: 2*30%
       changed: 0
-      destroy: 0
   - name: field
     color: {r: 0.69803923, g: 0.5294118, b: 0.3019608, a: 1}
     prop:
       name: contents
       enabled: 0
+      destroy: 0
       parts:
       - key: main
         text: farm
       - key: farm
         text: 2*30%
       changed: 0
-      destroy: 0
   - name: forest
     color: {r: 0.69803923, g: 0.3019608, b: 0.5568628, a: 1}
     prop:
       name: contents
       enabled: 1
+      destroy: 0
       parts:
       - key: main
         text: cabin
       - key: cabin
         text: 2*30%
       changed: 0
-      destroy: 0
   - name: mansion
     color: {r: 1, g: 0, b: 0.28235292, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: hallway
     color: {r: 0.7205882, g: 0.69409597, b: 0.70146775, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: stairs
     color: {r: 0.72794116, g: 0.5566609, b: 0.6055981, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: living room
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: kitchen
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: dining room
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: children's room
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: bedroom
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: bathroom
     color: {r: 0.24705884, g: 0.24705884, b: 0.24705884, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: toilets
     color: {r: 0.6392157, g: 0.48627454, b: 0.5294118, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: attic
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: basement
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: cellar
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   - name: office
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
       name: 
       enabled: 0
+      destroy: 0
       parts: []
       changed: 0
-      destroy: 0
   testcolorx: 0
   testcolory: 0
 --- !u!114 &388731316
@@ -2407,6 +2407,7 @@ Transform:
   - {fileID: 859047421}
   - {fileID: 500605528}
   - {fileID: 686600228}
+  - {fileID: 1753543876}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3345,6 +3346,51 @@ Transform:
   m_Father: {fileID: 431890883}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1753543875
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1753543876}
+  - component: {fileID: 1753543877}
+  m_Layer: 0
+  m_Name: PropertyTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1753543876
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1753543875}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1014188666}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1753543877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1753543875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd503d93408f0554f80059877dae891b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  properties: []
 --- !u!1 &1811830100
 GameObject:
   m_ObjectHideFlags: 0
@@ -3764,13 +3810,6 @@ MonoBehaviour:
       x: -1
       y: -1
     tilesetId: 0
-    Inventory:
-      debug_name: 
-      dataIndex: 0
-      debug_randomID: 0
-      props: []
-      wordIndex: 0
-      mChildItems: []
 --- !u!1 &1998673411
 GameObject:
   m_ObjectHideFlags: 0
