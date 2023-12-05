@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEditor.UIElements;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class ItemLink
 {
@@ -28,13 +29,10 @@ public class ItemLink
             return GetItem(key.Substring(1), ItemParser.GetCurrent.GetOptionalItems());
         }
 
-        Debug.Log($"sarch everywhere");
-        Debug.Log($"GetMainItem in parser");
-        var dfdfd = GetItem(key, ItemParser.GetCurrent.GetOptionalItems());
-        if (dfdfd != null) {
-            return dfdfd;
+        var parserItems = GetItem(key, ItemParser.GetCurrent.GetOptionalItems());
+        if (parserItems != null) {
+            return parserItems;
         }
-        Debug.Log($"found no {key} in input, searching in av items");
         return GetItem(key, AvailableItems.currItems);
     }
 
@@ -46,26 +44,23 @@ public class ItemLink
         return result;
     }
 
-    public static int GetPropertyValue(string key, Item item) {
-        Debug.Log($"get property in value : {key}");
+    public static Property GetProperty(string key, Item item) {
+        key = key.TrimStart('$');
         if (key.StartsWith('[')) {
             string itemKey = TextUtils.Extract('[', key);
-            Debug.Log($"item key : {itemKey}");
             item = GetItem(itemKey);
             if (item == null) {
-                Debug.Log($"no item with key {itemKey}");
-                return -1;
+                Debug.LogError($"[GETTING PROP!] no item with key {itemKey}");
+                return null;
             }
         }
-
-        Debug.Log($"item : {item.debug_name}");
-        string propertyKey = key.Remove(0, key.LastIndexOf('.')+1);
-        Debug.Log($"property key : {propertyKey}");
-
+        string propertyKey = key.Remove(0, key.LastIndexOf('.') + 1);
         var prop = item.GetProp(propertyKey);
-        Debug.Log($"found property : {propertyKey}");
-
-        return prop.GetNumValue();
+        if ( prop == null) {
+            Debug.LogError($"no property with name {propertyKey} in item {item.debug_name}");
+            return null;
+        }
+        return prop;
     }
 
     public static Item GetItemWithProp (string key, List<Item> range) {

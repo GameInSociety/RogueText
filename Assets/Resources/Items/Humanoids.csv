@@ -52,7 +52,13 @@ onValue:10
 write(you're dying of thirst)
 update(health, -1)","hunger
 
-value: 0
+value: 0m10
+
+description:
+(you're) filled / a bit hungry / getting hungry / really hungry / critivally hungry
+
+key:hungry
+search:hungry
 
 onHours:
 update(hunger, +1)

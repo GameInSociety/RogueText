@@ -1,4 +1,5 @@
 using DG.Tweening;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -177,7 +178,7 @@ public class Function {
         }
 
         // this is just where you check the nextWeight, not add them.
-        // targetValue'll never need to check if at the initialization of the game.
+        // sourceValue'll never need to check if at the initialization of the game.
         // I add nextWeight in the transfer to function
         var targetWeightProp = targetItem.GetProp("weight");
         if ( targetWeightProp != null) {
@@ -272,7 +273,7 @@ public class Function {
         var prop_name = GetPart(0);
         var property = item.props.Find(x => x.name == prop_name);
         if (property == null) {
-            Debug.LogError("ACTION_ENABLEPROPERY : did not find prop : " + prop_name + " on " + item.debug_name);
+            Debug.LogError("ACTION_ENABLEPROPERY : did not find targetProp : " + prop_name + " on " + item.debug_name);
             return;
         }
         item.EnableProperty(prop_name);
@@ -297,17 +298,25 @@ public class Function {
     }
 
     static void update() {
+        // getting the target property
         var propName = GetPart(0);
-        var prop = item.GetProp(propName);
-        if ( prop == null) {
-            Debug.LogError($"no prop with the name {propName} on content {item.debug_name}");
+        var targetProp = (Property)null;
+        // checking for link to other items
+        if (propName.StartsWith('$'))
+            targetProp = ItemLink.GetProperty(propName, item);
+        else
+            targetProp = item.GetProp(propName);
+
+        if ( targetProp == null) {
+            Debug.LogError($"no targetProp with the name {propName} on content {item.debug_name}");
             return;
         }
-        if (!prop.enabled) {
-            Debug.Log($"trying to Update prop {propName} but it's disabled... all good");
+        if (!targetProp.enabled) {
+            Debug.Log($"trying to Update targetProp {propName} but it's disabled... all good");
             return;
         }
 
+        // getting the line to modify the target property with
         var line = GetPart(1);
 
         // check if substract, simple set or add
@@ -317,52 +326,72 @@ public class Function {
         else if (line.StartsWith('-'))
             updateType = Property.UpdateType.Substract;
         if (updateType != Property.UpdateType.None) line = line.Substring(1);
+        //
 
-        int targetValue = 0;
-        // check if link to other prop
-        if (line.StartsWith('$')){
-            Debug.Log($"searching prop {line}");
-            line = line.Substring(1);
-            targetValue = ItemLink.GetPropertyValue(line, item);
-            Debug.Log($"change property {prop.name} (value : {targetValue})");
-            Debug.Log($"update type : {updateType}");
+        // getting target targetPropValue
+        int sourceValue = 0;
+        var sourceProp = (Property)null;
+        // check if link to other targetProp
+        if (line.StartsWith('$')) {
+            sourceProp = ItemLink.GetProperty(line, item);
+            sourceValue = sourceProp.GetNumValue();
+            Debug.Log($"found source prop : {sourceProp.name}");
         } else {
-            targetValue = int.Parse( line );
+            sourceValue = int.Parse( line );
         }
 
-        int value = prop.GetNumValue();
+        int targetPropValue = targetProp.GetNumValue();
         switch (updateType) {
             case Property.UpdateType.None:
-                prop.SetValue(targetValue);
+                // not doing the i here
+                // not sure if i'm using this much or when i do a i is necessary
+                targetProp.SetValue(sourceValue);
                 break;
             case Property.UpdateType.Add:
-                prop.SetValue(value + targetValue);
+                int i = targetPropValue + sourceValue;
+                if (targetProp.HasPart("max") && sourceProp != null) {
+                    Debug.Log($"applying changes on prop {sourceProp.name}");
+                    int max = targetProp.GetNumValue("max");
+                    int dif = i - max;
+                    Debug.Log($"dif : {dif}");
+                    sourceProp.SetValue(sourceValue - dif);
+                    Debug.Log($"new value for : {sourceProp.name} : {sourceProp.GetNumValue()}");
+                }
+                targetProp.SetValue(i);
                 break;
             case Property.UpdateType.Substract:
-                prop.SetValue(value - targetValue);
+                if (sourceProp != null) {
+                    Debug.Log($"SUBSTRACTION : applying changes on prop {sourceProp.name}");
+                    Debug.LogFormat($"source value : {sourceValue}");
+                    Debug.LogFormat($"target prop value : {targetPropValue}");
+                    int dif = sourceValue - targetPropValue;
+                    if ( dif >=  0 ) {
+                        sourceProp.SetValue(dif);
+                    }
+                    Debug.Log($"dif : {dif}");
+                    Debug.Log($"new value for : {sourceProp.name} : {sourceProp.GetNumValue()}");
+                }
+                targetProp.SetValue(targetPropValue - sourceValue);
                 break;
         }
 
-        property_checkEvents(prop);
+        property_checkEvents(targetProp);
 
-        if (prop.HasPart("description")) {
-            TextManager.Write(prop.GetDescription());
+        if (targetProp.HasPart("description")) {
+            TextManager.Write(targetProp.GetDescription());
         }
 
-        PropertyDescription.Add(item, prop);
+        PropertyDescription.Add(item, targetProp);
     }
     static void property_checkEvents(Property prop) {
         if (prop.HasPart("onValue")) {
-            Debug.Log($"checking event : {prop.GetPart("onValue").text}");
             bool call = false;
             var text = prop.GetPart("onValue").text;
             var returnIndex = text.IndexOf('\n');
-            Debug.Log($"before : {text.Remove(returnIndex)}");
-            Debug.Log($"after : {text.Remove(0, returnIndex+1)}");
 
             var value = text.Remove(returnIndex);
             var sequence = text.Remove(0, returnIndex + 1);
-            Debug.Log($"ON PROP VALUE : {prop.name} with value :{value} and text :{sequence}");
+            Debug.Log($"ON PROP VALUE : {prop.name} with targetPropValue :{value} and text :{sequence}");
             if (value.StartsWith('>')) {
                 int i = int.Parse(value.Remove(0, 1));
                 call = prop.GetNumValue() > i;
@@ -375,7 +404,7 @@ public class Function {
             }
 
             if (call) {
-                Debug.Log($"calling event on value prop of {prop.name}");
+                Debug.Log($"calling event on targetPropValue targetProp of {prop.name}");
                 WorldAction tileEvent = new WorldAction(item, currentEvent.tileCoords, currentEvent.tileSetId, sequence);
                 tileEvent.Call();
             }

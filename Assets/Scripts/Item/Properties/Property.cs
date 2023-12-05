@@ -6,6 +6,7 @@ using UnityEngine.Rendering;
 using TreeEditor;
 using System;
 using System.Security.Cryptography;
+using System.Threading;
 
 [System.Serializable]
 public class Property {
@@ -168,6 +169,9 @@ public class Property {
 
     }
     public void SetValue(int num, string part = "value") {
+        if (HasPart("max")) {
+            num = Math.Clamp(num, 0, GetNumValue("max"));
+        }
         GetPart("value").text = num.ToString();
     }
     #endregion
@@ -178,13 +182,18 @@ public class Property {
         if (!HasPart("description")) return "error : no item description";
         
         var description = GetPart("description").text;
-        
-        if (description.Contains("/")) {
-            var prts = description.Split(" / ");
 
+        var start = "";
+        if (description.Contains("/")) {
+            if (description.StartsWith('(')) {
+                start = TextUtils.Extract('(', description);
+                description = description.Remove(0, description.IndexOf(')') + 1);
+            }
+            var prts = description.Split(" / ");
             int max = HasPart("max") ? GetNumValue("max") : 10;
             var lerp = (float)GetNumValue() / max * prts.Length;
-            return prts[(int)lerp];
+            int index = Math.Clamp((int)lerp, 0, prts.Length-1);
+            return $"{start} {prts[index]}";
         }
 
         if ( description.Contains("[value]"))
