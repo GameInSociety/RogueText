@@ -56,7 +56,7 @@ namespace OpenAI {
                 }
 
             } else {
-                Debug.LogError("No text was generated from this prompt.");
+                Debug.LogError("No seq was generated from this prompt.");
             }
         }
     }

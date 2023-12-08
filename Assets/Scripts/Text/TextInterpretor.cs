@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class TextInterpretor {
     public static void InterpretText(string text) {
-        /*List<Item> list = Item.dataItems.FindAll(x => x.ContainedInText(text));
+        /*List<Item> list = Item.dataItems.FindAll(x => x.ContainedInText(seq));
 
         List<Item> availableItems = AvailableItems.Get;
 
@@ -12,12 +12,12 @@ public static class TextInterpretor {
 
         foreach (var item in list)
         {
-            Debug.Log("item in ai text : " + item.data.name);
+            Debug.Log("item in ai seq : " + item.data.name);
         }
 
         foreach (var item in uniqueList)
         {
-            Debug.LogError("found item : " + item.data.name + " and not in ai text");
+            Debug.LogError("found item : " + item.data.name + " and not in ai seq");
         }*/
 
     }

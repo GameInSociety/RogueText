@@ -51,19 +51,7 @@ public static class TextManager {
         overrides.Add(item);
     }
     public static void Write(string str) {
-        DisplayDescription.Instance.AddToDescription($"\n{str}\n", true);
-    }
-
-    public static void AddLink(int index, int l) {
-        add(TextUtils.GetCommas(index, l));
-    }
-
-    public static void add(string str, Item _overrideItem) {
-        addOverride(_overrideItem);
-        add(str);
-    }
-    public static void add(string str) {
-        DisplayDescription.Instance.AddToDescription(str, false);
+        DisplayDescription.Instance.AddToDescription($"{str}\n");
     }
     #endregion
 

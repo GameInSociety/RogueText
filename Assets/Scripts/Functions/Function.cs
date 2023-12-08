@@ -93,9 +93,6 @@ public class Function {
             case "_tile":
                 Tile.GetCurrent.Describe();
                 break;
-            case "_time":
-                TimeManager.writeTimeOfDay();
-                break;
             default:
                 TextManager.Write(GetPart(0));
                 break;
@@ -105,9 +102,17 @@ public class Function {
 
     #region time
     static void wait() {
-        int count = ItemParser.GetCurrent.integer < 0 ? 1 : ItemParser.GetCurrent.integer;
+        int count = 0;
+        if (ItemParser.GetCurrent.integer >= 0) {
+            count = ItemParser.GetCurrent.integer;
+        } else {
+            count = HasPart(0) ? ParsePart(0) : 1;
+        }
         TimeManager.Wait(count);
         TextManager.Write($"{count} {TextUtils.WordWithNumber("hour", count)} pass by");
+    }
+    static void triggerEvent() {
+        WorldEvent.TriggerEvent(GetPart(0));
     }
     #endregion
 
@@ -380,8 +385,6 @@ public class Function {
         if (targetProp.HasPart("description")) {
             TextManager.Write(targetProp.GetDescription());
         }
-
-        PropertyDescription.Add(item, targetProp);
     }
     static void property_checkEvents(Property prop) {
         if (prop.HasPart("onValue")) {
@@ -391,7 +394,7 @@ public class Function {
 
             var value = text.Remove(returnIndex);
             var sequence = text.Remove(0, returnIndex + 1);
-            Debug.Log($"ON PROP VALUE : {prop.name} with targetPropValue :{value} and text :{sequence}");
+            Debug.Log($"ON PROP VALUE : {prop.name} with targetPropValue :{value} and seq :{sequence}");
             if (value.StartsWith('>')) {
                 int i = int.Parse(value.Remove(0, 1));
                 call = prop.GetNumValue() > i;

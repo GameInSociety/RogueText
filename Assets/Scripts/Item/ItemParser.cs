@@ -10,7 +10,7 @@ using System.Security.Principal;
 
 [System.Serializable]
 public class ItemParser {
-    // text entered by the player
+    // seq entered by the player
 
     // obsolete with group system
     // main prms
@@ -33,7 +33,7 @@ public class ItemParser {
     //
     public void Parse(string _text) {
 
-        // assigning text
+        // assigning seq
         inputs.Add(_text);
         TextManager.Write($"<color=red>  {_text} </color>");
 
@@ -44,7 +44,7 @@ public class ItemParser {
         if (!InputHasItemsAndVerbs())
             return;
 
-        // no doing this anymore for "other groups", putting this aside.
+        // no doing this anymore for "other groups_deub", putting this aside.
         if (!CanDistinguishItems())
             return;
 
@@ -130,8 +130,11 @@ public class ItemParser {
 
     void FetchItems(){
         string text = lastInput;
-        if (!Verb.IsNull(verb))
+        if (!Verb.IsNull(verb)) {
+            Debug.Log($"removing {verb.GetCurrentWord} from {lastInput}");
             text = text.Substring(verb.GetCurrentWord.Length);
+            Debug.Log($"result : {text}");
+        }
         if (otherGroups.Count > 0) {
             return;
         }
@@ -140,20 +143,28 @@ public class ItemParser {
         var groups = new List<ItemGroup>();
         foreach (var item in AvailableItems.currItems) {
             Word.Number num = Word.Number.None;
-            var indexInInput = item.GetIndexInText(lastInput, out num);
+            var indexInInput = item.GetIndexInText(text, out num);
             var prop = (Property)null;
             if (indexInInput < 0)
-                prop = item.GetPropInText(lastInput, out indexInInput);
+                prop = item.GetPropInText(text, out indexInInput);
 
             if (indexInInput >= 0) {
-                var itemgroup = groups.Find(x => x.index == indexInInput && x.first.dataIndex == item.dataIndex );
-                if (itemgroup == null) {
-                    itemgroup = new ItemGroup(indexInInput, num);
-                    itemgroup.debug_name = prop == null ? $"{item.debug_name} (from item)" : $"{item.debug_name} (from property : {prop.name})";
-                    itemgroup.text = lastInput;
-                    groups.Add(itemgroup);
+                var group = groups.Find(x => x.index == indexInInput && x.first.dataIndex == item.dataIndex );
+                if (group == null) {
+                    group = new ItemGroup(indexInInput, num);
+                    group.debug_name = prop == null ? $"{item.debug_name} (from item)" : $"{item.debug_name} (from property : {prop.name})";
+                    group.text = text;
+                    groups.Add(group);
+                    if ( prop == null) {
+                        prop = item.GetPropInText(text, out indexInInput);
+                        if (prop != null) {
+                            group.linkedProps.Add(prop);
+                        }
+                    }
                 }
-                itemgroup.items.Add(item);
+                group.items.Add(item);
+                if ( prop != null)
+                    group.linkedProps.Add(prop);
             }
         }
 
@@ -195,6 +206,7 @@ public class ItemParser {
                 longestVerb = item;
         }
         verb = longestVerb;
+
     }
 
     public void Confirm(int id) {

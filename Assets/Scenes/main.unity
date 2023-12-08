@@ -228,6 +228,63 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &64212043
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 64212044}
+  - component: {fileID: 64212045}
+  m_Layer: 0
+  m_Name: Content
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &64212044
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 64212043}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1014188666}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &64212045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 64212043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17d59e67623f31e40ae218242b2cf094, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  linkReplace: gviz/tq?tqx=out:csv&sheet=
+  sheetNames:
+  - Properties
+  targetAssets:
+  - {fileID: 4900000, guid: d88a1bdd8c5e09d4ab25191c3434ac71, type: 3}
+  sheetName: 
+  row: 0
+  col: 0
+  url: https://docs.google.com/spreadsheets/d/18isc200K39NOgHjLJjbZYgfNhggtlpqQ7-DyfJ1LEks/edit#gid=0
+  path: Properties
+  properties_debug: []
+  groups_debug: []
+  sequences_debug: []
 --- !u!1 &170928085
 GameObject:
   m_ObjectHideFlags: 0
@@ -312,7 +369,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.6764173
+  m_Size: 0.75160044
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -798,7 +855,6 @@ MonoBehaviour:
   - Consumables
   - Empty
   - Gardening
-  - General
   - Humanoids
   - Interior
   - Locations
@@ -809,6 +865,7 @@ MonoBehaviour:
   - Rooms
   - Tools
   - Undefined
+  - UNIVERSAL
   - Vehicles
   - Verb Item
   - Weapons
@@ -818,7 +875,6 @@ MonoBehaviour:
   - {fileID: 4900000, guid: fc442f03a62c8574bb7b3dedd1069fe3, type: 3}
   - {fileID: 4900000, guid: 7d400e60c84070b4294c2720969f0b94, type: 3}
   - {fileID: 4900000, guid: 2abd51bbb19d94c4cb3bd62f3e7410b8, type: 3}
-  - {fileID: 4900000, guid: 81642520246a8ab4fae7a2484fb707af, type: 3}
   - {fileID: 4900000, guid: 76e263c7410577f479d08c47b989bf58, type: 3}
   - {fileID: 4900000, guid: ca27ecdc37b608f4cb412036061e1aa3, type: 3}
   - {fileID: 4900000, guid: 53f322c5106160d4c890e3526e413862, type: 3}
@@ -829,10 +885,11 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 59e1c7d3e8a0b494298ff12ea5e289d4, type: 3}
   - {fileID: 4900000, guid: 8e54f1537c3987041ade85db36bf72dd, type: 3}
   - {fileID: 4900000, guid: 23df25e62e69d4249b55f941d16e0fec, type: 3}
+  - {fileID: 4900000, guid: 81642520246a8ab4fae7a2484fb707af, type: 3}
   - {fileID: 4900000, guid: 627c4da883f7db34a81daa2bee3535b6, type: 3}
   - {fileID: 4900000, guid: 1fd0539ff11d0414da8ef68414797b8b, type: 3}
   - {fileID: 4900000, guid: 251c62b807ddd5b46b8bd1910e43fd8a, type: 3}
-  sheet: '  '
+  sheetName: 
   row: 0
   col: 0
   url: https://docs.google.com/spreadsheets/d/1J7DQfy9bEuvbxmnFNVD-U-pBuExX0amlt_KDc81CNcI/edit#gid=0
@@ -1195,7 +1252,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: field
     color: {r: 0.85658044, g: 0.88235295, b: 0.41522488, a: 1}
     prop:
@@ -1203,7 +1259,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: clearing
     color: {r: 0.628, g: 0.8235294, b: 0.49048445, a: 1}
     prop:
@@ -1211,7 +1266,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: hill
     color: {r: 0.74264705, g: 0.54389584, b: 0.33309907, a: 1}
     prop:
@@ -1219,7 +1273,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: mountain
     color: {r: 0.52205884, g: 0.38549086, b: 0.23799743, a: 1}
     prop:
@@ -1227,7 +1280,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: forest
     color: {r: 0.1813365, g: 0.31617647, b: 0.1813365, a: 1}
     prop:
@@ -1235,7 +1287,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: boscage
     color: {r: 0.3328287, g: 0.5955882, b: 0.3328287, a: 1}
     prop:
@@ -1243,7 +1294,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: sea
     color: {r: 0.2901961, g: 0.4862745, b: 0.61960787, a: 1}
     prop:
@@ -1251,7 +1301,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: lake
     color: {r: 0.47437286, g: 0.6612501, b: 0.78676474, a: 1}
     prop:
@@ -1259,7 +1308,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: river
     color: {r: 0.7305091, g: 0.83559984, b: 0.9056604, a: 1}
     prop:
@@ -1267,7 +1315,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: beach
     color: {r: 0.7840519, g: 0.684, b: 0.2700584, a: 1}
     prop:
@@ -1275,7 +1322,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: road
     color: {r: 0.85294116, g: 0.85294116, b: 0.85294116, a: 1}
     prop:
@@ -1283,7 +1329,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: village road
     color: {r: 0.85294116, g: 0.797, b: 0.809, a: 1}
     prop:
@@ -1291,7 +1336,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: costal road
     color: {r: 0.854902, g: 0.854902, b: 0.854902, a: 1}
     prop:
@@ -1299,7 +1343,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: path
     color: {r: 0.854902, g: 0.854902, b: 0.678, a: 1}
     prop:
@@ -1307,7 +1350,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: bridge
     color: {r: 0.31617647, g: 0.31617647, b: 0.24178201, a: 1}
     prop:
@@ -1315,7 +1357,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: plain
     color: {r: 0.7372549, g: 0.36078432, b: 0.36078432, a: 1}
     prop:
@@ -1327,7 +1368,6 @@ MonoBehaviour:
         text: house
       - key: house
         text: 2*30%
-      changed: 0
   - name: field
     color: {r: 0.69803923, g: 0.5294118, b: 0.3019608, a: 1}
     prop:
@@ -1339,7 +1379,6 @@ MonoBehaviour:
         text: farm
       - key: farm
         text: 2*30%
-      changed: 0
   - name: forest
     color: {r: 0.69803923, g: 0.3019608, b: 0.5568628, a: 1}
     prop:
@@ -1351,7 +1390,6 @@ MonoBehaviour:
         text: cabin
       - key: cabin
         text: 2*30%
-      changed: 0
   - name: mansion
     color: {r: 1, g: 0, b: 0.28235292, a: 1}
     prop:
@@ -1359,7 +1397,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: hallway
     color: {r: 0.7205882, g: 0.69409597, b: 0.70146775, a: 1}
     prop:
@@ -1367,7 +1404,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: stairs
     color: {r: 0.72794116, g: 0.5566609, b: 0.6055981, a: 1}
     prop:
@@ -1375,7 +1411,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: living room
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1383,7 +1418,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: kitchen
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1391,7 +1425,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: dining room
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1399,7 +1432,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: children's room
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1407,7 +1439,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: bedroom
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1415,7 +1446,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: bathroom
     color: {r: 0.24705884, g: 0.24705884, b: 0.24705884, a: 1}
     prop:
@@ -1423,7 +1453,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: toilets
     color: {r: 0.6392157, g: 0.48627454, b: 0.5294118, a: 1}
     prop:
@@ -1431,7 +1460,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: attic
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1439,7 +1467,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: basement
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1447,7 +1474,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: cellar
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1455,7 +1481,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   - name: office
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1463,7 +1488,6 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts: []
-      changed: 0
   testcolorx: 0
   testcolory: 0
 --- !u!114 &388731316
@@ -1486,7 +1510,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8ad68b18609109341a120b282493651e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 365cf21f26d0b05448768f674c6758ad, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1898,7 +1922,7 @@ MonoBehaviour:
   - Specs
   targetAssets:
   - {fileID: 4900000, guid: 30eed904fd31fa946ae95eab64c2a8c8, type: 3}
-  sheet: 
+  sheetName: 
   row: 0
   col: 0
   url: https://docs.google.com/spreadsheets/d/1zSs7homIUoaalRh5uD0VBkWbzRyV4WQvPhD5iaLnGVg/edit#gid=0
@@ -2407,7 +2431,7 @@ Transform:
   - {fileID: 859047421}
   - {fileID: 500605528}
   - {fileID: 686600228}
-  - {fileID: 1753543876}
+  - {fileID: 64212044}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3346,51 +3370,6 @@ Transform:
   m_Father: {fileID: 431890883}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1753543875
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1753543876}
-  - component: {fileID: 1753543877}
-  m_Layer: 0
-  m_Name: PropertyTest
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1753543876
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1753543875}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1014188666}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1753543877
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1753543875}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd503d93408f0554f80059877dae891b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  properties: []
 --- !u!1 &1811830100
 GameObject:
   m_ObjectHideFlags: 0
@@ -3766,7 +3745,9 @@ MonoBehaviour:
   adjacentTiles: []
   debug_groups: []
   previousParser:
-    itemGroups: []
+    mainGroups: []
+    otherGroups: []
+    properties: []
     verb:
       debug_word: 
       indexInText: 0
@@ -3776,8 +3757,11 @@ MonoBehaviour:
       currentNameIndex: 0
     holds: 00000000
     inputs: []
+    integer: 0
   currentParser:
-    itemGroups: []
+    mainGroups: []
+    otherGroups: []
+    properties: []
     verb:
       debug_word: 
       indexInText: 0
@@ -3787,9 +3771,11 @@ MonoBehaviour:
       currentNameIndex: 0
     holds: 00000000
     inputs: []
+    integer: 0
   colorWords: 0
   availableItems: []
-  EVENTS: []
+  globalItems: []
+  debug_worldEvents: []
   debugDescriptions: []
   PLAYER:
     debug_name: 

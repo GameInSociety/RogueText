@@ -34,12 +34,12 @@ public class Verb {
     }
     public string GetItemSequence(ItemData data, bool checkUndefined = true) {
 
-        // get all the sequences int the data
+        // get all the sequences_debug int the data
         foreach (var sequence in data.sequences) {
             // see if one of the verbs of the sequenbe match this verb
             foreach (var potVerb in sequence.verbs) {
                 if (words.Contains(potVerb))
-                    return sequence.text;
+                    return sequence.seq;
             }
         }
 
@@ -52,7 +52,7 @@ public class Verb {
         foreach (var sequence in undefinedItem.sequences) {
             foreach (var potVerb in sequence.verbs) {
                 if (words.Contains(potVerb)) {
-                    return sequence.text;
+                    return sequence.seq;
                 }
             }
         }

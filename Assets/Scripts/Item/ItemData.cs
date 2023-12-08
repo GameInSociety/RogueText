@@ -15,26 +15,16 @@ public class ItemData {
 
     public static List<ItemData> itemDatas = new List<ItemData>();
 
-    [System.Serializable]
-    public class Sequence {
-
-        public Sequence(string _verbs, string _seq) {
-            verbs = _verbs.Split(" / ");
-            text = _seq;
-        }
-
-        public string text;
-        public string[] verbs;
-    }
-
     public string name {
         get {  return words[0].text; }
     }
     public int index;
     public List<Word> words = new List<Word>();
     public string className;
+
     public List<Property> properties = new List<Property>();
     public List<Sequence> sequences = new List<Sequence>();
+
     #region static
     public static ItemData GetItemData(string key) {
         var id = GetItemDataIndex(key);
@@ -87,14 +77,12 @@ public class ItemData {
         return item;
     }
     public static object Generate_Special(string name, bool debug = false) {
-
         var index = GetItemDataIndex(name);
         var ItemType = Type.GetType(itemDatas[index].className);
         if (ItemType == null) {
             Debug.LogError("pas d'item type pour " + itemDatas[index].name);
             return null;
         }
-
         var item = new Item();
         item.dataIndex = index;
         item.debug_randomID = UnityEngine.Random.Range(0, 1000);

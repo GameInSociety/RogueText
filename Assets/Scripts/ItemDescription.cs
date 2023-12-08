@@ -108,7 +108,7 @@ public class ItemDescription {
     }
 
     static List<Group> GetGroups(List<Item> items) {
-        // splitting groups.
+        // splitting groups_deub.
         var groups = new List<Group>();
         for (int i = 0; i < items.Count; ++i) {
             var group = groups.Find(x => x.items.First().dataIndex == items[i].dataIndex);

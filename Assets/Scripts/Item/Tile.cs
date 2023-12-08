@@ -40,9 +40,6 @@ public class Tile : Item {
 
         GenerateChildItems();
         WriteDescription();
-        WriteHumanoids();
-        TimeManager.writeTimeOfDay();
-        TimeManager.writeWeatherDescription();
 
         //Property.DescribeUpdated();
     }
@@ -130,7 +127,7 @@ public class Tile : Item {
                     tileDoor = CreateChildItem("door");
                 tileDoor.SetProp($"orientation / description:on the {orientation} / search:{orientation} / after word:yes");
 
-            } else if (Player.Instance.canSee()){
+            } else {
                 adjacentTile.SetProp($"orientation / description:on the {orientation} / search:{orientation} / after word:yes");
                 exits.Add(adjacentTile);
             }
@@ -154,10 +151,6 @@ public class Tile : Item {
     }
     #endregion
 
-    public void WriteHumanoids() {
-
-        
-    }
 
     #region info
     public static bool SameAsPrevious() {

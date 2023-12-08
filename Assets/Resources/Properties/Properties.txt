@@ -1,0 +1,94 @@
+"NAME","can all sequences be here instead of in ""undefined item ?""","","","","","","","","","","","","","","","","","","","",""
+"","weight
+value:0
+description: weights about [value]
+search:weight
+key:weight","","","","","","","","","","","","","","","","","","","",""
+"growable","growing
+
+value: 0
+max:50
+
+description:
+was just planted / slowing starting to grow / starting to sprout / shows a little green leaf / is growing fine / shows flower blooming / will grow in a few days / is just about to be good to eat
+layer:1
+
+e:OnHours
+update(growing, +1)
+
+OnValue:50
+disable(water)
+disable(drying)
+createItem([item name.description])
+destroy","% water container","*drying
+
+value: 0
+
+description:
+is perfectly watered / is turning yellow / is drying / completly dry
+layer:1
+
+e:OnRain
+update(drying, 0)
+enable(water)
+disable(drying)
+
+e:OnHours
+update(drying, +1)
+
+OnValue:10
+disable(growing)
+disable(drying)
+enable(dead)","*dead
+
+description: dead","$ water
+enable(water)
+update(water, +[water])
+update(drying, 0)
+disable(drying)","","","","","","","","","","","","","","","",""
+"water container","water
+value:0?10
+description:
+empty / almost empty / half full / almost full / full
+layer:1
+e:OnRain
+update(water, +10)","clean
+
+value: 0
+
+description:
+looks clean / looks a little fishy / looks soiled
+
+layer:1
+
+e:OnHours
+update(clean, +1)
+
+OnValue:10
+disable(clean)
+enable(soiled)","*soiled
+
+description:
+it's has a smell
+
+layer:1
+
+onVerb:drink
+[player] update(health, -1)","","","","","","","","","","","","","","","","","",""
+"food","food
+value:x
+max:10
+description:
+(it looks) not much to eat / a little nourrishing / pretty nourrishing / like i'll be good after that
+layer:1
+OnValue:0
+destroy","$ eat
+update([player].hunger, -$food)","","","","","","","","","","","","","","","","","","",""
+"sleep","confort
+value:0
+max:10
+description:
+(i'll sleep) bad on this / okay on this / good on this / really good on this
+layer:1","$ sleep
+update($[player].sleep, +$confort)
+wait(7)","","","","","","","","","","","","","","","","","","",""

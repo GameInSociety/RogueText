@@ -24,6 +24,12 @@ public class WorldAction {
 
     public bool failed = false;
 
+    public WorldAction(Item item, string sequence) {
+        itemGroup = new ItemGroup(0, Word.Number.Singular);
+        itemGroup.items = new List<Item> { item };
+        this.sequence = sequence;
+    }
+
     public WorldAction(Item item, Coords tileCoords, int tileSetId, string sequence) {
         itemGroup = new ItemGroup(0, Word.Number.Singular);
         itemGroup.items = new List<Item> { item };
@@ -57,7 +63,7 @@ public class WorldAction {
             foreach (var line in lines) {
                 Function.Call(this, line);
                 if (failed) {
-                    Debug.Log($"text {currSeq} stopped at {line}");
+                    Debug.Log($"seq {currSeq} stopped at {line}");
                     break;
                 }
             }

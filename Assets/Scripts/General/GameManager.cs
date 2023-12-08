@@ -24,15 +24,14 @@ public class GameManager : MonoBehaviour {
 
         SpecLoader.Instance.Load();
         VerbLoader.Instance.Load();
+        ContentLoader.Instance.Load();
         ItemLoader.Instance.Load();
-
-        WorldData.Init();
-        TimeManager.Init();
-        WorldEvent.Init();
 
         MapTexture.Instance.CreateMapFromTexture();
 
         Player.Instance = ItemData.Generate_Special("player") as Player;
+
+        WorldData.Init();
 
         Tile.SetCurrent(TileSet.GetCurrent.GetTile(startCoords));
 
@@ -40,7 +39,7 @@ public class GameManager : MonoBehaviour {
 
         ItemParser.NewParser();
 
-        //ZombieManager.Instance.Init();
+        //ZombieManager.Instance.Parse();
 
 
     }

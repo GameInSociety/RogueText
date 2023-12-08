@@ -39,9 +39,11 @@ public class DebugManager : MonoBehaviour {
     [Header("[AVAILABLE ITEMS]")]
     public List<Item> availableItems;
 
+    public List<Item> globalItems;
+
     [Space]
     [Header("[ITEM EVENTS]")]
-    public List<WorldAction> EVENTS = new List<WorldAction>();
+    public List<WorldEvent> debug_worldEvents = new List<WorldEvent>();
 
     public List<ItemDescription.DescriptionGroup_Debug> debugDescriptions;
 
@@ -54,6 +56,9 @@ public class DebugManager : MonoBehaviour {
         previousParser = ItemParser.GetPrevious;
 
         availableItems = AvailableItems.currItems;
+
+        globalItems = WorldData.globalItems;
+        debug_worldEvents = WorldEvent.worldEvents;
 
         PLAYER = Player.Instance;
     }

@@ -49,5 +49,7 @@ public static  class AvailableItems {
         currItems.AddRange(Tile.GetCurrent.GetAdjacentTiles());
         // the player and all it's things
         currItems.AddRange(Player.Instance.GetChildItems(5));
+
+        currItems.AddRange(WorldData.globalItems);
     }
 }

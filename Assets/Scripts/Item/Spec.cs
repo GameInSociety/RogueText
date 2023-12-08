@@ -5,7 +5,7 @@ using UnityEngine;
 public class Spec {
 
     // key      = what will be searched in the input => "red", "left" "player", "field"
-    // value    = how it will appear in the text => "red", "on the left", "my", "in the field"
+    // value    = how it will appear in the seq => "red", "on the left", "my", "in the field"
     // info     = a key to distinct in code => "ordinal" "container" to see if a spec is already assigned
 
     public static List<Category> categories = new List<Category>();
@@ -33,7 +33,7 @@ public class Spec {
     public static Category GetCat(string name) {
         Category cat = categories.Find(x => x.name == name);
         if (cat == null) {
-            Debug.Log($"no cats names {name}");
+            Debug.Log($"no cats contents {name}");
             return null;
         }
         return cat;

@@ -4,9 +4,11 @@ using System.Text;
 using UnityEditorInternal;
 using UnityEngine;
 
-public static class WorldData
-{
+public static class WorldData {
     private static readonly List<parameter> parameters = new List<parameter>();
+
+    public static List<Item> globalItems = new List<Item>();
+
     public struct parameter {
         public string name;
         public string value;
@@ -29,6 +31,16 @@ public static class WorldData
             var parts = lines[i].Split(':');
             parameters.Add(new parameter(parts[0], parts[1]));
         }
+
+        var globalIndexes = ItemData.GetDatasOfType("universal");
+        foreach (var index in globalIndexes) {
+            var itemData = ItemData.itemDatas[index];
+            Debug.Log($"adding universal item {itemData.debugName}");
+            var newItem = ItemData.Generate_Simple(itemData.debugName);
+            globalItems.Add(newItem);
+        }
+
+        
     }
 
     public static string get(string name) {

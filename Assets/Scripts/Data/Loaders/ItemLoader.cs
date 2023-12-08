@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor.PackageManager;
 using UnityEngine;
 
@@ -67,54 +69,88 @@ public class ItemLoader : DataDownloader {
             prop.name = "types";
             for (int i = 0; i < types.Length; i++) {
                 if (string.IsNullOrEmpty(types[i])) { continue; }
+
+
                 prop.AddPart(types[i], "");
             }
+
+            
+
             newItemData.properties.Add(prop);
 
         }
 
-
         //newItem.index = rowIndex-1;
         newItemData.index = currIndex;
-        // add to item list
-        LoadProperties(newItemData, cells);
+        cells.RemoveRange(0, 5);
+        if ( cells.Count > 0) {
+            // add to item list
+            LoadProperties(newItemData, cells);
+        }
+
 
         ItemData.itemDatas.Add(newItemData);
         ++currIndex;
     }
 
-    void LoadProperties(ItemData data, List<string> cells) {
-
-        if (cells.Count <= 5)
-            return;
-
-        for (var i = 5; i < cells.Count; i++) {
-            if (string.IsNullOrEmpty(cells[i]))
+    void LoadProperties(ItemData data, List<string> contents) {
+        for (var i = 0; i < contents.Count; i++) {
+            if (string.IsNullOrEmpty(contents[i]))
                 continue;
 
-            // $ = verb action // ! = item action ( ex : undead attacks )
-            if (cells[i].StartsWith('$') || cells[i].StartsWith('!')) {
-                var cellParts = cells[i].Split(new char[1] { '\n' }, 2);
-                try {
-                    var verbs = cellParts[0].Remove(0, 2);
-                    var seq = new ItemData.Sequence(verbs, cellParts[1]);
-                    data.sequences.Add(seq);
-                } catch (Exception e) {
-                    Debug.Log($"error on loading sequence (item:{data.debugName}) (cell:{cells[i]})");
-                    Debug.LogError(e.Message);
+            string content = contents[i];
+
+            // load groups
+            if (content.StartsWith('%')) {
+                var groupName = content.Substring(2);
+                int exit = groupName.IndexOf('\n');
+                if (exit>=0)
+                    groupName = groupName.Remove(exit);
+                ContentLoader.Group group = ContentLoader.GetGroup(groupName);
+                if (group == null) {
+                    Debug.LogError($"no group named {content}");
+                    continue;
+                }
+
+                LoadProperties(data, group.contents);
+
+                // OVERRIDE the properties of the group
+                var lines = content.Split('\n');
+                for (int j = 1; j < lines.Length; j++) {
+                    var split = lines[j].Split(':');
+                    var nestedProp = data.properties.Find(x => x.name == split[0]);
+                    if ( nestedProp == null) {
+                        Debug.LogError($"GROUP PARSING : no property named {split[0]} in group {groupName}");
+                        continue;
+                    }
+                    nestedProp.AddPart("value", split[1]);
                 }
                 continue;
             }
 
-            var prop = new Property(cells[i]);
-            if ( PropertyTest.Instance.properties.Find(x=> x.name == prop.name) == null) {
-                PropertyTest.Instance.properties.Add(prop);
+            // load sequences
+            if (content.StartsWith('$') || content.StartsWith('!')) {
+                var cellParts = contents[i].Split(new char[1] { '\n' }, 2);
+                var verbs = cellParts[0].Remove(0, 2);
+                var seq = new Sequence(verbs, cellParts[1]);
+                data.sequences.Add(seq);
+                continue;
+            }
+
+            // add prop
+            var prop = new Property();
+            prop.Parse(content);
+            // check for overides
+            if ( data.properties.Find(x=> prop.name == x.name) != null ) {
+                Debug.Log($"item {data.name} already has prop {prop.name} with value {prop.GetNumValue()}");
             }
             data.properties.Add(prop);
+
+
         }
     }
 
     void ThrowError(string message) {
-        Debug.Log($"{message} at row {row} and sheet {sheet}");
+        Debug.Log($"{message} at row {row} and sheet {sheetName}");
     }
 }

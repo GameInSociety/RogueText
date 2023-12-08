@@ -28,7 +28,7 @@ public class VerbLoader : TextParser {
         char[] charsToTrim = { '\n', '\t', '\r', ' ' };
         var names = cells[0].Split('\n');
 
-        /*foreach (var item in names)
+        /*foreach (var item in contents)
         {
             Debug.Log(line_Index + item);
         }*/

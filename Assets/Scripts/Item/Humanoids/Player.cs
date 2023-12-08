@@ -10,22 +10,6 @@ public class Player : Humanoid {
         base.Init();
     }
 
-    #region vision
-    public bool canSee() {
-        if (TimeManager.partOfDay == TimeManager.PartOfDay.Night) {
-            if (HasItemWithProp("source of light")) {
-                TextManager.Write("lamp_on");
-                return true;
-            } else {
-                TextManager.Write("lamp_off");
-                return false;
-            }
-        }
-
-        return true;
-    }
-    #endregion
-
     #region movement
     public override void Move(Coords targetCoords) {
         // cancel if path blocked

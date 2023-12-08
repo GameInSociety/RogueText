@@ -26,11 +26,21 @@ public class Item {
 
 
     public virtual void Init() {
-        debug_name = GetData().words[0].text; 
-        foreach (var prop in GetData().properties) {
-            props.Add(new Property(prop));
+        debug_name = GetData().words[0].text;
+
+        foreach (var dataProp in GetData().properties) {
+            var newProp = new Property();
+            newProp.Init(dataProp);
+            if (newProp.HasPart("e")) {
+                foreach (var ev in newProp.parts.FindAll(x => x.key == "e")) {
+                    WorldEvent.SubscribeItem(this, ev.text);
+                }
+            }
+
+            props.Add(newProp);
         }
     }
+
 
     /// <summary>
     /// HANDLING OF CHILD ITEMS CONTAINED IN THIS ITEMS
@@ -73,11 +83,6 @@ public class Item {
             if (!prop.enabled)
                 return;
             prop.enabled = false;
-        }
-
-        if (prop.parts == null) {
-            Debug.Log($"no prop parts for {debug_name}");
-            return;
         }
 
         if (mChildItems == null)
@@ -295,9 +300,11 @@ public class Item {
     }
     public Property GetPropInText(string text, out int textIndex) {
         foreach (var prop in GetAllVisibleProps()) {
+
             var description = prop.GetDescription();
             if (Regex.IsMatch(text, @$"\b{description}\b")) {
                 textIndex = text.IndexOf(description);
+                Debug.Log($"found property {prop.name} by DESCRIPTION ({description})in item {debug_name}");
                 return prop;
             }
 
@@ -306,6 +313,13 @@ public class Item {
                 textIndex = text.IndexOf(searchProp.text);
                 return prop;
             }
+
+            if ( Regex.IsMatch(text, @$"\b{prop.name}\b")) {
+                textIndex = text.IndexOf(prop.name);
+                Debug.Log($"found property {prop.name} by name in item {debug_name}");
+                return prop;
+            }
+            
         }
         textIndex = -1;
         return null;
@@ -320,32 +334,28 @@ public class Item {
     /// <returns></returns>
     public Property SetProp(string prms) {
 
-        var parts = prms.Split(" / ");
-        var name = parts[0];
+        var split = prms.Split(" / ");
+        var name = split[0];
 
         var prop = GetProp(name);
         if (prop != null) {
-            for (int i = 1; i < parts.Length; i++) {
-                try {
-                    var strs = parts[i].Split(':');
-                    var part = prop.GetPart(strs[0]);
-                    if (part == null)
-                        prop.AddPart(strs[0], strs[1]);
-                    else
-                        part.text = strs[1];
-                } catch (Exception e) {
-                    Debug.LogError($"error when setting mw_prop {name} : part {parts[i]}");
-                    Debug.LogError(e.Message);
-                }
+            for (int i = 1; i < split.Length; i++) {
+                var strs = split[i].Split(':');
+                var part = prop.GetPart(strs[0]);
+                if (part == null)
+                    prop.AddPart(strs[0], strs[1]);
+                else
+                    part.text = strs[1];
             }
             return prop;
         }
 
         prop = new Property();
         prop.name = name;
+        prop.Init();
 
-        for (int i = 1; i < parts.Length; i++) {
-            var part = parts[i].Split(':');
+        for (int i = 1; i < split.Length; i++) {
+            var part = split[i].Split(':');
             prop.AddPart(part[0], part[1]);
         }
 
@@ -407,7 +417,6 @@ public class Item {
         }
 
         prop.enabled = true;
-        PropertyDescription.Add(this, prop);
     }
 
     public void DisableProperty(string propertyName) {
@@ -418,8 +427,6 @@ public class Item {
         }
 
         prop.enabled = false;
-
-        PropertyDescription.Add(this, prop);
     }
     #endregion
 
@@ -428,12 +435,12 @@ public class Item {
         return GetVisibleProps().Count > 0;
     }
     public List<Property> GetAllVisibleProps() {
-        return props.FindAll(x => x.HasPart("description") || x.HasPart("search"));
+        return props.FindAll(x => x.enabled && x.HasPart("description") || x.HasPart("search"));
     }
     public List<Property> GetVisibleProps(int layer =0) {
-        var visibleProps = props.FindAll(x => x.HasPart("description") && !x.HasPart("layer") && !x.HasPart("key"));
+        var visibleProps = props.FindAll(x => x.enabled && x.HasPart("description") && !x.HasPart("layer") && !x.HasPart("key"));
         if (layer > 0) {
-            var layeredProps = props.FindAll(x => x.HasPart("layer"));
+            var layeredProps = props.FindAll(x => x.enabled && x.HasPart("layer"));
             foreach (var prop in layeredProps) {
                 int l = 0;
                 if (int.TryParse(prop.GetPart("layer").text, out l) && l <= layer)

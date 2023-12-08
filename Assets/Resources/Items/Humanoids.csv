@@ -7,7 +7,7 @@ value: 1 > 10
 description:
 fine / hit / hurt / badly hurt / criticaly hurt / dying
 
-onValue:0
+OnValue:0
 write(the undead is on the floor, not moving)
 disable(steps)","steps
 
@@ -16,10 +16,10 @@ value: 10
 descrption:
 at reach, extremely close, pretty close, a few feet away, at a distance
 
-onValue:0
+OnValue:0
 trigger(attack)
 
-onAction:
+e:OnAction
 update(steps, -1)","! attack
 write(the undead attacks)
 [player.body part] enable(bleeding)
@@ -39,16 +39,19 @@ value: 10
 description :
 fine / hit / hurt / badly hurt / criticaly hurt / dying
 
-onValue:0
+OnValue:0
 write(you are dead)
 endgame","thirst
 
-value: 0
+value: 0m10
 
-onHours:
+description:
+(i'm) fully hydrated / not thirsty / slightly first / willing to drink something / getting thirsty / really thristy / extremely thirsty
+
+e:OnHours:
 update(thirst, +1)
 
-onValue:10
+OnValue:10
 write(you're dying of thirst)
 update(health, -1)","hunger
 
@@ -60,18 +63,21 @@ description:
 key:hungry
 search:hungry
 
-onHours:
+e:OnHours:
 update(hunger, +1)
 
-onValue:10
+OnValue:10
 write(you're dying of hunger)
 update(health, -1)","sleep
 
 value: 0
 
-onHours:
+description:
+(i feel) fully awake / awake / 
+
+e:OnHours:
 update(sleep, +1)
 
-onValue:10
+OnValue:30
 write(you're so tired you're dying)
 update(health, -1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

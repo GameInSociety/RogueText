@@ -10,7 +10,7 @@ public class DataDownloader : MonoBehaviour {
     public string[] sheetNames;
     public Object[] targetAssets;
 
-    public string sheet;
+    public string sheetName;
     public int row;
     public int col;
 
@@ -21,7 +21,7 @@ public class DataDownloader : MonoBehaviour {
     public void Load() {
         foreach (var asset in targetAssets) {
             var textAsset = asset as TextAsset;
-            sheet = textAsset.name;
+            sheetName = textAsset.name;
             fgCSVReader.LoadFromString(textAsset.text, new fgCSVReader.ReadLineDelegate(GetCell));
         }
 

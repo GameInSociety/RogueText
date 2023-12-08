@@ -128,24 +128,19 @@ public class DisplayDescription : MonoBehaviour {
         Reset();
 
 
-        /*uiText.text += "\n";
-        uiText.text += "_____________________________";
-        uiText.text += "\n";
-        uiText.text += "\n";*/
+        /*uiText.seq += "\n";
+        uiText.seq += "_____________________________";
+        uiText.seq += "\n";
+        uiText.seq += "\n";*/
     }
 
-    public void AddToDescription(string str, bool doReturn) {
+    public void AddToDescription(string str) {
         // majuscule
         str = TextUtils.FirstLetterCap(str);
 
-        // add
-        if (doReturn) {
-            str = "\n" + str;
-        }
-
         text_target += str;
 
-        //uiText.text += "\n____________________\n";
+        //uiText.seq += "\n____________________\n";
         scrollRect.verticalNormalizedPosition = 0f;
 
         UpdateDescription(text_target);

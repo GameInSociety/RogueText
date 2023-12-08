@@ -11,7 +11,7 @@ public class TextTyper : MonoBehaviour {
 	public Text uiText;
 
     public string textToType = "";
-    // currently typed text ?
+    // currently typed seq ?
     private string typingText = "";
     public bool finishedTyping = false;
 
@@ -31,7 +31,7 @@ public class TextTyper : MonoBehaviour {
 
 	public void Clear () {
 		textToType = "";
-		uiText.text = "";
+		uiText.seq = "";
 	}
 
 	public virtual void Start () {
@@ -56,7 +56,7 @@ public class TextTyper : MonoBehaviour {
                 }
             }
 
-            uiText.text = typingText + "_";
+            uiText.seq = typingText + "_";
 
             Sound.Instance.PlayRandomTypeSound();
 
@@ -67,7 +67,7 @@ public class TextTyper : MonoBehaviour {
 
             if (characterIndex >= textToType.Length)
             {
-                uiText.text = typingText;
+                uiText.seq = typingText;
                 break;
             }
         }
@@ -181,7 +181,7 @@ public class TextTyper : MonoBehaviour {
 
 	public void UpdateText () {
 
-		uiText.text = "";
+		uiText.seq = "";
 
 		if (textToType.Length < 1) {
             Hide();
@@ -200,7 +200,7 @@ public class TextTyper : MonoBehaviour {
 
 	public void QuickUpdateText () {
 
-		uiText.text = textToType;
+		uiText.seq = textToType;
 		textToType = "";
 	}
 }

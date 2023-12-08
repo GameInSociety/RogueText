@@ -1,0 +1,28 @@
+"around","","s","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"floor","","s","on","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"weather","","s","in","","*raining
+value:0
+rate:30?10
+description:
+raining cats and dogs / still raining / raining / starting to clear off / about to stop raining
+
+e:OnHours
+update(raining, +1)
+
+OnValue:$rate
+update(raining, 0)
+disable(rain)
+write(it stopped raining)
+enable(sky)","sky
+value:0
+description:
+clear / clear / cloudy / getting cloudier / all gray / gonna rain
+
+e:OnHours
+update(sky, +1)
+
+OnValue:50
+update(raining, 0)
+enable(raining)
+disable(sky)
+triggerEvent(OnRain)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

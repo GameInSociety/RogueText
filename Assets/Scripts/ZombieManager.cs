@@ -21,7 +21,7 @@ public class ZombieManager : MonoBehaviour {
         {
             Zombie zombie = new Zombie();
 
-            zombie.Init();
+            zombie.Parse();
 
             zombies.Add(zombie);
         }*/
