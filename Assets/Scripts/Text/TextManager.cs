@@ -12,7 +12,7 @@ public static class TextManager {
     static List<Humanoid.Orientation> overrideOrientations = new List<Humanoid.Orientation>();
     // PARAMS
     public static List<PhraseKey> phraseKeys = new List<PhraseKey>();
-    // override c'est vraiment pas bien, il faut trouver une façon de faire ("&le chien sage (surrounding tile)&")
+    // override c'est vraiment pas bien, il faut trouver une faï¿½on de faire ("&le chien sage (surrounding tile)&")
     private static List<Item> overrides = new List<Item>();
 
     // isolate "&" du texte
@@ -51,7 +51,7 @@ public static class TextManager {
         overrides.Add(item);
     }
     public static void Write(string str) {
-        DisplayDescription.Instance.AddToDescription($"{str}\n");
+        DisplayDescription.Instance.AddToDescription($"\n{str}");
     }
     #endregion
 

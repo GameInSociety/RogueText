@@ -32,10 +32,9 @@ public static class WorldData {
             parameters.Add(new parameter(parts[0], parts[1]));
         }
 
-        var globalIndexes = ItemData.GetDatasOfType("universal");
+        var globalIndexes = ItemData.GetDatasOfType("global");
         foreach (var index in globalIndexes) {
             var itemData = ItemData.itemDatas[index];
-            Debug.Log($"adding universal item {itemData.debugName}");
             var newItem = ItemData.Generate_Simple(itemData.debugName);
             globalItems.Add(newItem);
         }

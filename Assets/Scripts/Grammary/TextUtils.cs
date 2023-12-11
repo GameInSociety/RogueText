@@ -43,8 +43,7 @@ public class TextUtils {
         else if (index < lenght - 2)
             return ", ";
         return "";
-    }
-
+    }    
     public static string FirstLetterCap(string str) {
         if (str.Length < 2) {
             return str;

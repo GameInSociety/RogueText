@@ -1,14 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using System.Linq;
-using static UnityEditor.Progress;
-using Unity.Android.Types;
-using System.Net.Configuration;
-using static UnityEngine.ParticleSystem;
-using System.Runtime.InteropServices;
-using UnityEditor;
 
 /// <summary>
 /// this class is for action execution only.

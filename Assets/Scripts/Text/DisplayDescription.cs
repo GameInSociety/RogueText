@@ -14,31 +14,21 @@ public class DisplayDescription : MonoBehaviour {
 
     public ScrollRect scrollRect;
 
-    public bool enableAI = false;
-    public bool useAIForNextText = false;
-
     public Text uiText;
     public Text uiText_Old;
 
-    public Cardinal debug_cardinal;
-
-    /// <summary>
-    /// TYPING EFFECTS
-    /// OPTIONAL
-    /// </summary>
     public int letterRate = 1;
 
     public string text_current;
     public string text_target;
     int typeIndex = 0;
-    float timer = 0f;
+    float typeTimer = 0f;
     public float rate = 0.2f;
+    bool typing = false;
 
-    bool playVoice = false;
-    float voiceTimer;
-    public float voiceDelay = 0.1f;
-    string voice_Text = "";
-    bool taint = false;
+    float timer = 0f;
+
+    bool newText = false;
 
     void Awake() {
         Instance = this;
@@ -48,61 +38,58 @@ public class DisplayDescription : MonoBehaviour {
         ClearDescription();
     }
 
-
     private void Update() {
-        if (playVoice) {
-            voiceTimer += Time.deltaTime;
-            if (voiceTimer >= voiceDelay) {
-                AudioInteraction.Instance.StartSpeaking(voice_Text);
-                voice_Text = "";
-                playVoice = false;
-            }
+        if ( typing ) {
+            Typing_Update();
+        } else if (newText){
+            Typing_Start();
+        }
+    }
+
+    void Typing_Start(){
+        timer = 0f;
+        typing = true;
+        DisplayInput.Instance.Hide();
+        scrollRect.verticalNormalizedPosition = 0f;
+    }
+
+    void Typing_Update(){
+
+        if ( Input.GetKeyDown(KeyCode.Return) && timer > 0F){
+            Debug.Log($"skipping text");
+            Typing_Exit();
+            return;
         }
 
-        if (timer >= rate) {
-            timer = 0f;
-
+        if (typeTimer >= rate) {
+            typeTimer = 0f;
             Type();
         }
-
+        typeTimer += Time.deltaTime;
         timer += Time.deltaTime;
     }
 
     void Type() {
 
-        if (typeIndex >= text_target.Length) {
+        if (typeIndex >= text_target.Length ){
+            Typing_Exit();
             return;
         }
 
-        if (uiText.text.EndsWith("■")) {
-            uiText.text = uiText.text.Remove(uiText.text.Length - 1);
-        }
-
-        Sound.Instance.PlayRandomTypeSound();
-
-        if (taint) {
-            if (text_target[typeIndex] == '<') {
-                taint = false;
-                typeIndex = uiText.text.Length;
-                return;
-            }
-
-        } else {
-            if (text_target[typeIndex] == '<') {
-                taint = true;
-                uiText.text += "<color=green>";
-                typeIndex = uiText.text.Length;
-                uiText.text += "</color>";
-                return;
-            }
-
-        }
-
-        uiText.text = uiText.text.Insert(typeIndex, text_target[typeIndex].ToString()) + "■";
-
+        text_current = text_current.Insert(typeIndex, text_target[typeIndex].ToString() );
+        uiText.text = text_current + "■";
         //
 
         ++typeIndex;
+    }
+
+    void Typing_Exit(){
+        typing = false;
+        DisplayInput.Instance.Show();
+        text_current = text_target;
+        typeIndex = text_target.Length;
+        uiText.text = text_target;
+        newText = false;
     }
 
     public void ClearDescription() {
@@ -121,40 +108,18 @@ public class DisplayDescription : MonoBehaviour {
         uiText.text = text_target;
     }
 
-    public void renew() {
+    public void Renew() {
         uiText.text = text_target;
         uiText_Old.text += uiText.text;
 
         Reset();
-
-
-        /*uiText.seq += "\n";
-        uiText.seq += "_____________________________";
-        uiText.seq += "\n";
-        uiText.seq += "\n";*/
     }
 
     public void AddToDescription(string str) {
         // majuscule
         str = TextUtils.FirstLetterCap(str);
-
         text_target += str;
-
-        //uiText.seq += "\n____________________\n";
-        scrollRect.verticalNormalizedPosition = 0f;
-
-        UpdateDescription(text_target);
-    }
-
-    void HandleOnSendReply(string text) {
-        UpdateDescription(text);
-    }
-
-    public void UpdateDescription(string text) {
-        text_target = text;
-        voice_Text = text;
-        playVoice = true;
-        voiceTimer = 0f;
+        newText = true;
     }
 
 

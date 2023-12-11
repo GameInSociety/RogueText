@@ -48,7 +48,7 @@ value: 0m10
 description:
 (i'm) fully hydrated / not thirsty / slightly first / willing to drink something / getting thirsty / really thristy / extremely thirsty
 
-e:OnHours:
+e:OnHours
 update(thirst, +1)
 
 OnValue:10
@@ -63,7 +63,7 @@ description:
 key:hungry
 search:hungry
 
-e:OnHours:
+e:OnHours
 update(hunger, +1)
 
 OnValue:10
@@ -75,7 +75,7 @@ value: 0
 description:
 (i feel) fully awake / awake / 
 
-e:OnHours:
+e:OnHours
 update(sleep, +1)
 
 OnValue:30

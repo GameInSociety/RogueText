@@ -1,14 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Configuration;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
-using UnityEditor;
-using UnityEditor.Search;
 using UnityEngine;
 
 [System.Serializable]
@@ -33,7 +25,7 @@ public class Item {
             newProp.Init(dataProp);
             if (newProp.HasPart("e")) {
                 foreach (var ev in newProp.parts.FindAll(x => x.key == "e")) {
-                    WorldEvent.SubscribeItem(this, ev.text);
+                    WorldEvent.SubscribeItem(this, ev.content);
                 }
             }
 
@@ -58,7 +50,7 @@ public class Item {
         
         var filteredItems = mChildItems.FindAll(x => x.HasProp(propertyFilter));
         if (!string.IsNullOrEmpty(propertyValue))
-            filteredItems.RemoveAll(x => x.GetProp(propertyFilter).GetPart("value").text != propertyValue);
+            filteredItems.RemoveAll(x => x.GetProp(propertyFilter).GetPart("value").content != propertyValue);
 
         return filteredItems;
     }
@@ -94,10 +86,10 @@ public class Item {
             int amount = 1;
             int percent = 100;
             if (part.key == "main") {
-                it_name = part.text;
+                it_name = part.content;
             } else {
-                if (part.text.Contains('*')) {
-                    var strs = part.text.Split(" * ");
+                if (part.content.Contains('*')) {
+                    var strs = part.content.Split(" * ");
                     try {
                         amount = int.Parse(strs[0]);
                         percent = int.Parse(strs[1].Remove(strs[1].Length - 1));
@@ -107,10 +99,10 @@ public class Item {
                         Debug.LogError($"{debug_name} mw_prop parse error on : {it_name} ({strs[0]}) ({strs[1]})");
                     }
                 } else {
-                    if (part.text.Contains('%'))
-                        percent = int.Parse(part.text.Remove(part.text.Length - 1));
+                    if (part.content.Contains('%'))
+                        percent = int.Parse(part.content.Remove(part.content.Length - 1));
                     else
-                        amount = int.Parse(part.text);
+                        amount = int.Parse(part.content);
                 }
             }
 
@@ -309,8 +301,8 @@ public class Item {
             }
 
             var searchProp = prop.GetPart("search");
-            if (searchProp != null && Regex.IsMatch(text, @$"\b{searchProp.text}\b")) {
-                textIndex = text.IndexOf(searchProp.text);
+            if (searchProp != null && Regex.IsMatch(text, @$"\b{searchProp.content}\b")) {
+                textIndex = text.IndexOf(searchProp.content);
                 return prop;
             }
 
@@ -345,7 +337,7 @@ public class Item {
                 if (part == null)
                     prop.AddPart(strs[0], strs[1]);
                 else
-                    part.text = strs[1];
+                    part.content = strs[1];
             }
             return prop;
         }
@@ -443,7 +435,7 @@ public class Item {
             var layeredProps = props.FindAll(x => x.enabled && x.HasPart("layer"));
             foreach (var prop in layeredProps) {
                 int l = 0;
-                if (int.TryParse(prop.GetPart("layer").text, out l) && l <= layer)
+                if (int.TryParse(prop.GetPart("layer").content, out l) && l <= layer)
                     visibleProps.Add(prop);
             }
         }

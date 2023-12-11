@@ -68,10 +68,9 @@ public class ItemDescription {
                     if (item.HasChildItems()) {
                         var childItems = item.GetChildItemsWithProp("visibility");
                         if (childItems.Count > 0)
-                            text += $". there's {NewDescription(childItems)} in it.\n";
+                            text += $". there's {NewDescription(childItems)} in it.";
                     }
 
-                    text += "\n";
                 }
                 return text;
             }
@@ -84,8 +83,10 @@ public class ItemDescription {
         var text = "";
         for (int i = 0; i < groups.Count; ++i) {
             var group = groups[i];
-            if (options.splitLines)
-                text += $"{group.GetText(options)}\n";
+            if (options.splitLines){
+                if ( i > 0 ) text += '\n';
+                text += $"{group.GetText(options)}";
+            }
             else
                 text += $"{group.GetText(options)}{TextUtils.GetCommas(i, groups.Count)}";
         }

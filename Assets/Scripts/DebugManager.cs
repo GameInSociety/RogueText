@@ -1,9 +1,4 @@
-using DG.Tweening.Core.Easing;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection.Emit;
-using System.Text.RegularExpressions;
-using UnityEditor;
 using UnityEngine;
 
 public class DebugManager : MonoBehaviour {
@@ -65,10 +60,8 @@ public class DebugManager : MonoBehaviour {
     private static DebugManager _instance;
     public static DebugManager Instance {
         get {
-            if (_instance == null) {
+            if (_instance == null)
                 _instance = GameObject.FindObjectOfType<DebugManager>().GetComponent<DebugManager>();
-            }
-
             return _instance;
         }
     }

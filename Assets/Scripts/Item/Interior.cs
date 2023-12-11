@@ -38,7 +38,7 @@ public static class Interior {
 
         // Create room types
         var rooms = item.GetProp("rooms");
-        var tileNames = rooms.GetPart("tiles").text.Split('\n').ToList();
+        var tileNames = rooms.GetPart("tiles").content.Split('\n').ToList();
         // Create hallway
         var hallway_Coords = tileSet.Center;
         var hallway_Dir = new Coords(0, 1);

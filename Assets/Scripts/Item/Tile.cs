@@ -29,7 +29,7 @@ public class Tile : Item {
     #region tile description
     public void Describe() {
 
-        DisplayDescription.Instance.renew();
+        DisplayDescription.Instance.Renew();
 
         // change orientation, so the description is correct
         if (Player.Instance.coords != coords) {
@@ -122,7 +122,7 @@ public class Tile : Item {
             // if the tile is enclosed (often an interior)
             if (adjacentTile.HasProp("enclosed")) {
                 // there's a tileDoor
-                var tileDoor = GetChildItems()?.Find(x=> x.HasProp("orientation") && x.GetProp("orientation").GetPart("search").text == orientation.ToString());
+                var tileDoor = GetChildItems()?.Find(x=> x.HasProp("orientation") && x.GetProp("orientation").GetPart("search").content == orientation.ToString());
                 if (tileDoor == null)
                     tileDoor = CreateChildItem("door");
                 tileDoor.SetProp($"orientation / description:on the {orientation} / search:{orientation} / after word:yes");

@@ -1,11 +1,5 @@
 using System.Collections.Generic;
-using System.Security.Policy;
-using System.Security.Principal;
-using System.Text.RegularExpressions;
 using UnityEngine;
-using System;
-using System.Linq;
-using static UnityEditor.Progress;
 
 public static  class AvailableItems {
     public static List<Item> currItems = new List<Item>();
@@ -36,7 +30,7 @@ public static  class AvailableItems {
     }
 
 
-    public static void updateItems() {
+    public static void UpdateItems() {
 
         currItems.Clear();
 
@@ -44,7 +38,7 @@ public static  class AvailableItems {
         currItems.AddRange(Tile.GetCurrent.GetChildItems(2));
         // it's important that it's after the tile, otherwise the parser will search the inventory GetMainItem (ex: take plate, you already have it)
         // add spec "my" ou "inventory"// add different keys to specs (my+inventory+in bag)
-        // ah non. parce que ça peut être un container aussi. "take field plate". "take bag plate". ça y est toujorus ça ?
+        // ah non. parce que ï¿½a peut ï¿½tre un container aussi. "take field plate". "take bag plate". ï¿½a y est toujorus ï¿½a ?
         // the surrouning tiles
         currItems.AddRange(Tile.GetCurrent.GetAdjacentTiles());
         // the player and all it's things

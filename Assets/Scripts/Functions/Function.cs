@@ -1,22 +1,10 @@
-using DG.Tweening;
-using JetBrains.Annotations;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.ExceptionServices;
-using System.Runtime.Remoting.Contexts;
-using System.Windows.Markup;
-using Unity.Collections.LowLevel.Unsafe;
-using UnityEditorInternal;
-using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class Function {
-
     static WorldAction currentEvent;
     static string[] prms;
     static Item item;
@@ -50,7 +38,6 @@ public class Function {
         currentEvent = _event;
 
         // search for []
-        // 
         if (line.StartsWith('[')) {
             var itemKey = TextUtils.Extract('[', line);
             Debug.Log($"content key {itemKey}");
@@ -286,7 +273,7 @@ public class Function {
 
     static void trigger() {
         var prop = item.GetProp($"!{GetPart(0)}");
-        string seq = prop.GetPart("main").text;
+        string seq = prop.GetPart("main").content;
         var action = new WorldAction(item, currentEvent.tileCoords, currentEvent.tileSetId, seq);
         action.Call(); 
     }
@@ -317,7 +304,6 @@ public class Function {
             return;
         }
         if (!targetProp.enabled) {
-            Debug.Log($"trying to Update targetProp {propName} but it's disabled... all good");
             return;
         }
 
@@ -355,26 +341,17 @@ public class Function {
             case Property.UpdateType.Add:
                 int i = targetPropValue + sourceValue;
                 if (targetProp.HasPart("max") && sourceProp != null) {
-                    Debug.Log($"applying changes on prop {sourceProp.name}");
                     int max = targetProp.GetNumValue("max");
                     int dif = i - max;
-                    Debug.Log($"dif : {dif}");
                     sourceProp.SetValue(sourceValue - dif);
-                    Debug.Log($"new value for : {sourceProp.name} : {sourceProp.GetNumValue()}");
                 }
                 targetProp.SetValue(i);
                 break;
             case Property.UpdateType.Substract:
                 if (sourceProp != null) {
-                    Debug.Log($"SUBSTRACTION : applying changes on prop {sourceProp.name}");
-                    Debug.LogFormat($"source value : {sourceValue}");
-                    Debug.LogFormat($"target prop value : {targetPropValue}");
                     int dif = sourceValue - targetPropValue;
-                    if ( dif >=  0 ) {
+                    if ( dif >=  0 )
                         sourceProp.SetValue(dif);
-                    }
-                    Debug.Log($"dif : {dif}");
-                    Debug.Log($"new value for : {sourceProp.name} : {sourceProp.GetNumValue()}");
                 }
                 targetProp.SetValue(targetPropValue - sourceValue);
                 break;
@@ -382,32 +359,33 @@ public class Function {
 
         property_checkEvents(targetProp);
 
-        if (targetProp.HasPart("description")) {
+        if (targetProp.HasPart("description"))
             TextManager.Write(targetProp.GetDescription());
-        }
     }
     static void property_checkEvents(Property prop) {
-        if (prop.HasPart("onValue")) {
+        
+        var valueEvents = prop.parts.FindAll(x=>x.key == "OnValue");
+        if(valueEvents.Count == 0) return;
+        
+        foreach (var valueEvent in valueEvents){
             bool call = false;
-            var text = prop.GetPart("onValue").text;
-            var returnIndex = text.IndexOf('\n');
+            var content = valueEvent.content;
+            var returnIndex = content.IndexOf('\n');
 
-            var value = text.Remove(returnIndex);
-            var sequence = text.Remove(0, returnIndex + 1);
-            Debug.Log($"ON PROP VALUE : {prop.name} with targetPropValue :{value} and seq :{sequence}");
-            if (value.StartsWith('>')) {
-                int i = int.Parse(value.Remove(0, 1));
+            var targetValue = content.Remove(returnIndex);
+            var sequence = content.Remove(0, returnIndex + 1);
+            if (targetValue.StartsWith('>')) {
+                int i = int.Parse(targetValue.Remove(0, 1));
                 call = prop.GetNumValue() > i;
-            } else if (value.StartsWith('<')) {
-                int i = int.Parse(value.Remove(0, 1));
+            } else if (targetValue.StartsWith('<')) {
+                int i = int.Parse(targetValue.Remove(0, 1));
                 call = prop.GetNumValue() < i;
             } else {
-                int i = int.Parse(value);
+                int i = int.Parse(targetValue);
                 call = prop.GetNumValue() == i;
             }
 
             if (call) {
-                Debug.Log($"calling event on targetPropValue targetProp of {prop.name}");
                 WorldAction tileEvent = new WorldAction(item, currentEvent.tileCoords, currentEvent.tileSetId, sequence);
                 tileEvent.Call();
             }

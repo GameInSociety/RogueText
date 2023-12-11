@@ -29,7 +29,7 @@ public class Body : Item {
                 return;
             }
 
-            var equipedItem = part.GetChildItems().Find(x => x.GetProp("equipment").GetPart("target").text == prop.GetPart("target").text);
+            var equipedItem = part.GetChildItems().Find(x => x.GetProp("equipment").GetPart("target").content == prop.GetPart("target").content);
 
             if (equipedItem != null) {
                 TextManager.Write("I'm already wearing &a dog&", equipedItem);

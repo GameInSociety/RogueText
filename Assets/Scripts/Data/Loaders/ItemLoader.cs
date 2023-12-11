@@ -44,12 +44,13 @@ public class ItemLoader : DataDownloader {
         // Create new item
         var newItemData = new ItemData();
         var nameCell = cells[0];
-        newItemData.debugName = nameCell;
         var synonyms = nameCell.Split('\n');
 
         // HasPart numberSpecific class name
         if (!string.IsNullOrEmpty(cells[1]))
             newItemData.className = cells[1];
+
+        newItemData.debugName = synonyms[0];
 
         // SYNONYMS HERE
         // new word
@@ -63,22 +64,18 @@ public class ItemLoader : DataDownloader {
         if (cells[3].Length > 1)
             newItemData.words[0].preposition = cells[3];
 
+        // TYPES
         if (!string.IsNullOrEmpty(cells[4])) {
             string[] types = cells[4].Split('\n');
             var prop = new Property();
             prop.name = "types";
             for (int i = 0; i < types.Length; i++) {
                 if (string.IsNullOrEmpty(types[i])) { continue; }
-
-
                 prop.AddPart(types[i], "");
             }
-
-            
-
             newItemData.properties.Add(prop);
-
         }
+        //
 
         //newItem.index = rowIndex-1;
         newItemData.index = currIndex;

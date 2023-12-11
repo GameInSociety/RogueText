@@ -25,10 +25,10 @@ public class Property {
     [System.Serializable]
     public class Part {
         public string key;
-        public string text;
+        public string content;
         public Part(string k, string v) {
             key = k;
-            text = v;
+            content = v;
             //Debug.Log($"new part(key:{k} value:{v})");
         }
     }
@@ -43,7 +43,7 @@ public class Property {
         // first, get all data specific to the item
         // if there's none, it might be a one liner, or a fully copied data prop
         foreach (var part in copy.parts)
-            AddPart(new Part(part.key, part.text));
+            AddPart(new Part(part.key, part.content));
 
         // searching a prop in data for copying
         var dataProp = datas.Find(x => x.name == name);
@@ -52,7 +52,7 @@ public class Property {
             foreach (var part in dataProp.parts) {
                 if (parts.Find(x => x.key == part.key) != null)
                     continue;
-                AddPart(part.key, part.text);
+                AddPart(part.key, part.content);
             }
         }
 
@@ -106,7 +106,7 @@ public class Property {
             } else {
                 var str = lines[i].Trim(chars);
                 var part = parts[parts.Count - 1];
-                part.text += string.IsNullOrEmpty(part.text) ? str : $"\n{str}";
+                part.content += string.IsNullOrEmpty(part.content) ? str : $"\n{str}";
             }
         }
     }
@@ -135,20 +135,32 @@ public class Property {
             Debug.LogError($"INIT NUM VALUE : prop {name} doesn't have part with key {key}");
             return;
         }
-        if (part.text.Contains('?')) {
-            string[] prts = part.text.Split('?');
+
+        // check link
+        if (part.content.StartsWith('$')){
+            var prop = ItemLink.GetProperty(part.content.Substring(1));
+            if ( prop == null) {
+                Debug.LogError($"error initing value of {name}, link prop {part.content} doesnt exit");
+                return;
+            }
+            part.content = prop.GetNumValue().ToString();
+            return;
+        }
+
+        if (part.content.Contains('?')) {
+            string[] prts = part.content.Split('?');
             int min = int.Parse(prts[0]);
             int max = int.Parse(prts[1]);
             int i = UnityEngine.Random.Range(min, max);
-            part.text = $"{i}";
+            part.content = $"{i}";
             AddPart("max", max.ToString());
         }
 
-        if (part.text.Contains('m')) {
-            string[] prts = part.text.Split('m');
+        if (part.content.Contains('m')) {
+            string[] prts = part.content.Split('m');
             int min = int.Parse(prts[0]);
             int max = int.Parse(prts[1]);
-            part.text = min.ToString();
+            part.content = min.ToString();
             AddPart("max", max.ToString());
         }
     }
@@ -161,8 +173,8 @@ public class Property {
         }
 
         int num = 0;
-        if (!int.TryParse(part.text, out num)) {
-            Debug.LogError($"GET NUM VALUE : value of {name} ({part.text}) can't be parsed");
+        if (!int.TryParse(part.content, out num)) {
+            Debug.LogError($"GET NUM VALUE : value of {name} ({part.content}) can't be parsed");
             return -1;
         }
         return num;
@@ -171,23 +183,24 @@ public class Property {
         var part = GetPart("name");
         if (part == null)
             return $"property {name} has no part (name)";
-        return part.text;
+        return part.content;
 
     }
     public void SetValue(int num, string part = "value") {
         if (HasPart("max")) {
             num = Math.Clamp(num, 0, GetNumValue("max"));
         }
-        GetPart("value").text = num.ToString();
+        GetPart("value").content = num.ToString();
     }
     #endregion
 
+    string currentDescription = "";
     #region description
     public string GetDescription() {
 
         if (!HasPart("description")) return "error : no item description";
         
-        var description = GetPart("description").text;
+        var description = GetPart("description").content;
 
         if (description.Contains("/")) {
             var start = "";
@@ -221,9 +234,8 @@ public class Property {
         if ( description.Contains("[name]"))
             description = description.Replace("[name]", GetTextValue().ToString());
 
-        if (description.Contains('/'))
-            return "didn't implemant split description yet";
         return description;
+        
     }
     public static string GetDescription(List<Property> props) {
         string str = "";

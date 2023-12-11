@@ -9,30 +9,33 @@ public class ItemLink
 {
     public static Item GetItem(string key) {
 
+        var parentItem = (Item)null;
         if (key.Contains('.')) {
             // split
             var parts = key.Split('.');
             // get the parent item
-            var parentItem = GetItem(parts[0]);
+            parentItem = GetItem(parts[0]);
+            key = parts[1];
             if (parentItem == null)
                 return null;
-            var inputItem = GetItem(parts[1], ItemParser.GetCurrent.GetOptionalItems());
-            if (inputItem != null) {
-                return inputItem;
-            }
-            // search the item 
-            return GetItem(parts[1], parentItem.GetChildItems(2));
-
         }
 
+        if ( parentItem != null )
+            return GetItem(key, parentItem.GetChildItems(2));
+
+        if ( ItemParser.GetCurrent == null )
+            return GetItem(key, AvailableItems.currItems);
+        
+        // when the key starts with *, it search will only occur in the input items
         if (key.StartsWith('*')) {
             return GetItem(key.Substring(1), ItemParser.GetCurrent.GetOptionalItems());
         }
 
-        var parserItems = GetItem(key, ItemParser.GetCurrent.GetOptionalItems());
-        if (parserItems != null) {
-            return parserItems;
+        var parserItem = GetItem(key, ItemParser.GetCurrent.GetOptionalItems());
+        if (parserItem != null) {
+            return parserItem;
         }
+
         return GetItem(key, AvailableItems.currItems);
     }
 
@@ -44,7 +47,7 @@ public class ItemLink
         return result;
     }
 
-    public static Property GetProperty(string key, Item item) {
+    public static Property GetProperty(string key, Item item = null) {
         key = key.TrimStart('$');
         if (key.StartsWith('[')) {
             string itemKey = TextUtils.Extract('[', key);

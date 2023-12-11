@@ -1,6 +1,6 @@
-"around","","s","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"floor","","s","on","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"weather","","s","in","","*raining
+"around","","s","","global","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"floor","","s","on","global","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"weather","","s","in","global","*raining
 value:0
 rate:30?10
 description:
@@ -26,3 +26,50 @@ update(raining, 0)
 enable(raining)
 disable(sky)
 triggerEvent(OnRain)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"hour
+time","","s","in","global","hours
+value:6m24
+description:it's [value]
+
+e:OnHours
+update(hours, +1)
+OnValue:24
+update(hours,0)
+update(days, +1)","part of day
+value:6m24
+description:
+night / dawn / morning / noon / afternoon / dusk / evening 
+
+e:OnHours
+update(part of day, +1)
+
+OnValue:24
+update(part of day, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"day","","s","","global","days
+value:0?30
+description:
+it's the [value] of $[mounth].mounths
+OnValue:>0
+triggerEvent(OnDays)
+
+OnValue:30
+update(mounths, +1)
+update(days, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"mounth","","s","","global","mounths
+value:0?12
+description:
+january / february / march / april / may / june / july / august / september / october / november / december
+
+OnValue:>0
+triggerEvent(OnMounths)
+
+OnValue:12
+update(mounths, 0)
+update(years, +1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"year","","s","","global","years
+value:2000
+description:
+it's [value]
+
+OnValue:>0
+triggerEvent(OnYears)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

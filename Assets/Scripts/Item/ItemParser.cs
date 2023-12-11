@@ -2,11 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using System;
-using UnityEditor.Experimental.GraphView;
-using System.IO;
-using System.Security.Policy;
-using System.Security.Principal;
 
 [System.Serializable]
 public class ItemParser {
@@ -35,11 +30,12 @@ public class ItemParser {
 
         // assigning seq
         inputs.Add(_text);
-        TextManager.Write($"<color=red>  {_text} </color>");
+        TextManager.Write($"\n{_text}\n");
 
         FetchIntegers();
         FetchVerb();
         FetchItems();
+        
         // sending feedback if no verbs or item have been detexted
         if (!InputHasItemsAndVerbs())
             return;
@@ -48,11 +44,10 @@ public class ItemParser {
         if (!CanDistinguishItems())
             return;
 
-        // t'as fait ce truc qui est un peu débile mais PAS TANT QUE ça.
-        // parce que d'ici tu peux check TOUS les items avec lesquels le verb peut intéragir.
+        // t'as fait ce truc qui est un peu dï¿½bile mais PAS TANT QUE ï¿½a.
+        // parce que d'ici tu peux check TOUS les items avec lesquels le verb peut intï¿½ragir.
 
         TriggerAction();
-        
     }
 
     void FetchIntegers() {
@@ -118,7 +113,7 @@ public class ItemParser {
     /// il y avait une raison.
     /// "take apple from the left hand to the back"
     /// sinon il prend left hand avant back.
-    /// ça va poser probleme mais on verra peut être pas.
+    /// ï¿½a va poser probleme mais on verra peut ï¿½tre pas.
     /// </summary>
     /// <returns></returns>
     public List<Item> GetOptionalItems() {
@@ -129,16 +124,13 @@ public class ItemParser {
     }
 
     void FetchItems(){
-        string text = lastInput;
-        if (!Verb.IsNull(verb)) {
-            Debug.Log($"removing {verb.GetCurrentWord} from {lastInput}");
-            text = text.Substring(verb.GetCurrentWord.Length);
-            Debug.Log($"result : {text}");
-        }
-        if (otherGroups.Count > 0) {
+        if (otherGroups.Count > 0)
             return;
-        }
-        AvailableItems.updateItems();
+        string text = lastInput;
+        if (!Verb.IsNull(verb))
+            text = text.Substring(verb.GetCurrentWord.Length);
+        
+        AvailableItems.UpdateItems();
 
         var groups = new List<ItemGroup>();
         foreach (var item in AvailableItems.currItems) {
