@@ -23,7 +23,8 @@ public class ItemData {
     public string className;
 
     public List<Property> properties = new List<Property>();
-    public List<Sequence> sequences = new List<Sequence>();
+    public List<Sequence> verbSequences = new List<Sequence>();
+    public List<Sequence> events = new List<Sequence>();
 
     #region static
     public static ItemData GetItemData(string key) {
@@ -38,7 +39,7 @@ public class ItemData {
         int index = -1;
         if (key.StartsWith("type")) {
             key = TextUtils.Extract('(', key);
-            index = GetDataOfType(key);
+            index = GetRandomDataOfType(key);
         } else
             index = itemDatas.FindIndex(x => x.words.Find(x => x.text == key) != null);
 
@@ -49,16 +50,17 @@ public class ItemData {
         return index;
     }
 
-    public static int GetDataOfType(string type) {
-        int index = itemDatas.FindIndex(x => 
+    public static int GetRandomDataOfType(string type) {
+        Debug.Log($"searching in type s: {type}");
+        var items = itemDatas.FindAll(x => 
         x.properties.Find(x=> x.name == "types") != null
         &&
         x.properties.Find(x=> x.name == "types").HasPart(type) );
-        if (index == -1) {
+        if (items.Count == 0) {
             Debug.LogError("no type " + type + " in item datas");
             return -1;
         }
-        return index;
+        return items[UnityEngine.Random.Range(0, items.Count)].index;
     }
     public static List<int> GetDatasOfType(string type) {
 

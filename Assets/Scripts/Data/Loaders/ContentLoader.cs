@@ -56,7 +56,7 @@ public class ContentLoader : DataDownloader{
                 if (group != null) group.contents.Add(cells[i]);
             } else {
                 var dataProp = new Property();
-                dataProp.Parse(cells[i]);
+                dataProp.Parse(cells[i].Split('\n'));
                 Property.AddPropertyData(dataProp);
                 if (group != null) group.contents.Add(dataProp.name);
             }

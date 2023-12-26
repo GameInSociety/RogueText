@@ -33,6 +33,8 @@ public static class Interior {
         tileSet.height = TileSet.world.height;
         tileSet.startCoords = tileSet.Center;
         tileSet.timeScale = 4;
+        int tileSetId = item.GetProp("tilesetId").GetNumValue();
+        tileSet.id = tileSetId;
 
         TileSet.tileSets.Add(tileSet);
 
@@ -49,7 +51,7 @@ public static class Interior {
         while (tileNames.Count > 0) {
 
             // add new hallway tile
-            var newHallwayTile = Tile.Create(hallway_Coords, "hallway",hallwaySpec );
+            var newHallwayTile = Tile.Create(new Tile.Info(hallway_Coords, tileSetId), "hallway",hallwaySpec );
 
             if (tileSet.tiles.ContainsKey(hallway_Coords)) {
                 hallway_Coords += hallway_Dir;
@@ -86,7 +88,7 @@ public static class Interior {
 
                 int rnd = Random.Range(0, tileNames.Count);
                 var tileName = tileNames[rnd];
-                var newRoomTile = Tile.Create(coords, tileName);
+                var newRoomTile = Tile.Create(new Tile.Info(coords, tileSetId), tileName);
                 tileNames.RemoveAt(rnd);
 
                 tileSet.Add(coords, newRoomTile);

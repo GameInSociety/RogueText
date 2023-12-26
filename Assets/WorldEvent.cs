@@ -40,7 +40,7 @@ public class WorldEvent {
             worldEvent = CreateWorldEvent(eventName);
         }
 
-        var worldAction = new WorldAction(item, sequence);
+        var worldAction = new WorldAction(item, item.TileInfo , sequence); ;
         worldEvent.AddWorldAction(worldAction); 
     }
 

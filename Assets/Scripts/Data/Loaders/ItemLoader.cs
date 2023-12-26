@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
 
@@ -13,7 +14,13 @@ public class ItemLoader : DataDownloader {
     // singleton
     public static ItemLoader Instance;
     int currIndex = 0;
-    public ItemData[] items_debug;
+    public List<DebugGroup> debugGroups = new List<DebugGroup>();
+
+    [System.Serializable]
+    public class DebugGroup {
+        public string name;
+        public List<ItemData> debug_items = new List<ItemData>();
+    }
 
     private void Awake() {
         Instance = this;
@@ -21,9 +28,6 @@ public class ItemLoader : DataDownloader {
 
     public override void FinishLoading() {
         base.FinishLoading();
-        // debug list to explore items
-        items_debug = ItemData.itemDatas.ToArray();
-        //
     }
 
     public override void GetCell(int rowIndex, List<string> cells) {
@@ -32,12 +36,12 @@ public class ItemLoader : DataDownloader {
         if (rowIndex == 0)
             return;
         // skip empty
-        if (cells.Count > 0 && string.IsNullOrEmpty(cells[0])) {
+        if (cells.Count <= 1) {
             return;
         }
 
         if (string.IsNullOrEmpty(cells[0])) {
-            LoadProperties(ItemData.itemDatas[currIndex], cells);
+            LoadProperties(ItemData.itemDatas[currIndex-1], cells);
             return;
         }
 
@@ -85,7 +89,13 @@ public class ItemLoader : DataDownloader {
             LoadProperties(newItemData, cells);
         }
 
-
+        var debugGroup = debugGroups.Find(x => x.name == sheetName);
+        if (debugGroup == null) {
+            debugGroup = new DebugGroup();
+            debugGroup.name = sheetName;
+            debugGroups.Add(debugGroup);
+        }
+        debugGroup.debug_items.Add(newItemData);
         ItemData.itemDatas.Add(newItemData);
         ++currIndex;
     }
@@ -128,20 +138,31 @@ public class ItemLoader : DataDownloader {
             // load sequences
             if (content.StartsWith('$') || content.StartsWith('!')) {
                 var cellParts = contents[i].Split(new char[1] { '\n' }, 2);
-                var verbs = cellParts[0].Remove(0, 2);
-                var seq = new Sequence(verbs, cellParts[1]);
-                data.sequences.Add(seq);
+                var triggers = cellParts[0].Remove(0, 2);
+                var seq = new Sequence(triggers, cellParts[1]);
+                if (content.StartsWith('$'))
+                    data.verbSequences.Add(seq);
+                if (content.StartsWith('!'))
+                    data.events.Add(seq);
                 continue;
             }
 
+            var cellLines = content.Split('\n');
             // add prop
-            var prop = new Property();
-            prop.Parse(content);
-            // check for overides
-            if ( data.properties.Find(x=> prop.name == x.name) != null ) {
-                Debug.Log($"item {data.name} already has prop {prop.name} with value {prop.GetNumValue()}");
+            if (cellLines[0].Contains(':')) {
+                // one liners
+                for (int a = 0; a < cellLines.Length; a++) {
+                    var prop = new Property();
+                    var split = cellLines[a].Split(':');
+                    prop.name = split[0];
+                    prop.AddPart("value", split[1]);
+                    data.properties.Add(prop);
+                }
+            } else {
+                var prop = new Property();
+                prop.Parse(cellLines);
+                data.properties.Add(prop);
             }
-            data.properties.Add(prop);
 
 
         }

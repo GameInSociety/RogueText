@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
 [System.Serializable]
@@ -11,8 +14,12 @@ public class Item {
     public ItemData GetData() { return ItemData.itemDatas[dataIndex]; }
     public int debug_randomID;
 
+    public Tile.Info TileInfo;
+
     public List<Property> props = new List<Property>();
     public int wordIndex = 0;
+    [SerializeField]
+    private Item mParentItem;
     [SerializeField]
     private List<Item> mChildItems;
 
@@ -20,15 +27,15 @@ public class Item {
     public virtual void Init() {
         debug_name = GetData().words[0].text;
 
+        foreach (var seq in GetData().events) {
+            // trying alternative method for events.
+            var content = $"{seq.triggers[0]}\n{seq.seq}";
+            WorldEvent.SubscribeItem(this, content);
+        }
+
         foreach (var dataProp in GetData().properties) {
             var newProp = new Property();
             newProp.Init(dataProp);
-            if (newProp.HasPart("e")) {
-                foreach (var ev in newProp.parts.FindAll(x => x.key == "e")) {
-                    WorldEvent.SubscribeItem(this, ev.content);
-                }
-            }
-
             props.Add(newProp);
         }
     }
@@ -116,6 +123,19 @@ public class Item {
     }
     #endregion
 
+    #region parent
+    public void SetParent(Item item) {
+        mParentItem = item;
+    }
+    public Item GetParent() {
+        if ( mParentItem == null) {
+            Debug.LogError($"{debug_name} has no parent");
+            return null;
+        }
+        return mParentItem;
+    }
+    #endregion
+
     #region child item creation
     public Item CreateChildItem(string name) {
         var newItem = ItemData.Generate_Simple(name);
@@ -124,6 +144,7 @@ public class Item {
     public Item CreateChildItem(Item item) {
         // vraiment pas sûr que ça devrait être ici
         item.GenerateChildItems();
+        item.TileInfo = TileInfo;
         AddChildItem(item);
         return item;
     }
@@ -135,6 +156,8 @@ public class Item {
 
         mChildItems.Add(item);
 
+        item.SetParent(this);
+
         var weightProp = GetProp("weight");
         var oWeightProp = item.GetProp("weight");
 
@@ -143,6 +166,7 @@ public class Item {
             weightProp.SetValue(value + oWeightProp.GetNumValue());
         }
 
+        // commented to resolve weight found every where bug
         item.SetProp($"contained / search:{debug_name}");
     }
 
@@ -246,7 +270,8 @@ public class Item {
             text = text.Insert(0, $"{GetWord().preposition} ");
 
 
-        return text;
+        //return $"{text}";
+        return $"{text}({debug_randomID})";
     }
 
     public virtual void WriteDescription() {
@@ -291,29 +316,31 @@ public class Item {
         return -1;
     }
     public Property GetPropInText(string text, out int textIndex) {
+        textIndex = -1;
         foreach (var prop in GetAllVisibleProps()) {
 
             var description = prop.GetDescription();
             if (Regex.IsMatch(text, @$"\b{description}\b")) {
                 textIndex = text.IndexOf(description);
-                Debug.Log($"found property {prop.name} by DESCRIPTION ({description})in item {debug_name}");
-                return prop;
-            }
-
-            var searchProp = prop.GetPart("search");
-            if (searchProp != null && Regex.IsMatch(text, @$"\b{searchProp.content}\b")) {
-                textIndex = text.IndexOf(searchProp.content);
                 return prop;
             }
 
             if ( Regex.IsMatch(text, @$"\b{prop.name}\b")) {
                 textIndex = text.IndexOf(prop.name);
-                Debug.Log($"found property {prop.name} by name in item {debug_name}");
                 return prop;
             }
-            
         }
-        textIndex = -1;
+
+        // search ( not visible but searchable )
+        foreach (var p in props.FindAll(x => x.HasPart("search"))) {
+            var part = p.GetPart("search");
+            if (part == null) return null;
+            if (Regex.IsMatch(text, @$"\b{part.content}\b")) {
+                textIndex = text.IndexOf(part.content);
+                return p;
+            }
+        }
+
         return null;
     }
     #endregion
@@ -339,6 +366,7 @@ public class Item {
                 else
                     part.content = strs[1];
             }
+            prop.Init();
             return prop;
         }
 
@@ -400,26 +428,6 @@ public class Item {
     }
     //
 
-    // CHANGE
-    public void EnableProperty(string propertyName) {
-        var prop = props.Find(x => x.name == propertyName);
-        if (prop == null) {
-            Debug.LogError("ENABLE PROP : Could not find property " + propertyName);
-            return;
-        }
-
-        prop.enabled = true;
-    }
-
-    public void DisableProperty(string propertyName) {
-        var prop = props.Find(x => x.name == propertyName);
-        if (prop == null) {
-            Debug.LogError("DISABLE PROP : Could not find property " + propertyName);
-            return;
-        }
-
-        prop.enabled = false;
-    }
     #endregion
 
     #region visible props ?
@@ -427,7 +435,7 @@ public class Item {
         return GetVisibleProps().Count > 0;
     }
     public List<Property> GetAllVisibleProps() {
-        return props.FindAll(x => x.enabled && x.HasPart("description") || x.HasPart("search"));
+        return props.FindAll(x => x.enabled && (x.HasPart("description") ));
     }
     public List<Property> GetVisibleProps(int layer =0) {
         var visibleProps = props.FindAll(x => x.enabled && x.HasPart("description") && !x.HasPart("layer") && !x.HasPart("key"));

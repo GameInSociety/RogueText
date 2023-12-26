@@ -40,11 +40,11 @@ public class Body : Item {
         }
         if (tmpParts.Count > 0) {
             AvailableItems.RemoveFromWorld(item);
-            foreach (var bodyPart in tmpParts) {
+            /*foreach (var bodyPart in tmpParts) {
                 _ = bodyPart.CreateChildItem(item);
                 bodyPart.WriteDescription();
                 Debug.Log("apply to part : " + bodyPart.debug_name);
-            }
+            }*/
         }
 
     }
@@ -63,7 +63,7 @@ public class Body : Item {
                 if (props.Count > 0)
                     Debug.LogError(containedItem.debug_name + " is in multiple body parts, il faut faciliter ce truc ( simple )");
 
-                Tile.GetCurrent.CreateChildItem(containedItem);
+                //Tile.GetCurrent.CreateChildItem(containedItem);
             }
 
 

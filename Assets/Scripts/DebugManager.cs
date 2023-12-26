@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,8 +40,13 @@ public class DebugManager : MonoBehaviour {
     [Space]
     [Header("[ITEM EVENTS]")]
     public List<WorldEvent> debug_worldEvents = new List<WorldEvent>();
-
     public List<ItemDescription.DescriptionGroup_Debug> debugDescriptions;
+    public List<PropertyDescription> debug_PropertyDescriptions;
+
+    [Space]
+    [Header("[PARSER]")]
+    public List<Item> itemHistory = new List<Item>();
+    public List<Property> propHistory = new List<Property>();
 
     [Space]
     [Header("[PLAYER]")]
@@ -55,6 +61,11 @@ public class DebugManager : MonoBehaviour {
         globalItems = WorldData.globalItems;
         debug_worldEvents = WorldEvent.worldEvents;
 
+        itemHistory = ItemLink.itemHistory;
+        propHistory = ItemLink.propHistory;
+
+        debug_PropertyDescriptions = PropertyDescription.propDescriptions;
+
         PLAYER = Player.Instance;
     }
     private static DebugManager _instance;
@@ -65,4 +76,6 @@ public class DebugManager : MonoBehaviour {
             return _instance;
         }
     }
+
+    
 }

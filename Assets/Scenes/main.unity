@@ -369,7 +369,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.75160044
+  m_Size: 0.84558654
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -894,7 +894,7 @@ MonoBehaviour:
   col: 0
   url: https://docs.google.com/spreadsheets/d/1J7DQfy9bEuvbxmnFNVD-U-pBuExX0amlt_KDc81CNcI/edit#gid=0
   path: Items
-  items_debug: []
+  debugGroups: []
 --- !u!4 &344407971
 Transform:
   m_ObjectHideFlags: 0
@@ -1365,9 +1365,9 @@ MonoBehaviour:
       destroy: 0
       parts:
       - key: main
-        text: house
+        content: 
       - key: house
-        text: 2*30%
+        content: 
   - name: field
     color: {r: 0.69803923, g: 0.5294118, b: 0.3019608, a: 1}
     prop:
@@ -1376,9 +1376,9 @@ MonoBehaviour:
       destroy: 0
       parts:
       - key: main
-        text: farm
+        content: 
       - key: farm
-        text: 2*30%
+        content: 
   - name: forest
     color: {r: 0.69803923, g: 0.3019608, b: 0.5568628, a: 1}
     prop:
@@ -1387,9 +1387,9 @@ MonoBehaviour:
       destroy: 0
       parts:
       - key: main
-        text: cabin
+        content: 
       - key: cabin
-        text: 2*30%
+        content: 
   - name: mansion
     color: {r: 1, g: 0, b: 0.28235292, a: 1}
     prop:
@@ -3736,12 +3736,14 @@ MonoBehaviour:
     debug_name: 
     dataIndex: 0
     debug_randomID: 0
+    TileInfo:
+      coords:
+        x: 0
+        y: 0
+      setID: 0
     props: []
     wordIndex: 0
     mChildItems: []
-    coords:
-      x: 0
-      y: 0
   adjacentTiles: []
   debug_groups: []
   previousParser:
@@ -3777,10 +3779,18 @@ MonoBehaviour:
   globalItems: []
   debug_worldEvents: []
   debugDescriptions: []
+  debug_PropertyDescriptions: []
+  itemHistory: []
+  propHistory: []
   PLAYER:
     debug_name: 
     dataIndex: 0
     debug_randomID: 0
+    TileInfo:
+      coords:
+        x: 0
+        y: 0
+      setID: 0
     props: []
     wordIndex: 0
     mChildItems: []
@@ -4139,16 +4149,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   verticalLayoutGroup: {fileID: 314841085}
   scrollRect: {fileID: 2032537943}
-  enableAI: 0
-  useAIForNextText: 0
   uiText: {fileID: 2010397798}
   uiText_Old: {fileID: 1275752592}
-  debug_cardinal: 6
   letterRate: 1
   text_current: 
   text_target: 
   rate: 0.02
-  voiceDelay: 0.1
 --- !u!222 &2032537942
 CanvasRenderer:
   m_ObjectHideFlags: 0

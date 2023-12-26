@@ -1,82 +1,147 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
+using UnityEditor;
+using UnityEditor.Search;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEditor.Progress;
 
-public class ItemLink
+public static class ItemLink
 {
-    public static Item GetItem(string key) {
+    public static List<Item> itemHistory = new List<Item>();
+    public static List<Property> propHistory = new List<Property>();
+    public static void ClearHistory() {
+        itemHistory.Clear(); propHistory.Clear();
+    }
+    public static void AddToHistory(Item item) {
+        itemHistory.Add(item);
+    }
+    public static void AddToHistory(Property prop) {
+        propHistory.Add(prop);
+    }
+    public static Item GetPreviousItem() {
+        return itemHistory[0];
+    }
+    public static Property GetPreviousProp() {
+        return propHistory[0];
+    }
+
+
+    public static Item SearchItem(string key) {
+
+        if ( key == "pitem")
+            return GetPreviousItem();
+        var result = ReadKey(key);
+        if (result == null)
+            return null;
+
+        itemHistory.Add(result);
+        return result;
+    }
+
+    public static Item ReadKey(string key) {
+        if (key.StartsWith('['))
+            key = TextUtils.Extract('[', key);
 
         var parentItem = (Item)null;
         if (key.Contains('.')) {
             // split
             var parts = key.Split('.');
             // get the parent item
-            parentItem = GetItem(parts[0]);
+            parentItem = SearchItem(parts[0]);
             key = parts[1];
-            if (parentItem == null)
+            if (parentItem == null) {
+                Debug.LogError($"parent item {key} was not found");
                 return null;
+            }
         }
 
+        // if parent, search in children
         if ( parentItem != null )
-            return GetItem(key, parentItem.GetChildItems(2));
+            return SearchItemInRange(key, parentItem.GetChildItems(2));
 
+        // if no current item parser, only in surrnouding items ( for events )
         if ( ItemParser.GetCurrent == null )
-            return GetItem(key, AvailableItems.currItems);
+            return SearchItemInRange(key, AvailableItems.currItems);
         
         // when the key starts with *, it search will only occur in the input items
         if (key.StartsWith('*')) {
-            return GetItem(key.Substring(1), ItemParser.GetCurrent.GetOptionalItems());
+            var inputItem = SearchItemInRange(key.Substring(1), ItemParser.GetCurrent.GetOptionalItems());
+            if (inputItem == null ) {
+                if (ItemParser.GetCurrent.HasSecondItem()) {
+                    Fail($"{ItemParser.GetCurrent.GetOptionalItems().First().GetText("the dog")} can't do that");
+                } else {
+                    Fail($"specify in what you want to {ItemParser.GetCurrent.lastInput}");
+                }
+            }
+            return inputItem;
         }
 
-        var parserItem = GetItem(key, ItemParser.GetCurrent.GetOptionalItems());
-        if (parserItem != null) {
+        // first serach in parsed items
+        var parserItem = SearchItemInRange(key, ItemParser.GetCurrent.GetOptionalItems());
+        if (parserItem != null)
             return parserItem;
-        }
 
-        return GetItem(key, AvailableItems.currItems);
+        var surroundingItem = SearchItemInRange(key, AvailableItems.currItems);
+
+        return surroundingItem;
     }
 
-    public static Item GetItem(string key, List<Item> range) {
+    static void Fail(string message) {
+        Function.Fail(message);
+        //WorldAction.current.Fail(message);
+    }
+
+    static void Error(string message) { Debug.LogError(message);}
+
+    public static Item SearchItemInRange(string key, List<Item> range) {
         // this searches in the parser
-        if (key.StartsWith('$')) return GetItemWithProp(key, range);
+        if (key.StartsWith("ANY ")) return GetItemWithProp(key, range);
         if (key == "tile") return Tile.GetCurrent;
+        // exclude current item
+        if (range.Contains(WorldAction.current.itemGroup.first)) {
+            range.Remove(WorldAction.current.itemGroup.first);
+        }
         var result = range.Find(x => x.HasWord(key));
         return result;
     }
 
-    public static Property GetProperty(string key, Item item = null) {
-        key = key.TrimStart('$');
-        if (key.StartsWith('[')) {
-            string itemKey = TextUtils.Extract('[', key);
-            item = GetItem(itemKey);
-            if (item == null) {
-                Debug.LogError($"[GETTING PROP!] no item with key {itemKey}");
+    public static Property GetProperty(string key, Item item) {
+        if (key == "pprop")
+            return GetPreviousProp();
+
+        var initItem = item;
+        var targetItem = item;
+        var prop = (Property)null;
+        if (key.Contains('>')) {
+            var split = key.Split('>');
+            targetItem = SearchItem(split[0]);
+            if (targetItem== null) {
+                Fail($"[ITEM LINK] (GetProperty) : failed searching for item {split[0]} in {key}");
                 return null;
             }
+            key = split[1];
+
         }
-        string propertyKey = key.Remove(0, key.LastIndexOf('.') + 1);
-        var prop = item.GetProp(propertyKey);
+        prop = targetItem.GetProp(key);
         if ( prop == null) {
-            Debug.LogError($"no property with name {propertyKey} in item {item.debug_name}");
+            Fail($"[ITEM LINK] (GetProperty) : failed searching for prop in {key} / item : {targetItem.debug_name}");
             return null;
         }
+        propHistory.Add(prop);
         return prop;
     }
 
     public static Item GetItemWithProp (string key, List<Item> range) {
-        var propName = key.Substring(1);
-        var parts = propName.Split('/');
-        propName = parts[0];
-
-        var it = range.Find(x => x.GetProp(propName) != null);
-
-        if ( parts.Length > 1 && it != null && it.GetProp(propName).HasPart(parts[1])) {
-            return it;
-        } else {
-            return it;
+        var propName = key.Remove(0,"ANY ".Length);
+        // remove action item from range
+        if (range.Contains(WorldAction.current.itemGroup.first)) {
+            Debug.Log($"[{key}] : the range contains the current item");
+            range.Remove(WorldAction.current.itemGroup.first);
         }
+        return range.Find(x => x.GetProp(propName) != null);
     }
 }

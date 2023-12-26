@@ -10,14 +10,29 @@ using static UnityEditor.Progress;
 [System.Serializable]
 public class Tile : Item {
     // location of tile in world
-    public Coords coords;
+    public Coords coords {
+        get {
+            return TileInfo.coords;
+        }
+    }
+    [System.Serializable]
+    public struct Info {
+        public Coords coords;
+        public int setID;
+        public Info(Coords c, int i) {
+            coords = c;
+            setID = i;
+        }
+        public Tile GetTile() {
+            return TileSet.GetTileSet(setID).GetTile(coords);
+        }
+    }
+
     public static bool itemsChanged = false;
-    public static Tile Create(Coords _coords, string _name, string prop_text = "") {
+    public static Tile Create(Info info, string _name, string prop_text = "") {
 
         var tile = ItemData.Generate_Special(_name) as Tile;
-
-        tile.coords = _coords;
-
+        tile.TileInfo = info;
         if (!string.IsNullOrEmpty(prop_text)) {
             tile.SetProp($"dif / description:{prop_text}");
         }
@@ -25,11 +40,10 @@ public class Tile : Item {
         return tile;
     }
 
-
     #region tile description
     public void Describe() {
 
-        DisplayDescription.Instance.Renew();
+        DisplayDescription.Instance.ClearDescription();
 
         // change orientation, so the description is correct
         if (Player.Instance.coords != coords) {
@@ -55,11 +69,13 @@ public class Tile : Item {
         // putting items that contain things and items that don't in the same list
         // (testing to see how it looks)
         if (HasChildItems()) {
+            TextManager.Return();
             var mainItms = GetChildItems().FindAll(x => x as Tile == null);
             string main_str = $"there's {ItemDescription.NewDescription(mainItms, "show props")}";
             TextManager.Write(main_str);
         }
 
+            TextManager.Return();
         AdjacentTilesDescription();
     }
 
@@ -150,7 +166,6 @@ public class Tile : Item {
         return TileSet.GetCurrent.GetTile(targetCoords);
     }
     #endregion
-
 
     #region info
     public static bool SameAsPrevious() {

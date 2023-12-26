@@ -1,22 +1,50 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
+using TMPro;
+using UnityEditor.PackageManager;
+using UnityEditor.UIElements;
+using UnityEditor.VersionControl;
+using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.AI;
+using UnityEngine.Android;
 
-public class Function {
-    static WorldAction currentEvent;
-    static string[] prms;
+public static class Function {
+    static WorldAction worldAction;
+    static string[] prms = new string[0];
+    static Item[] items;
+    static Property[] props;
     static Item item;
+    static bool continueOnFail;
 
-    public Item GetItem(string str) {
-        return null;
+    static Item GetItem(int i) {
+        if (!HasPart(i))
+            return item;
+        var key = GetPart(i);
+        if (key.Contains('>'))
+            key = key.Remove(GetPart(i).IndexOf('>'));
+
+        if (items[i] == null) {
+            items[i] = ItemLink.SearchItem(key);
+        }
+        return items[i];
     }
 
-    public Property GetProp(string str) {
-        return null;
+    static bool HasProp(int i) {
+        return GetProp(i) != null;
     }
 
+    static Property GetProp(int i) {
+        if (!HasPart(i))
+            return null;
+        if (props[i] == null) {
+            props[i] = ItemLink.GetProperty(GetPart(i), item);
+        }
+        return props[i];
+    }
 
     public static string GetPart(int i) {
         if (i >= prms.Length)
@@ -24,31 +52,42 @@ public class Function {
         return prms[i];
     }
 
-    static void Fail(string message) {
-        TextManager.Write(message);
-        currentEvent.Fail();
+    public static void Fail(string message) {
+        if ( continueOnFail) {
+            Debug.Log($"failing but continuing:");
+            Debug.Log($"message : {message}");
+            return;
+        }
+        WorldAction.current.Fail(message);
     }
 
     public static bool NoParts() { return prms.Length > 0; }
     public static bool HasPart(int i) { return i < prms.Length; }
     public static int PartCount() { return prms.Length; }
     public static int ParsePart(int i) { return int.Parse(prms[i]); }
-    public static void Call(WorldAction _event, string line) {
+    public static bool CanParse(int i) { int a = 0; return int.TryParse(prms[i], out a); }
+    public static bool HasLinks(int i) { return prms[i].Contains('[') || prms[i].Contains('$'); }
+    public static void TryCall(WorldAction _event, string line) {
 
-        currentEvent = _event;
+        worldAction = _event;
 
         // search for []
         if (line.StartsWith('[')) {
             var itemKey = TextUtils.Extract('[', line);
-            Debug.Log($"content key {itemKey}");
-            item = ItemLink.GetItem(itemKey);
+            item = ItemLink.SearchItem(itemKey);
             line = line.Remove(0, itemKey.Length + 3);
-            Debug.Log($"new line {line}");
         } else {
-            item = currentEvent.itemGroup.items.First();
+            item = worldAction.itemGroup.items.First();
         }
 
         var functionName = line;
+
+        continueOnFail = false;
+        if (line.StartsWith('*')) {
+            Debug.Log($"[FUNCTION] : {line} / don't break sequence");
+            continueOnFail = true;
+            line = line.Substring(1);
+        }
 
         // get options
         if (line.Contains('(')) {
@@ -56,6 +95,8 @@ public class Function {
             var paramerets_all = TextUtils.Extract('(', line);
             var stringSeparators = new string[] { ", " };
             prms = paramerets_all.Split(stringSeparators, StringSplitOptions.None);
+            items = new Item[prms.Length];
+            props = new Property[prms.Length];
         }
             
         MethodInfo info = typeof(Function).GetMethod(
@@ -64,9 +105,8 @@ public class Function {
 
         if (info == null) {
             Debug.LogError($"no method named {functionName} found");
-            TextManager.Write($"no method named {functionName} found");
-            return;
         }
+
         info.Invoke(null, null);
     }
 
@@ -92,8 +132,8 @@ public class Function {
         int count = 0;
         if (ItemParser.GetCurrent.integer >= 0) {
             count = ItemParser.GetCurrent.integer;
-        } else {
-            count = HasPart(0) ? ParsePart(0) : 1;
+        } else if (HasPart(0)) {
+            count = CanParse(0) ? ParsePart(0) : GetProp(0).GetNumValue();
         }
         TimeManager.Wait(count);
         TextManager.Write($"{count} {TextUtils.WordWithNumber("hour", count)} pass by");
@@ -153,18 +193,10 @@ public class Function {
     #region items
     static void transferTo() {
 
-        var itmText = ItemDescription.NewDescription(currentEvent.itemGroup.items);
+        var itmText = ItemDescription.NewDescription(worldAction.itemGroup.items);
 
-        var weightProp = item.GetProp("weight");
-        if ( weightProp == null) {
-            Fail($"{itmText} can't be moved");
-            return;
-        }
-
-        var itemName = GetPart(0);
-        var targetItem = ItemLink.GetItem(itemName);
-
-        if ( targetItem == null) {
+        // get target item
+        if ( GetItem(0) == null) {
             Fail($"nowhere to put {itmText} in");
             return;
         }
@@ -172,30 +204,32 @@ public class Function {
         // this is just where you check the nextWeight, not add them.
         // sourceValue'll never need to check if at the initialization of the game.
         // I add nextWeight in the transfer to function
-        var targetWeightProp = targetItem.GetProp("weight");
-        if ( targetWeightProp != null) {
-            var otherWeight = targetWeightProp.GetNumValue();
-            var maxWeight = targetWeightProp.GetNumValue("max");
-            var nextWeight = weightProp.GetNumValue() * currentEvent.itemGroup.items.Count;
-            if ( otherWeight + nextWeight > maxWeight) {
-                Fail($"{itmText} is too big or heavy for {targetItem.GetText($"the dog")} ");
-                return;
-            }
-        }
-        
+        // get target item weight
 
-        foreach (var it in currentEvent.itemGroup.items) {
-            if (targetItem.hasItem(it)) {
-                Fail($"{targetItem.GetText("the dog")} already contains {it.GetText("the dog")}");
+        // get target item pick up props
+        var ci_wProp = item.GetProp("weight");
+        int ti_weigh = GetItem(0).GetProp("weight").GetNumValue();
+        int ti_cap = GetItem(0).GetProp("capacity").GetNumValue();
+        // get current item group weight
+        int ci_weight = ci_wProp.GetNumValue() * worldAction.itemGroup.items.Count;
+        // check if weight goes above capicity
+        if (ti_weigh + ci_weight>= ti_cap) {
+            Fail($"{itmText} is too big or heavy for {GetItem(0).GetText($"the dog")} ");
+            return;
+        }
+
+        foreach (var it in worldAction.itemGroup.items) {
+            if (GetItem(0).hasItem(it)) {
+                Fail($"{GetItem(0).GetText("the dog")} already contains {it.GetText("the dog")}");
                 return;
             }
-            it.TransferTo(targetItem);
+            it.TransferTo(GetItem(0));
         }
 
         if (!Verb.IsNull(ItemParser.GetCurrent.verb)) {
-            TextManager.Write($"you {ItemParser.GetCurrent.verb.GetCurrentWord} {itmText} in {targetItem.GetText("the dog")}");
+            TextManager.Write($"you {ItemParser.GetCurrent.verb.GetCurrentWord} {itmText} in {GetItem(0).GetText("the dog")}");
         } else {
-            TextManager.Write($"{itmText} are now in {targetItem.GetText("the dog")}");
+            TextManager.Write($"{itmText} are now in {GetItem(0).GetText("the dog")}");
         }
     }
 
@@ -205,32 +239,40 @@ public class Function {
 
     static void createItem() {
 
+        // createItem (WHAT ITEM, HOW MUCH)
+
         var amount = HasPart(1) ? ParsePart(1) : 1;
 
-        var itemType = GetPart(0);
-        var item = currentEvent.tile.CreateChildItem(itemType);
+        var itemName = GetPart(0);
+        if (itemName.StartsWith('.')) {
+            var prop = item.GetProp(itemName.Substring(1));
+            if (prop == null) Debug.LogError($"no prop named {itemName.Substring(1)}");
+            itemName = prop.GetDescription();
+            Debug.Log($"item name : {itemName}");
+        }
+        var newItem = worldAction.tile.CreateChildItem(itemName);
+        Debug.Log($"creating item {newItem.debug_name}");
 
         for (var i = 1; i < amount; i++) {
-            _ = currentEvent.tile.CreateChildItem(itemType);
+            _ = worldAction.tile.CreateChildItem(itemName);
         }
 
-        if (currentEvent.tile == Tile.GetCurrent) {
-            TextManager.Write("tile_addItem", item);
+        if (worldAction.tile == Tile.GetCurrent) {
+            TextManager.Write($"{newItem.GetText("a dog")} was {ItemParser.GetCurrent.verb.GetCurrentWord}ed");
+        } else {
+            TextManager.Write($"target tile : {Tile.GetCurrent.coords.ToString()} / event tile : {worldAction.tile.coords.ToString()}");
         }
     }
 
     static void describe() {
-
-        Debug.Log($"content group name : {currentEvent.itemGroup.debug_name}");
-
-        foreach (var prop in currentEvent.itemGroup.linkedProps) {
+        foreach (var prop in worldAction.itemGroup.linkedProps) {
             if (prop.HasPart("key")) {
                 TextManager.Write($"{prop.GetDescription()}");
                 return;
             }
         }
 
-        if ( currentEvent.itemGroup.items.Count == 1) {
+        if ( worldAction.itemGroup.items.Count == 1) {
 
             if (item.GetVisibleProps(1).Count == 0 && !item.HasChildItems()) {
                 TextManager.Write($"nothing special about this {item.GetText("dog")}");
@@ -247,122 +289,124 @@ public class Function {
             return;
         }
 
-        TextManager.Write($"{item.GetText("the dog")} is {ItemDescription.NewDescription(currentEvent.itemGroup.items, "show props")}");
+        TextManager.Write($"{item.GetText("the dog")} is {ItemDescription.NewDescription(worldAction.itemGroup.items, "show props")}");
         return;
 
 
     }
     #endregion
 
+
     #region props
     static void disable() {
-        var line = GetPart(0);
-        var property = item.props.Find(x => x.name == line);
-        item.DisableProperty(line);
+        GetProp(0).enabled = false;
     }
 
     static void enable() {
-        var prop_name = GetPart(0);
-        var property = item.props.Find(x => x.name == prop_name);
-        if (property == null) {
-            Debug.LogError("ACTION_ENABLEPROPERY : did not find targetProp : " + prop_name + " on " + item.debug_name);
-            return;
-        }
-        item.EnableProperty(prop_name);
+        var prop = GetProp(0);
+        prop.enabled = true;
+        Property_CheckEvents(prop);
+        PropertyDescription.Add(item, prop);
     }
 
     static void trigger() {
         var prop = item.GetProp($"!{GetPart(0)}");
         string seq = prop.GetPart("main").content;
-        var action = new WorldAction(item, currentEvent.tileCoords, currentEvent.tileSetId, seq);
+        var action = new WorldAction(item, worldAction.tileInfo, seq);
         action.Call(); 
     }
 
     static void check() {
-        var propertyName = GetPart(0);
-        var property = item.GetProp(propertyName);
 
-        if (property.GetNumValue() <= 0) {
-            TextManager.Write("No " + property.name);
-            currentEvent.Fail();
+        if (!HasProp(0))
+            return;
+
+        bool fail = false;
+        switch (GetPart(1)) {
+            case "max":
+                fail = GetProp(0).GetNumValue() >= GetProp(0).GetNumValue("max");
+                break;
+            case "empty":
+                fail = GetProp(0).GetNumValue() == 0;
+                break;
+            default:
+                break;
+        }
+
+        if (fail) {
+            Fail(HasPart(2) ? $"{GetPart(2)}" : $"check fail : {GetPart(0)} / {GetPart(1)}");
             return;
         }
     }
 
-    static void update() {
-        // getting the target property
-        var propName = GetPart(0);
-        var targetProp = (Property)null;
-        // checking for link to other items
-        if (propName.StartsWith('$'))
-            targetProp = ItemLink.GetProperty(propName, item);
-        else
-            targetProp = item.GetProp(propName);
-
-        if ( targetProp == null) {
-            Debug.LogError($"no targetProp with the name {propName} on content {item.debug_name}");
+    static void add() {
+        if (!HasProp(0))
             return;
-        }
-        if (!targetProp.enabled) {
+        if (!GetProp(0).enabled)
             return;
+        int addValue = CanParse(1) ? ParsePart(1) : GetProp(1).GetNumValue();
+        int nextValue = 0;
+
+        if ( CanParse(1) ) {
+            addValue = ParsePart(1);
+            nextValue = GetProp(0).GetNumValue() + addValue;
+        } else {
+            addValue = GetProp(1).GetNumValue();
+            nextValue = GetProp(0).GetNumValue() + addValue;
+            if (GetProp(0).HasPart("max")) {
+                if (addValue == 0 && worldAction.source == WorldAction.Source.PlayerAction) {
+                    Fail($"{GetItem(1).GetText("the dog")} doesn't have any {GetProp(1).name} left");
+                    return;
+                }
+                int max = GetProp(0).GetNumValue("max");
+                int dif = max - nextValue;
+                GetProp(1).SetValue(-dif);
+                PropertyDescription.Add(GetItem(1), GetProp(1));
+            }
         }
 
-        // getting the line to modify the target property with
-        var line = GetPart(1);
+        GetProp(0).SetValue(nextValue);
+        Property_CheckEvents(GetProp(0));
+        PropertyDescription.Add(GetItem(0), GetProp(0));
+    }
 
-        // check if substract, simple set or add
-        Property.UpdateType updateType = Property.UpdateType.None;
-        if (line.StartsWith('+'))
-            updateType = Property.UpdateType.Add;
-        else if (line.StartsWith('-'))
-            updateType = Property.UpdateType.Substract;
-        if (updateType != Property.UpdateType.None) line = line.Substring(1);
-        //
+    static void sub() {
+        if (!HasProp(0))
+            return;
+        if (!GetProp(0).enabled)
+            return;
+        int subValue = CanParse(1) ? ParsePart(1) : GetProp(1).GetNumValue();
+        if (CanParse(1)) {
+            subValue = ParsePart(1);
+        } else {
+            subValue = GetProp(1).GetNumValue();
+            if (subValue == 0 && worldAction.source == WorldAction.Source.PlayerAction) {
+                Fail($"{GetItem(1).GetText("the dog")} doesn't have any {GetProp(1).name} left");
+                return;
+            }
+            GetProp(1).SetValue(subValue - GetProp(0).GetNumValue());
+            PropertyDescription.Add(GetItem(1), GetProp(1));
+        }
+
+        GetProp(0).SetValue(GetProp(0).GetNumValue() - subValue);
+        Property_CheckEvents(GetProp(0));
+        PropertyDescription.Add(GetItem(0), GetProp(0));
+    }
+
+    static void set() {
+        if (!GetProp(0).enabled)
+            return;
 
         // getting target targetPropValue
-        int sourceValue = 0;
-        var sourceProp = (Property)null;
-        // check if link to other targetProp
-        if (line.StartsWith('$')) {
-            sourceProp = ItemLink.GetProperty(line, item);
-            sourceValue = sourceProp.GetNumValue();
-            Debug.Log($"found source prop : {sourceProp.name}");
-        } else {
-            sourceValue = int.Parse( line );
+        if (GetProp(0).GetPart("value").content == GetPart(1) && worldAction.source == WorldAction.Source.PlayerAction) {
+            Fail($"{GetItem(0).GetText("the dog")} is already {GetProp(0).GetDescription()}");
+            return;
         }
-
-        int targetPropValue = targetProp.GetNumValue();
-        switch (updateType) {
-            case Property.UpdateType.None:
-                // not doing the i here
-                // not sure if i'm using this much or when i do a i is necessary
-                targetProp.SetValue(sourceValue);
-                break;
-            case Property.UpdateType.Add:
-                int i = targetPropValue + sourceValue;
-                if (targetProp.HasPart("max") && sourceProp != null) {
-                    int max = targetProp.GetNumValue("max");
-                    int dif = i - max;
-                    sourceProp.SetValue(sourceValue - dif);
-                }
-                targetProp.SetValue(i);
-                break;
-            case Property.UpdateType.Substract:
-                if (sourceProp != null) {
-                    int dif = sourceValue - targetPropValue;
-                    if ( dif >=  0 )
-                        sourceProp.SetValue(dif);
-                }
-                targetProp.SetValue(targetPropValue - sourceValue);
-                break;
-        }
-
-        property_checkEvents(targetProp);
-
-        if (targetProp.HasPart("description"))
-            TextManager.Write(targetProp.GetDescription());
+        GetProp(0).SetValue(GetPart(1));
+        Property_CheckEvents(GetProp(0));
+        PropertyDescription.Add(GetItem(0), GetProp(0));
     }
-    static void property_checkEvents(Property prop) {
+    static void Property_CheckEvents(Property prop) {
         
         var valueEvents = prop.parts.FindAll(x=>x.key == "OnValue");
         if(valueEvents.Count == 0) return;
@@ -381,12 +425,16 @@ public class Function {
                 int i = int.Parse(targetValue.Remove(0, 1));
                 call = prop.GetNumValue() < i;
             } else {
-                int i = int.Parse(targetValue);
-                call = prop.GetNumValue() == i;
+                try {
+                    int i = int.Parse(targetValue);
+                    call = prop.GetNumValue() == i;
+                } catch {
+                    Debug.Log($"could'nt parse {targetValue} in seqence {content}");
+                }
             }
 
             if (call) {
-                WorldAction tileEvent = new WorldAction(item, currentEvent.tileCoords, currentEvent.tileSetId, sequence);
+                WorldAction tileEvent = new WorldAction(item, worldAction.tileInfo, sequence);
                 tileEvent.Call();
             }
         }

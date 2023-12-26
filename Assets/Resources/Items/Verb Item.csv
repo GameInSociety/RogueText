@@ -8,5 +8,4 @@ wait(1)","$ hit
 [target.body part] enable(bleeding)
 [target] update(health, $damage)
 write(you hit &the *target*& &on the *body part*& with your &*damage*&)","$ eat
-[player] update(hunger, +$[$food].food)
-[$food] update(food, -$food)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+update([player].hunger, +[ANY food].food)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

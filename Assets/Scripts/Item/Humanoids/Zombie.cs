@@ -10,7 +10,7 @@ public class Zombie : Humanoid {
 
         base.Move(targetCoords);
 
-        _ = TileSet.GetCurrent.GetTile(targetCoords).CreateChildItem(this);
+        //_ = TileSet.GetCurrent.GetTile(targetCoords).CreateChildItem(this);
     }
 
     public void Advance() {

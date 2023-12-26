@@ -65,7 +65,6 @@ public class ItemGroup {
                 if (first.HasProp("dif")) {
                     return false;
                 } else {
-                    Debug.Log($"removing all other {first.debug_name}");
                     items.RemoveRange(1, items.Count - 1);
                 }
             }
@@ -85,11 +84,9 @@ public class ItemGroup {
         foreach (var item in items) {
             var prop = item.GetPropInText(text, out i);
             if ( prop != null) {
-                Debug.Log($"found prop {prop.name}");
                 return item;
             }
         }
-        Debug.Log($"no prop to distinguish {first.debug_name}");
         return null;
     }
     private void AssignOrdinalProps() {
@@ -112,7 +109,7 @@ public class ItemGroup {
     public string GetOrdinal(int i) {
         var ordinals = new string[10]
         {
-            "GetMainItem",
+            "first",
             "second",
             "third",
             "fourth",

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -102,7 +103,7 @@ public class MapTexture : MonoBehaviour {
                         var tileInfo = tileInfos[i];
 
                         string prop_str = props[i];
-                        var newTile = Tile.Create(coords, tileInfo.name, prop_str);
+                        var newTile = Tile.Create(new Tile.Info(coords, 0), tileInfo.name, prop_str);
 
                         // get tile type from color
                         TileSet.world.Add(coords, newTile);

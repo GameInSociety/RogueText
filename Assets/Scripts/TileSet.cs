@@ -15,6 +15,7 @@ public class TileSet {
     public Dictionary<Coords, Tile> tiles = new Dictionary<Coords, Tile>();
     public int width;
     public int height;
+    public int id;
 
     public Coords Center => new Coords((int)(width / 2f), (int)(height / 2f));
 

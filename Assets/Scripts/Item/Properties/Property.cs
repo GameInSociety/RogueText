@@ -11,6 +11,8 @@ using JetBrains.Annotations;
 using System.Xml.Schema;
 using UnityEditor;
 using System.Text;
+using System.Configuration;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 [System.Serializable]
 public class Property {
@@ -57,9 +59,7 @@ public class Property {
         }
 
         // fetch events
-
         Init();
-        
     }
 
     public void Init() {
@@ -73,25 +73,10 @@ public class Property {
         if (!enabled) name = name.Remove(0, 1);
     }
 
-    public void Parse(string cell) {
-        var lines = cell.Split('\n');
+    public void Parse(string[] lines) {
         name = lines[0];
-
-        // adding the value part to the prop
-        // will not ovverride by data props
-        if (name.Contains(':')) {
-            var split = name.Split(':');
-            name = split[0];
-            AddPart("value", split[1]);
-            // remove the first ':'
-            cell = cell.Remove(0, cell.IndexOf(':')+1);
-        }
-
         // no parts, only name
         if (lines.Length == 1) return;
-
-        var partCount = cell.Split(':').Length - 1;
-        if (partCount == 0) return;
 
         char[] chars = { '\r', '\t', '\b', '\n', ' ' };
         for (int i = 1; i < lines.Length; i++) {
@@ -104,6 +89,7 @@ public class Property {
                 var text = strs[1].Trim(chars);
                 AddPart(strs[0], text);
             } else {
+                // continue part
                 var str = lines[i].Trim(chars);
                 var part = parts[parts.Count - 1];
                 part.content += string.IsNullOrEmpty(part.content) ? str : $"\n{str}";
@@ -119,10 +105,23 @@ public class Property {
         parts.Add(part);
     }
 
+    public void SetPart(string key, string text) {
+        var part = GetPart(key);
+        if (part == null) {
+            part = new Part(key, text);
+        } else {
+            Debug.Log($"property {key} already has part{key} with {text}");
+        }
+        part.content = text;
+    }
+
     public bool HasPart(string str) {
         return parts.Find(x => x.key == str) != null;
     }
 
+    public List<Part> GetParts(string key) {
+        return parts.FindAll(x=> x.key == key);
+    }
     public Part GetPart(string key) {
         return parts.Find(x => x.key == key);
     }
@@ -137,12 +136,8 @@ public class Property {
         }
 
         // check link
-        if (part.content.StartsWith('$')){
-            var prop = ItemLink.GetProperty(part.content.Substring(1));
-            if ( prop == null) {
-                Debug.LogError($"error initing value of {name}, link prop {part.content} doesnt exit");
-                return;
-            }
+        if (part.content.Contains('[')){
+            var prop = ItemLink.GetProperty(part.content, null);
             part.content = prop.GetNumValue().ToString();
             return;
         }
@@ -151,7 +146,7 @@ public class Property {
             string[] prts = part.content.Split('?');
             int min = int.Parse(prts[0]);
             int max = int.Parse(prts[1]);
-            int i = UnityEngine.Random.Range(min, max);
+            int i = UnityEngine.Random.Range(min, max+1);
             part.content = $"{i}";
             AddPart("max", max.ToString());
         }
@@ -179,26 +174,42 @@ public class Property {
         }
         return num;
     }
-    public string GetTextValue() {
-        var part = GetPart("name");
-        if (part == null)
-            return $"property {name} has no part (name)";
-        return part.content;
+    public void SetValue(string text, string part = "value") {
+        GetPart(part).content = text;
 
     }
     public void SetValue(int num, string part = "value") {
-        if (HasPart("max")) {
+        if (HasPart("max"))
             num = Math.Clamp(num, 0, GetNumValue("max"));
-        }
-        GetPart("value").content = num.ToString();
+        GetPart(part).content = num.ToString();
+
     }
     #endregion
-
-    string currentDescription = "";
     #region description
     public string GetDescription() {
 
-        if (!HasPart("description")) return "error : no item description";
+        if (!HasPart("description"))
+            return ""; 
+
+        var newDescription = GetNewDescription();
+
+        if (!HasPart("prevDescription"))
+            AddPart("prevDescription", "");
+
+        if (!HasPart("currDescription"))
+            AddPart("currDescription", "");
+
+        GetPart("prevDescription").content = GetPart("currDescription").content;
+        GetPart("currDescription").content = newDescription;
+
+        return newDescription;
+    }
+    public bool DescriptionChanged() {
+        if (!HasPart("currDescription"))
+            GetDescription();
+        return GetPart("prevDescription").content != GetPart("currDescription").content;
+    }
+    private string GetNewDescription() {
         
         var description = GetPart("description").content;
 
@@ -210,8 +221,11 @@ public class Property {
             }
             var prts = description.Split(" / ");
             int max = HasPart("max") ? GetNumValue("max") : 10;
-            var lerp = (float)GetNumValue() / max * prts.Length;
-            int index = Math.Clamp((int)lerp, 0, prts.Length-1);
+            int i = GetNumValue();
+            if (i == 0) return prts[0];
+            if ( i == max ) return prts[prts.Length-1];
+            var lerp = (float)i * prts.Length / max;
+            int index = Math.Clamp((int)lerp, 1, prts.Length-2);
             return $"{start} {prts[index]}";
         }
 
@@ -219,20 +233,18 @@ public class Property {
             var strs = TextUtils.Extract('(', description).Split('=');
             switch (strs[0]) {
                 case "type":
-                    var itenName = ItemData.GetItemData(strs[1]).name;
-                    description = itenName;
-                    Debug.Log($"changed value of {name} to {itenName}");
-                    break;
+                    var typeIndex = ItemData.GetRandomDataOfType(strs[1]);
+                    GetPart("description").content = ItemData.itemDatas[typeIndex].name;
+                    Debug.Log($"changed value of {name} to {ItemData.itemDatas[typeIndex].name}");
+                    return GetPart("description").content;
                 case "spec":
-                    description = Spec.GetCat(strs[1]).GetRandomSpec();
-                    break;
+                    GetPart("description").content = Spec.GetCat(strs[1]).GetRandomSpec();
+                    return GetPart("description").content;
             }
         }
 
         if ( description.Contains("[value]"))
-            description = description.Replace("[value]", GetNumValue().ToString());
-        if ( description.Contains("[name]"))
-            description = description.Replace("[name]", GetTextValue().ToString());
+            description = description.Replace("[value]", GetPart("value").content);
 
         return description;
         
@@ -249,13 +261,6 @@ public class Property {
     public void Destroy() {
         destroy = true;
     }
-    #region update
-    public enum UpdateType {
-        None,
-        Add,
-        Substract,
-    }
-    #endregion
 }
 
 

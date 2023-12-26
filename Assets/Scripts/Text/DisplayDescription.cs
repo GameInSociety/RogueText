@@ -35,6 +35,8 @@ public class DisplayDescription : MonoBehaviour {
     }
 
     void Start() {
+        uiText.text = "";
+        uiText_Old.text = "";
         ClearDescription();
     }
 
@@ -56,7 +58,6 @@ public class DisplayDescription : MonoBehaviour {
     void Typing_Update(){
 
         if ( Input.GetKeyDown(KeyCode.Return) && timer > 0F){
-            Debug.Log($"skipping text");
             Typing_Exit();
             return;
         }
@@ -93,27 +94,16 @@ public class DisplayDescription : MonoBehaviour {
     }
 
     public void ClearDescription() {
-        uiText.text = "";
-        text_target = "";
-        uiText_Old.text = "";
-    }
-
-    public void Reset() {
+        newText = false;
+        typing = false;
+        uiText_Old.text += uiText.text;
         typeIndex = 0;
         text_target = "";
+        text_current = "";
         uiText.text = "";
+
     }
 
-    public void QuickUpdate() {
-        uiText.text = text_target;
-    }
-
-    public void Renew() {
-        uiText.text = text_target;
-        uiText_Old.text += uiText.text;
-
-        Reset();
-    }
 
     public void AddToDescription(string str) {
         // majuscule

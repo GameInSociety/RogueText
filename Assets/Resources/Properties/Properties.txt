@@ -4,55 +4,46 @@ value:0
 description: weights about [value]
 search:weight
 key:weight","","","","","","","","","","","","","","","","","","","",""
-"growable","growing
-
-value: 0
-max:50
-
+"","capacity
+value:0
+description: can carry up to [value]
+search:carry
+key:carry","","","","","","","","","","","","","","","","","","","",""
+"growable","vegetable type
+description:(type=vegetable)","growing
+value:0m50
 description:
-was just planted / slowing starting to grow / starting to sprout / shows a little green leaf / is growing fine / shows flower blooming / will grow in a few days / is just about to be good to eat
+just planted / slowing starting to grow / starting to sprout / showing a little green leaf / growing fine / shows flower blooming / will grow in a few days / just about to grow
 layer:1
-
-e:OnHours
-update(growing, +1)
-
-OnValue:50
-disable(water)
-disable(drying)
-createItem([item name.description])
-destroy","% water container","*drying
-
-value: 0
-
-description:
-is perfectly watered / is turning yellow / is drying / completly dry
-layer:1
-
-e:OnRain
-update(drying, 0)
-enable(water)
-disable(drying)
-
-e:OnHours
-update(drying, +1)
 
 OnValue:10
-disable(growing)
-disable(drying)
-enable(dead)","*dead
+disable(watering)
+createItem(.vegetable type)
+destroy","watering
 
+value: 18m20
+
+description:
+about to die / completly dry / drying / turning a little yellow / looking a little tired / looking watered / looking green / watered / just watered
+layer:1
+
+OnValue:0
+disable(growing)
+disable(watering)
+enable(dead)","*dead
 description: dead","$ water
-enable(water)
-update(water, +[water])
-update(drying, 0)
-disable(drying)","","","","","","","","","","","","","","","",""
+update(watering, +[ANY water].water)","! OnRain
+update(watered, 0)","! OnHours
+update(watering, -1)
+update(growing, +1)","","","","","","","","","","","","","",""
 "water container","water
 value:0?10
 description:
 empty / almost empty / half full / almost full / full
-layer:1
-e:OnRain
-update(water, +10)","clean
+layer:1","$ fill
+update(water, +[ANY water].water)","! OnRain
+update(water, +10)","","","","","","","","","","","","","","","","","",""
+"% dirty","clean
 
 value: 0
 
@@ -69,26 +60,37 @@ disable(clean)
 enable(soiled)","*soiled
 
 description:
-it's has a smell
+it has a smell
 
 layer:1
 
 onVerb:drink
-[player] update(health, -1)","","","","","","","","","","","","","","","","","",""
-"food","food
+[player] update(health, -1)","","","","","","","","","","","","","","","","","","",""
+"consumable","food
 value:x
 max:10
 description:
-(it looks) not much to eat / a little nourrishing / pretty nourrishing / like i'll be good after that
+hardly nourishing / poorly nourishing / rather nourishing / pretty nourishing / extremely nourishing / a feast
 layer:1
 OnValue:0
 destroy","$ eat
-update([player].hunger, -$food)","","","","","","","","","","","","","","","","","","",""
+update([player].hunger, -food)"," ","","","","","","","","","","","","","","","","","",""
 "sleep","confort
 value:0
 max:10
 description:
-(i'll sleep) bad on this / okay on this / good on this / really good on this
+(looks) very unconfortable / rather unconfortable / rather confortable / very confortable / like a very good sleep
 layer:1","$ sleep
-update($[player].sleep, +$confort)
-wait(7)","","","","","","","","","","","","","","","","","","",""
+disable([player].sleep)
+wait([player].sleep)
+enable([player].sleep)
+update([player].sleep, -confort)","","","","","","","","","","","","","","","","","","",""
+"drinkable","hydrate
+value:x
+max:10
+description:
+hardly hydrating / poorly hydrating / rather hydrating / pretty hydrating / extremely hydrating
+layer:1
+OnValue:0
+destroy","$ drink
+update([player].thirst, -hydrate)","","","","","","","","","","","","","","","","","","",""

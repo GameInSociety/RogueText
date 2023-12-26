@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEngine;
 
 [System.Serializable]
@@ -30,7 +31,12 @@ public class ItemParser {
 
         // assigning seq
         inputs.Add(_text);
-        TextManager.Write($"\n{_text}\n");
+        /*var str = $"parts text : ";
+        foreach (var part in _text.Split(' ')) {
+            str += $"({part})";
+        }
+        Debug.Log(str);*/
+        TextManager.Write($"\n=> {_text}\n");
 
         FetchIntegers();
         FetchVerb();
@@ -60,34 +66,14 @@ public class ItemParser {
     public bool CanDistinguishItems() {
         foreach (var itmGrp in mainGroups) {
             if (!itmGrp.TryInit()) {
-                //string hold = $"which {itmGrp.items[0].GetText("dog")} would you like to {verb.GetFull}";
-                string hold = "";
-                foreach (var itm in itmGrp.items) {
-                    hold += $"{itm.GetText("the special dog")}, ";
-                }
-                hold += " ?";
-
+                string hold = $"which {itmGrp.items[0].GetText("dog")} would you like to {verb.GetFull}";
                 string fail = $"there is no such {itmGrp.items[0].GetText("dog")} present";
                 HoldParser(hold, fail, 1);
                 return false;
             }
             Confirm(1);
         }
-        foreach (var itmGrp in otherGroups) {
-            if (!itmGrp.TryInit()) {
-                //string hold = $"which {itmGrp.items[0].GetText("dog")} would you like to {verb.GetFull}";
-                string hold = "";
-                foreach (var itm in itmGrp.items) {
-                    hold += $"{itm.GetText("the special dog")}, ";
-                }
-                hold += " ?";
-
-                string fail = $"there is no such {itmGrp.items[0].GetText("dog")} present";
-                HoldParser(hold, fail, 1);
-                return false ;
-            }
-            Confirm(1);
-        }
+        // not distinguishing other groups
         return true;
     }
 
@@ -97,8 +83,8 @@ public class ItemParser {
 
             if (sequence == null) continue;
 
-            WorldAction newEvent = new WorldAction(mainGroups[i], Tile.GetCurrent.coords, Player.Instance.wordIndex, sequence);
-            newEvent.Call();
+            WorldAction newEvent = new WorldAction(mainGroups[i], Tile.GetCurrent.TileInfo, sequence);
+            newEvent.Call(WorldAction.Source.PlayerAction);
             NewParser();
             return;
         }
@@ -116,6 +102,9 @@ public class ItemParser {
     /// �a va poser probleme mais on verra peut �tre pas.
     /// </summary>
     /// <returns></returns>
+    public bool HasSecondItem() {
+        return otherGroups.Count > 0;
+    }
     public List<Item> GetOptionalItems() {
         var tmps = new List<Item>();
         for (int i = otherGroups.Count-1; i >= 0; i--)
@@ -124,11 +113,9 @@ public class ItemParser {
     }
 
     void FetchItems(){
-        if (otherGroups.Count > 0)
-            return;
         string text = lastInput;
         if (!Verb.IsNull(verb))
-            text = text.Substring(verb.GetCurrentWord.Length);
+            text = text.Replace(verb.GetCurrentWord, "");
         
         AvailableItems.UpdateItems();
 
@@ -136,35 +123,44 @@ public class ItemParser {
         foreach (var item in AvailableItems.currItems) {
             Word.Number num = Word.Number.None;
             var indexInInput = item.GetIndexInText(text, out num);
-            var prop = (Property)null;
-            if (indexInInput < 0)
-                prop = item.GetPropInText(text, out indexInInput);
-
-            if (indexInInput >= 0) {
-                var group = groups.Find(x => x.index == indexInInput && x.first.dataIndex == item.dataIndex );
-                if (group == null) {
-                    group = new ItemGroup(indexInInput, num);
-                    group.debug_name = prop == null ? $"{item.debug_name} (from item)" : $"{item.debug_name} (from property : {prop.name})";
-                    group.text = text;
-                    groups.Add(group);
-                    if ( prop == null) {
-                        prop = item.GetPropInText(text, out indexInInput);
-                        if (prop != null) {
-                            group.linkedProps.Add(prop);
-                        }
-                    }
-                }
-                group.items.Add(item);
-                if ( prop != null)
-                    group.linkedProps.Add(prop);
+            if (indexInInput < 0) continue;
+            var group = groups.Find(x => x.index == indexInInput && x.first.dataIndex == item.dataIndex);
+            if (group == null) {
+                group = new ItemGroup(indexInInput, num);
+                group.debug_name = $"{item.debug_name} (from item)";
+                group.text = text;
+                groups.Add(group);
+            }
+            group.items.Add(item);
+            var prop = item.GetPropInText(text, out indexInInput);
+            if ( prop != null) {
+                group.linkedProps.Add(prop);
             }
         }
 
-        if (groups.Count == 0)
-            return;
+        if ( groups.Count == 0) {
+            foreach (var item in AvailableItems.currItems) {
+                Word.Number num = Word.Number.None;
+                var indexInInput = 0;
+                var prop = item.GetPropInText(text, out indexInInput);
+                if (prop == null) continue;
+                var group = groups.Find(x => x.index == indexInInput && x.first.dataIndex == item.dataIndex);
+                if (group == null) {
+                    group = new ItemGroup(indexInInput, num);
+                    group.debug_name = $"{item.debug_name} (from property : {prop.name})";
+                    group.text = text;
+                    groups.Add(group);
+                }
+                group.items.Add(item);
+                group.linkedProps.Add(prop);
+            }
+
+            if (groups.Count == 0)
+                return;
+        }
 
         groups.Sort((a, b) => a.index.CompareTo(b.index));
-        mainGroups = new List<ItemGroup>() { groups[0] };
+        mainGroups.Add(groups[0]);
         for (int i = 1; i < groups.Count; i++) {
             if (groups[i].index == mainGroups[0].index)
                 mainGroups.Add(groups[i]);
@@ -175,7 +171,6 @@ public class ItemParser {
 
     void FetchVerb(){
         if ( !Verb.IsNull(verb) ) {
-            Debug.Log($"the verb {verb.GetCurrentWord} is already in the input");
             return;
         }
         List<Verb> verbs = Verb.verbs.FindAll(x => x.GetIndexInText(lastInput) >= 0);

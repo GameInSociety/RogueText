@@ -3,34 +3,35 @@
 "shovel","","s","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "flashlight","","s","","tools","on
 value:0?1
+layer:1
 description: off / on","battery
 
-value: 0 > 10
+value: 0?10
 
 description:
 out of battery / almost out of battery / running low on battery / still has some battery left / almost full of battery / full of battery
-
-OnValue:>0
-update(on, 1)
-enable(source of light)
+layer:1
 
 OnValue:0
 update(on, 0)
-disable(battery)
-write(the flashlight is out of battery)
-
-e:OnHours
-update(battery, -1)","*source of light
-description: emits light","weight:2","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+disable(source of light)","*source of light
+description: lighting things around","weight:2","! OnHours
+update(battery, -1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","$ turn on
+update(on, 1)
+enable(source of light)
 enable(battery)","$ turn off
-disable(battery)
-update(on, 0)","$ charge
-update(battery, $[battery].charge)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+update(on, 0)
+disable(source of light)","$ charge
+update(battery, +[battery].charge)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "compas","","s","","tools","$ look
 write(_north)","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "scissors","","p","","tools","","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "battery","","s","","tools","$ put
-[*flashlight] update(battery, [battery.charge])","charge
+update([*flashlight].battery, +charge)","charge
 value: 0?10","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"bag","","s","","tools","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bag","","s","","tools","weight:1
+capacity:50
+max items:0m2","$ equip
+transferTo([player.ANY capacity])","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","","equipement","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

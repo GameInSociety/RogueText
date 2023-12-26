@@ -14,7 +14,7 @@ disable(steps)","steps
 value: 10
 
 descrption:
-at reach, extremely close, pretty close, a few feet away, at a distance
+at reach, extretmely close, prety close, a few feet away, at a distance
 
 OnValue:0
 trigger(attack)
@@ -34,50 +34,45 @@ own
 my","Player","s","","humanoid
 player","health
 
-value: 10
+value: 10m10
 
-description :
+description:
 fine / hit / hurt / badly hurt / criticaly hurt / dying
 
 OnValue:0
 write(you are dead)
 endgame","thirst
 
-value: 0m10
+value: 0m15
 
 description:
-(i'm) fully hydrated / not thirsty / slightly first / willing to drink something / getting thirsty / really thristy / extremely thirsty
+fully hydrated / not thirsty / slightly thirsty / willing to drink something / getting thirsty / really thristy / extremely thirsty
 
-e:OnHours
-update(thirst, +1)
-
-OnValue:10
+OnValue:>15
 write(you're dying of thirst)
 update(health, -1)","hunger
 
-value: 0m10
+value: 0m20
 
 description:
-(you're) filled / a bit hungry / getting hungry / really hungry / critivally hungry
+filled / a bit hungry / getting hungry / really hungry / critivally hungry
 
-key:hungry
-search:hungry
-
-e:OnHours
-update(hunger, +1)
-
-OnValue:10
+OnValue:>20
 write(you're dying of hunger)
 update(health, -1)","sleep
 
-value: 0
+value: 0m50
 
 description:
-(i feel) fully awake / awake / 
+full of energy / wide awake / feeling feeble / getting sleepy / really sleepy / drained / in drastic need of sleep
 
-e:OnHours
-update(sleep, +1)
-
-OnValue:30
+OnValue:>50
 write(you're so tired you're dying)
 update(health, -1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","! OnHours
+update(thirst, +1)
+update(hunger, +1)
+update(sleep, +1)","equip back
+value:none
+description:
+i'm wearing [value]","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
