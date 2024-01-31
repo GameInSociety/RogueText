@@ -3,53 +3,49 @@
 "weather","","s","in","global","*raining
 value:0
 rate:30?10
-description:
+description:(on change)
 raining cats and dogs / still raining / raining / starting to clear off / about to stop raining
 
 OnValue:rate
-update(raining, 0)
+set(raining, 0)
 disable(rain)
 write(it stopped raining)
 enable(sky)","sky
 value:0
-description:
+description:(lerp8)
 clear / clear / cloudy / getting cloudier / all gray / gonna rain
 
 OnValue:50
-update(raining, 0)
+set(raining, 0)
 enable(raining)
 disable(sky)
-triggerEvent(OnRain)","! OnHours
-update(raining, +1)
-update(sky, +1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"time
-hour","","s","in","global","hours
+triggerEvent(OnRain)","E OnHours
+add(raining, 1)
+add(sky, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"time","","s","in","global","hours
 value:6m24
-description:it's [value]
+description:(never)it's {value} o'clock
 
 OnValue:24
-update(hours,0)
-update(days, +1)","part of day
+set(hours, 0)
+add(days, 1)
+set(part of day, 0)"," ","E OnHours
+add(hours, 1)
+add(part of day, 1)","part of day
 value:6m24
-description:
-night / dawn / morning / noon / afternoon / dusk / evening 
-
-OnValue:24
-update(part of day, 0)","$ wait
-wait(1)","! OnHours
-update(part of day, +1)
-update(hours, +1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+description:(on change)
+it's still dark around / the sun is slowly starting to rise / the sun is risen, it's morning time / the sun is in the middle of the sky, it's noon / the sun is still here / light is slowly desappearing into the distance / the night is setting, as things go darker around you / the night is here, it's dark around","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "day","","s","","global","days
 value:0?30
 description:
-it's the [value] of [mounth].mounths
+it's the {value} of [mounth>mounths]
 
 OnValue:>0
 triggerEvent(OnDays)
 
 OnValue:30
-update(mounths, +1)
-update(days, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+add(mounths, 1)
+set(days, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "mounth","","s","","global","mounths
 value:0?12
 description:
@@ -59,12 +55,12 @@ OnValue:>0
 triggerEvent(OnMounths)
 
 OnValue:12
-update(mounths, 0)
-update(years, +1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+set(mounths, 0)
+add(years, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "year","","s","","global","years
 value:2000
 description:
-it's [value]
+it's {value}
 
 OnValue:>0
 triggerEvent(OnYears)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

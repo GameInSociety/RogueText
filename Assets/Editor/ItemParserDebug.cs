@@ -1,9 +1,23 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
+using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEditor.Graphs;
+using UnityEditor.Sprites;
 using UnityEngine;
+using UnityEngine.TestTools;
+using UnityEngine.UIElements;
 
 public class ItemParserDebug : EditorWindow {
+    List<string> inputs = new List<string>();
+    
+    GUIStyle style;
+
+    // data
+    Verb verb;
+
     // Add menu named "My Window" to the Window menu
     [MenuItem("Window/Item Parser")]
     static void Init() {
@@ -11,28 +25,26 @@ public class ItemParserDebug : EditorWindow {
         var window = (ItemParserDebug)GetWindow(typeof(ItemParserDebug));
         window.Show();
     }
-
     private void OnGUI() {
-        GUILayout.Button("ononon");
 
-        ItemParser previous = ItemParser.GetPrevious;
-        string previous_text = previous == null ? "NO PREVIOUS PARSER" : $"PREVIOUS PARSER:";
-        GUILayout.Button(previous_text);
-        if (previous != null) {
-            foreach (var item in previous.mainGroups)
-                GUILayout.Label(item.debug_name);
-        }
+        style = new GUIStyle();
+        style.alignment = TextAnchor.MiddleCenter;
+        style.richText = true;
+        GUILayout.Label("previous");
+        DisplayParser(ItemParser.GetPrevious);
+        GUILayout.Label("current");
+        DisplayParser(ItemParser.GetCurrent);
 
-        ItemParser current = ItemParser.GetCurrent;
-        string curr_text = current == null ? "NO CURRENT PARSER" : $"CURRENT PARSER:";
-        GUILayout.Button(curr_text);
-        if (current != null) {
-            if ( current.mainGroups.Count == 0) {
-                GUILayout.Label("no ITEMs");
-            }
-            foreach (var item in current.mainGroups) {
-                GUILayout.Box(item.debug_name);
-            }
-        }
+
     }
+
+    void DisplayParser(ItemParser parser) {
+
+        if (parser == null ) {
+            GUILayout.Label($"no parser", style);
+            return;
+        }
+        GUILayout.Label($"log: {parser.log}", style);
+    }
+
 }

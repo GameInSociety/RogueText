@@ -18,7 +18,25 @@ public class WorldAction {
     public static List<WorldAction> stack = new List<WorldAction>();
     public string debug_name;
 
-    public ItemGroup itemGroup;
+    private List<Item> _items = new List<Item>();
+    public void SetItems(List<Item> its) {
+        _items = its;
+        foreach (Item it in its ) {
+            Debug.Log( it.debug_name );
+        }
+    }
+    public void AddItem(Item it) {
+        _items.Add(it);
+    }
+    public void RemoveItem(Item it) {
+        _items.Remove(it);
+    }
+    public List<Item> GetItems() {
+        return _items;
+    }
+    public Item TargetItem() {
+        return _items.First();
+    }
     public Tile.Info tileInfo;
     public Tile tile => tileInfo.GetTile();
     public string sequence;
@@ -49,15 +67,15 @@ public class WorldAction {
 
     public WorldAction(Item item, Tile.Info info, string sequence) {
         debug_name = $"{item.debug_name})";
-        itemGroup = new ItemGroup(0, Word.Number.Singular);
-        itemGroup.debug_name = item.debug_name;
-        itemGroup.items = new List<Item> { item };
-        this.tileInfo = info;
+        AddItem(item);
+        tileInfo = info;
         this.sequence = sequence;
     }
-    public WorldAction(ItemGroup itemGroup, Tile.Info info, string sequence) {
-        debug_name = $"{itemGroup.first.debug_name})";
-        this.itemGroup = itemGroup;
+    public WorldAction(List<Item> items, Tile.Info info, string sequence) {
+        debug_name = $"{items[0].debug_name})";
+        foreach (var item in items) {
+            AddItem(item);
+        }
         this.tileInfo = info;
         this.sequence = sequence;
     }
@@ -94,9 +112,14 @@ public class WorldAction {
     void CallLine(int i) {
         var seq = sequences[seqIndex];
         var lines = seq.Split('\n');
+        if (string.IsNullOrEmpty(lines[i])) {
+            Debug.Log($"skip line");
+            goto Skip;
+
+        }
         feedback = "";
         failed = false;
-        Function.TryCall(this, lines[i]);
+        Function.TryCall(lines[i]);
         if (failed) {
             // try next sequence
             ++seqIndex;
@@ -104,12 +127,14 @@ public class WorldAction {
             if (seqIndex == sequences.Length) {
                 Debug.Log($"[WORLD ACTION]: {feedback}");
                 Debug.Log($"[LINE] : {lines[i]}");
-                TextManager.Write(feedback);
+                TextManager.Write(feedback, Color.red);
                 return;
             }
             CallLine(0);
             return;
         }
+
+        Skip:
         // end of sequence
         if (i + 1 == lines.Length)
             return;

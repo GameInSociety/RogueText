@@ -32,7 +32,7 @@ public class Player : Humanoid {
     }
 
     public void MoveToTile(Tile tile) {
-        Debug.Log("moving to tile : " + tile.debug_name + " / " + tile.debug_randomID);
+        Debug.Log("moving to tile : " + tile.debug_name + " / " + tile.debug_Id);
 
         if (tile.coords == coords) {
             TextManager.Write("you are already there");
@@ -80,5 +80,6 @@ public class Player : Humanoid {
         TextManager.Write($"you're now facing {orientation.ToString()}");
 
         base.Orient(orientation);
+        Tile.GetCurrent.Describe();
     }
 }

@@ -8,6 +8,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class ItemLoader : DataDownloader {
 
@@ -136,13 +137,13 @@ public class ItemLoader : DataDownloader {
             }
 
             // load sequences
-            if (content.StartsWith('$') || content.StartsWith('!')) {
+            if (content.StartsWith('$') || content.StartsWith('E')) {
                 var cellParts = contents[i].Split(new char[1] { '\n' }, 2);
                 var triggers = cellParts[0].Remove(0, 2);
                 var seq = new Sequence(triggers, cellParts[1]);
                 if (content.StartsWith('$'))
                     data.verbSequences.Add(seq);
-                if (content.StartsWith('!'))
+                if (content.StartsWith('E'))
                     data.events.Add(seq);
                 continue;
             }
@@ -159,9 +160,20 @@ public class ItemLoader : DataDownloader {
                     data.properties.Add(prop);
                 }
             } else {
-                var prop = new Property();
-                prop.Parse(cellLines);
-                data.properties.Add(prop);
+                try {
+                    var prop = new Property();
+                    prop.Parse(cellLines);
+                    data.properties.Add(prop);
+                } catch (Exception e) {
+                        var str = "";
+                    foreach (var line in cellLines) {
+                        foreach (var item in cellLines)
+                            str += $"\n{item}";
+                    }
+                    Debug.LogError($"<color=yellow>PROP INIT</color>:{str}\n");
+                    Debug.LogException(e);
+                }
+                
             }
 
 

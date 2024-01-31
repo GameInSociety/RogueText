@@ -7,9 +7,7 @@ using static UnityEngine.UIElements.UxmlAttributeDescription;
 public class EditorTools : EditorWindow {
     public bool mapVisible = false;
 
-    bool showStates = false;
-    bool showTime = false;
-
+    bool interiorVisible = false;
     // Add menu named "My Window" to the Window menu
     [MenuItem("Window/Tools")]
     static void Init() {
@@ -22,46 +20,14 @@ public class EditorTools : EditorWindow {
         if (Player.Instance != null)
             GUILayout.Label("Player orientation : " + Player.Instance.currentCarnidal, EditorStyles.boldLabel);
 
-        GUILayout.Label("Base Settings", EditorStyles.boldLabel);
-
         DrawMap();
-
-        GUILayout.Label("Feedbacks", EditorStyles.boldLabel);
-
-        DrawTime();
-
-        DrawStates();
-
-        GUILayout.Label("Time", EditorStyles.boldLabel);
-
-        if (GUILayout.Button("Wait 1 hour")) {
-            TimeManager.Wait(1);
-        }
-
-        if (GUILayout.Button("Wait 10 hours")) {
-            TimeManager.Wait(10);
-        }
-    }
-
-    void DrawTime() {
-       
-    }
-
-    void DrawStates() {
-        showStates = EditorGUILayout.BeginToggleGroup("Show States", showStates);
-
-        if (!showStates) {
-            EditorGUILayout.EndToggleGroup();
-            return;
-        }
-
-        var gUIStyle = new GUIStyle();
-        gUIStyle.richText = true;
-
-        EditorGUILayout.EndToggleGroup();
     }
 
     void DrawMap() {
+        if ( GUILayout.Button("Show Interior")) {
+            interiorVisible = !interiorVisible;
+            GameObject.Find("Map Texture (Interior)").GetComponent<Image>().enabled = interiorVisible;
+        }
         if (GameObject.Find("Map Texture").GetComponent<Image>().enabled) {
             mapVisible = true;
         } else {

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -52,6 +53,8 @@ public class Tile : Item {
             Player.Instance.Orient(Humanoid.CardinalToOrientation(cardinal));
         }
 
+        // update tiles to create doors
+        GetAdjacentTiles();
         GenerateChildItems();
         WriteDescription();
 
@@ -62,20 +65,20 @@ public class Tile : Item {
         //base.WriteDescription();
 
         // "you're on a tile...
-        string intro = GetDescriptionType;
+        string intro = GetDescriptionType();
         TextManager.Write(intro);
-        SetProp("definite");
+        SetProp("visited");
+
+        TextManager.Return();
 
         // putting items that contain things and items that don't in the same list
         // (testing to see how it looks)
         if (HasChildItems()) {
-            TextManager.Return();
-            var mainItms = GetChildItems().FindAll(x => x as Tile == null);
-            string main_str = $"there's {ItemDescription.NewDescription(mainItms, "show props")}";
+            string main_str = $"you see {ItemDescription.NewDescription(GetChildItems(), "show props")}";
             TextManager.Write(main_str);
+            TextManager.Return();
         }
 
-            TextManager.Return();
         AdjacentTilesDescription();
     }
 
@@ -85,35 +88,39 @@ public class Tile : Item {
         foreach (var tile in tiles)
             tile.GenerateChildItems();
 
-        List<Item> similarTiles = tiles.FindAll(x => x.GetVisibleProp(0).GetDescription() == GetVisibleProp(0).GetDescription());
+        //List<Item> similarTiles = tiles.FindAll(x => x.GetVisibleProp(0).GetDescription() == GetVisibleProp(0).GetDescription());
+        /*List<Item> similarTiles = tiles.FindAll(x => x.dataIndex == dataIndex);
         if ( similarTiles.Count > 0 ) {
             string text = $"{GetText("the dog")} continues ";
-            foreach (var item in similarTiles) {
-                text += $"{item.GetProp("orientation").GetDescription()}, ";
-                tiles.Remove(item);
+            for (int i = 0; i < similarTiles.Count; i++) {
+                var tile = similarTiles[i];
+                text += $"{tile.GetProp("orientation")?.GetDescription()}{TextUtils.GetCommas(i, similarTiles.Count)}";
+                tiles.Remove(tile);
             }
             TextManager.Write(text);
+        }*/
+
+        if (tiles.Count  > 0) {
+            string description = ItemDescription.NewDescription(tiles, "show props");
+            TextManager.Write($"there's {description}");
         }
 
-        string description = ItemDescription.NewDescription(tiles, "split lines, show props");
-        TextManager.Write($"around you,\n{description}");
+        foreach (var tile in tiles) {
+            tile.SetProp("definite");
+        }
     }
 
-    public string GetDescriptionType {
-        get {
-            if (HasProp("definite")) {
-                if (GetPrevious != null && GetPrevious.coords == coords) {
-                    return $"you're still {GetText("on the special dog")}";
-                } else {
-                    return $"you're back {GetText("on the special dog")}";
-                }
-            } else {
-                if (GetPrevious != null && sameTypeAs(GetPrevious) && GetPrevious.coords != coords) {
-                    return $"you continue {GetText("on the dog")}";
-                } else {
-                    return $"you're {GetText("on a special dog")}";
-                }
-            }
+    public string GetDescriptionType (){
+        if (HasProp("visited")) {
+            if (GetPrevious != null && GetPrevious.coords == coords)
+                return $"you're still {GetText("on the special dog")}";
+            
+                return $"you're back {GetText("on the special dog")}";
+        } else {
+            if (GetPrevious != null && sameTypeAs(GetPrevious) && GetPrevious.coords != coords)
+                return $"you continue {GetText("on the dog")}";
+            else
+                return $"you're {GetText("on a special dog")}";
         }
     }
 
@@ -130,23 +137,48 @@ public class Tile : Item {
 
         List<Item> exits = new List<Item>();
 
+        if (GetProp("enclosed")?.GetNumValue() == 1) {
+            Debug.Log($"current tile : {debug_name} is enclosed, so only doors / links");
+        }
+
         foreach (var orientation in orientations) {
             var adjacentTile = GetAdjacentTile(orientation);
             // skip if the tile is null (a void)
-            if (adjacentTile == null)
+            if (adjacentTile == null) {
+                Debug.Log($"tile on the {orientation.ToString()} is a void");
                 continue;
-            // if the tile is enclosed (often an interior)
-            if (adjacentTile.HasProp("enclosed")) {
+            }
+
+            Debug.Log($"[{orientation}] : adjacentile =  {adjacentTile.debug_name}");
+
+            if (GetProp("enclosed")?.GetNumValue() != 1 && adjacentTile.GetProp("enclosed")?.GetNumValue() == 1) {
+                Debug.Log($"adjacent tile : {adjacentTile.debug_name} is enclosed, so creating door");
+            }
+
+            var exit = (Item)null;
+                // if the tile is enclosed (often an interior)
+            if (GetProp("enclosed")?.GetNumValue() == 1 || adjacentTile.GetProp("enclosed")?.GetNumValue() == 1) {
                 // there's a tileDoor
-                var tileDoor = GetChildItems()?.Find(x=> x.HasProp("orientation") && x.GetProp("orientation").GetPart("search").content == orientation.ToString());
-                if (tileDoor == null)
-                    tileDoor = CreateChildItem("door");
-                tileDoor.SetProp($"orientation / description:on the {orientation} / search:{orientation} / after word:yes");
+                exit = GetChildItems()?.Find(x=> x.HasProp(orientation.ToString()));
+                if (exit == null) {
+                    exit = CreateChildItem("door");
+                    Debug.Log($"creating new door for tile : {debug_name}");
+                }
 
             } else {
-                adjacentTile.SetProp($"orientation / description:on the {orientation} / search:{orientation} / after word:yes");
-                exits.Add(adjacentTile);
+                Debug.Log($"tile {adjacentTile.debug_name} is not enclosed, normal tiles");
+                exit = adjacentTile;
             }
+
+            foreach (var or in orientations) {
+                if (exit.HasProp(or.ToString())) {
+                    Debug.Log($"replacing prop : {exit.GetProp(or.ToString())} with orientation : {orientation}");
+                    exit.RemoveProp(or.ToString());
+                    break;
+                }
+            }
+            exit.AddDataProp(orientation.ToString());
+            exits.Add(exit);
         }
 
         return exits;
@@ -200,7 +232,7 @@ public class Tile : Item {
 
         DebugManager.Instance.TILE = tile;
         _current = tile;
-        tile.SetProp("orientation / description:you're standing on it / search:standing on / layer:1 ");
+        tile.SetProp("orientation / description:you're standing on it / search:standing on");
     }
 
     public static void SetPrevious(Tile tile) {

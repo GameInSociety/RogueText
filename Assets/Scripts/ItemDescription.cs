@@ -2,6 +2,8 @@ using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
+using TextSpeech;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEditor;
 using UnityEngine;
@@ -13,24 +15,30 @@ public class ItemDescription {
             var parts = str.Split(", ").ToList();
             splitLines = parts.Contains("split lines");
             var propPart = parts.Find(x => x.StartsWith("show props"));
-            showProps = false;
-            propLayer = 0;
-            if (propPart != null) {
-                showProps = true;
-                if (propPart.Contains('(')) {
-                    bool b = int.TryParse(TextUtils.Extract('(', propPart), out propLayer);
-                    if (b) Debug.Log($"item description has prop layer {propLayer}");
-                }
-            }
-
         }
         // will, if it can, mention the properties of the item
-        public bool showProps;
-        public int propLayer;
         // return between items
         public bool splitLines;
     }
     public Options options;
+
+    public static string DetailedDescription(List<Item> its) {
+
+        var props = its.First().GetAllVisibleProps();
+
+        var description = $"they {PropertyDescription.GetDescription(props)}";
+
+        foreach (var item in its) {
+            var newProps = item.GetAllVisibleProps().FindAll(x => props.Find(y => y.GetDescription() != x.GetDescription()) == null);
+            if (newProps.Count == 0)
+                continue; 
+            description += $"\nsome {PropertyDescription.GetDescription(newProps)}";
+            props.AddRange(newProps);
+        }
+
+        return description;
+    }
+
 
     [System.Serializable]
     public class Group {
@@ -42,40 +50,46 @@ public class ItemDescription {
         public List<Item> items;
         public Item first => items[0];
 
-        public string GetText(Options options) {
-            if (!first.HasVisibleProps())
-                return items.Count == 1 ? $"{first.GetText("a dog")}" : $"multiple {items[0].GetText("dogs")}";
-
-            string text = "";
-            if (options.showProps) {
-                text += $"{first.GetText("a special dog", options.propLayer)}";
-
-                for (int itemIndex = 1; itemIndex < items.Count; itemIndex++) {
-                    var item = items[itemIndex];
-
-                    text += $"\nanother, ";
-
-                    var visibleProps = item.GetVisibleProps(options.propLayer);
-
-                    // remove props from previous items
-                    for (int propertyIndex = 0; propertyIndex < visibleProps.Count; ++propertyIndex) {
-                        var prop = visibleProps[propertyIndex];
-                        if (items[itemIndex-1].HasProp(prop.name) && items[itemIndex-1].GetProp(prop.name).GetDescription() == prop.GetDescription())
-                            continue;
-                        text += $" {prop.GetDescription()}";
-                    }
-
-                    if (item.HasChildItems()) {
-                        var childItems = item.GetChildItemsWithProp("visibility");
-                        if (childItems.Count > 0)
-                            text += $". there's {NewDescription(childItems)} in it.";
-                    }
-
-                }
-                return text;
-            }
-            return items.Count == 1 ? $"{first.GetText("a dog")}" : $"{items.Count} {items[0].GetText("dogs")}";
+       
+        private string SimpleDescription(List<Item> its) {
+            return its.Count == 1 ? $"{first.GetText("a dog")}" : $"multiple {first.GetText("dogs")}";
         }
+
+        public string GetText(Options options) {
+            var text = $"";
+
+            List<Item> its = new List<Item>(items);
+
+            bool displayedFirstWord = false;
+            int index = 0;
+            int l = its.Count;
+            for (int i = its.Count-1; i >= 0; i--) {
+                var item = its[i];
+                if (Discern(item)) {
+                    Debug.Log($"discern : {item.debug_name}");
+                    text += displayedFirstWord ? $"{item.GetText("special")}" : $"{item.GetText("a special dog")}";
+                    text += TextUtils.GetCommas(index, l);
+                    ++index;
+                    displayedFirstWord = true;
+                    if (item.HasProp("clear") && item.HasChildItems())
+                        text += $", with {NewDescription(item.GetChildItems())} on it.";
+                    its.RemoveAt(i);
+                }
+            }
+
+            if ( its.Count > 0)
+                text += $"{SimpleDescription(its)}";
+            return  $"{text}";
+        }
+
+        // function that returns wether or not an itme has it's own line ( visible prop, visible child items etc... )
+        bool Discern(Item item) {
+            return
+                item.HasVisibleProps()
+                ||
+                item.HasProp("clear") && item.HasChildItems();
+        }
+
     }
 
     public string GetDescription(List<Item> itms) {
@@ -83,12 +97,8 @@ public class ItemDescription {
         var text = "";
         for (int i = 0; i < groups.Count; ++i) {
             var group = groups[i];
-            if (options.splitLines){
-                if ( i > 0 ) text += '\n';
-                text += $"{group.GetText(options)}";
-            }
-            else
-                text += $"{group.GetText(options)}{TextUtils.GetCommas(i, groups.Count)}";
+            if (i > 0) text += '\n';
+            text += $"{group.GetText(options)}{TextUtils.GetCommas(i, groups.Count, false)}";
         }
         return text;
     }

@@ -23,6 +23,9 @@ public static class Interior {
         TileSet.world.startCoords = Player.Instance.coords;
         TileSet.ChangeTileSet(tilesetId);
     }
+    public static void Exit() {
+        TileSet.ChangeTileSet(TileSet.world.id);
+    }
     #endregion
 
     static void InitTileSet(Item item) {
@@ -43,64 +46,38 @@ public static class Interior {
         var tileNames = rooms.GetPart("tiles").content.Split('\n').ToList();
         // Create hallway
         var hallway_Coords = tileSet.Center;
-        var hallway_Dir = new Coords(0, 1);
-        var a = 0;
-
         string hallwaySpec = Spec.GetCat("shape").GetRandomSpec();
 
+        int b = 0;
         while (tileNames.Count > 0) {
 
             // add new hallway tile
             var newHallwayTile = Tile.Create(new Tile.Info(hallway_Coords, tileSetId), "hallway",hallwaySpec );
 
-            if (tileSet.tiles.ContainsKey(hallway_Coords)) {
-                hallway_Coords += hallway_Dir;
-                ++a;
-                continue;
-            }
-
             tileSet.Add(hallway_Coords, newHallwayTile);
 
             // set entrance door
-            if (a == 0) {
-                /*Item doorItem = Item.CreateInTile(newHallwayTile, "door");
-                // stating that it goes south so it displays "behind you" when entering the interior
-                // pas ouf, ça changer avec la description des propriétes
-                doorItem.CreateProperty("dir / direction / south");*/
-
-                var orientation = Humanoid.Orientation.back;
-                var newDoor = newHallwayTile.CreateChildItem("door");
-                newDoor.SetProp($"orientation / description:on the {orientation} / search:{orientation} / after word:yes");
-                newDoor.SetProp("entrance / description:entrance");
-                newDoor.SetProp("definite");
+            if (b ==  0) {
+                var entrance = newHallwayTile.CreateChildItem("entrance");
             }
 
-            // check if room appears
-            if (Random.value < 0.9f) {
-
-                var side = new Coords(hallway_Dir.x, hallway_Dir.y);
-                side.Turn();
-
-                var coords = newHallwayTile.coords + side;
-
-                if (tileSet.tiles.ContainsKey(coords))
-                    continue;
+            for (int x = -1; x < 2; x += 2) {
+                var newRoomCoords = newHallwayTile.coords + new Coords(x, 0);
 
                 int rnd = Random.Range(0, tileNames.Count);
                 var tileName = tileNames[rnd];
-                var newRoomTile = Tile.Create(new Tile.Info(coords, tileSetId), tileName);
+                var newRoomTile = Tile.Create(new Tile.Info(newRoomCoords, tileSetId), tileName);
                 tileNames.RemoveAt(rnd);
-
-                tileSet.Add(coords, newRoomTile);
+                tileSet.Add(newRoomCoords, newRoomTile);
+                if (tileNames.Count == 0) {
+                    break;
+                }
             }
-
-            hallway_Coords += hallway_Dir;
-
-            if (Random.value < 0.5f)
-                hallway_Dir.Turn();
-
-            ++a;
-
+            hallway_Coords += new Coords(0, 1);
+            if ( b >= 100) {
+                Debug.LogError($"infinite loop break on interor");
+                break;
+            }
         }
 
     }

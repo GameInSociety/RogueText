@@ -1,20 +1,21 @@
+using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Test : MonoBehaviour {
-    public string item_name;
 
-    // Start is called before the GetMainItem frame Update
-    void Start() {
+    public string inText = "this is the [value] of the {item} with the ?properties?";
+    public string outText = "";
+    public string content;
+    public char sC;
+    public char eC;
 
-    }
-
-    // Update is called once per frame
-    void Update() {
-        /*if (Input.GetKeyDown(KeyCode.L))
-        {
-            item_name = Item.GetItemOfType("veggie").data.name;
-        }*/
+    private void OnDrawGizmos() {
+        int startIndex = inText.IndexOf(sC);
+        content = inText.Remove(0, startIndex + 1);
+        content = content.Remove(content.IndexOf(eC));
+        outText = inText.Remove(startIndex, content.Length+(startIndex+content.Length+3>inText.Length?2:3));
     }
 }

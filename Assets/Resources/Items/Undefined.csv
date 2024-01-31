@@ -2,21 +2,19 @@
 "undefined","","s","","","$ look / open / how
 describe","$ move / go
 move","$ put
-*check(*ANY capacity>max items, max, there's too much item in [pitem])
-transferTo(pitem)
-*add(pitem>max items, 1)
-*sub(parent>max items, 1)","$ throw
-transferTo([*ANY capacity])
+*check(!p ANY capacity>max items, max, there's too much item in the thing)
+transferTo(!p ANY capacity)
+*add(!p ANY capacity>max items, 1)
+*sub(!p ANY capacity>max items, 1)","$ throw
+transferTo(!p ANY capacity)
 %
-transferTo(tile)
-*sub(parent>max items, 1)","$ pick up
-check(*ANY capacity>max items, max, y'en a trop pour le premier truc)
-transferTo(pitem)
-add(pitem>max items, 1)
+transferTo(! tile)
+*sub(! parent>max items, 1)","$ pick up
+check(!p ANY capacity>max items, max, y'en a trop pour le premier truc)
+transferTo(!p ANY capacity)
+add(!p ANY capacity>max items, 1)
 %
-check(left hand>max items, max, y'en a trop pour left hand)
-transferTo(pitem)
-add(pitem>max items, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"","","","","","","","* = don't break sequence on fail",""," ","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"","","","","","","","aussi, need to do parents.","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"","","","","","","","et après ça mon gros t'aura un joli systeme d'inventaire et c'est pas rien","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+check(! left hand>max items, max, y'en a trop pour left hand)
+transferTo(! left hand)
+add(! left hand>max items, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","","","",""," ","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

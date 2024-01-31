@@ -52,12 +52,13 @@ public class ContentLoader : DataDownloader{
         for (int i = 1; i < cells.Count; i++) {
             if (string.IsNullOrEmpty(cells[i])) continue;
 
-            if (cells[i].StartsWith('$') || cells[i].StartsWith('!')) {
+            if (cells[i].StartsWith('$') || cells[i].StartsWith('E')) {
                 if (group != null) group.contents.Add(cells[i]);
             } else {
                 var dataProp = new Property();
                 dataProp.Parse(cells[i].Split('\n'));
                 Property.AddPropertyData(dataProp);
+                dataProp.Init();
                 if (group != null) group.contents.Add(dataProp.name);
             }
         }

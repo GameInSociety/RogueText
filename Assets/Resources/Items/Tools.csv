@@ -6,32 +6,39 @@ value:0?1
 layer:1
 description: off / on","battery
 
-value: 0?10
+value: 0
 
 description:
 out of battery / almost out of battery / running low on battery / still has some battery left / almost full of battery / full of battery
 layer:1
 
 OnValue:0
-update(on, 0)
+set(on, 0)
 disable(source of light)","*source of light
-description: lighting things around","weight:2","! OnHours
-update(battery, -1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+description: lighting things around","weight:2","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","$ turn on
-update(on, 1)
+set(on, 1)
 enable(source of light)
 enable(battery)","$ turn off
-update(on, 0)
-disable(source of light)","$ charge
-update(battery, +[battery].charge)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+set(on, 0)
+disable(source of light)
+disable(battery)","$ charge
+check(battery, not empty)
+add(battery, ! battery>charge)
+destroy(! battery)","$ empty
+check(battery, empty)
+createItem(battery)
+set(! battery>charge, battery)","E OnHours
+sub(battery, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "compas","","s","","tools","$ look
 write(_north)","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "scissors","","p","","tools","","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "battery","","s","","tools","$ put
-update([*flashlight].battery, +charge)","charge
-value: 0?10","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+check(!p flashlight>battery, not empty)
+add(!p flashlight>battery, charge)
+destroy","charge
+value: 10","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "bag","","s","","tools","weight:1
 capacity:50
 max items:0m2","$ equip
-transferTo([player.ANY capacity])","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"","","","","","","equipement","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+transferTo(! player. ANY max items)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

@@ -15,7 +15,6 @@ public class DebugManager : MonoBehaviour {
     [Header("[TILE]")]
     public Tile TILE;
     public List<Item> adjacentTiles;
-    public List<ItemGroup> debug_groups;
 
 
     [Space]
@@ -43,10 +42,7 @@ public class DebugManager : MonoBehaviour {
     public List<ItemDescription.DescriptionGroup_Debug> debugDescriptions;
     public List<PropertyDescription> debug_PropertyDescriptions;
 
-    [Space]
-    [Header("[PARSER]")]
-    public List<Item> itemHistory = new List<Item>();
-    public List<Property> propHistory = new List<Property>();
+    public bool displayItemID;
 
     [Space]
     [Header("[PLAYER]")]
@@ -61,8 +57,6 @@ public class DebugManager : MonoBehaviour {
         globalItems = WorldData.globalItems;
         debug_worldEvents = WorldEvent.worldEvents;
 
-        itemHistory = ItemLink.itemHistory;
-        propHistory = ItemLink.propHistory;
 
         debug_PropertyDescriptions = PropertyDescription.propDescriptions;
 

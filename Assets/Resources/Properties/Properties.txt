@@ -1,14 +1,27 @@
 "NAME","can all sequences be here instead of in ""undefined item ?""","","","","","","","","","","","","","","","","","","","",""
+"","entrance
+description:(always) entrance","front
+key:forward, front
+description:(always) in front of you
+after word:yes","right
+key: right
+description:(always) at your right
+after word:yes","back
+key: back, backwards, behind
+description:(always) behind you
+after word:yes","left
+key: left
+description:(always) at your left
+after word:yes","","","","","","","","","","","","","","","",""
 "","weight
 value:0
-description: weights about [value]
-search:weight
-key:weight","","","","","","","","","","","","","","","","","","","",""
+description: about {value}g heavy","","","","","","","","","","","","","","","","","","","",""
 "","capacity
 value:0
-description: can carry up to [value]
-search:carry
+description: can carry up to {value}
 key:carry","","","","","","","","","","","","","","","","","","","",""
+"","equipment
+target:","","","","","","","","","","","","","","","","","","","",""
 "growable","vegetable type
 description:(type=vegetable)","growing
 value:0m50
@@ -32,8 +45,8 @@ disable(growing)
 disable(watering)
 enable(dead)","*dead
 description: dead","$ water
-update(watering, +[ANY water].water)","! OnRain
-update(watered, 0)","! OnHours
+update(watering, +[ANY water].water)","E OnRain
+update(watered, 0)","E OnHours
 update(watering, -1)
 update(growing, +1)","","","","","","","","","","","","","",""
 "water container","water
@@ -41,7 +54,7 @@ value:0?10
 description:
 empty / almost empty / half full / almost full / full
 layer:1","$ fill
-update(water, +[ANY water].water)","! OnRain
+update(water, +[ANY water].water)","E OnRain
 update(water, +10)","","","","","","","","","","","","","","","","","",""
 "% dirty","clean
 

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [System.Serializable]
 public class PropertyDescription
@@ -30,7 +31,8 @@ public class PropertyDescription
             propDescriptions.Add(propDescription);
         }
 
-        if( propDescription.properties.Contains(prop)) {
+        prop.GetDescription();
+        if ( propDescription.properties.Contains(prop)) {
             Debug.Log($"({item.debug_name}) already contains prop  {prop.name}");
             return;
         }
@@ -39,40 +41,76 @@ public class PropertyDescription
     }
 
     public static void Describe() {
-        DebugManager.Instance.debug_PropertyDescriptions = new List<PropertyDescription>(propDescriptions);
         AvailableItems.UpdateItems();
+            // removing updated items that are not around ( prop update from events )
+        propDescriptions.RemoveAll(x => !AvailableItems.currItems.Contains(x.item));
+
+        DebugManager.Instance.debug_PropertyDescriptions = new List<PropertyDescription>(propDescriptions);
+
         for (int i = 0; i < propDescriptions.Count; i++) {
             var pD = propDescriptions[i];
-            // removing updated items that are not around ( prop update from events )
-            if (!AvailableItems.currItems.Contains(pD.item)) {
-                Debug.Log($"({pD.item.debug_name}) is'nt contianed in availble items");
-                continue;
-            }
 
             // getting item 
             var description = $"";
 
             var targetProps = pD.properties;
-            // removing unchanged properties from description, but on ly from events ( need to get feed back when action )
-            if ( WorldAction.current.source == WorldAction.Source.Event) {
-                // get all props
-                targetProps = pD.properties.FindAll(x => x.DescriptionChanged() && x.enabled);
-            }
-            // skipping if no changed props were found
-            if (targetProps.Count == 0)
-                continue;
 
+            // skipping if no changed props were found
+            if (targetProps.Count == 0) {
+                Debug.Log($"no properties to describe in item {pD.item.debug_name}");
+                continue;
+            }
+
+            // removing unchanged props
+            targetProps = targetProps.FindAll(x => x.DescriptionChanged());
             // describing all props
             for (int j = 0; j < targetProps.Count; j++) {
                 var prop = targetProps[j];
+                prop.RemovePart("changed");
                 description += $"{prop.GetDescription()}{TextUtils.GetCommas(j, targetProps.Count)}";
             }
-            
+
             // write
-            TextManager.Write($"{pD.item.GetText("the dog")} is {description}");
+            if (!string.IsNullOrEmpty(description))
+                TextManager.Write($"{pD.item.GetText("the dog")} is {description}");
         }
 
 
         propDescriptions.Clear();
+    }
+
+    public static string GetDescription(List<Property> props) {
+        var str = "";
+        for (int i = 0;i < props.Count;i++) {
+            var prop = props[i];
+            str += $"{prop.GetDescription()}{TextUtils.GetCommas(i, props.Count)}";
+        }
+        return str;
+    }
+
+    public static bool Describable(Property prop) {
+        if (!prop.HasPart("description type") || !prop.HasPart("description"))
+            return false;
+
+        var type = prop.GetPart("description type").content;
+
+        if (type.StartsWith("lerp")) {
+            int i = 0;
+            if (!int.TryParse(type.Substring(4), out i)) {
+                Debug.LogError($"could't parse prop description type {type}");
+                return false;
+            }
+            return prop.GetNumValue() >= i;
+        }
+
+        switch (type) {
+            case "always":
+                return true;
+            case "on change":
+                return prop.HasPart("changed");
+            default:
+                Debug.Log($"description type {type} for {prop.name} is under contextual conditions");
+                return false;
+        }
     }
 }

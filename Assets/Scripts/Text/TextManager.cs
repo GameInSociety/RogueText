@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Windows;
 using static UnityEditor.Progress;
@@ -34,21 +35,12 @@ public static class TextManager {
             return "trim part error";
         }
     }
-
-    public static List<Humanoid.Orientation> GetOverrideOrientations() {
-        return overrideOrientations;
-    }
     #region write phrase
     public static void Return() {
-        DisplayDescription.Instance.text_target += "\n";
+        DisplayDescription.Instance.AddToDescription("\n");
     }
-
-    public static void Write(string str, Item _overrideItem) {
-        addOverride(_overrideItem);
-        Write(str);
-    }
-    public static void addOverride(Item item) {
-        overrides.Add(item);
+    public static void Write(string str, Color c) {
+        DisplayDescription.Instance.AddToDescription($"\n{str}", c);
     }
     public static void Write(string str) {
         DisplayDescription.Instance.AddToDescription($"\n{str}");

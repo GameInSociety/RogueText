@@ -1,4 +1,5 @@
-﻿using OpenAI;
+﻿using Newtonsoft.Json;
+using OpenAI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,22 +20,42 @@ public class DisplayDescription : MonoBehaviour {
 
     public int letterRate = 1;
 
-    public string text_current;
-    public string text_target;
     int typeIndex = 0;
     float typeTimer = 0f;
     public float rate = 0.2f;
     bool typing = false;
+    Color initColor;
+    public List<Chunk> chunks = new List<Chunk>();
 
     float timer = 0f;
 
     bool newText = false;
+    public string text;
+    public string wholeText;
+
+    [System.Serializable]
+    public class Chunk {
+        public Chunk(string targetText, Color color) {
+            currText = "";
+            this.targetText = targetText;
+            this.color = color;
+            htlm = ColorUtility.ToHtmlStringRGBA(color);
+        }
+        public Color color;
+        public string targetText;
+        public string currText;
+        string htlm = "";
+        public string GetText() {
+            return $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>{currText}</color>";
+        }
+    }
 
     void Awake() {
         Instance = this;
     }
 
     void Start() {
+        initColor = uiText.color;
         uiText.text = "";
         uiText_Old.text = "";
         ClearDescription();
@@ -49,6 +70,7 @@ public class DisplayDescription : MonoBehaviour {
     }
 
     void Typing_Start(){
+        chunkIndex = 0;
         timer = 0f;
         typing = true;
         DisplayInput.Instance.Hide();
@@ -70,45 +92,63 @@ public class DisplayDescription : MonoBehaviour {
         timer += Time.deltaTime;
     }
 
+    public int chunkIndex;
     void Type() {
 
-        if (typeIndex >= text_target.Length ){
+        var currChunk = chunks[chunkIndex];
+
+        if (typeIndex >= currChunk.targetText.Length){
+            currChunk.currText = currChunk.targetText;
+            text += currChunk.GetText();
+            typeIndex = 0;
+            ++chunkIndex;
+        }
+        if ( chunkIndex == chunks.Count) {
             Typing_Exit();
             return;
         }
 
-        text_current = text_current.Insert(typeIndex, text_target[typeIndex].ToString() );
-        uiText.text = text_current + "■";
-        //
+        currChunk.currText = currChunk.targetText.Remove(typeIndex);
+        uiText.text = text+currChunk.GetText()+"■";
 
         ++typeIndex;
     }
 
     void Typing_Exit(){
+        text = "";
+        foreach (var chunk in chunks) {
+            chunk.currText = chunk.targetText;
+            text += chunk.GetText();
+        }
+        wholeText += text;
+        uiText.text = $"{wholeText}";
         typing = false;
         DisplayInput.Instance.Show();
-        text_current = text_target;
-        typeIndex = text_target.Length;
-        uiText.text = text_target;
         newText = false;
+        chunks.Clear();
     }
 
     public void ClearDescription() {
         newText = false;
         typing = false;
-        uiText_Old.text += uiText.text;
+        uiText_Old.text += wholeText;
+        wholeText = "";
+        text = "";
         typeIndex = 0;
-        text_target = "";
-        text_current = "";
         uiText.text = "";
-
+        chunks.Clear();
     }
 
 
+    public void AddToDescription(string str, Color c) {
+        AddToDescription(new Chunk(str, c));
+    }
     public void AddToDescription(string str) {
-        // majuscule
-        str = TextUtils.FirstLetterCap(str);
-        text_target += str;
+        AddToDescription(new Chunk(str, initColor));
+    }
+    private void AddToDescription(Chunk chunk) {
+        chunk.targetText = TextUtils.FirstLetterCap(chunk.targetText);
+        chunks.Add(chunk);
         newText = true;
     }
 

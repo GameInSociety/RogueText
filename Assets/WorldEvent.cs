@@ -62,6 +62,6 @@ public class WorldEvent {
     
     public static void RemoveWorldEventsWithItem(Item item) {
         foreach (var worldEvent in worldEvents)
-            worldEvent.actions.RemoveAll(x => x.itemGroup.items.First() == item);
+            worldEvent.actions.RemoveAll(x => x .TargetItem() == item);
     }
 }

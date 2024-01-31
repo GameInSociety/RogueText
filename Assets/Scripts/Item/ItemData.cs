@@ -38,7 +38,7 @@ public class ItemData {
     public static int GetItemDataIndex(string key) {
         int index = -1;
         if (key.StartsWith("type")) {
-            key = TextUtils.Extract('(', key);
+            key = TextUtils.Extract('(', key, out key);
             index = GetRandomDataOfType(key);
         } else
             index = itemDatas.FindIndex(x => x.words.Find(x => x.text == key) != null);
@@ -70,11 +70,13 @@ public class ItemData {
         ).ToList();
         return ints;
     }
+    static int debugAll;
     public static Item Generate_Simple(string name) {
         var dataIndex = GetItemDataIndex(name);
         var item = new Item();
         item.dataIndex = dataIndex;
-        item.debug_randomID = UnityEngine.Random.Range(0, 1000);
+        item.debug_Id = debugAll;
+        debugAll++;
         item.Init();
         return item;
     }
@@ -87,7 +89,8 @@ public class ItemData {
         }
         var item = new Item();
         item.dataIndex = index;
-        item.debug_randomID = UnityEngine.Random.Range(0, 1000);
+        item.debug_Id = debugAll;
+        debugAll++;
         var serializedParent = JsonConvert.SerializeObject(item);
         var obj = JsonConvert.DeserializeObject(serializedParent, ItemType);
         ((Item)obj).Init();

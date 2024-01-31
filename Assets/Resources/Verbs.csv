@@ -5,10 +5,10 @@ advance
 walk
 continue
 keep going
-enter
-get in
 go in
-return",where,to,
+return",where,in,
+"enter
+get in",where,in,
 "open
 look inside",what,"*
 *",

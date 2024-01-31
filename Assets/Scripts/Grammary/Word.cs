@@ -9,6 +9,7 @@ public class Word {
     public string text = "";
     public string preposition = "";
     public Number defaultNumber;
+    public Number currentNumber;
     public bool defined = false;
 
     public Word() {

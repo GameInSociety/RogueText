@@ -1,23 +1,19 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
-using UnityEngine.Analytics;
-using UnityEngine.Rendering;
-using TreeEditor;
 using System;
-using System.Security.Cryptography;
-using System.Threading;
-using JetBrains.Annotations;
-using System.Xml.Schema;
-using UnityEditor;
-using System.Text;
-using System.Configuration;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 [System.Serializable]
 public class Property {
 
     public static List<Property> datas = new List<Property>();
+
+    public static Property GetDataProp(string name) {
+        var prop = datas.Find(x=> x.name == name);
+        if (prop == null) {
+            Debug.Log($"no prop with the name : {name}");
+        }
+        return prop;
+    }
 
     public static void AddPropertyData(Property prop) {
         datas.Add(prop);
@@ -42,6 +38,7 @@ public class Property {
 
     public void Init(Property copy) {
         name = copy.name;
+
         // first, get all data specific to the item
         // if there's none, it might be a one liner, or a fully copied data prop
         foreach (var part in copy.parts)
@@ -63,14 +60,33 @@ public class Property {
     }
 
     public void Init() {
-        // initiating value
-        if (HasPart("value")) {
-            InitNumValue();
+        // enable / disable
+        if (name.StartsWith('*')) {
+            name = name.Substring(1);
+            if (name.StartsWith('?')) {
+                var percent = TextUtils.Extract('?', name, out name);
+                float r = UnityEngine.Random.value * 100f;
+                Debug.Log($"chanced {name} : {r}/{percent}");
+                enabled = r < int.Parse(percent.Trim('%'));
+            } else {
+                enabled = false;
+            }
+        } else {
+            enabled = true;
         }
 
-        // enable / disable
-        enabled = !name.StartsWith('*');
-        if (!enabled) name = name.Remove(0, 1);
+        if (HasPart("key")) {
+            var split = GetPart("key").content.Split(", ");
+            if ( split.Length > 1) {
+                RemovePart("key");
+                foreach (var s in split) {
+                    AddPart("key", s);
+                }
+            }
+        }
+
+        InitNumValue();
+        InitDescription();
     }
 
     public void Parse(string[] lines) {
@@ -98,25 +114,30 @@ public class Property {
     }
 
     #region parts
-    public void AddPart(string key, string text) {
-        AddPart(new Part(key, text));
+    public Part AddPart(string key, string text) {
+        return AddPart(new Part(key, text));
     }
-    public void AddPart(Part part) {
+    public Part AddPart(Part part) {
         parts.Add(part);
+        return part;
     }
 
     public void SetPart(string key, string text) {
         var part = GetPart(key);
         if (part == null) {
-            part = new Part(key, text);
+            part = AddPart(key, text);
         } else {
-            Debug.Log($"property {key} already has part{key} with {text}");
+            //Debug.Log($"property {key} already has part{key} with {text}");
         }
         part.content = text;
     }
 
     public bool HasPart(string str) {
         return parts.Find(x => x.key == str) != null;
+    }
+    public void RemovePart(string str) {
+        var p = GetPart(str);
+        parts.Remove(p);
     }
 
     public List<Part> GetParts(string key) {
@@ -129,6 +150,10 @@ public class Property {
 
     #region value
     public void InitNumValue(string key = "value") {
+
+        if (!HasPart("value"))
+            return;
+
         Part part = GetPart(key);
         if (part == null) {
             Debug.LogError($"INIT NUM VALUE : prop {name} doesn't have part with key {key}");
@@ -186,73 +211,63 @@ public class Property {
     }
     #endregion
     #region description
+    public void InitDescription() {
+        if (!HasPart("description"))
+            return;
+        var description = GetPart("description").content;
+        // TYPE //
+        if (description.StartsWith('(')) {
+            var type = TextUtils.Extract('(', description, out description);
+            SetPart("description type", string.IsNullOrEmpty(type) ? "none" : type);
+            SetPart("description", description);
+        }
+        //
+        // SETUP //
+        if (description.StartsWith('[')) {
+            var setup = TextUtils.Extract('[', description, out description);
+            SetPart("description", description);
+            SetPart("description setup", setup);
+        }
+        //
+        
+    }
     public string GetDescription() {
-
         if (!HasPart("description"))
             return ""; 
-
         var newDescription = GetNewDescription();
-
-        if (!HasPart("prevDescription"))
-            AddPart("prevDescription", "");
-
-        if (!HasPart("currDescription"))
-            AddPart("currDescription", "");
-
-        GetPart("prevDescription").content = GetPart("currDescription").content;
-        GetPart("currDescription").content = newDescription;
-
+        if (HasPart("cDes") && newDescription != GetPart("cDes").content)
+            SetChanged();
+        SetPart("cDes", newDescription);
         return newDescription;
     }
     public bool DescriptionChanged() {
-        if (!HasPart("currDescription"))
-            GetDescription();
-        return GetPart("prevDescription").content != GetPart("currDescription").content;
+        return HasPart("changed");
     }
+    public void SetChanged() {
+        SetPart("changed", "");
+    }
+
     private string GetNewDescription() {
-        
         var description = GetPart("description").content;
 
         if (description.Contains("/")) {
-            var start = "";
-            if (description.StartsWith('(')) {
-                start = TextUtils.Extract('(', description);
-                description = description.Remove(0, description.IndexOf(')') + 1);
-            }
             var prts = description.Split(" / ");
-            int max = HasPart("max") ? GetNumValue("max") : 10;
+            int max = HasPart("max") ? GetNumValue("max") : GetNumValue();
             int i = GetNumValue();
             if (i == 0) return prts[0];
             if ( i == max ) return prts[prts.Length-1];
             var lerp = (float)i * prts.Length / max;
             int index = Math.Clamp((int)lerp, 1, prts.Length-2);
-            return $"{start} {prts[index]}";
+            return $"{GetPart("description start")?.content}{prts[index]}";
         }
-
-        if (description.StartsWith('(')) {
-            var strs = TextUtils.Extract('(', description).Split('=');
-            switch (strs[0]) {
-                case "type":
-                    var typeIndex = ItemData.GetRandomDataOfType(strs[1]);
-                    GetPart("description").content = ItemData.itemDatas[typeIndex].name;
-                    Debug.Log($"changed value of {name} to {ItemData.itemDatas[typeIndex].name}");
-                    return GetPart("description").content;
-                case "spec":
-                    GetPart("description").content = Spec.GetCat(strs[1]).GetRandomSpec();
-                    return GetPart("description").content;
-            }
-        }
-
-        if ( description.Contains("[value]"))
-            description = description.Replace("[value]", GetPart("value").content);
-
+        description = description.Replace("{value}", GetPart("value")?.content);
         return description;
-        
     }
+
     public static string GetDescription(List<Property> props) {
         string str = "";
         for (int i = 0; i < props.Count; i++) {
-            str += $"{props[i].GetDescription()}{TextUtils.GetCommas(i, props.Count)}";
+            str += $"{props[i].GetDescription()}{TextUtils.GetCommas(i, props.Count, false)}";
         }
         return str;
     }

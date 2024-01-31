@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -12,7 +13,7 @@ public class Item {
     public string debug_name;
     public int dataIndex;
     public ItemData GetData() { return ItemData.itemDatas[dataIndex]; }
-    public int debug_randomID;
+    public int debug_Id;
 
     public Tile.Info TileInfo;
 
@@ -32,12 +33,29 @@ public class Item {
             var content = $"{seq.triggers[0]}\n{seq.seq}";
             WorldEvent.SubscribeItem(this, content);
         }
-
         foreach (var dataProp in GetData().properties) {
             var newProp = new Property();
             newProp.Init(dataProp);
             props.Add(newProp);
         }
+    }
+
+    public void AddProp(string name) {
+        AddProp(Property.GetDataProp(name));
+    }
+
+    public void RemoveProp(string name) {
+        var i = props.FindIndex(x => x.name == name);
+        if ( i < 0) {
+            Debug.LogError($"removing prop from item {debug_name} : no props named {name} found");
+            return;
+        }
+        props.RemoveAt(i);
+    }
+
+    public void AddProp(Property prop) {
+        prop.Init();
+        props.Add(prop);
     }
 
 
@@ -232,21 +250,18 @@ public class Item {
         // preposition/article/specs/name
 
         // name : dog / dogs
-        var text = GetWord().text;
+        var text = prms.Contains("dog")? GetWord().text : "";
         if (prms.Contains("dogs") && GetWord().defaultNumber != Word.Number.Plural)
             text = $"{text}s";
 
-        // props : special dog
-        var propskeybound = @$"\bspecial\b";
-        if (Regex.IsMatch(prms, propskeybound)) {
-            if (GetVisibleProps(propLayer).Count > 0) {
-                // add describable props
-                var before = GetVisibleProps(propLayer).FindAll(x => !x.HasPart("after word"));
-                var after = GetVisibleProps(propLayer).FindAll(x => x.HasPart("after word"));
-                if (before.Count > 0) text = text.Insert(0, $"{Property.GetDescription(before)} ");
-                if (after.Count > 0) text = text.Insert(text.Length, $" {Property.GetDescription(after)}");
-            }
-
+        // add props descriptions that are always displayed
+        var props = GetDescribableProps();
+        if (props.Count > 0) {
+            // add describable props
+            var before = props.FindAll(x => !x.HasPart("after word"));
+            var after = props.FindAll(x => x.HasPart("after word"));
+            if (before.Count > 0) text = text.Insert(0, $"{Property.GetDescription(before)} ");
+            if (after.Count > 0) text = text.Insert(text.Length, $" {Property.GetDescription(after)}");
         }
 
         // article
@@ -268,10 +283,7 @@ public class Item {
         var prepBound = @$"\bon\b";
         if (Regex.IsMatch(prms, prepBound))
             text = text.Insert(0, $"{GetWord().preposition} ");
-
-
-        //return $"{text}";
-        return $"{text}({debug_randomID})";
+        return $"{text}{(DebugManager.Instance.displayItemID?debug_Id:"")}";
     }
 
     public virtual void WriteDescription() {
@@ -297,47 +309,47 @@ public class Item {
         wordIndex = GetData().words.FindIndex(x => x.text == _text);
         return wordIndex >= 0;
     }
-    public int GetIndexInText(string text, out Word.Number num) {
-        num = Word.Number.None;
+
+    public bool ContainedInText(string text) {
+        return GetIndexInText(text) >= 0;
+    }
+    public int GetIndexInText(string text) {
         var wIndex = 0;
         foreach (var word in GetData().words) {
             for (int i = 0; i < 2; i++) {
-                num = (Word.Number)i;
+                var num = (Word.Number)i;
                 string _word = word.getText(num);
                 if (Regex.IsMatch(text, @$"\b{_word}\b")) {
+                    word.currentNumber = num;
                     wordIndex = wIndex;
                     return text.IndexOf(_word);
                 }
             }
             ++wIndex;
         }
-
-        num = Word.Number.None;
         return -1;
+    }
+    public Property GetPropInText(string text) {
+        int index = 0;
+        return GetPropInText(text, out index);
     }
     public Property GetPropInText(string text, out int textIndex) {
         textIndex = -1;
         foreach (var prop in GetAllVisibleProps()) {
-
             var description = prop.GetDescription();
             if (Regex.IsMatch(text, @$"\b{description}\b")) {
                 textIndex = text.IndexOf(description);
                 return prop;
             }
-
-            if ( Regex.IsMatch(text, @$"\b{prop.name}\b")) {
-                textIndex = text.IndexOf(prop.name);
-                return prop;
-            }
         }
 
         // search ( not visible but searchable )
-        foreach (var p in props.FindAll(x => x.HasPart("search"))) {
-            var part = p.GetPart("search");
-            if (part == null) return null;
-            if (Regex.IsMatch(text, @$"\b{part.content}\b")) {
-                textIndex = text.IndexOf(part.content);
-                return p;
+        foreach (var prop in props.FindAll(x => x.HasPart("key"))) {
+            var keyPart = prop.parts.Find(x => Regex.IsMatch(text, @$"\b{x.content}\b"));
+            if (keyPart != null) {
+                Debug.Log($"found key {keyPart.content} in prop {prop.name}");
+                textIndex = text.IndexOf(keyPart.content);
+                return prop;
             }
         }
 
@@ -351,6 +363,14 @@ public class Item {
     /// </summary>
     /// <param name="prms"></param>
     /// <returns></returns>
+    
+    // adding unchangeable, static data to the item (ex : direction etc.. )
+    public void AddDataProp(string name) {
+        var prop = Property.GetDataProp(name);
+        Debug.Log($"adding data property : {name} to {debug_name}");
+        props.Add(prop);
+    }
+
     public Property SetProp(string prms) {
 
         var split = prms.Split(" / ");
@@ -372,14 +392,14 @@ public class Item {
 
         prop = new Property();
         prop.name = name;
-        prop.Init();
 
         for (int i = 1; i < split.Length; i++) {
             var part = split[i].Split(':');
             prop.AddPart(part[0], part[1]);
         }
 
-        props.Add(prop);
+        prop.Init();
+        props.Add(prop);    
 
         return prop;
     }
@@ -398,9 +418,6 @@ public class Item {
 
     // CHECK
     public bool HasProps() {
-        return props.FindAll(x => x.enabled).Count > 0;
-    }
-    public bool HasVisibleProperties() {
         return props.FindAll(x => x.enabled).Count > 0;
     }
     public bool HasEnabledProperty(string name) {
@@ -437,21 +454,27 @@ public class Item {
     public List<Property> GetAllVisibleProps() {
         return props.FindAll(x => x.enabled && (x.HasPart("description") ));
     }
-    public List<Property> GetVisibleProps(int layer =0) {
-        var visibleProps = props.FindAll(x => x.enabled && x.HasPart("description") && !x.HasPart("layer") && !x.HasPart("key"));
-        if (layer > 0) {
-            var layeredProps = props.FindAll(x => x.enabled && x.HasPart("layer"));
-            foreach (var prop in layeredProps) {
-                int l = 0;
-                if (int.TryParse(prop.GetPart("layer").content, out l) && l <= layer)
-                    visibleProps.Add(prop);
+    public List<Property> GetDescribableProps() {
+        return GetAllVisibleProps().FindAll(x => PropertyDescription.Describable(x));
+    }
+    public List<Property> GetVisibleProps(string filters = "") {
+        var visibleProps = props.FindAll(x => x.enabled && x.HasPart("description"));
+        if (!string.IsNullOrEmpty(filters)) {
+            var split = filters.Split(", ").ToList();
+            Debug.Log($"split size :");
+            foreach (var filter in split) {
+                Debug.Log(filter);
+                if (filter.StartsWith('!'))
+                    visibleProps.RemoveAll(x => x.GetPart("description type")?.content == filter.Substring(1) );
             }
+            visibleProps.RemoveAll(x => x.HasPart("description type") && !filters.Contains(x.GetPart("description type")?.content));
+            var prop_text = "";
+            foreach (var p in visibleProps) {
+                prop_text += "\n" + p.name;
+            }
+            Debug.Log($"filtered {prop_text} from item : {debug_name}");
         }
         return visibleProps;
-    }
-    public Property GetVisibleProp(int i) {
-        return GetVisibleProps()[i];
-
     }
     #endregion
 

@@ -369,7 +369,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.84558654
+  m_Size: 0.9395807
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -760,7 +760,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &324848493
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1375,10 +1375,8 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       parts:
-      - key: main
-        content: 
       - key: farm
-        content: 
+        content: 1
   - name: forest
     color: {r: 0.69803923, g: 0.3019608, b: 0.5568628, a: 1}
     prop:
@@ -1497,7 +1495,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 388731313}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -2397,7 +2395,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startCoords:
     x: 9
-    y: 9
+    y: 10
   story: {fileID: 0}
 --- !u!1 &1014188665
 GameObject:
@@ -2695,7 +2693,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1169447288}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -2739,6 +2737,7 @@ GameObject:
   - component: {fileID: 1275752592}
   - component: {fileID: 1275752594}
   - component: {fileID: 1275752595}
+  - component: {fileID: 1275752596}
   m_Layer: 5
   m_Name: Text (Old)
   m_TagString: Untagged
@@ -2868,6 +2867,21 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &1275752596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1275752590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1356986847
 GameObject:
   m_ObjectHideFlags: 0
@@ -3698,6 +3712,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1967984056}
   - component: {fileID: 1967984057}
+  - component: {fileID: 1967984058}
   m_Layer: 0
   m_Name: '[DEBUG]'
   m_TagString: Untagged
@@ -3735,7 +3750,7 @@ MonoBehaviour:
   TILE:
     debug_name: 
     dataIndex: 0
-    debug_randomID: 0
+    debug_Id: 0
     TileInfo:
       coords:
         x: 0
@@ -3745,11 +3760,13 @@ MonoBehaviour:
     wordIndex: 0
     mChildItems: []
   adjacentTiles: []
-  debug_groups: []
   previousParser:
-    mainGroups: []
-    otherGroups: []
-    properties: []
+    separators:
+    - in
+    - from
+    - at
+    - on
+    - with
     verb:
       debug_word: 
       indexInText: 0
@@ -3757,13 +3774,16 @@ MonoBehaviour:
       prepositions: []
       words: []
       currentNameIndex: 0
-    holds: 00000000
-    inputs: []
-    integer: 0
+    parts: []
+    currentState: 0
+    log: 
   currentParser:
-    mainGroups: []
-    otherGroups: []
-    properties: []
+    separators:
+    - in
+    - from
+    - at
+    - on
+    - with
     verb:
       debug_word: 
       indexInText: 0
@@ -3771,21 +3791,20 @@ MonoBehaviour:
       prepositions: []
       words: []
       currentNameIndex: 0
-    holds: 00000000
-    inputs: []
-    integer: 0
+    parts: []
+    currentState: 0
+    log: 
   colorWords: 0
   availableItems: []
   globalItems: []
   debug_worldEvents: []
   debugDescriptions: []
   debug_PropertyDescriptions: []
-  itemHistory: []
-  propHistory: []
+  displayItemID: 0
   PLAYER:
     debug_name: 
     dataIndex: 0
-    debug_randomID: 0
+    debug_Id: 0
     TileInfo:
       coords:
         x: 0
@@ -3806,6 +3825,23 @@ MonoBehaviour:
       x: -1
       y: -1
     tilesetId: 0
+--- !u!114 &1967984058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1967984055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4611e85dd0de5f4287328374ecaecaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inText: ?prout? this is the [value] of the {item} with the ?properties?
+  outText: this is the [value] of the {item} with the ?properties?
+  content: prout
+  sC: 63
+  eC: 63
 --- !u!1 &1998673411
 GameObject:
   m_ObjectHideFlags: 0
@@ -3945,6 +3981,7 @@ GameObject:
   - component: {fileID: 2010397797}
   - component: {fileID: 2010397799}
   - component: {fileID: 2010397798}
+  - component: {fileID: 2010397800}
   m_Layer: 5
   m_Name: Text (New)
   m_TagString: Untagged
@@ -4018,6 +4055,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2010397796}
   m_CullTransparentMesh: 0
+--- !u!114 &2010397800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2010397796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2024120937
 GameObject:
   m_ObjectHideFlags: 0
@@ -4152,9 +4204,11 @@ MonoBehaviour:
   uiText: {fileID: 2010397798}
   uiText_Old: {fileID: 1275752592}
   letterRate: 1
-  text_current: 
-  text_target: 
   rate: 0.02
+  chunks: []
+  text: 
+  wholeText: 
+  chunkIndex: 0
 --- !u!222 &2032537942
 CanvasRenderer:
   m_ObjectHideFlags: 0
