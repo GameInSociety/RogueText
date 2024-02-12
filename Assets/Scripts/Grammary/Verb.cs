@@ -34,26 +34,15 @@ public class Verb {
     }
     public string GetItemSequence(ItemData data, bool checkUndefined = true) {
 
+        if (data == null)
+            return null;
+
         // get all the sequences_debug int the data
         foreach (var sequence in data.verbSequences) {
             // see if one of the verbs of the sequenbe match this verb
             foreach (var potVerb in sequence.triggers) {
                 if (words.Contains(potVerb))
                     return sequence.seq;
-            }
-        }
-
-        if (!checkUndefined)
-            return null;
-
-        // IF NOT, match with the undefined action
-        var undefinedItem = ItemData.GetItemData("undefined");
-
-        foreach (var sequence in undefinedItem.verbSequences) {
-            foreach (var potVerb in sequence.triggers) {
-                if (words.Contains(potVerb)) {
-                    return sequence.seq;
-                }
             }
         }
 

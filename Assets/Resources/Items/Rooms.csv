@@ -1,28 +1,129 @@
 "NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"hallway","Tile","s","in","","contents
-key:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"stairs","Tile","s","on","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"living room","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"kitchen","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"dining room","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"children's room","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"bedroom","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"bathroom","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"toilets","Tile","p","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"attic","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"basement","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"cellar","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"office","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"garage","Tile","s","in","","enclosed
-value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"hallway","Tile","s","in","","clock:1*5%
+shelf:1*15%","","","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"stairs","Tile","s","on","","clock:1*10%","","","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"living room","Tile","s","in","","contents
+sofa:1
+table:1*40%
+clock:1*20%
+shelf:3*40%
+desk:1*20%
+bar:1*10%
+chair:2*30%
+window:1*50%
+phone:1*10%
+tv:1*20%","enclosed
+value:0","link
+value:door","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"kitchen","Tile","s","in","","contents
+sink:1
+table:1*80%
+window:1*50%
+phone:1*10%
+cupboard:3*30%
+shelf:1*30%
+bar:1*20%
+chair:2*50%","enclosed
+value:0","link
+value:door","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"dining room","Tile","s","in","","contents
+table:1
+cupboard:2*20%
+chair:3
+chair:3*20%
+bar:1*50%
+shelf:1*20%","enclosed
+value:0","link
+value:door","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"children's room","Tile","s","in","","contents
+desk:1*10%
+bed:1
+shelf:3*25%
+armory:1*60%
+clock:1*20%
+window:1*40%","enclosed
+value:1","link
+value:door","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bedroom","Tile","s","in","","contents
+desk:1*20%
+bed:1
+shelf:3*40%
+armory:1*80%
+clock:1*20%
+window:1*40%","enclosed
+value:0","link
+value:door","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bathroom","Tile","s","in","","contents
+sink:1
+shower:1
+cabinet:2*70%
+armory:1*10%
+washing machine:1*15%
+window:1*20%","enclosed
+value:1","link
+value:door","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"toilets","Tile","p","in","","contents
+toilets:1
+cabinet:1*50%","enclosed
+value:1","link
+value:tree","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"attic","Tile","s","in","","contents
+shelf:2*10%
+desk:1*10%
+tool box:1*10%
+armory:2*8%
+table:1*20%
+window:1*10%","enclosed
+value:1","link
+value:door","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"basement","Tile","s","in","","contents
+tool box:1*10%
+armory:2*8%
+washing machine:1*20%
+sofa:1*10%","enclosed
+value:1","link
+value:stairs","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"cellar","Tile","s","in","","contents
+fridge:1*20%
+cupboard:4*30%","enclosed
+value:1","link
+value:stairs","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"office","Tile","s","in","","contents
+desk:1","enclosed
+value:1","link
+value:door","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"garage","Tile","s","in","","contents
+tool box:1*10%
+armory:2*8%
+washing machine:1*20%
+car:1*20%","enclosed
+value:1","link
+value:door","$ look
+set(! player>orientation, ANY orientation)
+describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

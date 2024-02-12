@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +9,7 @@ public static class WorldData {
     private static readonly List<parameter> parameters = new List<parameter>();
 
     public static List<Item> globalItems = new List<Item>();
+    public static Item undefinedItem;
 
     public struct parameter {
         public string name;
@@ -31,6 +33,10 @@ public static class WorldData {
             var parts = lines[i].Split(':');
             parameters.Add(new parameter(parts[0], parts[1]));
         }
+
+        var undefinedIndex = ItemData.GetItemDataIndex("undefined");
+        var undefinedItemData = ItemData.itemDatas[undefinedIndex];
+        undefinedItem = ItemData.Generate_Simple(undefinedItemData.name);
 
         var globalIndexes = ItemData.GetDatasOfType("global");
         foreach (var index in globalIndexes) {

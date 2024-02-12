@@ -1,6 +1,5 @@
-"NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
 "no item","Universal","s","","","$ sleep
-write(you sleep on the floor)
 [player] add(sleep, 1)
 [player] sub(health, 1)","$ move
 move(relative, 0)","$ wait
@@ -8,4 +7,4 @@ wait(1)","$ hit
 [target.body part] enable(bleeding)
 [target] sub(health, $damage)
 write(you hit &the *target*& &on the *body part*& with your &*damage*&)","$ eat
-add([player].hunger, [ANY food].food)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+add([player].hunger, [ANY food].food)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

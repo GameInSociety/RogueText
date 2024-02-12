@@ -60,3 +60,5 @@ crashlytics-build.properties
 
 .vscode/settings.json
 UserSettings/Layouts/default-2021.dwlt
+Assets/StreamingAssets/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+Assets/StreamingAssets/mistral-7b-instruct-v0.2.Q4_K_M.gguf.meta

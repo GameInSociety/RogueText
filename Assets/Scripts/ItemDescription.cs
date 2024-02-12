@@ -8,6 +8,7 @@ using Unity.IO.LowLevel.Unsafe;
 using UnityEditor;
 using UnityEngine;
 using static UnityEditor.Progress;
+using static UnityEngine.ParticleSystem;
 
 public class ItemDescription {
     public struct Options {
@@ -22,18 +23,26 @@ public class ItemDescription {
     }
     public Options options;
 
-    public static string DetailedDescription(List<Item> its) {
+    public static string DetailedDescription(List<Item> its, string filters = "") {
 
-        var props = its.First().GetAllVisibleProps();
+        var baseProps = its.First().GetVisibleProps(filters);
 
-        var description = $"they {PropertyDescription.GetDescription(props)}";
+        var description = its.Count == 1 ? $"{its.First().GetText("a dog")}" : $"multiple {its.First().GetText("dogs")}";
 
-        foreach (var item in its) {
-            var newProps = item.GetAllVisibleProps().FindAll(x => props.Find(y => y.GetDescription() != x.GetDescription()) == null);
+        for (var i = 1;i < its.Count; ++i) {
+
+            var item = its[i];
+            var newProps = new List<Property>();
+            foreach (var prop in item.GetVisibleProps(filters)) {
+                if ( baseProps.Find(x=> x.GetDescription() != prop.GetDescription()) != null) {
+                    //Debug.Log($"describing new prop : {prop.name} / {prop.GetDescription()}");
+                    newProps.Add(prop);
+                }
+            }
             if (newProps.Count == 0)
                 continue; 
-            description += $"\nsome {PropertyDescription.GetDescription(newProps)}";
-            props.AddRange(newProps);
+            description += $"\nsome, {PropertyDescription.GetDescription(newProps)}";
+            baseProps.AddRange(newProps);
         }
 
         return description;
@@ -49,25 +58,29 @@ public class ItemDescription {
         public string name;
         public List<Item> items;
         public Item first => items[0];
+        public enum Type {
+            Alone,
+            DescribeAll,
+        }
 
        
         private string SimpleDescription(List<Item> its) {
-            return its.Count == 1 ? $"{first.GetText("a dog")}" : $"multiple {first.GetText("dogs")}";
+            return its.Count == 1 ? $"{first.GetText("a dog")}" : $"some {first.GetText("dogs")}";
         }
 
         public string GetText(Options options) {
             var text = $"";
-
+            return DetailedDescription(items);
             List<Item> its = new List<Item>(items);
 
-            bool displayedFirstWord = false;
+            /*bool displayedFirstWord = false;
             int index = 0;
             int l = its.Count;
             for (int i = its.Count-1; i >= 0; i--) {
                 var item = its[i];
                 if (Discern(item)) {
-                    Debug.Log($"discern : {item.debug_name}");
-                    text += displayedFirstWord ? $"{item.GetText("special")}" : $"{item.GetText("a special dog")}";
+                    //text += displayedFirstWord ? $"{item.GetText("special")}" : $"{item.GetText("a special dog")}";
+                    text += $"{item.GetText("a special dog")}";
                     text += TextUtils.GetCommas(index, l);
                     ++index;
                     displayedFirstWord = true;
@@ -75,7 +88,7 @@ public class ItemDescription {
                         text += $", with {NewDescription(item.GetChildItems())} on it.";
                     its.RemoveAt(i);
                 }
-            }
+            }*/
 
             if ( its.Count > 0)
                 text += $"{SimpleDescription(its)}";
@@ -92,21 +105,18 @@ public class ItemDescription {
 
     }
 
-    public string GetDescription(List<Item> itms) {
-        var groups = GetGroups(itms);
+    public static string NewDescription(List<Item> items, string filters = "always") {
+        var newDescription = new ItemDescription();
+        //newDescription.options = new Options(prms);
+        var groups = GetGroups(items);
         var text = "";
         for (int i = 0; i < groups.Count; ++i) {
             var group = groups[i];
             if (i > 0) text += '\n';
-            text += $"{group.GetText(options)}{TextUtils.GetCommas(i, groups.Count, false)}";
+            //text += $"{group.GetText(options)}{TextUtils.GetCommas(i, groups.Count, false)}";
+            text += $"{DetailedDescription(group.items, filters)}{TextUtils.GetCommas(i, groups.Count, false)}";
         }
         return text;
-    }
-
-    public static string NewDescription(List<Item> items, string prms = "") {
-        var newDescription = new ItemDescription();
-        newDescription.options = new Options(prms);
-        return newDescription.GetDescription(items);
     }
 
     #region utils
@@ -122,7 +132,7 @@ public class ItemDescription {
         // splitting groups_deub.
         var groups = new List<Group>();
         for (int i = 0; i < items.Count; ++i) {
-            var group = groups.Find(x => x.items.First().dataIndex == items[i].dataIndex);
+            var group = groups.Find(x => x.items.First().GetWord().GetText == items[i].GetWord().GetText);
             if (group == null) {
                 group = new Group($"{items[i].debug_name}");
                 groups.Add(group);

@@ -43,22 +43,11 @@ public class Tile : Item {
 
     #region tile description
     public void Describe() {
-
         DisplayDescription.Instance.ClearDescription();
-
-        // change orientation, so the description is correct
-        if (Player.Instance.coords != coords) {
-            var dir = coords - Player.Instance.coords;
-            var cardinal = (Cardinal)dir;
-            Player.Instance.Orient(Humanoid.CardinalToOrientation(cardinal));
-        }
-
         // update tiles to create doors
         GetAdjacentTiles();
         GenerateChildItems();
         WriteDescription();
-
-        //Property.DescribeUpdated();
     }
 
     public override void WriteDescription() {
@@ -74,12 +63,14 @@ public class Tile : Item {
         // putting items that contain things and items that don't in the same list
         // (testing to see how it looks)
         if (HasChildItems()) {
-            string main_str = $"you see {ItemDescription.NewDescription(GetChildItems(), "show props")}";
+            string main_str = $"you see {ItemDescription.NewDescription(GetChildItems())}";
             TextManager.Write(main_str);
             TextManager.Return();
         }
 
-        AdjacentTilesDescription();
+        /*string description = ItemDescription.NewDescription(GetAdjacentTiles());
+        TextManager.Write($"there's {description}");*/
+        //AdjacentTilesDescription();
     }
 
     public void AdjacentTilesDescription() {
@@ -89,19 +80,19 @@ public class Tile : Item {
             tile.GenerateChildItems();
 
         //List<Item> similarTiles = tiles.FindAll(x => x.GetVisibleProp(0).GetDescription() == GetVisibleProp(0).GetDescription());
-        /*List<Item> similarTiles = tiles.FindAll(x => x.dataIndex == dataIndex);
+        List<Item> similarTiles = tiles.FindAll(x => x.dataIndex == dataIndex);
         if ( similarTiles.Count > 0 ) {
             string text = $"{GetText("the dog")} continues ";
             for (int i = 0; i < similarTiles.Count; i++) {
                 var tile = similarTiles[i];
-                text += $"{tile.GetProp("orientation")?.GetDescription()}{TextUtils.GetCommas(i, similarTiles.Count)}";
+                text += $"{tile.GetPropertyOfType("orientation")?.GetDescription()}{TextUtils.GetCommas(i, similarTiles.Count)}";
                 tiles.Remove(tile);
             }
             TextManager.Write(text);
-        }*/
+        }
 
         if (tiles.Count  > 0) {
-            string description = ItemDescription.NewDescription(tiles, "show props");
+            string description = ItemDescription.NewDescription(tiles);
             TextManager.Write($"there's {description}");
         }
 
@@ -127,94 +118,49 @@ public class Tile : Item {
     
     public List<Item> GetAdjacentTiles() {
 
-        var orientations = new List<Humanoid.Orientation>
-        {
-            Humanoid.Orientation.front,
-            Humanoid.Orientation.right,
-            Humanoid.Orientation.left,
-            Humanoid.Orientation.back
-        };
-
         List<Item> exits = new List<Item>();
 
-        if (GetProp("enclosed")?.GetNumValue() == 1) {
-            Debug.Log($"current tile : {debug_name} is enclosed, so only doors / links");
-        }
-
-        foreach (var orientation in orientations) {
+        for (int i = 0; i < Humanoid.orientations.Count; i++) {
+            var orientation = Humanoid.orientations[i];
             var adjacentTile = GetAdjacentTile(orientation);
             // skip if the tile is null (a void)
-            if (adjacentTile == null) {
-                Debug.Log($"tile on the {orientation.ToString()} is a void");
+            if (adjacentTile == null)
                 continue;
-            }
-
-            Debug.Log($"[{orientation}] : adjacentile =  {adjacentTile.debug_name}");
-
-            if (GetProp("enclosed")?.GetNumValue() != 1 && adjacentTile.GetProp("enclosed")?.GetNumValue() == 1) {
-                Debug.Log($"adjacent tile : {adjacentTile.debug_name} is enclosed, so creating door");
-            }
-
             var exit = (Item)null;
                 // if the tile is enclosed (often an interior)
             if (GetProp("enclosed")?.GetNumValue() == 1 || adjacentTile.GetProp("enclosed")?.GetNumValue() == 1) {
                 // there's a tileDoor
                 exit = GetChildItems()?.Find(x=> x.HasProp(orientation.ToString()));
-                if (exit == null) {
+                if (exit == null)
                     exit = CreateChildItem("door");
-                    Debug.Log($"creating new door for tile : {debug_name}");
-                }
 
+                var link = exit.GetProp("link");
+                if ( link == null)
+                    link = exit.AddProp("link");
+                link.SetValue(adjacentTile.GetText("the dog"));
             } else {
-                Debug.Log($"tile {adjacentTile.debug_name} is not enclosed, normal tiles");
                 exit = adjacentTile;
+                exits.Add(exit);
             }
 
-            foreach (var or in orientations) {
+            foreach (var or in Humanoid.orientations) {
                 if (exit.HasProp(or.ToString())) {
-                    Debug.Log($"replacing prop : {exit.GetProp(or.ToString())} with orientation : {orientation}");
                     exit.RemoveProp(or.ToString());
                     break;
                 }
             }
-            exit.AddDataProp(orientation.ToString());
-            exits.Add(exit);
+            var prop = exit.AddProp(orientation.ToString());
+            prop.SetValue(Player.Instance.GetCardinalFromOrientation(orientation));
         }
 
         return exits;
     }
 
 
-    public Tile GetAdjacentTile(Humanoid.Orientation orientation) {
-        var dir = Humanoid.OrientationToCardinal(orientation);
-
-        var targetCoords = coords + (Coords)dir;
-
-        return TileSet.GetCurrent.GetTile(targetCoords);
-    }
-    public Tile GetAdjacent(Cardinal cardinal) {
-        var targetCoords = coords + (Coords)cardinal;
-
-        return TileSet.GetCurrent.GetTile(targetCoords);
-    }
-    #endregion
-
-    #region info
-    public static bool SameAsPrevious() {
-        if (GetPrevious == null) {
-            return false;
-        }
-
-        return GetCurrent.sameTypeAs(GetPrevious);
-    }
-    public Humanoid.Orientation OrientationToPlayer() {
-        var dir = coords - Player.Instance.coords;
-
-        var cardinal = (Cardinal)dir;
-
-        var orientation = Humanoid.CardinalToOrientation(cardinal);
-
-        return orientation;
+    public Tile GetAdjacentTile(string orientation) {
+        var targetCoords = coords + Player.Instance.GetCoordsFromOrientation(orientation);
+        var tile = TileSet.GetCurrent.GetTile(targetCoords);
+        return tile;
     }
     #endregion
 
@@ -232,7 +178,7 @@ public class Tile : Item {
 
         DebugManager.Instance.TILE = tile;
         _current = tile;
-        tile.SetProp("orientation / description:you're standing on it / search:standing on");
+        tile.SetProp("position / description:you're standing on it / search:standing on");
     }
 
     public static void SetPrevious(Tile tile) {

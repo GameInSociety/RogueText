@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEditor.UIElements;
 
 [System.Serializable]
 public class Property {
@@ -66,7 +67,6 @@ public class Property {
             if (name.StartsWith('?')) {
                 var percent = TextUtils.Extract('?', name, out name);
                 float r = UnityEngine.Random.value * 100f;
-                Debug.Log($"chanced {name} : {r}/{percent}");
                 enabled = r < int.Parse(percent.Trim('%'));
             } else {
                 enabled = false;
@@ -85,7 +85,7 @@ public class Property {
             }
         }
 
-        InitNumValue();
+        InitValue();
         InitDescription();
     }
 
@@ -114,6 +114,7 @@ public class Property {
     }
 
     #region parts
+    // adding
     public Part AddPart(string key, string text) {
         return AddPart(new Part(key, text));
     }
@@ -122,6 +123,7 @@ public class Property {
         return part;
     }
 
+    // setting
     public void SetPart(string key, string text) {
         var part = GetPart(key);
         if (part == null) {
@@ -132,14 +134,26 @@ public class Property {
         part.content = text;
     }
 
-    public bool HasPart(string str) {
-        return parts.Find(x => x.key == str) != null;
-    }
+    // removing
     public void RemovePart(string str) {
         var p = GetPart(str);
         parts.Remove(p);
     }
 
+
+    // checking
+    public bool HasPart(string str) {
+        return parts.Find(x => x.key == str) != null;
+    }
+    public int ParsePart(string str) {
+        int i = -1;
+        if (int.TryParse(GetPart(str).content, out i))
+            return i;
+        else
+            return -1;
+    }
+
+    // getting
     public List<Part> GetParts(string key) {
         return parts.FindAll(x=> x.key == key);
     }
@@ -149,7 +163,7 @@ public class Property {
     #endregion
 
     #region value
-    public void InitNumValue(string key = "value") {
+    public void InitValue(string key = "value") {
 
         if (!HasPart("value"))
             return;
@@ -161,7 +175,7 @@ public class Property {
         }
 
         // check link
-        if (part.content.Contains('[')){
+        if (part.content.Contains('[')) {
             var prop = ItemLink.GetProperty(part.content, null);
             part.content = prop.GetNumValue().ToString();
             return;
@@ -171,7 +185,7 @@ public class Property {
             string[] prts = part.content.Split('?');
             int min = int.Parse(prts[0]);
             int max = int.Parse(prts[1]);
-            int i = UnityEngine.Random.Range(min, max+1);
+            int i = UnityEngine.Random.Range(min, max + 1);
             part.content = $"{i}";
             AddPart("max", max.ToString());
         }
@@ -183,12 +197,32 @@ public class Property {
             part.content = min.ToString();
             AddPart("max", max.ToString());
         }
+
+        if (part.content.StartsWith('{')) {
+            string outText = "";
+            var s = TextUtils.Extract('{', part.content, out outText);
+            var parts = s.Split('/');
+            switch (parts[0]) {
+                case "type":
+                    string type = ItemData.GetItemData(ItemData.GetRandomDataOfType(parts[1])).name;
+                    Debug.Log($"setting value of property {name} to {type}");
+                    part.content = type;
+                    break;
+                case "adj":
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    public string GetTextValue(string key = "value") {
+        return GetPart(key).content;
     }
     // value can be number or seq. but it's alway dynamic
     public int GetNumValue(string key = "value") {
         Part part = GetPart(key);
         if ( part == null) {
-            Debug.LogError($"GET NUM VALUE : prop {name} doesn't have part with key {key}");
+            Debug.LogError($"GET NUM VALUE : prop {name} doesn't have part with key {key}"); 
             return 0;
         }
 
@@ -215,11 +249,14 @@ public class Property {
         if (!HasPart("description"))
             return;
         var description = GetPart("description").content;
+
         // TYPE //
         if (description.StartsWith('(')) {
             var type = TextUtils.Extract('(', description, out description);
-            SetPart("description type", string.IsNullOrEmpty(type) ? "none" : type);
+            SetPart("description type", type);
             SetPart("description", description);
+        } else if (!HasPart("description type")) {
+            SetPart("description type","none");
         }
         //
         // SETUP //
@@ -233,7 +270,9 @@ public class Property {
     }
     public string GetDescription() {
         if (!HasPart("description"))
-            return ""; 
+            return "";
+
+
         var newDescription = GetNewDescription();
         if (HasPart("cDes") && newDescription != GetPart("cDes").content)
             SetChanged();
@@ -242,6 +281,21 @@ public class Property {
     }
     public bool DescriptionChanged() {
         return HasPart("changed");
+    }
+
+    public bool Visible() {
+
+        if (!HasPart("description"))
+            return false;
+
+        if (HasPart("condition")) {
+            var condition = GetPart("condition").content;
+            var split = condition.Split('/');
+            var prop = Player.Instance.GetProp(split[0]);
+            if (prop != null && split[1] != prop.GetTextValue())
+                return false;
+        }
+        return true;
     }
     public void SetChanged() {
         SetPart("changed", "");
@@ -261,12 +315,17 @@ public class Property {
             return $"{GetPart("description start")?.content}{prts[index]}";
         }
         description = description.Replace("{value}", GetPart("value")?.content);
+
+        
+
         return description;
     }
 
     public static string GetDescription(List<Property> props) {
         string str = "";
+        Debug.Log($"describing props");
         for (int i = 0; i < props.Count; i++) {
+            Debug.Log($"{props[i].name}/{props[i].GetDescription()}");
             str += $"{props[i].GetDescription()}{TextUtils.GetCommas(i, props.Count, false)}";
         }
         return str;

@@ -5,121 +5,96 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [System.Serializable]
 public class Humanoid : Item {
-    public Cardinal previousCardinal;
-    public Cardinal currentCarnidal;
 
-    public Coords prevCoords = new Coords(-1, -1);
+    public static List<string> orientations = new List<string>() {
+        "front",
+        "right",
+        "back",
+        "left"
+    };
+    public static List<string> cardinals = new List<string>() {
+        "north",
+        "east",
+        "south",
+        "west"
+    };
+
     public Coords coords = new Coords(-1, -1);
-    public Coords direction = new Coords(-1, -1);
     public int tilesetId;
-
 
     public override void Init() {
         base.Init();
         _ = CreateChildItem(ItemData.Generate_Special("body") as Body);
     }
 
-    public Body GetBody => GetItem("body") as Body;
-
     public bool CanMoveForward(Coords c) {
         var targetTile = TileSet.GetCurrent.GetTile(c);
-
-        if (targetTile == null) {
+        if (targetTile == null)
             return false;
-        }
-
-        if (targetTile.HasProp("blocking")) {
+        if (targetTile.HasProp("blocking"))
             return false;
-        }
-
         return true;
-    }
-
-    public void Move(Orientation orientation) {
-        Move(OrientationToCardinal(orientation));
-    }
-    public void Move(Cardinal targetCardinal) {
-        var targetCoords = coords + (Coords)targetCardinal;
-        Move(targetCoords);
     }
 
     public virtual void Move(Coords targetCoords) {
         // change current coords
-        prevCoords = coords;
-
+        var newOrientation = GetCardinalFromDirection(targetCoords - coords);
+        Player.Instance.SetProp($"orientation / value:{newOrientation}");
+        Debug.Log($"the player looks : {newOrientation}");
         coords = targetCoords;
-
-        direction = coords - prevCoords;
-
-        // set new direction
-        currentCarnidal = (Cardinal)direction;
     }
 
 
-
-    public virtual void Orient(Orientation orientation) {
-        SetDirection(OrientationToCardinal(orientation));
+    public static string GetCardinalFromDirection(Coords coords) {
+        if ( coords.x > 0) { return "east"; }
+        else if (coords.y > 0) { return "north"; }
+        else if (coords.y < 0) { return "south"; }
+        else if (coords.x < 0) { return "west"; }
+        else { return "north"; }
     }
-
-    public void SetDirection(Cardinal cardinal) {
-        previousCardinal = currentCarnidal;
-        currentCarnidal = cardinal;
+    public static string GetOrientationFromDirection(Coords coords) {
+        if ( coords.x > 0) { return "right"; }
+        else if (coords.y > 0) { return "front"; }
+        else if (coords.y < 0) { return "back"; }
+        else if (coords.x < 0) { return "left"; } else { return "front"; }
     }
+    public static Coords GetCoordsFromCardinal(string str) {
+        switch (str) {
+            case "north":
+                return new Coords(0, 1);
 
-    public static Cardinal OrientationToCardinal(Orientation orientation) {
+            case "east":
+                return new Coords(1, 0);
 
-        var a = (int)Player.Instance.currentCarnidal + (int)orientation;
-        if (a >= 8) {
-            a -= 8;
-        }
+            case "south":
+                return new Coords(0, -1);
 
-        return (Cardinal)a;
-    }
-
-    public static Orientation CardinalToOrientation(Cardinal cardinal) {
-
-        var a = (int)cardinal - (int)Player.Instance.currentCarnidal;
-        if (a < 0) {
-            a += 8;
-        }
-
-        return (Orientation)a;
-    }
-
-    public static Orientation getOpp(Orientation orientation) {
-        switch (orientation) {
-            case Orientation.front:
-                return Orientation.back;
-            case Orientation.right:
-                return Orientation.left;
-            case Orientation.back:
-                return Orientation.front;
-            case Orientation.left:
-                return Orientation.right;
+            case "west":
+                return new Coords(-1, 0);
             default:
-                break;
+                Debug.LogError($"no coords for cardinal {str}");
+                return Coords.Zero;
         }
-
-        Debug.LogError("couldn't find the opposite orientation of : " + orientation);
-        return Orientation.None;
+    }
+    public Coords GetCoordsFromOrientation(string targetOrientation) {
+        return GetCoordsFromCardinal(GetCardinalFromOrientation(targetOrientation));
     }
 
-    public enum Orientation {
-        front,
-        FrontRight,
-        right,
-        BackRight,
-        back,
-        BackLeft,
-        left,
-        FrontLeft,
-
-        None,
-
-        Current,
+    public string GetCardinalFromOrientation(string targetOrientation) {
+        var playerOrientation = GetProp("orientation").GetTextValue();
+        int orientationNum = cardinals.IndexOf(playerOrientation);
+        int cardinalNum = orientations.IndexOf(targetOrientation);
+        if (orientationNum == -1 || cardinalNum == -1) {
+            Debug.LogError($"orientation / cardinal error\n" +
+                $"player orientation : {playerOrientation} / target orientation : {targetOrientation}");
+            return "none";
+        }
+        return cardinals[(orientationNum + cardinalNum) % orientations.Count];
     }
+
 }

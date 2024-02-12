@@ -20,8 +20,6 @@ public class GameManager : MonoBehaviour {
     // Start is called before the GetMainItem frame Update
     void Start() {
 
-        PhraseLoader.Instance.Load();
-
         SpecLoader.Instance.Load();
         VerbLoader.Instance.Load();
         ContentLoader.Instance.Load();
@@ -35,6 +33,7 @@ public class GameManager : MonoBehaviour {
 
         Tile.SetCurrent(TileSet.GetCurrent.GetTile(startCoords));
 
+        Player.Instance.coords = startCoords;
         Player.Instance.Move(startCoords);
 
         ItemParser.NewParser();

@@ -61,6 +61,16 @@ public class ItemLoader : DataDownloader {
         // new word
         for (var i = 0; i < synonyms.Length; i++) {
             var newWord = new Word();
+
+            if (synonyms[i].StartsWith('[')) {
+                var condition = TextUtils.Extract('[', synonyms[i], out synonyms[i]);
+                var prop = new Property();
+                prop.name = condition;
+                prop.AddPart("description", $"{synonyms[i]}");
+                prop.AddPart("condition", $"{condition}");
+                newItemData.properties.Add(prop);
+            }
+
             newWord.SetText(synonyms[i]);
             newItemData.words.Add(newWord);
             newWord.UpdateNumber(cells[2]);
@@ -101,25 +111,30 @@ public class ItemLoader : DataDownloader {
         ++currIndex;
     }
 
-    void LoadProperties(ItemData data, List<string> contents) {
-        for (var i = 0; i < contents.Count; i++) {
-            if (string.IsNullOrEmpty(contents[i]))
+    void LoadProperties(ItemData data, List<string> cells) {
+        for (var i = 0; i < cells.Count; i++) {
+            if (string.IsNullOrEmpty(cells[i]))
                 continue;
 
-            string content = contents[i];
+            string content = cells[i];
 
             // load groups
             if (content.StartsWith('%')) {
+                // loading all properties of a group
+                // extracting the first line ( in the case there is replacements )
                 var groupName = content.Substring(2);
                 int exit = groupName.IndexOf('\n');
                 if (exit>=0)
                     groupName = groupName.Remove(exit);
+
+                // get the group
                 ContentLoader.Group group = ContentLoader.GetGroup(groupName);
                 if (group == null) {
                     Debug.LogError($"no group named {content}");
                     continue;
                 }
 
+                // loading the properties of the gorup
                 LoadProperties(data, group.contents);
 
                 // OVERRIDE the properties of the group
@@ -131,14 +146,14 @@ public class ItemLoader : DataDownloader {
                         Debug.LogError($"GROUP PARSING : no property named {split[0]} in group {groupName}");
                         continue;
                     }
-                    nestedProp.AddPart("value", split[1]);
+                    nestedProp.SetPart("value", split[1]);
                 }
                 continue;
             }
 
             // load sequences
             if (content.StartsWith('$') || content.StartsWith('E')) {
-                var cellParts = contents[i].Split(new char[1] { '\n' }, 2);
+                var cellParts = cells[i].Split(new char[1] { '\n' }, 2);
                 var triggers = cellParts[0].Remove(0, 2);
                 var seq = new Sequence(triggers, cellParts[1]);
                 if (content.StartsWith('$'))

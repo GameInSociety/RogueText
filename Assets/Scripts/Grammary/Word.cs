@@ -6,7 +6,7 @@ using UnityEngine;
 [System.Serializable]
 public class Word {
     // data //
-    public string text = "";
+    public string _text = "";
     public string preposition = "";
     public Number defaultNumber;
     public Number currentNumber;
@@ -18,7 +18,7 @@ public class Word {
 
     public Word(Word copy) {
         this.preposition = copy.preposition;
-        this.text = copy.text;
+        this._text = copy._text;
         this.defaultNumber = copy.defaultNumber;
         this.defined = copy.defined;
     }
@@ -35,7 +35,7 @@ public class Word {
                 defaultNumber = Number.Plural;
                 break;
             default:
-                Debug.LogError("pas trouvé de nombre pour l'item : " + text + " ( content : " + str + ")");
+                Debug.LogError("pas trouvé de nombre pour l'item : " + GetText + " ( content : " + str + ")");
                 break;
         }
 
@@ -64,17 +64,30 @@ public class Word {
         return false;
     }
 
-    public void SetText(string _text) {
-        text = _text;
+    public void SetText(string str) {
+        if (str.StartsWith('[')) {
+            TextUtils.Extract('[', str, out _text);
+            Debug.Log($"changed {str} to {_text}");
+        } else {
+            _text = str;
+        }
+
+    }
+
+
+    public string GetText {
+        get {
+            return _text;
+        }
     }
 
     public string getText(Number num = Number.Singular) {
-        return num == Number.Plural ? getPlural() : text;
+        return num == Number.Plural ? getPlural() : GetText;
     }
     public string getPlural() {
-        var plural = text.ToLower();
+        var plural = GetText.ToLower();
 
-        if (!text.EndsWith("s"))
+        if (!GetText.EndsWith("s"))
             plural += "s";
 
         return plural;

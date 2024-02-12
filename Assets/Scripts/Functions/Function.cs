@@ -11,6 +11,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Android;
+using UnityEngine.UIElements;
 
 public static class Function {
     static string[] prms = new string[0];
@@ -100,7 +101,6 @@ public static class Function {
             item = WorldAction.current.GetItems().First();
         var functionName = line;
 
-        Debug.Log($"function : {_line}");
         continueOnFail = false;
         if (line.StartsWith('*')) {
             continueOnFail = true;
@@ -140,25 +140,14 @@ public static class Function {
 
     #region write
     static void write() {
-        switch (GetPart(0)) {
-            case "_north":
-                var orientation = Coords.GetOrientationFromNorth(Player.Instance.currentCarnidal);
-                TextManager.Write($"the north is on the {orientation.ToString()}");
-                break;
-            case "_tile":
-                Tile.GetCurrent.Describe();
-                break;
-            default:
                 TextManager.Write(GetPart(0));
-                break;
-        }
     }
     #endregion
 
     #region time
     static void wait() {
         int count = 0;
-        if (ItemParser.GetCurrent.GetPart().number >= 0) {
+        if (ItemParser.GetCurrent.GetPart()?.number >= 0) {
             count = ItemParser.GetCurrent.GetPart().number;
         } else if (HasPart(0)) {
             count = CanParse(0) ? ParsePart(0) : GetProp(0).GetNumValue();
@@ -190,22 +179,16 @@ public static class Function {
             return;
         }
 
-
         if (!HasPart(0)) {
             Fail($"can't go to {item.GetText("the dog")}");
             return;
         }
 
-        Debug.Log($"part 0 : {GetPart(0)}");
-        Debug.Log($"prop 0 : {GetProp(0).name}");
-        var moveOrientation = (Humanoid.Orientation)Enum.Parse(typeof(Humanoid.Orientation), GetProp(0).GetPart("search").content);
-        Debug.Log($"move orientation : {moveOrientation}");
-        Player.Instance.Move(Humanoid.OrientationToCardinal(moveOrientation));
-    }
+        var target = GetProp(0);
 
-    static void orient() {
-        var lookOrientation = (Player.Orientation)ParsePart(0);
-        Player.Instance.Orient(lookOrientation);
+        var coords = Player.Instance.coords + Humanoid.GetCoordsFromCardinal(target.GetTextValue());
+        Player.Instance.Move(coords);
+        TextManager.Write("move with player orientation here");
     }
     #endregion
 
@@ -266,13 +249,13 @@ public static class Function {
 
         var amount = HasPart(1) ? ParsePart(1) : 1;
 
-        var itemName = GetPart(0);
-        if (itemName.StartsWith('.')) {
-            var prop = item.GetProp(itemName.Substring(1));
-            if (prop == null) Debug.LogError($"no prop named {itemName.Substring(1)}");
-            itemName = prop.GetDescription();
-            Debug.Log($"item name : {itemName}");
+        var itemName = "";
+        if (HasProp(0)) {
+            itemName = GetProp(0).GetTextValue();
+        } else {
+            itemName = GetPart(0);
         }
+
         var newItem = WorldAction.current.tile.CreateChildItem(itemName);
         Debug.Log($"creating item {newItem.debug_name}");
 
@@ -289,27 +272,38 @@ public static class Function {
     }
 
     static void describe() {
-        /*if ( ItemParser.GetCurrent.GetPart().properties.Count > 0) {
-            foreach (var prop in ItemParser.GetCurrent.GetPart().properties) {
-                TextManager.Write($"{prop.GetDescription()}");
+
+        if ( HasPart(0)) {
+            Debug.Log($"has second part");
+            if (GetPart(0) == "tile") {
+                Tile.GetCurrent.Describe();
+                return;
             }
-            return;
-        }*/
-        
+
+            if ( HasProp(0)) {
+                Debug.Log($"has prop");
+                var describedItem = HasItem(0) ? GetItem(0) : item;
+                TextManager.Write($"{describedItem.GetText("the lone dog")} is {GetProp(0).GetDescription()}");
+                return;
+            }
+
+        }
 
         if ( WorldAction.current.GetItems().Count == 1) {
-
+            // NO PROPERTIES OR CHILD ITEMS
             if (item.GetVisibleProps().Count == 0 && !item.HasChildItems()) {
                 TextManager.Write($"nothing special about this {item.GetText("dog")}");
                 return;
             }
 
+            //
             var vProps = item.GetVisibleProps("!always");
             if ( vProps.Count > 0)
                 TextManager.Write($"{item.GetText("the dog")} is {Property.GetDescription(vProps)}");
             else
                 TextManager.Write($"it's {item.GetText("the dog")}");
 
+            // DISPLAY CHILD ITEMS
             if (item.HasChildItems()) {
                 var description = ItemDescription.NewDescription(item.GetChildItems());
                 TextManager.Write($"there's {description} inside");
@@ -317,10 +311,8 @@ public static class Function {
             return;
         }
 
-        TextManager.Write($"{ItemDescription.DetailedDescription(WorldAction.current.GetItems())}");
+        TextManager.Write($"{ItemDescription.NewDescription(WorldAction.current.GetItems(), "")}");
         return;
-
-
     }
     #endregion
 
@@ -488,11 +480,13 @@ public static class Function {
             return;
         }
 
-        if (HasProp(1)) {
+        int i = GetProp(1).ParsePart("value");
+        Debug.Log($"parsing part value of {GetProp(0).name}: {i}");
+        if (HasProp(1) && i >= 0) {
             GetProp(0).SetValue(GetProp(1).GetNumValue());
             GetProp(1).SetValue(0);
         } else {
-            GetProp(0).SetValue(GetPart(1));
+            GetProp(0).SetValue(GetProp(1).GetTextValue());
         }
 
 

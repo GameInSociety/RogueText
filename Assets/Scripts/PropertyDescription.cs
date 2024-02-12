@@ -62,7 +62,7 @@ public class PropertyDescription
             }
 
             // removing unchanged props
-            targetProps = targetProps.FindAll(x => x.DescriptionChanged());
+            targetProps = targetProps.FindAll(x => DescribeInEvents(x));
             // describing all props
             for (int j = 0; j < targetProps.Count; j++) {
                 var prop = targetProps[j];
@@ -88,7 +88,7 @@ public class PropertyDescription
         return str;
     }
 
-    public static bool Describable(Property prop) {
+    public static bool DescribeInEvents(Property prop) {
         if (!prop.HasPart("description type") || !prop.HasPart("description"))
             return false;
 

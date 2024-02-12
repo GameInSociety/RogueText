@@ -16,7 +16,7 @@ public class ItemData {
     public static List<ItemData> itemDatas = new List<ItemData>();
 
     public string name {
-        get {  return words[0].text; }
+        get {  return words[0].GetText; }
     }
     public int index;
     public List<Word> words = new List<Word>();
@@ -27,6 +27,9 @@ public class ItemData {
     public List<Sequence> events = new List<Sequence>();
 
     #region static
+    public static ItemData GetItemData(int i) {
+        return itemDatas[i];
+    }
     public static ItemData GetItemData(string key) {
         var id = GetItemDataIndex(key);
         if ( id == -1) {
@@ -37,12 +40,9 @@ public class ItemData {
     }
     public static int GetItemDataIndex(string key) {
         int index = -1;
-        if (key.StartsWith("type")) {
-            key = TextUtils.Extract('(', key, out key);
+        index = itemDatas.FindIndex(x => x.words.Find(x => x.GetText == key) != null);
+        if (index == -1 )
             index = GetRandomDataOfType(key);
-        } else
-            index = itemDatas.FindIndex(x => x.words.Find(x => x.text == key) != null);
-
         if (index == -1) {
             Debug.LogError("no " + key + " in item datas");
             return -1;
@@ -51,7 +51,6 @@ public class ItemData {
     }
 
     public static int GetRandomDataOfType(string type) {
-        Debug.Log($"searching in type s: {type}");
         var items = itemDatas.FindAll(x => 
         x.properties.Find(x=> x.name == "types") != null
         &&

@@ -75,11 +75,4 @@ public class Player : Humanoid {
                 break;
         }
     }
-
-    public override void Orient(Orientation orientation) {
-        TextManager.Write($"you're now facing {orientation.ToString()}");
-
-        base.Orient(orientation);
-        Tile.GetCurrent.Describe();
-    }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using Unity.Collections;
 using UnityEditor.TerrainTools;
@@ -18,7 +19,8 @@ public class ItemParser {
         "from",
         "at",
         "on",
-        "with"
+        "with",
+        "through",
     };
 
     public Verb verb;
@@ -111,8 +113,11 @@ public class ItemParser {
 
         public void GetNumber() {
             string str = Regex.Match(text, @"\d+").Value;
-            if (string.IsNullOrEmpty(str)) return;
+            if (string.IsNullOrEmpty(str)){
+                return;
+            }
             number = int.Parse(str);
+            Log($"parsed number : {number}", Color.grey);
         }
 
         public void GetProperties() {
@@ -254,6 +259,9 @@ public class ItemParser {
             "ninth",
             "tenth",
             };
+            if ( i >= ordinals.Length) {
+                return "other";
+            }
             return ordinals[i];
         }
     }
@@ -270,7 +278,7 @@ public class ItemParser {
         FetchItems();
 
         if (!FoundAllElements()) {
-            return;
+            return; 
         }
 
         // t'as fait ce truc qui est un peu d�bile mais PAS TANT QUE �a.
@@ -298,6 +306,10 @@ public class ItemParser {
                 TextManager.Write("write a verb, then something to interact with");
             }
             return false;
+        } else {
+            /*if (parts.Length == 0)
+                TextManager.Write($"what do you want to {verb.GetCurrentWord} {verb.GetPreposition}");
+            return false;*/
         }
 
         foreach (var part in parts) {
@@ -318,13 +330,33 @@ public class ItemParser {
     }
 
     public void TriggerAction() {
-        var actionItem = GetPart().items[0];
-        var sequence = verb.GetItemSequence(actionItem.GetData());
-        if (sequence == null) {
-            TextManager.Write($"you can't {verb.GetFull} {actionItem.GetText("the dog")}");
-            Log($"no action for {verb.GetCurrentWord} and {GetPart().items[0].debug_name}", Color.red);
-            NewParser();
-            return;
+
+        string sequence = "";
+        if ( parts.Length == 0) {
+            sequence = verb.GetItemSequence(WorldData.undefinedItem.GetData());
+            if (sequence == null) {
+                TextManager.Write($"you can't {verb.GetFull} anything");
+                Log($"no action OR undefined item for {verb.GetCurrentWord}", Color.red);
+                NewParser();
+                return;
+            }
+            parts = new Part[1];
+            parts[0] = new Part("undefined : no text", this);
+            parts[0].partIndex = 0;
+            parts[0].items.Add(WorldData.undefinedItem);
+        } else {
+            var actionItem = GetPart().items[0];
+            sequence = verb.GetItemSequence(actionItem.GetData());
+            if (sequence == null) {
+                sequence = verb.GetItemSequence(WorldData.undefinedItem.GetData());
+            }
+
+            if (sequence == null) {
+                TextManager.Write($"you can't {verb.GetFull} {actionItem.GetText("the dog")}");
+                Log($"no action for {verb.GetCurrentWord} and {GetPart().items[0].debug_name}", Color.red);
+                NewParser();
+                return;
+            }
         }
 
 
@@ -336,7 +368,7 @@ public class ItemParser {
         }
         
         var keys = GetItemKeys(sequence);
-        GetPart(0).SetUsed();
+        GetPart(0)?.SetUsed();
         int k = 0;
         for (int i = 1; i < parts.Length; i++) {
             if (parts[i].skip) {
@@ -355,8 +387,6 @@ public class ItemParser {
                 return;
             }
         }
-
-
 
         // trigger action
         WorldAction parserAction = new WorldAction(GetPart().items, Tile.GetCurrent.TileInfo, sequence);

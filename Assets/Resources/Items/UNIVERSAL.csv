@@ -1,8 +1,10 @@
-"around","","s","","global","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"floor","","s","on","global","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"around","","s","","global","$ look
+describe(! ANY SORT OF orientation>ANY orientation)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"floor","","s","on","global","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "weather","","s","in","global","*raining
-value:0
-rate:30?10
+value:0m40
+rate:10?40
 description:(on change)
 raining cats and dogs / still raining / raining / starting to clear off / about to stop raining
 
@@ -10,18 +12,21 @@ OnValue:rate
 set(raining, 0)
 disable(rain)
 write(it stopped raining)
-enable(sky)","sky
-value:0
+enable(sky)
+set(sky/rate, 0?50)","sky
+value:0m50
+rate:0?50
 description:(lerp8)
 clear / clear / cloudy / getting cloudier / all gray / gonna rain
 
 OnValue:50
-set(raining, 0)
 enable(raining)
+set(raining, 0)
+set(raining/rate, 10?40)
 disable(sky)
 triggerEvent(OnRain)","E OnHours
 add(raining, 1)
-add(sky, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+add(sky, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "time","","s","in","global","hours
 value:6m24
 description:(never)it's {value} o'clock
@@ -34,7 +39,7 @@ add(hours, 1)
 add(part of day, 1)","part of day
 value:6m24
 description:(on change)
-it's still dark around / the sun is slowly starting to rise / the sun is risen, it's morning time / the sun is in the middle of the sky, it's noon / the sun is still here / light is slowly desappearing into the distance / the night is setting, as things go darker around you / the night is here, it's dark around","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+it's still dark around / the sun is slowly starting to rise / the sun is risen, it's morning time / the sun is in the middle of the sky, it's noon / the sun is still here / light is slowly desappearing into the distance / the night is setting, as things go darker around you / the night is here, it's dark around","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "day","","s","","global","days
 value:0?30
 description:
@@ -45,7 +50,7 @@ triggerEvent(OnDays)
 
 OnValue:30
 add(mounths, 1)
-set(days, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+set(days, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "mounth","","s","","global","mounths
 value:0?12
 description:
@@ -56,11 +61,11 @@ triggerEvent(OnMounths)
 
 OnValue:12
 set(mounths, 0)
-add(years, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+add(years, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "year","","s","","global","years
 value:2000
 description:
 it's {value}
 
 OnValue:>0
-triggerEvent(OnYears)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+triggerEvent(OnYears)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

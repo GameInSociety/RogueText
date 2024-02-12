@@ -64,7 +64,8 @@ public static class ItemLink
     }
 
     public static Item ReadKey(string key) {
-        
+
+        Debug.Log($"GET ITEM : in key {key}");
 
         // first, check if the search will be in another item
         var parentItem = (Item)null;
@@ -124,17 +125,28 @@ public static class ItemLink
     static void Error(string message) { Debug.LogError(message);}
 
     public static Item SearchItemInRange(string key, List<Item> range) {
+        Debug.Log($"search item in range : in key : {key}");
         // first, remove symbols
         // you NEED the symbols tu m'entends, sinon non seulement on comprend rien mais en plus ça t'empeche de faire des trucs de check en amont
-        int symbol = key.IndexOf(' ');
+        int symbol = key.IndexOf('!');
         if (symbol < 0) {
             Debug.LogError($"no ! in key : {key}");
         } else {
-            key = key.Remove(0, symbol + 1);
+            key = key.Remove(0, symbol + 2);
+            Debug.Log($"no key : {key}");
         }
 
         // this searches in the parser
-        if (key.StartsWith("ANY ")) return GetItemWithProp(key, range);
+        if (key.StartsWith("ANY ")) {
+            Debug.Log($"searching item with prop : {key}");
+            return GetItemWithProp(key, range);
+        }
+        if (key == "parent") {
+            Debug.Log($"linking to the parent of the current action item");
+            Debug.Log($"current action item : {WorldAction.current.TargetItem().debug_name}");
+            Debug.Log($"item parent : {WorldAction.current.TargetItem().GetParent()}");
+            return WorldAction.current.TargetItem().GetParent();
+        }
         if (key == "tile") return Tile.GetCurrent;
         var result = range.Find(x => x.HasWord(key) && x != WorldAction.current.TargetItem());
         return result;
@@ -149,22 +161,33 @@ public static class ItemLink
             return prop;
         }*/
 
+        Debug.Log($"GET PROPERTY, in key : {key}");
+
         var prop = (Property)null;
 
         var initItem = item;
         var targetItem = item;
         if (key.Contains('>')) {
+            Debug.Log($"prop in other item");
             var split = key.Split('>');
             targetItem = SearchItem(split[0]);
             if (targetItem== null) {
+                Debug.Log($"no target item : {split[0]}");
                 //Fail($"[ITEM LINK] (GetProperty) : failed searching for item {split[0]} in {key}");
                 //Fail($"there's no {split[0]} around");
                 return null;
             }
             key = split[1];
+            Debug.Log($"continuing");
 
         }
-        prop = targetItem.GetProp(key);
+
+        if (key.StartsWith("ANY ")) {
+            key = key.Remove(0, 4);
+            prop = targetItem.GetPropertyOfType("orientation");
+        } else
+            prop = targetItem.GetProp(key);
+
         if ( prop == null) {
             Fail($"[ITEM LINK] (GetProperty) : failed searching for prop in {key} / item : {targetItem.debug_name}");
             return null;
@@ -175,7 +198,14 @@ public static class ItemLink
     }
 
     public static Item GetItemWithProp (string key, List<Item> range) {
-        var propName = key.Remove(0, "ANY ".Length);
-        return range.Find(x => x.GetProp(propName) != null && x != WorldAction.current.TargetItem());
+        key = key.Remove(0, "ANY ".Length);
+        Debug.Log($"GETTING ITEM WITH PROP : {key}");
+
+        if ( key.StartsWith("SORT OF")) {
+            key = key.Remove(0,"SORT OF ".Length);
+            Debug.Log($"looking for item with a prop of type : {key}");
+            return range.Find(x => x.GetPropertyOfType(key) != null && x != WorldAction.current.TargetItem());
+        } else
+            return range.Find(x => x.GetProp(key) != null && x != WorldAction.current.TargetItem());
     }
 }

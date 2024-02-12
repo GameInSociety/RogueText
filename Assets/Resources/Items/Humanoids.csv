@@ -1,38 +1,10 @@
 "NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","SEQUENCES","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"undead","Zombie","s","","humanoid
-target","health
-
-value: 1 > 10
-
-description:
-fine / hit / hurt / badly hurt / criticaly hurt / dying
-
-OnValue:0
-write(the undead is on the floor, not moving)
-disable(steps)","steps
-
-value: 10
-
-descrption:
-at reach, extretmely close, prety close, a few feet away, at a distance
-
-OnValue:0
-trigger(attack)
-
-e:OnAction
-sub(steps, 1)","E attack
-write(the undead attacks)
-[player.body part] enable(bleeding)
-[player] sub(health, 1)
-add(steps, 1)","$ hit / strike / attack
-sub(health, [damage])
-[body part] enable(bleeding)
-write(you hit the undead on the *body part* with the *damage*)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "player
 self
 own
-my","Player","s","","humanoid
-player","health
+my","Player","s","","","orientation
+value:north
+description:looking {value}","health
 
 value: 10m10
 
@@ -68,7 +40,7 @@ full of energy / wide awake / feeling feeble / getting sleepy / really sleepy / 
 
 OnValue:>50
 write(you're so tired you're dying)
-sub(health, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+sub(health, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","E OnHours
 sub(thirst, 1)
 sub(hunger, 1)
@@ -76,3 +48,35 @@ sub(sleep, 1)","equip back
 value:none
 description:
 i'm wearing {value}","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","botany
+value:0m3
+description:
+don't know anything about flowers / amateur botanist / expert botanist","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"undead","Zombie","s","","","health
+
+value: 1 > 10
+
+description:
+fine / hit / hurt / badly hurt / criticaly hurt / dying
+
+OnValue:0
+write(the undead is on the floor, not moving)
+disable(steps)","steps
+
+value: 10
+
+descrption:
+at reach, extretmely close, prety close, a few feet away, at a distance
+
+OnValue:0
+trigger(attack)
+
+e:OnAction
+sub(steps, 1)","E attack
+write(the undead attacks)
+[player.body part] enable(bleeding)
+[player] sub(health, 1)
+add(steps, 1)","$ hit / strike / attack
+sub(health, [damage])
+[body part] enable(bleeding)
+write(you hit the undead on the *body part* with the *damage*)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

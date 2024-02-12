@@ -6,16 +6,17 @@ using UnityEngine;
 
 public class Test : MonoBehaviour {
 
-    public string inText = "this is the [value] of the {item} with the ?properties?";
-    public string outText = "";
-    public string content;
-    public char sC;
-    public char eC;
+    public string playerOrientation = "north";
+    public string targetOrientation = "front";
+    public string relativeCardinal = "?";
+    public int index;
+    public Coords coords;
 
     private void OnDrawGizmos() {
-        int startIndex = inText.IndexOf(sC);
-        content = inText.Remove(0, startIndex + 1);
-        content = content.Remove(content.IndexOf(eC));
-        outText = inText.Remove(startIndex, content.Length+(startIndex+content.Length+3>inText.Length?2:3));
+        int orientationNum = Humanoid.cardinals.IndexOf(playerOrientation);
+        int cardinalNum = Humanoid.orientations.IndexOf(targetOrientation);
+        index = (orientationNum + cardinalNum) % Humanoid.orientations.Count;
+        relativeCardinal = Humanoid.cardinals[index];
+        coords = Humanoid.GetCoordsFromCardinal(relativeCardinal);
     }
 }

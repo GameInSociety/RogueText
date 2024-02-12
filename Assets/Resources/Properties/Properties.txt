@@ -1,18 +1,29 @@
 "NAME","can all sequences be here instead of in ""undefined item ?""","","","","","","","","","","","","","","","","","","","",""
 "","entrance
 description:(always) entrance","front
+value:none
 key:forward, front
 description:(always) in front of you
-after word:yes","right
+after word:yes
+type:orientation","right
+value:none
 key: right
 description:(always) at your right
-after word:yes","back
+after word:yes
+type:orientation","back
+value:none
 key: back, backwards, behind
 description:(always) behind you
-after word:yes","left
+after word:yes
+type:orientation","left
+value:none
 key: left
 description:(always) at your left
-after word:yes","","","","","","","","","","","","","","","",""
+after word:yes
+type:orientation","link
+value:none
+description:to {value}
+after word:yes","","","","","","","","","","","","","","",""
 "","weight
 value:0
 description: about {value}g heavy","","","","","","","","","","","","","","","","","","","",""

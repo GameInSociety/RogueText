@@ -26,7 +26,7 @@ public static  class AvailableItems {
                 return;
             }
         }
-        Debug.LogError("removing item : " + targetItem.GetWord().text + " failed : not in container, tile or inventory");
+        Debug.LogError("removing item : " + targetItem.GetWord().GetText + " failed : not in container, tile or inventory");
     }
 
 

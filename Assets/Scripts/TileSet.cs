@@ -34,7 +34,7 @@ public class TileSet {
         Player.Instance.coords = GetCurrent.startCoords;
         TimeManager.ChangeMovesPerHour(GetCurrent.timeScale);
         MapTexture.Instance.UpdateInteriorMap();
-        Player.Instance.Move(Cardinal.None);
+        Player.Instance.Move(Player.Instance.coords);
     }
 
     public Tile GetTile(Coords coords) {
