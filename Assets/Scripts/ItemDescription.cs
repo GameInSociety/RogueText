@@ -27,9 +27,13 @@ public class ItemDescription {
 
         var baseProps = its.First().GetVisibleProps(filters);
 
-        var description = its.Count == 1 ? $"{its.First().GetText("a dog")}" : $"multiple {its.First().GetText("dogs")}";
+        if  (its.Count == 1) {
+            return $"{its.First().GetText("a lone dog")}, {PropertyDescription.GetDescription(its.First().GetVisibleProps(filters))}";
+        }
 
-        for (var i = 1;i < its.Count; ++i) {
+        var description = $"multiple {its.First().GetText("lone dogs")}";
+
+        for (var i = 0;i < its.Count; ++i) {
 
             var item = its[i];
             var newProps = new List<Property>();
@@ -39,10 +43,14 @@ public class ItemDescription {
                     newProps.Add(prop);
                 }
             }
-            if (newProps.Count == 0)
-                continue; 
-            description += $"\nsome, {PropertyDescription.GetDescription(newProps)}";
-            baseProps.AddRange(newProps);
+            if (newProps.Count > 0) {
+                description += $"\nsome, {PropertyDescription.GetDescription(newProps)}";
+                baseProps.AddRange(newProps);
+            }
+            
+            if (item.HasChildItems()) {
+                description += $"with {ItemDescription.NewDescription(item.GetChildItems())}";
+            }
         }
 
         return description;
@@ -105,7 +113,16 @@ public class ItemDescription {
 
     }
 
+    public static List<Item> delayedItems = new List<Item>();
+    public static void DelayDescription(Item item) {
+        delayedItems.Add(item);
+    }
     public static string NewDescription(List<Item> items, string filters = "always") {
+
+        foreach (var item in items) {
+            AddToDescription(item);
+        }
+
         var newDescription = new ItemDescription();
         //newDescription.options = new Options(prms);
         var groups = GetGroups(items);
@@ -119,6 +136,18 @@ public class ItemDescription {
         return text;
     }
 
+    static List<Item> _items = new List<Item>();
+    public static void AddToDescription(Item item) {
+        if ( _items.Count == 0) {
+            Debug.Log($"new description");
+        }
+        _items.Add(item);
+    }
+
+    public static void ResetDescription() {
+        Debug.Log($"RESET");
+        _items.Clear();
+    }
     #region utils
     [System.Serializable]
     public class DescriptionGroup_Debug {

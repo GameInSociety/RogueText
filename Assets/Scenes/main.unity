@@ -369,7 +369,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 301153515}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.83793795
+  m_Size: 0.7100836
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -867,6 +867,7 @@ MonoBehaviour:
   - Tools
   - Undefined
   - UNIVERSAL
+  - Vegetables
   - Vehicles
   - Verb Item
   - Weapons
@@ -888,6 +889,7 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 8e54f1537c3987041ade85db36bf72dd, type: 3}
   - {fileID: 4900000, guid: 23df25e62e69d4249b55f941d16e0fec, type: 3}
   - {fileID: 4900000, guid: 81642520246a8ab4fae7a2484fb707af, type: 3}
+  - {fileID: 4900000, guid: 40fc4e37e3c01c54e8e32ab3daa2128c, type: 3}
   - {fileID: 4900000, guid: 627c4da883f7db34a81daa2bee3535b6, type: 3}
   - {fileID: 4900000, guid: 1fd0539ff11d0414da8ef68414797b8b, type: 3}
   - {fileID: 4900000, guid: 251c62b807ddd5b46b8bd1910e43fd8a, type: 3}
@@ -1374,7 +1376,7 @@ MonoBehaviour:
     color: {r: 0.69803923, g: 0.5294118, b: 0.3019608, a: 1}
     prop:
       name: contents
-      enabled: 0
+      enabled: 1
       destroy: 0
       parts:
       - key: farm

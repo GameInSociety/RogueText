@@ -98,14 +98,24 @@ public class WorldAction {
         ItemLink.ClearHistory();
         CallLine(0);
 
+
         // call next world actions
         onGoing = false;
         if ( stack.Count > 0) {
+            Debug.Log($"call next world action");
             var next = stack[0];
             stack.RemoveAt(0);
             next.Call(next.source);
         } else {
+
+            Debug.Log($"Finshed world actions, delayed items count : {ItemDescription.delayedItems.Count}");
             PropertyDescription.Describe();
+            if ( ItemDescription.delayedItems.Count > 0) {
+                string endDescription = ItemDescription.NewDescription(ItemDescription.delayedItems, "");
+                TextManager.Write(endDescription);
+                ItemDescription.delayedItems.Clear();
+
+            }
         }
     }
 
@@ -117,10 +127,18 @@ public class WorldAction {
             goto Skip;
 
         }
+        bool AllFailed = true;
         feedback = "";
-        failed = false;
-        Function.TryCall(lines[i]);
-        if (failed) {
+        Debug.Log($"world action items count : {_items.Count}");
+        foreach (var item in _items) {
+            Debug.Log($"try func : {item.debug_name}");
+            failed = false;
+            Function.TryCall(lines[i], item);
+            if (!failed)
+                AllFailed = false;
+        }
+        if (AllFailed) {
+            Debug.Log($"all failed");
             // try next sequence
             ++seqIndex;
             // if it's the last one, show feedback
@@ -130,6 +148,7 @@ public class WorldAction {
                 TextManager.Write(feedback, Color.red);
                 return;
             }
+            Debug.Log($"calling next sequence");
             CallLine(0);
             return;
         }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using TMPro;
 using UnityEditor.PackageManager;
@@ -84,6 +85,7 @@ public static class Function {
         if ( continueOnFail) {
             return;
         }
+        Debug.Log($"failed : {message}");
         WorldAction.current.Fail(message);
     }
 
@@ -93,12 +95,13 @@ public static class Function {
     public static int ParsePart(int i) { return int.Parse(prms[i]); }
     public static bool CanParse(int i) { int a = 0; return int.TryParse(prms[i], out a); }
     public static bool HasLinks(int i) { return prms[i].Contains('[') || prms[i].Contains('$'); }
-    public static void TryCall( string _line) {
+    public static void TryCall( string _line, Item _item) {
 
         string line = _line;
 
+        item = _item;
+
         // search for []
-            item = WorldAction.current.GetItems().First();
         var functionName = line;
 
         continueOnFail = false;
@@ -289,7 +292,8 @@ public static class Function {
 
         }
 
-        if ( WorldAction.current.GetItems().Count == 1) {
+        //if ( WorldAction.current.GetItems().Count == 1) {
+        /*if (true) {
             // NO PROPERTIES OR CHILD ITEMS
             if (item.GetVisibleProps().Count == 0 && !item.HasChildItems()) {
                 TextManager.Write($"nothing special about this {item.GetText("dog")}");
@@ -297,11 +301,11 @@ public static class Function {
             }
 
             //
-            var vProps = item.GetVisibleProps("!always");
+            var vProps = item.GetVisibleProps();
             if ( vProps.Count > 0)
-                TextManager.Write($"{item.GetText("the dog")} is {Property.GetDescription(vProps)}");
+                TextManager.Write($"{item.GetText("a lone dog")}, {Property.GetDescription(vProps)}");
             else
-                TextManager.Write($"it's {item.GetText("the dog")}");
+                TextManager.Write($"a {item.GetText("a dog")}, {Property.GetDescription(vProps)}");
 
             // DISPLAY CHILD ITEMS
             if (item.HasChildItems()) {
@@ -310,8 +314,10 @@ public static class Function {
             }
             return;
         }
-
         TextManager.Write($"{ItemDescription.NewDescription(WorldAction.current.GetItems(), "")}");
+        */
+        ItemDescription.DelayDescription(item);
+
         return;
     }
     #endregion
@@ -350,8 +356,10 @@ public static class Function {
             prms[0] = prms[0].Substring(4);
         }
 
-        if (!HasProp(0))
+        if (!HasProp(0)) {
+            Fail($"no {item.GetText("dog")} {GetPart(0)}");
             return;
+        }
 
         var defaultFeedback = "";
         bool fail = false;

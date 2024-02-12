@@ -35,7 +35,7 @@ public class Word {
                 defaultNumber = Number.Plural;
                 break;
             default:
-                Debug.LogError("pas trouvé de nombre pour l'item : " + GetText + " ( content : " + str + ")");
+                defaultNumber = Number.Singular;
                 break;
         }
 

@@ -68,8 +68,8 @@ public class Tile : Item {
             TextManager.Return();
         }
 
-        /*string description = ItemDescription.NewDescription(GetAdjacentTiles());
-        TextManager.Write($"there's {description}");*/
+        string description = ItemDescription.NewDescription(GetAdjacentTiles());
+        TextManager.Write($"there's {description}");
         //AdjacentTilesDescription();
     }
 
@@ -178,7 +178,7 @@ public class Tile : Item {
 
         DebugManager.Instance.TILE = tile;
         _current = tile;
-        tile.SetProp("position / description:you're standing on it / search:standing on");
+        tile.SetProp("around / description:you're standing on it / search:standing on");
     }
 
     public static void SetPrevious(Tile tile) {

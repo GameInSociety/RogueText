@@ -104,6 +104,10 @@ public class MapTexture : MonoBehaviour {
 
                         string prop_str = props[i];
                         var newTile = Tile.Create(new Tile.Info(coords, 0), tileInfo.name, prop_str);
+                        if( !string.IsNullOrEmpty(tileInfo.prop.name)) {
+                            Debug.Log($"adding prop : {tileInfo.prop.name} to tile {newTile.debug_name}");
+                            newTile.AddProp(tileInfo.prop);
+                        }
 
                         // get tile type from color
                         TileSet.world.Add(coords, newTile);

@@ -323,9 +323,7 @@ public class Property {
 
     public static string GetDescription(List<Property> props) {
         string str = "";
-        Debug.Log($"describing props");
         for (int i = 0; i < props.Count; i++) {
-            Debug.Log($"{props[i].name}/{props[i].GetDescription()}");
             str += $"{props[i].GetDescription()}{TextUtils.GetCommas(i, props.Count, false)}";
         }
         return str;

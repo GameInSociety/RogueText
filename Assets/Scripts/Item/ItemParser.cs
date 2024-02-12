@@ -80,7 +80,6 @@ public class ItemParser {
 
             GetNumber();
             GetItems();
-            GetProperties();
         }
 
         public void CheckForLinks() {
@@ -142,6 +141,9 @@ public class ItemParser {
                     Log("from props", Color.white);
             } else {
                 Log("from items", Color.white);
+                // only search properties if the item has been found through an item name (no property)
+                GetProperties();
+
             }
             if (items.Count == 0) {
                 Log("no items", Color.red);
@@ -217,9 +219,8 @@ public class ItemParser {
             item = items.Find(x => x.GetPropInText(text) != null);
             if (item == null) {
                 if (first.HasProp("dif")) {
-                    Log($"item {items[0].debug_name} must but disinct, but passing anyways", Color.red);
+                    Log($"item {items[0].debug_name} must be  disinct, but passing anyways", Color.red);
                     needsDistinction = true;
-                    return;
                 }
                 Log($"item {items[0].debug_name} does not need distinction, return first", Color.magenta);
                 items = new List<Item>() { items[0] };
@@ -536,9 +537,9 @@ public class ItemParser {
         currentState = state;
     }
 
-    public Item SearchForItemsInParts(string key) {
+    public List<Item> SearchForItemsInParts(string key) {
         foreach (var part in Array.FindAll(parts, x => !x.skip)) {
-            var item = ItemLink.SearchItemInRange(key, part.items);
+            var item = ItemLink.SearchItemsInRange(key, part.items);
             if ( item != null)
                 return item;
         }

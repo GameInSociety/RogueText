@@ -1,12 +1,8 @@
 "NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"plain","Tile","s","on","","dif","contents
-tree:3*5%
-grass:100","","$ look
+"plain","Tile","s","on","","dif","","","$ look
 set(! player>orientation, ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"field","Tile","s","in","","dif","contents
-plain flower:3
-tree:3","weight:0
+"field","Tile","s","in","","dif","","weight:0
 capacity:1000
 max items:1000m1000","$ look
 set(! player>orientation, ANY orientation)

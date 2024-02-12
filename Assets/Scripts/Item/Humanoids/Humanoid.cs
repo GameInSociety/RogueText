@@ -45,7 +45,6 @@ public class Humanoid : Item {
         // change current coords
         var newOrientation = GetCardinalFromDirection(targetCoords - coords);
         Player.Instance.SetProp($"orientation / value:{newOrientation}");
-        Debug.Log($"the player looks : {newOrientation}");
         coords = targetCoords;
     }
 

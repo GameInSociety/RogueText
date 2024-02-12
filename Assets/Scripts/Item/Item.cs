@@ -342,9 +342,9 @@ public class Item {
     }
     public Property GetPropInText(string text, out int textIndex) {
         textIndex = -1;
-        foreach (var prop in GetVisibleProps()) {
+        foreach (var prop in GetDescribableProps()) {
             var description = prop.GetDescription();
-            if (Regex.IsMatch(text, @$"\b{description}\b")) {
+            if (Regex.IsMatch(text, @$"\b{description}\b") || Regex.IsMatch(text, @$"\b{prop.name}\b")) {
                 textIndex = text.IndexOf(description);
                 return prop;
             }
@@ -460,8 +460,13 @@ public class Item {
     public bool HasVisibleProps() {
         return GetVisibleProps().Count > 0;
     }
+
+    // get all props that have a description, for when the parser searches through them
+    public List<Property> GetDescribableProps() {
+        return props.FindAll(x => x.enabled && x.Visible());
+    }
     public List<Property> GetVisibleProps(string filters = "") {
-        var visibleProps = props.FindAll(x => x.enabled && x.Visible());
+        var visibleProps = props.FindAll(x => x.enabled && x.Visible() && /*remove none essential properties*/ x.GetPart("description type").content != "on key");
         if (!string.IsNullOrEmpty(filters)) {
             var split = filters.Split(", ").ToList();
             foreach (var filter in split) {

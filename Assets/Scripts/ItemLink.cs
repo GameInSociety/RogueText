@@ -47,6 +47,24 @@ public static class ItemLink
         return history_Items.Find(x=> x.key == key).item;
     }
 
+    public static List<Item> SearchItems(string key) {
+        // get in history
+        /*var result = GetItemInHistory(key);
+
+        if ( result != null)
+            return result;*/
+
+        var results = ReadKey(key);
+
+        if (results.Count == 0)
+            return null;
+
+        foreach (var item in results) {
+            AddToHistory(item, key);
+        }
+        return results;
+    }
+
     public static Item SearchItem(string key) {
         // get in history
         /*var result = GetItemInHistory(key);
@@ -54,16 +72,18 @@ public static class ItemLink
         if ( result != null)
             return result;*/
 
-        var result = ReadKey(key);
+        var results = ReadKey(key);
 
-        if (result == null)
+        if (results.Count ==0)
             return null;
 
-        AddToHistory(result, key);
-        return result;
+        var item = results[0];
+
+        AddToHistory(item, key);
+        return item;
     }
 
-    public static Item ReadKey(string key) {
+    public static List<Item> ReadKey(string key) {
 
         Debug.Log($"GET ITEM : in key {key}");
 
@@ -73,7 +93,7 @@ public static class ItemLink
             // split
             var parts = key.Split('.');
             // get the parent item
-            parentItem = ReadKey(parts[0]);
+            parentItem = ReadKey(parts[0])[0];
             key = parts[1];
             if (parentItem == null) {
                 Debug.LogError($"parent item {key} was not found");
@@ -85,11 +105,11 @@ public static class ItemLink
 
         // if parent, search in children
         if ( parentItem != null )
-            return SearchItemInRange(key, parentItem.GetChildItems(2));
+            return SearchItemsInRange(key, parentItem.GetChildItems(2));
 
         // if no current item parser, only in surrnouding items ( for events )
         if ( ItemParser.GetCurrent == null )
-            return SearchItemInRange(key, AvailableItems.currItems);
+            return SearchItemsInRange(key, AvailableItems.currItems);
         
         // when the key starts with *, it search will only occur in the input items
         if (key.StartsWith("!p")) {
@@ -113,7 +133,7 @@ public static class ItemLink
         if (parserItem != null)
             return parserItem;
 
-        var surroundingItem = SearchItemInRange(key, AvailableItems.currItems);
+        var surroundingItem = SearchItemsInRange(key, AvailableItems.currItems);
 
         return surroundingItem;
     }
@@ -124,7 +144,7 @@ public static class ItemLink
 
     static void Error(string message) { Debug.LogError(message);}
 
-    public static Item SearchItemInRange(string key, List<Item> range) {
+    public static List<Item> SearchItemsInRange(string key, List<Item> range) {
         Debug.Log($"search item in range : in key : {key}");
         // first, remove symbols
         // you NEED the symbols tu m'entends, sinon non seulement on comprend rien mais en plus ça t'empeche de faire des trucs de check en amont
@@ -139,16 +159,16 @@ public static class ItemLink
         // this searches in the parser
         if (key.StartsWith("ANY ")) {
             Debug.Log($"searching item with prop : {key}");
-            return GetItemWithProp(key, range);
+            return GetItemsWithProp(key, range);
         }
         if (key == "parent") {
             Debug.Log($"linking to the parent of the current action item");
             Debug.Log($"current action item : {WorldAction.current.TargetItem().debug_name}");
             Debug.Log($"item parent : {WorldAction.current.TargetItem().GetParent()}");
-            return WorldAction.current.TargetItem().GetParent();
+            return new List<Item>() { WorldAction.current.TargetItem().GetParent() };
         }
-        if (key == "tile") return Tile.GetCurrent;
-        var result = range.Find(x => x.HasWord(key) && x != WorldAction.current.TargetItem());
+        if (key == "tile") return new List<Item>() { Tile.GetCurrent };
+        var result = range.FindAll(x => x.HasWord(key) && x != WorldAction.current.TargetItem());
         return result;
     }
 
@@ -160,8 +180,6 @@ public static class ItemLink
             Debug.Log($"found prop in history : {prop.name} with key {key}");
             return prop;
         }*/
-
-        Debug.Log($"GET PROPERTY, in key : {key}");
 
         var prop = (Property)null;
 
@@ -197,15 +215,15 @@ public static class ItemLink
         return prop;
     }
 
-    public static Item GetItemWithProp (string key, List<Item> range) {
+    public static List<Item> GetItemsWithProp (string key, List<Item> range) {
         key = key.Remove(0, "ANY ".Length);
         Debug.Log($"GETTING ITEM WITH PROP : {key}");
 
         if ( key.StartsWith("SORT OF")) {
             key = key.Remove(0,"SORT OF ".Length);
             Debug.Log($"looking for item with a prop of type : {key}");
-            return range.Find(x => x.GetPropertyOfType(key) != null && x != WorldAction.current.TargetItem());
+            return range.FindAll(x => x.GetPropertyOfType(key) != null && x != WorldAction.current.TargetItem());
         } else
-            return range.Find(x => x.GetProp(key) != null && x != WorldAction.current.TargetItem());
+            return range.FindAll(x => x.GetProp(key) != null && x != WorldAction.current.TargetItem());
     }
 }

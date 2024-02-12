@@ -1,40 +1,52 @@
-"NAME","can all sequences be here instead of in ""undefined item ?""","","","","","","","","","","","","","","","","","","","",""
-"","entrance
-description:(always) entrance","front
+"NAME","","","","","","","","","","","","","","","","","","","","",""
+"","front
 value:none
-key:forward, front
+key:forward, front, around
 description:(always) in front of you
 after word:yes
 type:orientation","right
 value:none
-key: right
+key: right, around
 description:(always) at your right
 after word:yes
 type:orientation","back
 value:none
-key: back, backwards, behind
+key: back, backwards, behind, around
 description:(always) behind you
 after word:yes
 type:orientation","left
 value:none
-key: left
+key: left, around
 description:(always) at your left
 after word:yes
 type:orientation","link
 value:none
 description:to {value}
-after word:yes","","","","","","","","","","","","","","",""
+after word:yes","","","","","","","","","","","","","","","",""
+"test other orientation","orientation
+value:left
+key:forward, front; ahead
+description:(always) in front of you / goes in front of you
+after word:yes","road orientation example
+value:left
+key:forward, front
+description:(always) goes to left / continues ahead","","","","","","","","","","","","","","","","","","",""
+"","cardinal
+value:north
+description:goes north
+after word:yes","","","","","","","","","","","","","","","","","","","",""
 "","weight
 value:0
-description: about {value}g heavy","","","","","","","","","","","","","","","","","","","",""
+description:(on key) about {value}g heavy","","","","","","","","","","","","","","","","","","","",""
 "","capacity
 value:0
-description: can carry up to {value}
+description:(on key) can carry up to {value}
 key:carry","","","","","","","","","","","","","","","","","","","",""
 "","equipment
 target:","","","","","","","","","","","","","","","","","","","",""
-"growable","vegetable type
-description:(type=vegetable)","growing
+"growable","vegetable
+value:{type/vegetable}
+description:(always) {value}","growing
 value:0m50
 description:
 just planted / slowing starting to grow / starting to sprout / showing a little green leaf / growing fine / shows flower blooming / will grow in a few days / just about to grow
@@ -42,7 +54,7 @@ layer:1
 
 OnValue:10
 disable(watering)
-createItem(.vegetable type)
+createItem(vegetable)
 destroy","watering
 
 value: 18m20
