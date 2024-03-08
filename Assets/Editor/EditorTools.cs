@@ -1,8 +1,6 @@
 ﻿using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.UIElements.UxmlAttributeDescription;
 
 public class EditorTools : EditorWindow {
     public bool mapVisible = false;
@@ -22,6 +20,9 @@ public class EditorTools : EditorWindow {
     }
 
     void DrawMap() {
+        if (GUILayout.Button("Delete Player Prefs")) {
+            PlayerPrefs.DeleteAll();
+        }
         if ( GUILayout.Button("Show Interior")) {
             interiorVisible = !interiorVisible;
             GameObject.Find("Map Texture (Interior)").GetComponent<Image>().enabled = interiorVisible;

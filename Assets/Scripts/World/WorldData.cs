@@ -1,42 +1,31 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using UnityEditorInternal;
 using UnityEngine;
 
 public static class WorldData {
-    private static readonly List<parameter> parameters = new List<parameter>();
-
     public static List<Item> globalItems = new List<Item>();
-    public static Item undefinedItem;
+    public static Item anyItem;
 
-    public struct parameter {
-        public string name;
-        public string value;
-        public parameter(string name, string value) {
-            this.name = name;
-            this.value = value;
+    private static List<AbstractItem> abstractItems = new List<AbstractItem>();
+    public static List<Item> GetAbstractItems() {
+        var its = new List<Item>();
+        foreach (var absIt in abstractItems) {
+            its.Add(absIt.item);
         }
-        public int intValue {
-            get {
-                return int.Parse(value);
-            }
-        }
+        return its;
     }
-    public static void Init() {
-        var file = Resources.Load<TextAsset>("world settings");
-        var lines = file.text.Split('\n');
-        for (int i = 0; i < lines.Length; i++) {
-            if (string.IsNullOrEmpty(lines[i]))
-                continue;
-            var parts = lines[i].Split(':');
-            parameters.Add(new parameter(parts[0], parts[1]));
+    public class AbstractItem {
+        public AbstractItem(string key, Item item) {
+            this.key = key;
+            this.item = item;
         }
+        public string key;
+        public Item item;
+    }
 
-        var undefinedIndex = ItemData.GetItemDataIndex("undefined");
-        var undefinedItemData = ItemData.itemDatas[undefinedIndex];
-        undefinedItem = ItemData.Generate_Simple(undefinedItemData.name);
+    public static void Init() {
+        var anyItemIndex = ItemData.GetItemDataIndex("any item");
+        var anyItemData = ItemData.itemDatas[anyItemIndex];
+        anyItem = ItemData.Generate_Simple(anyItemData.name);
 
         var globalIndexes = ItemData.GetDatasOfType("global");
         foreach (var index in globalIndexes) {
@@ -44,39 +33,23 @@ public static class WorldData {
             var newItem = ItemData.Generate_Simple(itemData.debugName);
             globalItems.Add(newItem);
         }
-
-        
     }
 
-    public static string get(string name) {
-        parameter p = parameters.Find(x => x.name == name);
-        if (string.IsNullOrEmpty(p.name)) {
-            Debug.LogError($"WorldData : no GetPart named {name}");
-            return "";
+    public static void SetAbstractItem(string key, Item item) {
+        int index = abstractItems.FindIndex(x => x.key == key);
+        if ( index < 0) {
+            abstractItems.Add(new AbstractItem(key, item));
+            return;
         }
-        return p.value;
+        abstractItems[index].item = item;
     }
-
-    public static float getFloat(string name) {
-        parameter p = parameters.Find(x => x.name == name);
-        if (string.IsNullOrEmpty(p.name)) {
-            Debug.LogError($"WorldData : no GetPart named {name}");
-            return -1f;
+    public static Item GetAbstractItem(string key) {
+        int index = abstractItems.FindIndex(x => x.key == key);
+        if (index < 0) {
+            Debug.LogError($"[GETTING ABSTRACT ITEM] No abstract item with key : {key}");
+            return null;
         }
-        float f = -1f;
-        if (!float.TryParse(p.value, out f)) {
-            Debug.LogError($"WorldData: cannot parse float {p.value} for key {p.name}");
-        }
-        return f;
+        return abstractItems[index].item;
 
-    }
-
-    public static int getInt(string name) {
-        parameter p = parameters.Find(x => x.name == name);
-        if (string.IsNullOrEmpty(p.name)) {
-            Debug.LogError($"no world data GetPart named {name}");
-            return -1;
-        }
-        return int.Parse(p.value);
     }
 }

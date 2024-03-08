@@ -1,12 +1,12 @@
 "NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"hallway","Tile","s","in","","clock:1*5%
+"hallway","Tile","5","in","","clock:1*5%
 shelf:1*15%","","","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"stairs","Tile","s","on","","clock:1*10%","","","$ look
-set(! player>orientation, ANY orientation)
+"stairs","Tile","5","on","","clock:1*10%","","","$ look
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"living room","Tile","s","in","","contents
+"living room","Tile","5","in","","contents
 sofa:1
 table:1*40%
 clock:1*20%
@@ -19,9 +19,9 @@ phone:1*10%
 tv:1*20%","enclosed
 value:0","link
 value:door","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"kitchen","Tile","s","in","","contents
+"kitchen","Tile","5","in","","contents
 sink:1
 table:1*80%
 window:1*50%
@@ -32,9 +32,9 @@ bar:1*20%
 chair:2*50%","enclosed
 value:0","link
 value:door","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"dining room","Tile","s","in","","contents
+"dining room","Tile","5","in","","contents
 table:1
 cupboard:2*20%
 chair:3
@@ -43,9 +43,9 @@ bar:1*50%
 shelf:1*20%","enclosed
 value:0","link
 value:door","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"children's room","Tile","s","in","","contents
+"children's room","Tile","5","in","","contents
 desk:1*10%
 bed:1
 shelf:3*25%
@@ -54,9 +54,9 @@ clock:1*20%
 window:1*40%","enclosed
 value:1","link
 value:door","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"bedroom","Tile","s","in","","contents
+"bedroom","Tile","5","in","","contents
 desk:1*20%
 bed:1
 shelf:3*40%
@@ -65,9 +65,9 @@ clock:1*20%
 window:1*40%","enclosed
 value:0","link
 value:door","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"bathroom","Tile","s","in","","contents
+"bathroom","Tile","5","in","","contents
 sink:1
 shower:1
 cabinet:2*70%
@@ -76,16 +76,16 @@ washing machine:1*15%
 window:1*20%","enclosed
 value:1","link
 value:door","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"toilets","Tile","p","in","","contents
+"toilets","Tile","5","in","","contents
 toilets:1
 cabinet:1*50%","enclosed
 value:1","link
 value:tree","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"attic","Tile","s","in","","contents
+"attic","Tile","5","in","","contents
 shelf:2*10%
 desk:1*10%
 tool box:1*10%
@@ -94,36 +94,36 @@ table:1*20%
 window:1*10%","enclosed
 value:1","link
 value:door","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"basement","Tile","s","in","","contents
+"basement","Tile","5","in","","contents
 tool box:1*10%
 armory:2*8%
 washing machine:1*20%
 sofa:1*10%","enclosed
 value:1","link
 value:stairs","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"cellar","Tile","s","in","","contents
+"cellar","Tile","5","in","","contents
 fridge:1*20%
 cupboard:4*30%","enclosed
 value:1","link
 value:stairs","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"office","Tile","s","in","","contents
+"office","Tile","5","in","","contents
 desk:1","enclosed
 value:1","link
 value:door","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"garage","Tile","s","in","","contents
+"garage","Tile","5","in","","contents
 tool box:1*10%
 armory:2*8%
 washing machine:1*20%
 car:1*20%","enclosed
 value:1","link
 value:door","$ look
-set(! player>orientation, ANY orientation)
+set(! player>orientation, >ANY orientation)
 describe","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

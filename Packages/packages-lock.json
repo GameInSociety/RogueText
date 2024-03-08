@@ -1,21 +1,5 @@
 {
   "dependencies": {
-    "ai.undream.llmunity": {
-      "version": "https://github.com/undreamai/LLMUnity.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "2c98af54939c56964dcc365b5268c66cdbbb4fae"
-    },
-    "com.srcnalt.openai-unity": {
-      "version": "https://github.com/srcnalt/OpenAI-Unity.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.nuget.newtonsoft-json": "3.2.1"
-      },
-      "hash": "3a6db611f3cfdf754edee635c66cf95dd6deb62e"
-    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,
@@ -40,8 +24,8 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.nuget.newtonsoft-json": {
-      "version": "3.2.1",
-      "depth": 1,
+      "version": "3.0.2",
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"

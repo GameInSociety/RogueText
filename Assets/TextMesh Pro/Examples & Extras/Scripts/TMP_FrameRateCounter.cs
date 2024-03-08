@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 
-namespace TMPro.Examples
-{
-    
+namespace TMPro.Examples {
+
     public class TMP_FrameRateCounter : MonoBehaviour
     {
         public float UpdateInterval = 5.0f;

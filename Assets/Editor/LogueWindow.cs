@@ -1,11 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Jobs;
-using UnityEngine.Windows;
 
 public class LogueWindow : EditorWindow {
 

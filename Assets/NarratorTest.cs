@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using LLMUnity;
 using TMPro;
-
+/*
 public class NarratorTest : MonoBehaviour
 {
     public LLM llm;
@@ -22,3 +19,4 @@ public class NarratorTest : MonoBehaviour
         _ = llm.Chat(inputField.text, onDescription, onComplete);
     }
 }
+*/

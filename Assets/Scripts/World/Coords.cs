@@ -1,19 +1,41 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
-using UnityEngine;
+﻿using UnityEngine;
 
 [System.Serializable]
 public struct Coords {
     public int x;
     public int y;
 
+    public static Coords TextToCoords(string text, int tilesetId = 0) {
+        var split = text.Split('/');
+        int x = 0;
+        if (split[0] == "?") {
+            Debug.Log($"getting random coords {text} in tile set : {tilesetId}");
+            var randomCoords = TileSet.GetTileSet(tilesetId).GetRandomCoords();
+            Debug.Log($"random coords : {randomCoords}");
+            return randomCoords;
+        }
+
+        return new Coords(int.Parse(split[0]), int.Parse(split[1]));
+    }
+    public static Coords PropToCoords(Property prop, int tilesetId = 0) {
+        return TextToCoords(prop.GetTextValue(), tilesetId);
+    }
+    public static string CoordsToText(Coords coords) {
+        return $"{coords.x}/{coords.y}";
+    }
+    public static Property CoordsToProp(Coords c) {
+        var prop = new Property();
+        prop.name = "coords";
+        prop.AddPart("value", CoordsToText(c));
+        return prop;
+    }
+
     public Coords(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    public static Coords Zero => new Coords(0, 0);
+    public static Coords zero => new Coords(0, 0);
     // overrides
     // == !=
     public static bool operator ==(Coords c1, Coords c2) {

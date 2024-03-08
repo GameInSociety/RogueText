@@ -1,12 +1,8 @@
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEditor;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 [System.Serializable]
 public class ItemData {
@@ -25,6 +21,7 @@ public class ItemData {
     public List<Property> properties = new List<Property>();
     public List<Sequence> verbSequences = new List<Sequence>();
     public List<Sequence> events = new List<Sequence>();
+    public List<Sequence> acts = new List<Sequence>();
 
     #region static
     public static ItemData GetItemData(int i) {
@@ -45,6 +42,7 @@ public class ItemData {
             index = GetRandomDataOfType(key);
         if (index == -1) {
             Debug.LogError("no " + key + " in item datas");
+            TextManager.Write($"no item or type of item with type '{key}' in the data", Color.red);
             return -1;
         }
         return index;

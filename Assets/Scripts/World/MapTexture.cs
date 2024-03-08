@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class MapTexture : MonoBehaviour {
@@ -9,12 +7,8 @@ public class MapTexture : MonoBehaviour {
 
     public Image mainMap_Image;
     public Texture2D mainMap_Texture;
-
     public Image feedbackMap_Image;
     public Texture2D feedbackMap_Texture;
-
-    public Image interiorMap_Image;
-    public Texture2D interiorMap_Texture;
 
     public int range = 1;
     private int scale = 0;
@@ -34,113 +28,43 @@ public class MapTexture : MonoBehaviour {
         Instance = this;
     }
 
-    public void UpdateFeedbackMap() {
-        for (var x = 0; x < feedbackMap_Texture.width; x++) {
-            for (var y = 0; y < feedbackMap_Texture.height; y++) {
-                Paint(new Coords(x, y), Color.clear);
-            }
-        }
+    public void DisplayMap(TileSet tileSet) {
+        mainMap_Texture = new Texture2D(tileSet.width, tileSet.height);
+        mainMap_Texture.filterMode = FilterMode.Point;
+        mainMap_Image.sprite = Sprite.Create(mainMap_Texture, new Rect(0, 0, tileSet.width, tileSet.height), Vector2.one * 0.5f);
 
-        Paint(Player.Instance.coords, Color.blue);
-        RefreshTexture();
-    }
-
-    public void UpdateInteriorMap() {
-        for (var x = 0; x < interiorMap_Texture.width; x++) {
-            for (var y = 0; y < interiorMap_Texture.height; y++) {
-                interiorMap_Texture.SetPixel(x, y, Color.black);
-            }
-        }
-
-        foreach (var coords in TileSet.GetCurrent.tiles.Keys) {
-            TileInfo t = System.Array.Find(tileInfos, x => x.name == TileSet.GetCurrent.GetTile(coords).debug_name);
-            interiorMap_Texture.SetPixel(coords.x, coords.y, t.color);
-
-        }
-
-        interiorMap_Texture.Apply();
-        interiorMap_Image.sprite = Sprite.Create(interiorMap_Texture, new Rect(0, 0, mainMap_Texture.width, mainMap_Texture.height), Vector2.one * 0.5f);
-    }
-
-    #region read map from texture
-    public void CreateMapFromTexture() {
-        TileSet.tileSets.Add(new TileSet());
-
-        var w = mainMap_Texture.width;
-        var h = mainMap_Texture.height;
-
-        TileSet.world.width = w;
-        TileSet.world.height = h;
-
-        var props = new List<string>();
-        for (int i = 0; i < tileInfos.Length; i++) {
-            var data = ItemData.GetItemData(tileInfos[i].name);
-            var dif = data.properties.Find(x => x.name == "dif");
-            if (dif != null) {
-                props.Add(dif.GetDescription());
-            }
-        }
-
-        for (var x = 0; x < w; x++) {
-            for (var y = 0; y < h; y++) {
-                var coords = new Coords(x, y);
-
-                var pixelColor = mainMap_Texture.GetPixel(x, y);
-
-                // void
-                if (pixelColor == Color.black)
+        for (var x = 0; x < tileSet.width; x++) {
+            for (var y = 0; y < tileSet.height; y++) {
+                var tile = tileSet.GetTile(new Coords(x, y));
+                if (tile == null) {
+                    // void
+                    mainMap_Texture.SetPixel(x, y, Color.black);
                     continue;
-
-                for (var i = 0; i < tileInfos.Length; i++) {
-
-                    // check for color match
-
-                    var tileColor = tileInfos[i].color;
-
-                    if (
-                        ColorUtility.ToHtmlStringRGB(tileColor) == ColorUtility.ToHtmlStringRGB(pixelColor)
-                        ) {
-                        var tileInfo = tileInfos[i];
-
-                        string prop_str = props[i];
-                        var newTile = Tile.Create(new Tile.Info(coords, 0), tileInfo.name, prop_str);
-                        if( !string.IsNullOrEmpty(tileInfo.prop.name)) {
-                            Debug.Log($"adding prop : {tileInfo.prop.name} to tile {newTile.debug_name}");
-                            newTile.AddProp(tileInfo.prop);
-                        }
-
-                        // get tile type from color
-                        TileSet.world.Add(coords, newTile);
-
-                        /*if (newTile.HasProperty("interior"))
-                        {
-                            Interior.NewInterior(newTile);
-                        }*/
-                        break;
-                    }
                 }
-
+                var name = tile.debug_name;
+                var tileInfo = System.Array.Find(tileInfos, t => t.name == name);
+                if ( string.IsNullOrEmpty(tileInfo.name)) {
+                    Debug.LogError($"[MAP TEXTURE] : could't find a tile with name : {name}");
+                    continue;
+                }
+                mainMap_Texture.SetPixel(x, y, tileInfo.color);
             }
         }
+        mainMap_Texture.Apply();
 
+        UpdateFeedbackMap();
     }
-    #endregion
 
-
-    #region texture
-    public void ResetTexture() {
-        var colors = new Color[scale * scale];
-        for (var i = 0; i < colors.Length; i++) {
-            colors[i] = Color.black;
-        }
-        feedbackMap_Texture.SetPixels(colors);
-    }
-    public void RefreshTexture() {
-        feedbackMap_Texture.Apply();
+    public void UpdateFeedbackMap() {
         feedbackMap_Image.sprite = Sprite.Create(feedbackMap_Texture, new Rect(0, 0, mainMap_Texture.width, mainMap_Texture.height), Vector2.one * 0.5f);
+        for (var x = 0; x < feedbackMap_Texture.width; x++) {
+            for (var y = 0; y < feedbackMap_Texture.height; y++)
+                feedbackMap_Texture.SetPixel(x, y, Color.clear);
+        }
+
+        var c = Coords.PropToCoords(Player.Instance.GetProp("coords"));
+        feedbackMap_Texture.SetPixel(c.x,  c.y, Color.blue);
+        feedbackMap_Texture.Apply();
     }
-    public void Paint(Coords coords, Color c) {
-        feedbackMap_Texture.SetPixel(coords.x, coords.y, c);
-    }
-    #endregion
+
 }

@@ -1,21 +1,25 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TileSet {
 
     public static List<TileSet> tileSets = new List<TileSet>();
-    public static TileSet GetCurrent => tileSets[Player.Instance.tilesetId];
+    public static TileSet GetCurrent {
+        get {
+            var tilesetId = tileSets[Player.Instance.tilesetId];
+            MapTexture.Instance.DisplayMap(tilesetId);
+            return tilesetId;
+        }
+    }
     public static TileSet GetTileSet(int id) { return tileSets[id]; }
-    public static void SetCurrent (int id) { Player.Instance.tilesetId = id; }
     public int timeScale = 10;
     public static TileSet world => tileSets[0];
-    public Coords startCoords = Coords.Zero;
+    public Coords startCoords = Coords.zero;
 
     public Dictionary<Coords, Tile> tiles = new Dictionary<Coords, Tile>();
     public int width;
     public int height;
-    public int id;
 
     public Coords Center => new Coords((int)(width / 2f), (int)(height / 2f));
 
@@ -24,17 +28,18 @@ public class TileSet {
         height = MapTexture.Instance.mainMap_Texture.height;
     }
 
-    public void Add(Coords c, Tile newTile) {
-        tiles.Add(c, newTile);
+    public Coords GetRandomCoords() {
+        List<Coords> cs = tiles.Keys.ToList();
+        return cs[Random.Range(0, cs.Count)];
     }
 
-    public static void ChangeTileSet(int id) {
-        // save currnet player coords
-        SetCurrent(id);
-        Player.Instance.coords = GetCurrent.startCoords;
-        TimeManager.ChangeMovesPerHour(GetCurrent.timeScale);
-        MapTexture.Instance.UpdateInteriorMap();
-        Player.Instance.Move(Player.Instance.coords);
+    public void Add(Coords c, Tile newTile) {
+        if ( c.x > width )
+            width = c.x;
+        if ( c.y > height )
+            height = c.y;
+
+        tiles.Add(c, newTile);
     }
 
     public Tile GetTile(Coords coords) {

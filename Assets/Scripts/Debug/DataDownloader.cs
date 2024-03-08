@@ -1,28 +1,50 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Rendering;
 
 public class DataDownloader : MonoBehaviour {
     public string linkReplace = "gviz/tq?tqx=out:csv&sheet=";
 
     public string[] sheetNames;
-    public Object[] targetAssets;
 
     public string sheetName;
     public int row;
     public int col;
+    public string SheetToLoad = "";
+
+    public static Dictionary<string, string> datas = new Dictionary<string, string>();
 
     public string url;
     public string path = @"F:\Unity Projects\Rogue Text\Assets\Resources\Items\";
 
+    public int lineAmount = 0;
+
+
+    public string sheetToLoad;
     #region parse
-    public void Load() {
-        foreach (var asset in targetAssets) {
-            var textAsset = asset as TextAsset;
-            sheetName = textAsset.name;
-            fgCSVReader.LoadFromString(textAsset.text, new fgCSVReader.ReadLineDelegate(GetCell));
+    public virtual void Load() {
+
+        for (int i = 0; i < sheetNames.Length; ++i) {
+            var sheet = sheetNames[i];
+
+            if ( !string.IsNullOrEmpty( sheetToLoad) && sheet != sheetToLoad ) { continue; }
+
+            var text = "";
+            if ( datas.ContainsKey( sheet )) {
+                text = datas[ sheet ];
+            } else {
+                var s = $"{path}/{sheet}";
+                var textAsset = Resources.Load(s) as TextAsset;
+                text = textAsset.text;
+            }
+
+            sheetName = sheetNames[i];
+            lineAmount = fgCSVReader.GetLineAmount(text);
+            fgCSVReader.LoadFromString(text, new fgCSVReader.ReadLineDelegate(GetCell));
         }
 
         FinishLoading();
@@ -32,29 +54,20 @@ public class DataDownloader : MonoBehaviour {
 
     }
 
+
     public virtual void GetCell(int rowIndex, List<string> cells) {
         row = rowIndex;
     }
     #endregion
 
 
-#if UNITY_EDITOR
 
     public void DownloadCSVs() {
         _ = StartCoroutine(DownloadsCSVs());
     }
 
-    IEnumerator DownloadsCSVs() {
+    public IEnumerator DownloadsCSVs() {
         var textAssets = Resources.LoadAll<TextAsset>(path);
-
-        sheetNames = new string[textAssets.Length];
-        targetAssets = new Object[textAssets.Length];
-
-        for (var i = 0; i < textAssets.Length; i++) {
-            sheetNames[i] = textAssets[i].name;
-            targetAssets[i] = textAssets[i];
-        }
-
 
         yield return null;
         for (var sheetIndex = 0; sheetIndex < sheetNames.Length; sheetIndex++) {
@@ -63,7 +76,7 @@ public class DataDownloader : MonoBehaviour {
                 var tmpUrl = url.Remove(editIndex) + linkReplace + sheetNames[sheetIndex];
 
                 Debug.Log("(" + sheetIndex + "/" + sheetNames.Length + ")" + " Fetching " + sheetNames[sheetIndex] + "...");
-                yield return DownloadCSV(tmpUrl, targetAssets[sheetIndex]);
+                yield return DownloadCSV(tmpUrl, sheetNames[sheetIndex]);
             } else {
                 Debug.LogError("no index for edit in link " + url);
             }
@@ -73,23 +86,19 @@ public class DataDownloader : MonoBehaviour {
 
     }
 
+    public IEnumerator DownloadsCSV(string sheetName) {
+        int index = System.Array.FindIndex(sheetNames, x=> x == sheetName);
+        yield return DownloadsCSV(index);
+    }
+
     public IEnumerator DownloadsCSV(int sheetIndex) {
-        var textAssets = Resources.LoadAll<TextAsset>(path);
-
-        sheetNames = new string[textAssets.Length];
-        targetAssets = new Object[textAssets.Length];
-        for (var i = 0; i < textAssets.Length; i++) {
-            sheetNames[i] = textAssets[i].name;
-            targetAssets[i] = textAssets[i];
-        }
-
         yield return null;
 
         var editIndex = url.IndexOf("edit");
         if (editIndex != -1) {
             var tmpUrl = url.Remove(editIndex) + linkReplace + sheetNames[sheetIndex];
             Debug.Log("Fetching " + sheetNames[sheetIndex] + "...");
-            yield return DownloadCSV(tmpUrl, targetAssets[sheetIndex]);
+            yield return DownloadCSV(tmpUrl, sheetNames[sheetIndex]);
         } else {
             Debug.LogError("no index for edit in link " + url);
         }
@@ -98,7 +107,7 @@ public class DataDownloader : MonoBehaviour {
 
     }
 
-    IEnumerator DownloadCSV(string tmpUrl, UnityEngine.Object asset) {
+    IEnumerator DownloadCSV(string tmpUrl, string sheetName) {
         _ = Time.realtimeSinceStartup + 10f;
 
         var www = UnityWebRequest.Get(tmpUrl);
@@ -108,12 +117,17 @@ public class DataDownloader : MonoBehaviour {
             Debug.LogError("Error when requesting CSV file (responseCode:" + www.responseCode + ")");
             Debug.LogError(www.error);
         } else {
-            var filepath = AssetDatabase.GetAssetPath(asset);
-            System.IO.File.WriteAllText(filepath, www.downloadHandler.text);
-            Undo.RecordObject(asset, "Downloaded CSV from distant file");
-
-            AssetDatabase.ImportAsset(filepath);
-
+            if (Application.isPlaying) {
+                if (datas.ContainsKey(sheetName)) {
+                    datas[sheetName] = www.downloadHandler.text;
+                } else {
+                    datas.Add(sheetName, www.downloadHandler.text);
+                }
+                // load from local data
+            } else {
+                var filepath = $"{Application.dataPath}/Resources/{path}/{sheetName}.csv";
+                System.IO.File.WriteAllText(filepath, www.downloadHandler.text);
+            }
         }
 
     }
@@ -158,6 +172,5 @@ public class DataDownloader : MonoBehaviour {
     public string GetCellName(int row, int cell) {
         return GetCollumnName(cell) + (row + 1);
     }
-#endif
 
 }

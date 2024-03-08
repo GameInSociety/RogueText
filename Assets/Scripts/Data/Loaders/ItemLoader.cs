@@ -1,14 +1,7 @@
-﻿using JetBrains.Annotations;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using Unity.Collections.LowLevel.Unsafe;
-using UnityEditor;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class ItemLoader : DataDownloader {
 
@@ -25,6 +18,11 @@ public class ItemLoader : DataDownloader {
 
     private void Awake() {
         Instance = this;
+    }
+
+    public override void Load() {
+        ItemData.itemDatas.Clear();
+        base.Load();
     }
 
     public override void FinishLoading() {
@@ -50,6 +48,7 @@ public class ItemLoader : DataDownloader {
         var newItemData = new ItemData();
         var nameCell = cells[0];
         var synonyms = nameCell.Split('\n');
+        
 
         // HasPart numberSpecific class name
         if (!string.IsNullOrEmpty(cells[1]))
@@ -71,11 +70,26 @@ public class ItemLoader : DataDownloader {
                 newItemData.properties.Add(prop);
             }
 
-            newWord.SetText(synonyms[i]);
+            var word = synonyms[i];
+
+            if (word.EndsWith('s'))
+                newWord.defaultNumber = Word.Number.Plural;
+            if (word.EndsWith("(s)")) {
+                newWord.defaultNumber = Word.Number.Plural;
+                word = word.Remove(word.IndexOf('('));
+            }
+
+            newWord.SetText(word);
             newItemData.words.Add(newWord);
-            newWord.UpdateNumber(cells[2]);
         }
 
+        // range
+        var rangeProp = new Property();
+        rangeProp.name = "range";
+        rangeProp.AddPart("value", !string.IsNullOrEmpty(cells[2]) ? cells[2] : "0");
+        newItemData.properties.Add(rangeProp);
+
+        // preposition
         if (cells[3].Length > 1)
             newItemData.words[0].preposition = cells[3];
 
@@ -130,6 +144,7 @@ public class ItemLoader : DataDownloader {
                 // get the group
                 ContentLoader.Group group = ContentLoader.GetGroup(groupName);
                 if (group == null) {
+                    TextManager.Write($"[Prop Load Error ] : No property group named : {groupName}", Color.red);
                     Debug.LogError($"no group named {content}");
                     continue;
                 }
@@ -152,7 +167,7 @@ public class ItemLoader : DataDownloader {
             }
 
             // load sequences
-            if (content.StartsWith('$') || content.StartsWith('E')) {
+            if (content.StartsWith('$') || content.StartsWith('E') || cells[i].StartsWith('!')) {
                 var cellParts = cells[i].Split(new char[1] { '\n' }, 2);
                 var triggers = cellParts[0].Remove(0, 2);
                 var seq = new Sequence(triggers, cellParts[1]);
@@ -160,6 +175,9 @@ public class ItemLoader : DataDownloader {
                     data.verbSequences.Add(seq);
                 if (content.StartsWith('E'))
                     data.events.Add(seq);
+                if (content.StartsWith('!')) {
+                    data.acts.Add(seq);
+                }
                 continue;
             }
 

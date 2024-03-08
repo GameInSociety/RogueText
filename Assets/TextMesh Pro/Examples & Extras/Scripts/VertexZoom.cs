@@ -1,11 +1,9 @@
 ﻿using UnityEngine;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
 
-namespace TMPro.Examples
-{
+namespace TMPro.Examples {
 
     public class VertexZoom : MonoBehaviour
     {

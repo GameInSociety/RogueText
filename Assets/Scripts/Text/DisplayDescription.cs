@@ -1,10 +1,4 @@
-﻿using Newtonsoft.Json;
-using OpenAI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.UIElements;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -54,7 +48,7 @@ public class DisplayDescription : MonoBehaviour {
         Instance = this;
     }
 
-    void Start() {
+    public void Init() {
         initColor = uiText.color;
         uiText.text = "";
         uiText_Old.text = "";

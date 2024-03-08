@@ -1,15 +1,19 @@
 "NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","SEQUENCES","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"player
-self
-own
-my","Player","s","","","orientation
+"player","Player","0","","","coords:3/5","tileset
+value:0","moves
+value:0
+OnValue:>[hourRate]
+add(! time>hours, 1)
+add(! part of day, 1)","hourRate
+value:3","orientation
 value:north
-description:looking {value}","health
+description:looking {value}","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","health
 
 value: 10m10
 
-description:
-fine / hit / hurt / badly hurt / criticaly hurt / dying
+description: (lerp6)
+healthy / feeling okay / hurting a bit / not well / feeling critically bag / dying / dead
 
 OnValue:0
 write(you are dead)
@@ -17,7 +21,7 @@ endgame","thirst
 
 value: 0m15
 
-description:
+description:(lerp6)
 fully hydrated / not thirsty / slightly thirsty / willing to drink something / getting thirsty / really thristy / extremely thirsty
 
 OnValue:>15
@@ -26,7 +30,7 @@ sub(health,1)","hunger
 
 value: 0m20
 
-description:
+description:(lerp6)
 filled / a bit hungry / getting hungry / really hungry / critivally hungry
 
 OnValue:>20
@@ -35,24 +39,24 @@ sub(health, 1)","sleep
 
 value: 0m50
 
-description:
+description:(lerp6)
 full of energy / wide awake / feeling feeble / getting sleepy / really sleepy / drained / in drastic need of sleep
 
 OnValue:>50
 write(you're so tired you're dying)
-sub(health, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+sub(health, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","contents
+body:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","E OnHours
-sub(thirst, 1)
-sub(hunger, 1)
-sub(sleep, 1)","equip back
-value:none
-description:
-i'm wearing {value}","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+add(>thirst, 1)
+add(>hunger, 1)
+add(>sleep, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","botany
 value:0m3
-description:
-don't know anything about flowers / amateur botanist / expert botanist","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"undead","Zombie","s","","","health
+key:skill, know about plants, know about flowers
+description:(on key)
+doesn't know anything about flowers / amateur botanist / expert botanist","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"dog","","10","","","health
 
 value: 1 > 10
 
@@ -61,7 +65,7 @@ fine / hit / hurt / badly hurt / criticaly hurt / dying
 
 OnValue:0
 write(the undead is on the floor, not moving)
-disable(steps)","steps
+disable(>steps)","steps
 
 value: 10
 
@@ -69,14 +73,14 @@ descrption:
 at reach, extretmely close, prety close, a few feet away, at a distance
 
 OnValue:0
-trigger(attack)
+trigger(>attack)
 
 e:OnAction
-sub(steps, 1)","E attack
+sub(>steps, 1)","E attack
 write(the undead attacks)
-[player.body part] enable(bleeding)
-[player] sub(health, 1)
+[player.body part] enable(>bleeding)
+[player] sub(>health, 1)
 add(steps, 1)","$ hit / strike / attack
-sub(health, [damage])
-[body part] enable(bleeding)
+sub(>health, [damage])
+[body part] enable(>bleeding)
 write(you hit the undead on the *body part* with the *damage*)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

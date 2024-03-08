@@ -1,9 +1,7 @@
 using UnityEngine;
-using System.Collections;
 
 
-namespace TMPro.Examples
-{
+namespace TMPro.Examples {
 
     public class Benchmark02 : MonoBehaviour
     {

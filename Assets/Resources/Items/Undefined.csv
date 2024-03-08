@@ -1,8 +1,7 @@
 "NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"undefined","","s","","","$ look / open / how
-describe","$ move / go
-move","$ put
-*check(!p ANY capacity>max items, max, there's too much item in the thing)
+"any item","","","","","$ look / open / how
+describe","$ put
+*breakIf(!p ANY capacity>max items, max, too much items)
 transferTo(!p ANY capacity)
 *add(!p ANY capacity>max items, 1)
 *sub(!p ANY capacity>max items, 1)","$ throw
@@ -10,12 +9,8 @@ transferTo(!p ANY capacity)
 %
 transferTo(! tile)
 *sub(! parent>max items, 1)","$ pick up
-check(!p ANY capacity>max items, max, y'en a trop pour le premier truc)
+breakIf(!p ANY capacity>max items, max, too much)
 transferTo(!p ANY capacity)
-add(!p ANY capacity>max items, 1)
-%
-check(! left hand>max items, max, y'en a trop pour left hand)
-transferTo(! left hand)
-add(! left hand>max items, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+add(!p ANY capacity>max items, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","$ wait
 wait(1)","","",""," ","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

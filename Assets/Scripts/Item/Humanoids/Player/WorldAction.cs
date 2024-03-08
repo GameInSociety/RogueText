@@ -1,22 +1,14 @@
-using DG.Tweening;
-using DG.Tweening.Core.Easing;
-using JetBrains.Annotations;
-using System.Buffers;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
-using UnityEditor.PackageManager;
-using UnityEditor.Search;
-using UnityEditor.VersionControl;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 [System.Serializable]
 public class WorldAction {
 
     public static List<WorldAction> stack = new List<WorldAction>();
     public string debug_name;
+
+    public DataDownloader[] dataDownloaders;
 
     private List<Item> _items = new List<Item>();
     public void SetItems(List<Item> its) {
@@ -57,6 +49,7 @@ public class WorldAction {
 
     // only fail one function, move to next
     public bool failed = false;
+    public bool goToNextPart = false;
     // fail all functions
     public bool stopped = false;
     string[] sequences;
@@ -83,38 +76,34 @@ public class WorldAction {
     #region call
     static bool onGoing = false;
     public void Call(Source source = Source.Event) {
-
         this.source = source;
-
         if (onGoing) {
             stack.Add(this);
             return;
         }
+        Function.LOG($"\n\n\nWorld Action:[{TargetItem().debug_name}] {source}", Color.cyan);
+        AvailableItems.UpdateItems();
 
         current = this;
         onGoing = true;
         seqIndex = 0;
         sequences = sequence.Split("\n%\n");
-        ItemLink.ClearHistory();
         CallLine(0);
 
-
-        // call next world actions
         onGoing = false;
         if ( stack.Count > 0) {
-            Debug.Log($"call next world action");
             var next = stack[0];
             stack.RemoveAt(0);
+            Function.LOG($"World Action Succeeded.", Color.green);
             next.Call(next.source);
         } else {
-
-            Debug.Log($"Finshed world actions, delayed items count : {ItemDescription.delayedItems.Count}");
+            Function.LOG($"World Action Finished.", Color.white);
             PropertyDescription.Describe();
             if ( ItemDescription.delayedItems.Count > 0) {
-                string endDescription = ItemDescription.NewDescription(ItemDescription.delayedItems, "");
-                TextManager.Write(endDescription);
+                string endDescription = ItemDescription.DescribeItems(ItemDescription.delayedItems);
+                TextManager.Write($"{ItemDescription.delayedSetup}{endDescription}");
+                ItemDescription.delayedSetup = "";
                 ItemDescription.delayedItems.Clear();
-
             }
         }
     }
@@ -125,30 +114,37 @@ public class WorldAction {
         if (string.IsNullOrEmpty(lines[i])) {
             Debug.Log($"skip line");
             goto Skip;
-
         }
-        bool AllFailed = true;
+        if (lines[i].StartsWith('~')) {
+            Debug.Log($"reached ~~");
+            goToNextPart = false;
+            goto Skip;
+        }
+        if (goToNextPart) {
+            Debug.Log($"going to next ~~");
+            goto Skip;
+        }
+
+        bool tryNextSequence = false;
         feedback = "";
-        Debug.Log($"world action items count : {_items.Count}");
         foreach (var item in _items) {
-            Debug.Log($"try func : {item.debug_name}");
             failed = false;
             Function.TryCall(lines[i], item);
-            if (!failed)
-                AllFailed = false;
+
+            if (failed) {
+                Function.LOG($"World Action Failed.", Color.red);
+                tryNextSequence = true;
+                break;
+            }
         }
-        if (AllFailed) {
-            Debug.Log($"all failed");
+        if (tryNextSequence) {
             // try next sequence
             ++seqIndex;
             // if it's the last one, show feedback
             if (seqIndex == sequences.Length) {
-                Debug.Log($"[WORLD ACTION]: {feedback}");
-                Debug.Log($"[LINE] : {lines[i]}");
                 TextManager.Write(feedback, Color.red);
                 return;
             }
-            Debug.Log($"calling next sequence");
             CallLine(0);
             return;
         }

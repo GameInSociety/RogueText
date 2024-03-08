@@ -1,8 +1,4 @@
-using JetBrains.Annotations;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
@@ -50,9 +46,8 @@ public class WorldEvent {
             Debug.Log($"WORLD EVENT : no event named {name}, creating one");
             worldEvent = CreateWorldEvent(name);
         }
-        foreach (var item in worldEvent.actions) {
+        foreach (var item in worldEvent.actions)
             item.Call();
-        }
     }
 
     public static WorldEvent GetWorldEvent(string name) {

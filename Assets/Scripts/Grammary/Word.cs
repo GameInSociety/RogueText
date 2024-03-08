@@ -1,14 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using UnityEngine;
+﻿using UnityEngine;
 
 [System.Serializable]
 public class Word {
     // data //
     public string _text = "";
     public string preposition = "";
-    public Number defaultNumber;
+    public Number defaultNumber = Number.Singular;
     public Number currentNumber;
     public bool defined = false;
 

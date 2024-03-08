@@ -1,15 +1,8 @@
-using DG.Tweening;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
-using Unity.Collections;
-using UnityEditor.TerrainTools;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 
 [System.Serializable]
 public class ItemParser {
@@ -82,34 +75,6 @@ public class ItemParser {
             GetItems();
         }
 
-        public void CheckForLinks() {
-            if (!HasItems())
-                return;
-
-            if ( parser.parts.Length< 2) {
-                return;
-            }
-
-            Part part = parser.GetPart(1);
-
-            Debug.Log($"checking for from in part {part.text}");
-            if (Regex.IsMatch(part.text, @$"\bfrom\b")) {
-                part.skip = true;
-                Debug.Log($"removing {part.text} from available part, it's only a info");
-            }
-
-            Debug.Log($"checking for links in {part.text}");
-            var distinctItem = items.Find(x => x.GetPropInText(part.text) != null);
-
-            var prop = MainItem().GetPropInText(part.text);
-            if (prop == null) {
-                Log($"there's no {items.First().debug_name} {part.text}", Color.red);
-                return;
-            }
-            part.SetUsed();
-            Log($"found prop for {MainItem().debug_name} {prop.name} in {part.text}", Color.white);
-        }
-
         public void GetNumber() {
             string str = Regex.Match(text, @"\d+").Value;
             if (string.IsNullOrEmpty(str)){
@@ -159,10 +124,10 @@ public class ItemParser {
         public void SortItems() {
 
             Log("!sorting!", Color.magenta);
-            /*if (items.Count == 1) {
+            if (items.Count == 1) {
                 Log("only one item, no sorting", Color.magenta);
                 return;
-            }*/
+            }
 
             if (Regex.IsMatch(text, @$"\ball\b")) {
                 Log("found 'all' in input, no sorting", Color.magenta);
@@ -203,17 +168,16 @@ public class ItemParser {
             var item = (Item)null;
             // look for specific item
             if (partIndex == 0 && parser.parts.Length > 1) {
-                Debug.Log($"for part {text}, checking in next part just in case");
                 var nextPart = parser.parts[partIndex + 1];
                 item = items.Find(x => x.GetPropInText(nextPart.text) != null);
                 if ( item != null) {
                     var nextProp = item.GetPropInText(nextPart.text);
                     nextPart.SetUsed();
-                    Debug.Log($"found prop {nextProp.name} in part {nextPart.text} for item {item.debug_name}");
                     Log($"found prop {nextProp.name} in part {nextPart.text} for item {item.debug_name}", Color.magenta);
                     items.RemoveAll(x=> x!= item);
                     return;
                 }
+
             }
 
             item = items.Find(x => x.GetPropInText(text) != null);
@@ -223,10 +187,21 @@ public class ItemParser {
                     needsDistinction = true;
                 }
                 Log($"item {items[0].debug_name} does not need distinction, return first", Color.magenta);
+
+                // check if items are differents ( "knife and key" ) ( "apple ( from 5 ) and knife" ), then return one of each
+
+                List<Item> otherItems = items.FindAll(x=> x.dataIndex != items.First().dataIndex);
+                foreach (var other in otherItems) {
+                    Debug.Log($"also found {other.debug_name}");
+                }
+                
                 items = new List<Item>() { items[0] };
+                foreach (var i in otherItems)
+                    items.Add(i);
                 return;
             }
 
+            // narrowing an item because a prop was found
             items.RemoveAll(x => x != item);
             var prop = item.GetPropInText(text);
             string propText = $"{prop.name}:{prop.GetDescription()}{prop.GetPart("search")?.content}";
@@ -300,11 +275,11 @@ public class ItemParser {
 
     bool FoundAllElements() {
 
-        if (verb == null) {
+        if (Verb.IsNull(verb)) {
             if (GetPart(0).HasItems()) {
-                TextManager.Write($"what do yo want to do with {GetPart().MainItem().GetText("the dog")}");
+                TextManager.Write($"what do yo want to do with {GetPart().MainItem().GetText("the dog")}\n( le verbe existe pas encore ou est pas correct )");
             } else {
-                TextManager.Write("write a verb, then something to interact with");
+                TextManager.Write("write a verb, then something to interact with \b( il a rien compris )");
             }
             return false;
         } else {
@@ -334,22 +309,22 @@ public class ItemParser {
 
         string sequence = "";
         if ( parts.Length == 0) {
-            sequence = verb.GetItemSequence(WorldData.undefinedItem.GetData());
+            sequence = verb.GetItemSequence(WorldData.anyItem.GetData());
             if (sequence == null) {
                 TextManager.Write($"you can't {verb.GetFull} anything");
-                Log($"no action OR undefined item for {verb.GetCurrentWord}", Color.red);
+                Log($"no action OR any item item for {verb.GetCurrentWord}", Color.red);
                 NewParser();
                 return;
             }
             parts = new Part[1];
-            parts[0] = new Part("undefined : no text", this);
+            parts[0] = new Part("any item : no text", this);
             parts[0].partIndex = 0;
-            parts[0].items.Add(WorldData.undefinedItem);
+            parts[0].items.Add(WorldData.anyItem);
         } else {
             var actionItem = GetPart().items[0];
             sequence = verb.GetItemSequence(actionItem.GetData());
             if (sequence == null) {
-                sequence = verb.GetItemSequence(WorldData.undefinedItem.GetData());
+                sequence = verb.GetItemSequence(WorldData.anyItem.GetData());
             }
 
             if (sequence == null) {
@@ -361,23 +336,26 @@ public class ItemParser {
         }
 
 
-        foreach (var part in parts) {
-            if (Regex.IsMatch(part.text, @$"\bfrom\b")) {
-                part.skip = true;
-                Log($"removing {part.text} from available part, it's only a info", Color.cyan);
-            }
-        }
-        
+        // look at item keys
+        Log($"Checking Items in links", Color.white);
         var keys = GetItemKeys(sequence);
         GetPart(0)?.SetUsed();
         int k = 0;
         for (int i = 1; i < parts.Length; i++) {
             if (parts[i].skip) {
+                Log($"skipping : {parts[i].text}", Color.gray);
                 continue;
             }
             if ( k < keys.Count) {
                 parts[i].SetUsed();
-                ++k;
+                Log($"setting : {parts[i].text} to used", Color.gray);
+                ++k; 
+            }
+        }
+        foreach (var part in parts) {
+            if (!part.used && Regex.IsMatch(part.text, @$"\bfrom\b")) {
+                part.skip = true;
+                Log($"removing {part.text} from available part, it's only a info", Color.cyan);
             }
         }
         foreach (var part in parts) {
@@ -468,7 +446,13 @@ public class ItemParser {
         foreach(var part in parts) {
             if (!part.HasItems()) continue;
             part.SortItems();
+            var itemText = "";
+            for (int i = 0; i < part.items.Count; i++)
+                itemText += $"{part.items[i].debug_name} {TextUtils.GetSpaces(i, part.items.Count)}";
+            Log(itemText, Color.green);
         }
+
+        
 
     }
     string[] SplitParts() {
@@ -538,10 +522,16 @@ public class ItemParser {
     }
 
     public List<Item> SearchForItemsInParts(string key) {
-        foreach (var part in Array.FindAll(parts, x => !x.skip)) {
-            var item = ItemLink.SearchItemsInRange(key, part.items);
-            if ( item != null)
-                return item;
+        foreach (var part in parts) {
+            if (part.skip) {
+                Function.LOG($"skipping part : {part.text}", Color.gray);
+                continue;
+            }
+            var its = ItemLink.SearchItemsInRange(key, part.items);
+            if (its.Count > 0)
+                return its;
+            else
+                Function.LOG($"no item : {key} in part : {part.text} / {part.items.First()}", Color.gray);
         }
         return null;
     }

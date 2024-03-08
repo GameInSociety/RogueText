@@ -3,17 +3,27 @@ using UnityEngine;
 
 public class AvailableItem_Editor : EditorWindow {
 
-    [MenuItem("Window/Availble Items")]
+    GUIStyle style;
+
+    // data
+    Vector2 scrollPos = Vector2.zero;
+    // Add menu named "My Window" to the Window menu
+    [MenuItem("Window/Available Items")]
     static void Init() {
         // Get existing open window or if none, make a new one:
-        var window = (EditorTools)EditorWindow.GetWindow(typeof(AvailableItem_Editor));
+        var window = (AvailableItem_Editor)GetWindow(typeof(AvailableItem_Editor));
         window.Show();
     }
+    private void OnGUI() {
 
-    void OnGUI() {
-        for (int i = 0; i < AvailableItems.currItems.Count; i++) {
-            var item = AvailableItems.currItems[i];
-            GUILayout.Label(item.debug_name, EditorStyles.boldLabel);
-        }
+        style = new GUIStyle();
+        style.alignment = TextAnchor.UpperLeft;
+        style.richText = true;
+        EditorGUILayout.BeginVertical();
+        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+        GUILayout.Label(AvailableItems.log, style);
+        GUILayout.EndScrollView();
+        EditorGUILayout.EndVertical();
     }
+    
 }

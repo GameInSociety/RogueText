@@ -1,11 +1,4 @@
-using Newtonsoft.Json;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [System.Serializable]
@@ -23,31 +16,11 @@ public class Humanoid : Item {
         "south",
         "west"
     };
-
-    public Coords coords = new Coords(-1, -1);
-    public int tilesetId;
-
-    public override void Init() {
-        base.Init();
-        _ = CreateChildItem(ItemData.Generate_Special("body") as Body);
+    public int tilesetId {
+        get {
+            return GetProp("tileset").GetNumValue();
+        }
     }
-
-    public bool CanMoveForward(Coords c) {
-        var targetTile = TileSet.GetCurrent.GetTile(c);
-        if (targetTile == null)
-            return false;
-        if (targetTile.HasProp("blocking"))
-            return false;
-        return true;
-    }
-
-    public virtual void Move(Coords targetCoords) {
-        // change current coords
-        var newOrientation = GetCardinalFromDirection(targetCoords - coords);
-        Player.Instance.SetProp($"orientation / value:{newOrientation}");
-        coords = targetCoords;
-    }
-
 
     public static string GetCardinalFromDirection(Coords coords) {
         if ( coords.x > 0) { return "east"; }
@@ -77,7 +50,7 @@ public class Humanoid : Item {
                 return new Coords(-1, 0);
             default:
                 Debug.LogError($"no coords for cardinal {str}");
-                return Coords.Zero;
+                return Coords.zero;
         }
     }
     public Coords GetCoordsFromOrientation(string targetOrientation) {

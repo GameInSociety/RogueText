@@ -1,12 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using TMPro;
-using UnityEngine;
-using UnityEngine.Animations;
-using static UnityEditor.Progress;
+﻿using System.Collections.Generic;
 
 [System.Serializable]
 public class Tile : Item {
@@ -43,78 +35,21 @@ public class Tile : Item {
 
     #region tile description
     public void Describe() {
-        DisplayDescription.Instance.ClearDescription();
-        // update tiles to create doors
+        // update tiles to create doors  
         GetAdjacentTiles();
-        GenerateChildItems();
         WriteDescription();
     }
 
     public override void WriteDescription() {
-        //base.WriteDescription();
+        var itemsToDescribe = new List<Item>();
+        if (HasChildItems())
+            itemsToDescribe.AddRange(GetChildItems());
 
-        // "you're on a tile...
-        string intro = GetDescriptionType();
-        TextManager.Write(intro);
-        SetProp("visited");
+        itemsToDescribe.AddRange(GetAdjacentTiles());
 
-        TextManager.Return();
-
-        // putting items that contain things and items that don't in the same list
-        // (testing to see how it looks)
-        if (HasChildItems()) {
-            string main_str = $"you see {ItemDescription.NewDescription(GetChildItems())}";
-            TextManager.Write(main_str);
-            TextManager.Return();
-        }
-
-        string description = ItemDescription.NewDescription(GetAdjacentTiles());
-        TextManager.Write($"there's {description}");
-        //AdjacentTilesDescription();
+        string description = $"{GetText("on a dog")}, {ItemDescription.DescribeItems(itemsToDescribe)}";
+        TextManager.Write($"{description}");
     }
-
-    public void AdjacentTilesDescription() {
-        List<Item> tiles = GetAdjacentTiles();
-        DebugManager.Instance.adjacentTiles = tiles;
-        foreach (var tile in tiles)
-            tile.GenerateChildItems();
-
-        //List<Item> similarTiles = tiles.FindAll(x => x.GetVisibleProp(0).GetDescription() == GetVisibleProp(0).GetDescription());
-        List<Item> similarTiles = tiles.FindAll(x => x.dataIndex == dataIndex);
-        if ( similarTiles.Count > 0 ) {
-            string text = $"{GetText("the dog")} continues ";
-            for (int i = 0; i < similarTiles.Count; i++) {
-                var tile = similarTiles[i];
-                text += $"{tile.GetPropertyOfType("orientation")?.GetDescription()}{TextUtils.GetCommas(i, similarTiles.Count)}";
-                tiles.Remove(tile);
-            }
-            TextManager.Write(text);
-        }
-
-        if (tiles.Count  > 0) {
-            string description = ItemDescription.NewDescription(tiles);
-            TextManager.Write($"there's {description}");
-        }
-
-        foreach (var tile in tiles) {
-            tile.SetProp("definite");
-        }
-    }
-
-    public string GetDescriptionType (){
-        if (HasProp("visited")) {
-            if (GetPrevious != null && GetPrevious.coords == coords)
-                return $"you're still {GetText("on the special dog")}";
-            
-                return $"you're back {GetText("on the special dog")}";
-        } else {
-            if (GetPrevious != null && sameTypeAs(GetPrevious) && GetPrevious.coords != coords)
-                return $"you continue {GetText("on the dog")}";
-            else
-                return $"you're {GetText("on a special dog")}";
-        }
-    }
-
     
     public List<Item> GetAdjacentTiles() {
 
@@ -133,22 +68,13 @@ public class Tile : Item {
                 exit = GetChildItems()?.Find(x=> x.HasProp(orientation.ToString()));
                 if (exit == null)
                     exit = CreateChildItem("door");
-
-                var link = exit.GetProp("link");
-                if ( link == null)
-                    link = exit.AddProp("link");
-                link.SetValue(adjacentTile.GetText("the dog"));
+                exit.SetProp($"link / description:{adjacentTile.GetText("the dog")}");
             } else {
                 exit = adjacentTile;
                 exits.Add(exit);
             }
 
-            foreach (var or in Humanoid.orientations) {
-                if (exit.HasProp(or.ToString())) {
-                    exit.RemoveProp(or.ToString());
-                    break;
-                }
-            }
+            exit.RemovePropOfType("orientation");
             var prop = exit.AddProp(orientation.ToString());
             prop.SetValue(Player.Instance.GetCardinalFromOrientation(orientation));
         }
@@ -171,20 +97,21 @@ public class Tile : Item {
     public static Tile GetPrevious => _previous;
 
     private static Tile _current;
-    public static Tile GetCurrent => _current;
+    public static Tile GetCurrent => WorldData.GetAbstractItem("current tile") as Tile;
 
     public static void SetCurrent(Tile tile) {
         SetPrevious(_current);
 
         DebugManager.Instance.TILE = tile;
         _current = tile;
-        tile.SetProp("around / description:you're standing on it / search:standing on");
+        tile.RemovePropOfType("orientation");
     }
 
     public static void SetPrevious(Tile tile) {
         _previous = tile;
         if (tile == null)
             return;
+
     }
 
 }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Runtime.InteropServices;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace TextSpeech {
     public class TextToSpeech : MonoBehaviour {

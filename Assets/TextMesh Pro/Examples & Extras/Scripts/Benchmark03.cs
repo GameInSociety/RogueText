@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.TextCore.LowLevel;
 
 
-namespace TMPro.Examples
-{
+namespace TMPro.Examples {
 
     public class Benchmark03 : MonoBehaviour
     {

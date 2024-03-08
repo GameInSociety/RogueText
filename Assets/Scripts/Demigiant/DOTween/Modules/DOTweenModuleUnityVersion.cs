@@ -3,7 +3,6 @@
 
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
-using System;
 using UnityEngine;
 
 namespace DG.Tweening {

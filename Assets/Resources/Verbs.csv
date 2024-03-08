@@ -5,26 +5,29 @@ advance
 walk
 continue
 keep going
-go in
-return",where,in,
+return
+climb",where,in,
 "enter
-get in",where,in,
+get in
+go in",where,in,
 "open
 look inside",what,"*
 *",
 close,what,,
 eat,what,,
 sleep,where,on,
-"look
-look at
+"look at
+look
 observe
-describe",what,"at
+describe
+approach",what,"at
 *
 *",
 "take
 pick up",what,"*
 *",
 fill,what,,
+clean,what,,
 drink,what,,
 read,what,,
 cut,what,,
@@ -34,7 +37,6 @@ put on
 wear",what,,
 "unequip
 take off",what,,
-listen,what,to,
 "put
 place",where,in,
 "leave
@@ -43,10 +45,12 @@ exit",from where,"from
 from",
 break,what,,
 tear,what,,
+search,what,,
 "make
 craft",what,,universal
 turn on,what,,
-turn off,what,,
+"turn off
+put out",what,,
 unlock,what,,
 plant,what,,
 unearth,what,,
@@ -56,7 +60,13 @@ dig,where or what,,
 what
 who
 which",know,,
+"light
+fire up
+burn
+ignate
+set fire",what,,
 wait,how long,,
+put away,where,,
 empty,what,,
 charge,what,,
 use,what,with,

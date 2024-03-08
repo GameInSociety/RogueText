@@ -1,58 +1,52 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Xml.Linq;
+﻿using System.Linq;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.GameCenter;
 
 public static class Interior {
 
+    public static Item currentInterior;
+
     #region enter / exit
     public static void Enter(Item item) {
+        Debug.LogError("enter here");
 
-        if (!item.HasProp("tilesetId")) {
-            int id = TileSet.tileSets.Count;
-            item.SetProp($"tilesetId / value:{id}");
-            // Create tile set
-            InitTileSet(item);
-        }
-
-        int tilesetId = item.GetProp("tilesetId").GetNumValue();
-
+        /*currentInterior = item;
         TileSet.world.startCoords = Player.Instance.coords;
-        TileSet.ChangeTileSet(tilesetId);
+        TileSet.ChangeTileSet(GetTileSet(item).id);*/
     }
     public static void Exit() {
-        TileSet.ChangeTileSet(TileSet.world.id);
+        Debug.LogError("exit here");
+        /*currentInterior = null;
+        TileSet.ChangeTileSet(TileSet.world.id);*/
     }
     #endregion
 
-    static void InitTileSet(Item item) {
-
+    public static TileSet InitTileSet(Item item, int id) {
         /// Create tile set 
 		TileSet tileSet = new TileSet();
         tileSet.width = TileSet.world.width;
         tileSet.height = TileSet.world.height;
-        tileSet.startCoords = tileSet.Center;
-        tileSet.timeScale = 4;
-        int tileSetId = item.GetProp("tilesetId").GetNumValue();
-        tileSet.id = tileSetId;
-
-        TileSet.tileSets.Add(tileSet);
 
         // Create room types
         var rooms = item.GetProp("rooms");
+
+        if ( rooms == null) {
+            foreach (var prop in item.props) {
+                Debug.Log($"prop : {prop.name}");
+            }
+
+                Debug.LogError($"item : {item.debug_name} has no prop ROOMS");
+            return null;
+        }
         var tileNames = rooms.GetPart("tiles").content.Split('\n').ToList();
         // Create hallway
-        var hallway_Coords = tileSet.Center;
-        string hallwaySpec = Spec.GetCat("shape").GetRandomSpec();
+        var startCoords = item.GetProp("start coords");
+        var hallway_Coords = Coords.PropToCoords(startCoords);
 
         int b = 0;
         while (tileNames.Count > 0) {
 
             // add new hallway tile
-            var newHallwayTile = Tile.Create(new Tile.Info(hallway_Coords, tileSetId), "hallway",hallwaySpec );
+            var newHallwayTile = Tile.Create(new Tile.Info(hallway_Coords, id), "hallway" );
 
             tileSet.Add(hallway_Coords, newHallwayTile);
 
@@ -66,7 +60,7 @@ public static class Interior {
 
                 int rnd = Random.Range(0, tileNames.Count);
                 var tileName = tileNames[rnd];
-                var newRoomTile = Tile.Create(new Tile.Info(newRoomCoords, tileSetId), tileName);
+                var newRoomTile = Tile.Create(new Tile.Info(newRoomCoords, id), tileName);
                 tileNames.RemoveAt(rnd);
                 tileSet.Add(newRoomCoords, newRoomTile);
                 if (tileNames.Count == 0) {
@@ -79,6 +73,8 @@ public static class Interior {
                 break;
             }
         }
+
+        return tileSet;
 
     }
 }

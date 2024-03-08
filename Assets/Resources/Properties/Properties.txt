@@ -23,14 +23,31 @@ type:orientation","link
 value:none
 description:to {value}
 after word:yes","","","","","","","","","","","","","","","",""
-"test other orientation","orientation
-value:left
-key:forward, front; ahead
-description:(always) in front of you / goes in front of you
-after word:yes","road orientation example
-value:left
-key:forward, front
-description:(always) goes to left / continues ahead","","","","","","","","","","","","","","","","","","",""
+"interior","$ enter
+set(! player>tileset, >tileset)
+set(! player>coords, >start coords)
+set(! player>hourRate, 10)
+set(#interior, this)
+set(#current tile, [>start coords])
+set(!player>orientation, north)
+describe(_TILE)","tileset:{new tileset}","start coords:5/5","rooms
+tiles:
+bathroom
+children's room
+bedroom
+kitchen
+toilets","$ go
+describe","contents
+window:4*50
+window:1","","","","","","","","","","","","","","",""
+"tile","$ go
+set(! player>coords, >coords)
+add(!player>moves, 1)
+set(! player>orientation, >ANY orientation)
+set(current tile)
+describe(_TILE)","weight:0
+capacity:1000
+max items:1000m1000","","","","","","","","","","","","","","","","","","",""
 "","cardinal
 value:north
 description:goes north
@@ -53,7 +70,7 @@ just planted / slowing starting to grow / starting to sprout / showing a little 
 layer:1
 
 OnValue:10
-disable(watering)
+disable(>watering)
 createItem(vegetable)
 destroy","watering
 
@@ -64,21 +81,21 @@ about to die / completly dry / drying / turning a little yellow / looking a litt
 layer:1
 
 OnValue:0
-disable(growing)
-disable(watering)
-enable(dead)","*dead
+disable(>growing)
+disable(>watering)
+enable(>dead)","*dead
 description: dead","$ water
-update(watering, +[ANY water].water)","E OnRain
-update(watered, 0)","E OnHours
-update(watering, -1)
-update(growing, +1)","","","","","","","","","","","","","",""
+add(>watering, >[ANY water].water)","E OnRain
+update(>watered, 0)","E OnHours
+sub(>watering, 1)
+add(growing, 1)","","","","","","","","","","","","","",""
 "water container","water
 value:0?10
 description:
 empty / almost empty / half full / almost full / full
 layer:1","$ fill
-update(water, +[ANY water].water)","E OnRain
-update(water, +10)","","","","","","","","","","","","","","","","","",""
+add(>water, >[ANY water].water)","E OnRain
+add(>water, 10)","","","","","","","","","","","","","","","","","",""
 "% dirty","clean
 
 value: 0
@@ -89,11 +106,11 @@ looks clean / looks a little fishy / looks soiled
 layer:1
 
 e:OnHours
-update(clean, +1)
+add(>clean, 1)
 
 OnValue:10
-disable(clean)
-enable(soiled)","*soiled
+disable(>clean)
+enable(>soiled)","*soiled
 
 description:
 it has a smell
@@ -101,7 +118,7 @@ it has a smell
 layer:1
 
 onVerb:drink
-[player] update(health, -1)","","","","","","","","","","","","","","","","","","",""
+sub(!player>health, 1)","","","","","","","","","","","","","","","","","","",""
 "consumable","food
 value:x
 max:10
@@ -110,17 +127,17 @@ hardly nourishing / poorly nourishing / rather nourishing / pretty nourishing / 
 layer:1
 OnValue:0
 destroy","$ eat
-update([player].hunger, -food)"," ","","","","","","","","","","","","","","","","","",""
+sub(!player>hunger, >food)"," ","","","","","","","","","","","","","","","","","",""
 "sleep","confort
 value:0
 max:10
 description:
 (looks) very unconfortable / rather unconfortable / rather confortable / very confortable / like a very good sleep
 layer:1","$ sleep
-disable([player].sleep)
-wait([player].sleep)
-enable([player].sleep)
-update([player].sleep, -confort)","","","","","","","","","","","","","","","","","","",""
+disable(!player>sleep)
+wait(!player>sleep)
+enable(!player>sleep)
+sub(!player>slep, confort)","","","","","","","","","","","","","","","","","","",""
 "drinkable","hydrate
 value:x
 max:10
@@ -129,4 +146,4 @@ hardly hydrating / poorly hydrating / rather hydrating / pretty hydrating / extr
 layer:1
 OnValue:0
 destroy","$ drink
-update([player].thirst, -hydrate)","","","","","","","","","","","","","","","","","","",""
+sub(!player>thirst, hydrate)","","","","","","","","","","","","","","","","","","",""

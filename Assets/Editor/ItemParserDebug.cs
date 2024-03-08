@@ -1,18 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
-using System.Text.RegularExpressions;
 using UnityEditor;
-using UnityEditor.Graphs;
-using UnityEditor.Sprites;
 using UnityEngine;
-using UnityEngine.TestTools;
-using UnityEngine.UIElements;
 
 public class ItemParserDebug : EditorWindow {
-    List<string> inputs = new List<string>();
-    
     GUIStyle style;
 
     // data
@@ -26,7 +15,6 @@ public class ItemParserDebug : EditorWindow {
         window.Show();
     }
     private void OnGUI() {
-
         style = new GUIStyle();
         style.alignment = TextAnchor.MiddleCenter;
         style.richText = true;
@@ -34,8 +22,6 @@ public class ItemParserDebug : EditorWindow {
         DisplayParser(ItemParser.GetPrevious);
         GUILayout.Label("current");
         DisplayParser(ItemParser.GetCurrent);
-
-
     }
 
     void DisplayParser(ItemParser parser) {

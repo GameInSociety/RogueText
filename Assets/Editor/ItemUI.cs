@@ -1,11 +1,3 @@
-using System.Collections;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine;
-using UnityEngine.UIElements;
 /*
 [CustomPropertyDrawer(typeof(Item))]
 public class ItemUI : PropertyDrawer {

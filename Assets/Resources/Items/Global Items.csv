@@ -1,0 +1,73 @@
+"","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"GLOBAL","","s","","global","E OnStart
+describe(_TILE)","tilesets
+value:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"floor","","s","on","global","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"weather","","s","in","global","*raining
+value:0m40
+rate:10?40
+description:(on change)
+raining cats and dogs / still raining / raining / starting to clear off / about to stop raining
+
+OnValue:rate
+set(>raining, 0)
+disable(>rain)
+write(it stopped raining)
+enable(>sky)
+set(>sky/rate, 0?50)","sky
+value:0m50
+rate:0?50
+description:(lerp8)
+clear / clear / cloudy / getting cloudier / all gray / gonna rain
+
+OnValue:50
+enable(>raining)
+set(>raining, 0)
+set(>raining/rate, 10?40)
+disable(>sky)
+triggerEvent(OnRain)","E OnHours
+add(>raining, 1)
+add(>sky, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"time","","","","global","hours
+value:6m24
+description:(never)it's {value} o'clock
+
+OnValue:>0
+triggerEvent(OnHours)
+
+OnValue:24
+set(>hours, 0)
+add(>days, 1)
+set(>part of day, 0)","part of day
+value:6m24
+description:(on change)
+it's still dark around / the sun is slowly starting to rise / the sun is risen, it's morning time / the sun is in the middle of the sky, it's noon / the sun is still here / light is slowly desappearing into the distance / the night is setting, as things go darker around you / the night is here, it's dark around","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"day","","","","global","days
+value:0?30
+description:
+it's the {value} of [mounth>mounths]
+
+OnValue:>0
+triggerEvent(OnDays)
+
+OnValue:30
+add(>mounths, 1)
+set(>days, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"mounth","","","","global","mounths
+value:0?12
+description:
+january / february / march / april / may / june / july / august / september / october / november / december
+
+OnValue:>0
+triggerEvent(OnMounths)
+
+OnValue:12
+set(>mounths, 0)
+add(>years, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"year","","","","global","years
+value:2000
+description:
+it's {value}
+
+OnValue:>0
+triggerEvent(OnYears)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

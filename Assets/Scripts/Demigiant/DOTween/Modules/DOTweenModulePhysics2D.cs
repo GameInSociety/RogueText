@@ -4,7 +4,6 @@
 #if true && (UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6 || UNITY_5 || UNITY_2017_1_OR_NEWER) // MODULE_MARKER
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
-using System;
 using UnityEngine;
 
 namespace DG.Tweening {

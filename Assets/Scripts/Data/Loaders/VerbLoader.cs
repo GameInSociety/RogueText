@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Analytics;
 
 public class VerbLoader : TextParser {
     public static VerbLoader Instance;

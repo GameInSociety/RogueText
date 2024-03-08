@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TextUtils {
@@ -10,6 +8,23 @@ public class TextUtils {
             return word;
         return word + "s";
 
+    }
+
+    public static bool GetCondition(string text, int matchValue) {
+
+        int value = int.Parse(text.Remove(0, 1));
+
+        switch (text[0]) {
+            case '=':
+                return value == matchValue;
+            case '>':
+                return value > matchValue;
+            case '<':
+                return value < matchValue;
+        }
+
+        UnityEngine.Debug.LogError($"GetCondition: no case in text {text}");
+        return false;
     }
 
     public static string Extract(char c,string inText, out string outText) {

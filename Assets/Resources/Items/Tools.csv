@@ -1,10 +1,11 @@
-"NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"mop","","s","","garage misc","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"shovel","","s","","garage misc","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"flashlight","","s","","tools","on
-value:0?1
-layer:1
-description: off / on","battery
+"NAME","","","PREP.","TYPES","PROPERTIES","","","","","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"mop","","0","","garage misc","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"shovel","","1","","garage misc","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"flashlight","","","","tools","on
+
+value:0
+
+description: off / on","charge
 
 value: 0
 
@@ -13,40 +14,48 @@ out of battery / almost out of battery / running low on battery / still has some
 layer:1
 
 OnValue:0
-set(on, 0)
-disable(source of light)","*source of light
+set(>on, 0)
+disable(>source of light)
+disable(>charge)","*source of light
+
 description: lighting things around","weight:2","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","$ turn on
-set(on, 1)
-enable(source of light)
-enable(battery)","$ turn off
-set(on, 0)
-disable(source of light)
-disable(battery)","$ charge
-check(battery, not empty)
-add(battery, ! battery>charge)
+breakIf(>charge, empty)
+set(>on, 1)
+enable(>source of light)
+enable(>charge)","$ turn off
+set(>on, 0)
+disable(>source of light)
+disable(>charge)","$ charge
+breakIf(>charge, not empty)
+add(>charge, ! battery>charge)
 destroy(! battery)","$ empty
-check(battery, empty)
+breakIf(>charge, empty)
 createItem(battery)
-set(! battery>charge, battery)","E OnHours
-sub(battery, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"compas","","s","","tools","$ look
+set(! battery>charge, >charge)","E OnHours
+sub(>charge, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"compas","","","","tools","$ look
 write(_north)","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"scissors","","p","","tools","","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"battery","","s","","tools","$ put
-check(!p flashlight>battery, not empty)
-add(!p flashlight>battery, charge)
-destroy","charge
-value: 10","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"bag","","s","","tools","weight:1
+"scissors","","","","tools","","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"battery","","","","tools","$ put
+breakIf(!p flashlight>battery, not empty)
+add(!p flashlight>battery, >charge)
+destroy","$ charge
+breakIf(>battery, not empty)
+add(battery, ! battery>charge)
+destroy(! battery)","charge
+value: 10","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"bag","","1","","tools","weight:1
 capacity:50
 max items:0m2","$ equip
-transferTo(! player. ANY max items)","contents
+transferTo(! player.ANY max items)","contents
+knife:1
+key:1","prout
 shelf misc:3*5%
 clothes:3*5%
 small misc:3*5%
 kitchen misc:3*5%
 fresh food:3*5%
-closet food3*5%
+closet food:3*5%
 tools:3*5%
-materials:3*5%","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+materials:3*5%","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

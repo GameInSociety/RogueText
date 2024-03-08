@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEditor.UIElements;
 
 [System.Serializable]
 public class Property {
@@ -10,6 +9,9 @@ public class Property {
 
     public static Property GetDataProp(string name) {
         var prop = datas.Find(x=> x.name == name);
+        if ( name == "contents") {
+            Debug.Log($"pourquoi ?");
+        }
         if (prop == null) {
             Debug.Log($"no prop with the name : {name}");
         }
@@ -37,30 +39,8 @@ public class Property {
     public bool destroy = false;
     public List<Part> parts = new List<Part>();
 
-    public void Init(Property copy) {
-        name = copy.name;
+    public void Init(Item item) {
 
-        // first, get all data specific to the item
-        // if there's none, it might be a one liner, or a fully copied data prop
-        foreach (var part in copy.parts)
-            AddPart(new Part(part.key, part.content));
-
-        // searching a prop in data for copying
-        var dataProp = datas.Find(x => x.name == name);
-        if (dataProp != null) {
-            // adding implicit parts from the data
-            foreach (var part in dataProp.parts) {
-                if (parts.Find(x => x.key == part.key) != null)
-                    continue;
-                AddPart(part.key, part.content);
-            }
-        }
-
-        // fetch events
-        Init();
-    }
-
-    public void Init() {
         // enable / disable
         if (name.StartsWith('*')) {
             name = name.Substring(1);
@@ -85,7 +65,7 @@ public class Property {
             }
         }
 
-        InitValue();
+        InitValue(item);
         InitDescription();
     }
 
@@ -96,19 +76,25 @@ public class Property {
 
         char[] chars = { '\r', '\t', '\b', '\n', ' ' };
         for (int i = 1; i < lines.Length; i++) {
-            // skip empty lines
-            if (string.IsNullOrEmpty(lines[i])) continue;
+            try {
+                // skip empty lines
+                if (string.IsNullOrEmpty(lines[i])) continue;
 
-            if (lines[i].Contains(':')) {
-                // new part
-                var strs = lines[i].Split(':');
-                var text = strs[1].Trim(chars);
-                AddPart(strs[0], text);
-            } else {
-                // continue part
-                var str = lines[i].Trim(chars);
-                var part = parts[parts.Count - 1];
-                part.content += string.IsNullOrEmpty(part.content) ? str : $"\n{str}";
+                if (lines[i].Contains(':')) {
+                    // new part
+                    var strs = lines[i].Split(':');
+                    var text = strs[1].Trim(chars);
+                    AddPart(strs[0], text);
+                } else {
+                    // continue part
+                    var str = lines[i].Trim(chars);
+                    var part = parts[parts.Count - 1];
+                    part.content += string.IsNullOrEmpty(part.content) ? str : $"\n{str}";
+                }
+            } catch (Exception e) {
+                TextManager.Write($"[Error Loading Properties] at part [ {lines[i]} ]", Color.red);
+                Debug.LogException(e);
+                
             }
         }
     }
@@ -163,9 +149,10 @@ public class Property {
     #endregion
 
     #region value
-    public void InitValue(string key = "value") {
+    public void InitValue(Item item) {
 
-        if (!HasPart("value"))
+        string key = "value";
+        if (!HasPart(key))
             return;
 
         Part part = GetPart(key);
@@ -181,7 +168,7 @@ public class Property {
             return;
         }
 
-        if (part.content.Contains('?')) {
+        if ( !part.content.StartsWith('?') && part.content.Contains('?') ) {
             string[] prts = part.content.Split('?');
             int min = int.Parse(prts[0]);
             int max = int.Parse(prts[1]);
@@ -209,6 +196,11 @@ public class Property {
                     part.content = type;
                     break;
                 case "adj":
+                    break;
+                case "new tileset":
+                    int tilesetId = TileSet.tileSets.Count;
+                    part.content = tilesetId.ToString();
+                    TileSet.tileSets.Add(Interior.InitTileSet(item, tilesetId));
                     break;
                 default:
                     break;
@@ -240,6 +232,9 @@ public class Property {
     public void SetValue(int num, string part = "value") {
         if (HasPart("max"))
             num = Math.Clamp(num, 0, GetNumValue("max"));
+        if (num < 0)
+            num = 0;
+
         GetPart(part).content = num.ToString();
 
     }

@@ -12,6 +12,8 @@ public class TextParser : MonoBehaviour {
 
     #region parse
     public void Load() {
+
+        Verb.verbs.Clear();
         var fileName = targetAsset.name + ".csv";
 
         //TextAsset textAsset = Resources.Load<TextAsset>("TextAssets/" + targetAsset.name);

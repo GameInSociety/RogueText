@@ -1,13 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 [System.Serializable]
 public class PropertyDescription
 {
     public string name;
     public Item item;
+    public WorldAction.Source source;
     public List<Property> properties;
 
     public static List<PropertyDescription> propDescriptions = new List<PropertyDescription>();
@@ -18,22 +17,20 @@ public class PropertyDescription
         this.item = item;
     }
 
-    public static void Add(Item item, Property prop) {
-        
-        if (!prop.HasPart("description")) {
+    public static void Add(Item item, Property prop, WorldAction.Source source) {
+        if (!prop.HasPart("description"))
             return;
-        }
 
         var propDescription = propDescriptions.Find(x=> x.item == item);
 
         if ( propDescription == null) {
             propDescription = new PropertyDescription(item);
+            propDescription.source = source;
             propDescriptions.Add(propDescription);
         }
 
         prop.GetDescription();
         if ( propDescription.properties.Contains(prop)) {
-            Debug.Log($"({item.debug_name}) already contains prop  {prop.name}");
             return;
         }
         propDescription.properties.Add(prop);
@@ -42,32 +39,53 @@ public class PropertyDescription
 
     public static void Describe() {
         AvailableItems.UpdateItems();
-            // removing updated items that are not around ( prop update from events )
-        propDescriptions.RemoveAll(x => !AvailableItems.currItems.Contains(x.item));
 
-        DebugManager.Instance.debug_PropertyDescriptions = new List<PropertyDescription>(propDescriptions);
+        log = "";
+        LOG($"NEW DESCRIPTION", Color.yellow);
+
+        // removing updated items that are not around ( prop update from events )
+        var outOfRangeProps = propDescriptions.FindAll(x => !AvailableItems.currItems.Contains(x.item));
+        if (outOfRangeProps.Count == 0)
+            LOG($"all property items are in range", Color.white);
+        else
+            LOG($"removing {outOfRangeProps.Count} out of range proeprty items", Color.white);
+        foreach (var item in outOfRangeProps)
+            LOG($"{item.name}", Color.grey);
+        propDescriptions.RemoveAll(x => !AvailableItems.currItems.Contains(x.item));
+        //
 
         for (int i = 0; i < propDescriptions.Count; i++) {
             var pD = propDescriptions[i];
+            LOG($"[CHECKING PROPS OF ITEM] : {pD.item.debug_name}", Color.magenta);
 
-            // getting item 
             var description = $"";
-
             var targetProps = pD.properties;
 
-            // skipping if no changed props were found
-            if (targetProps.Count == 0) {
-                Debug.Log($"no properties to describe in item {pD.item.debug_name}");
-                continue;
+            // removing unchanged props
+            if ( pD.source == WorldAction.Source.Event) {
+                LOG($"[FROM EVENT]", Color.white);
+                for (int j = targetProps.Count - 1; j >= 0; j--) {
+                    var prop = targetProps[j];
+                    LOG($"[PROP]:{prop.name} / {prop.GetDescription()}", Color.cyan);
+                    if (!DescribeInEvents(prop))
+                        targetProps.RemoveAt(j);
+                }
+                if (targetProps.Count == 0) {
+                    LOG("no props to describe", Color.red);
+                    continue;
+                }
+            } else {
             }
 
-            // removing unchanged props
-            targetProps = targetProps.FindAll(x => DescribeInEvents(x));
             // describing all props
             for (int j = 0; j < targetProps.Count; j++) {
                 var prop = targetProps[j];
-                prop.RemovePart("changed");
-                description += $"{prop.GetDescription()}{TextUtils.GetCommas(j, targetProps.Count)}";
+                LOG($"describing : {prop.name}/{prop.GetDescription()}", Color.green);
+                if (!prop.enabled) {
+                    description += $"not {prop.GetDescription()}{TextUtils.GetCommas(j, targetProps.Count)} anymore";
+                } else {
+                    description += $"{prop.GetDescription()}{TextUtils.GetCommas(j, targetProps.Count)}";
+                }
             }
 
             // write
@@ -79,6 +97,9 @@ public class PropertyDescription
         propDescriptions.Clear();
     }
 
+    public static string GetDescription(Property prop) {
+        return GetDescription(new List<Property> { prop });
+    }
     public static string GetDescription(List<Property> props) {
         var str = "";
         for (int i = 0;i < props.Count;i++) {
@@ -89,28 +110,52 @@ public class PropertyDescription
     }
 
     public static bool DescribeInEvents(Property prop) {
-        if (!prop.HasPart("description type") || !prop.HasPart("description"))
+
+        if (!prop.enabled) {
+            LOG($"Skipping : Disabled.", Color.gray);
             return false;
+        }
 
-        var type = prop.GetPart("description type").content;
-
+            var type = prop.GetPart("description type").content;
         if (type.StartsWith("lerp")) {
+            float lerp = prop.GetNumValue() / prop.GetNumValue("max");
             int i = 0;
             if (!int.TryParse(type.Substring(4), out i)) {
                 Debug.LogError($"could't parse prop description type {type}");
                 return false;
             }
-            return prop.GetNumValue() >= i;
+            float t = (float)i / 10f;
+            if (lerp >= t) {
+                LOG($"[{type} current={lerp} / target={t} / value={prop.GetNumValue()}] Describing", Color.gray);
+                return true;
+            } else {
+                LOG($"[{type} current={lerp} / target={t} / value={prop.GetNumValue()}] Skipping", Color.gray);
+                return false;
+            }
         }
 
         switch (type) {
             case "always":
+                LOG($"[ALWAYS] Describing", Color.gray);
                 return true;
             case "on change":
-                return prop.HasPart("changed");
-            default:
-                Debug.Log($"description type {type} for {prop.name} is under contextual conditions");
+                if ( prop.HasPart("changed")) {
+                    LOG($"[ON CHANGE] Describing", Color.gray);
+                    prop.RemovePart("changed");
+                    return true;
+                }
+                LOG($"[ON CHANGE] Skipping ( hasn't changed )", Color.gray);
                 return false;
+            default:
+                LOG($"[NO TYPE] Describing", Color.gray);
+                return true;
         }
+    }
+
+    public static string log;
+    public static void LOG(string message, Color color) {
+        var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
+        string str = $"\n{txt_color}{message}</color>";
+        log += str;
     }
 }

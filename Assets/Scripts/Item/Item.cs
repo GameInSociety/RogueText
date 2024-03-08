@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
-using UnityEngine.Jobs;
+using static UnityEditor.Progress;
 
 [System.Serializable]
 public class Item {
@@ -36,31 +32,12 @@ public class Item {
             WorldEvent.SubscribeItem(this, content);
         }
         foreach (var dataProp in GetData().properties) {
-            AddProp(dataProp);
+            AddProp(dataProp, false);
         }
+
+        foreach (var prop in props)
+            prop.Init(this);
     }
-
-    public Property AddProp(string name) {
-        return AddProp(Property.GetDataProp(name));
-    }
-    public Property AddProp(Property prop) {
-        var newProp = new Property();
-        newProp.Init(prop);
-        props.Add(newProp);
-        return newProp;
-    }
-
-    public void RemoveProp(string name) {
-        var i = props.FindIndex(x => x.name == name);
-        if (i < 0) {
-            Debug.LogError($"removing prop from item {debug_name} : no props named {name} found");
-            return;
-        }
-        props.RemoveAt(i);
-    }
-
-
-
 
     /// <summary>
     /// HANDLING OF CHILD ITEMS CONTAINED IN THIS ITEMS
@@ -70,6 +47,14 @@ public class Item {
     #region child items
     public bool HasChildItems() {
         return mChildItems != null && mChildItems.Count > 0;
+    }
+    public bool HasExposedItems() {
+        return HasChildItems() && (GetExposedItems() != null && GetExposedItems().Count > 0);
+    }
+    public List<Item> GetExposedItems() {
+        if (HasProp("exposed"))
+            return mChildItems.FindAll(x => !x.HasProp("hidden"));
+        return null;
     }
     public List<Item> GetChildItems() {
         return mChildItems;
@@ -100,9 +85,7 @@ public class Item {
             if (!HasProp("contents"))
                 return;
             prop = GetProp("contents");
-            if (!prop.enabled)
-                return;
-            prop.enabled = false;
+            //RemoveProp("contents");
         }
 
         if (mChildItems == null)
@@ -111,36 +94,41 @@ public class Item {
         foreach (var part in prop.parts) {
             string it_name = part.key;
 
-            int amount = 1;
-            int percent = 100;
-            if (part.key == "main") {
-                it_name = part.content;
-            } else {
-                if (part.content.Contains('*')) {
-                    var strs = part.content.Split('*');
-                    try {
-                        var str_amount = strs[0].Trim(' ');
-                        amount = int.Parse(str_amount);
-                        var str_percent = strs[1].Trim(' ');
-                        percent = int.Parse(str_percent.Remove(str_percent.Length - 1));
-                    } catch (Exception ex) {
-                        Debug.LogError($"error on item generation :{debug_name}" +
-                            $"\n{ex.Message}");
-                        Debug.LogError($"{debug_name} mw_prop parse error on : {it_name} ({strs[0]}) ({strs[1]})");
-                    }
+            try {
+                int amount = 1;
+                int percent = 100;
+                if (part.key == "main") {
+                    it_name = part.content;
                 } else {
-                    if (part.content.Contains('%'))
-                        percent = int.Parse(part.content.Remove(part.content.Length - 1));
-                    else
-                        amount = int.Parse(part.content);
+                    if (part.content.Contains('*')) {
+                        var strs = part.content.Split('*');
+                        try {
+                            var str_amount = strs[0].Trim(' ');
+                            amount = int.Parse(str_amount);
+                            var str_percent = strs[1].Trim(' ');
+                            percent = int.Parse(str_percent.Remove(str_percent.Length - 1));
+                        } catch (Exception ex) {
+                            Debug.LogError($"error on item generation : {debug_name}" +
+                                $"\n{ex.Message}");
+                            Debug.LogError($"{debug_name} mw_prop parse error on : {it_name} ({strs[0]}) ({strs[1]})");
+                        }
+                    } else {
+                        if (part.content.Contains('%'))
+                            percent = int.Parse(part.content.Remove(part.content.Length - 1));
+                        else
+                            amount = int.Parse(part.content);
+                    }
                 }
-            }
 
-            for (var i = 0; i < amount; i++) {
-                var f = UnityEngine.Random.value * 100f;
-                if (f < percent) {
-                    _ = CreateChildItem(it_name);
+                for (var i = 0; i < amount; i++) {
+                    var f = UnityEngine.Random.value * 100f;
+                    if (f < percent) {
+                        _ = CreateChildItem(it_name);
+                    }
                 }
+            } catch (Exception e) {
+                TextManager.Write($"Error loading item content\n[{part.key}:{part.content}]\n in item \n[{debug_name}]", Color.red);
+                Debug.Log($"{e.Message}");
             }
         }
     }
@@ -149,6 +137,9 @@ public class Item {
     #region parent
     public void SetParent(Item item) {
         mParentItem = item;
+    }
+    public bool HasParent() {
+        return mParentItem != null;
     }
     public Item GetParent() {
         if (mParentItem == null) {
@@ -304,7 +295,7 @@ public class Item {
             WriteChildItems();
     }
     public virtual void WriteChildItems() {
-        TextManager.Write(ItemDescription.NewDescription(GetChildItems()));
+        TextManager.Write(ItemDescription.DescribeItems(GetChildItems()));
     }
     #endregion
 
@@ -322,6 +313,7 @@ public class Item {
     }
     public int GetIndexInText(string text) {
         var wIndex = 0;
+        // WORD //
         foreach (var word in GetData().words) {
             for (int i = 0; i < 2; i++) {
                 var num = (Word.Number)i;
@@ -332,7 +324,18 @@ public class Item {
                     return text.IndexOf(_word);
                 }
             }
+            
             ++wIndex;
+        }
+        // TYPE //
+        if (!HasProp("types")) return -1;
+        var typeParts = GetProp("types").parts;
+        foreach (var type in typeParts) {
+            string bound = type.key;
+            if (Regex.IsMatch(text, @$"\b{bound}\b")) {
+                Debug.Log($"Found item : {debug_name} with type {bound}");
+                return text.IndexOf(bound);
+            }
         }
         return -1;
     }
@@ -370,10 +373,54 @@ public class Item {
     /// <param name="prms"></param>
     /// <returns></returns>
 
-    // adding unchangeable, static data to the item (ex : direction etc.. )
-    public void AddDataProp(string name) {
-        var prop = Property.GetDataProp(name);
-        props.Add(prop);
+    // from content data
+    public static Property New(Property copy) {
+        var p = new Property ();
+        p.name = copy.name;
+        foreach (var part in copy.parts) {
+            p.AddPart(new Property.Part(part.key, part.content));
+        }
+
+        // check if prop exists in content, to copy data from a higher property
+        var dataProp = Property.datas.Find(x => x.name == p.name);
+        // le check de contents un peu flou en soi, ça va arriver avec d'autres prop donc il faudra réfléchir
+        if (dataProp != null && dataProp.name != "contents") { 
+            // adding implicit parts from the data
+            foreach (var part in dataProp.parts) {
+                if (p.parts.Find(x => x.key == part.key) != null)
+                    continue;
+                p.AddPart(part.key, part.content);
+            }
+        }
+        return p;
+    }
+
+    public Property AddProp(string name) {
+        return AddProp(Property.GetDataProp(name));
+    }
+    public Property AddProp(Property prop, bool init = true) {
+        var newProp = New(prop);
+        props.Add(newProp);
+        if (init) newProp.Init(this);
+        return newProp;
+    }
+
+    public void RemovePropOfType(string type) {
+        var i = props.FindIndex(x => x.HasPart("type") && x.GetPart("type").content.Equals(type));
+        if (i < 0) {
+
+        } else {
+            props.RemoveAt(i);
+        }
+    }
+
+    public void RemoveProp(string name) {
+        var i = props.FindIndex(x => x.name == name);
+        if (i < 0) {
+            Debug.LogError($"removing prop from item {debug_name} : no props named {name} found");
+            return;
+        }
+        props.RemoveAt(i);
     }
 
     public Property SetProp(string prms) {
@@ -392,7 +439,7 @@ public class Item {
                 else
                     part.content = strs[1];
             }
-            prop.Init();
+            prop.Init(this);
             return prop;
         }
 
@@ -404,7 +451,7 @@ public class Item {
             prop.AddPart(part[0], part[1]);
         }
 
-        prop.Init();
+        prop.Init(this);
         props.Add(prop);    
 
         return prop;

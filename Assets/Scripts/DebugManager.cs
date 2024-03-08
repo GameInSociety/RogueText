@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +9,10 @@ public class DebugManager : MonoBehaviour {
     // 3) gardening (graine)
     // 4) doors & keys
     // 5) boat (� voir)
+
+    [Header("[ITEM LINK]")]
+    public List<Item> itemsFound = new List<Item>();
+    public List<Property> propsFound = new List<Property>();
 
     [Space]
     [Header("[TILE]")]
@@ -39,7 +42,6 @@ public class DebugManager : MonoBehaviour {
     [Space]
     [Header("[ITEM EVENTS]")]
     public List<WorldEvent> debug_worldEvents = new List<WorldEvent>();
-    public List<ItemDescription.DescriptionGroup_Debug> debugDescriptions;
     public List<PropertyDescription> debug_PropertyDescriptions;
 
     public bool displayItemID;

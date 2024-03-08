@@ -1,0 +1,7 @@
+"NAME","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"no item","Universal","","","","$ sleep
+[player] add(>sleep, 1)
+[player] sub(>health, 1)","$ wait
+add(! time>hours, 1)
+write(an hour passes by)","$ eat
+add(! player>hunger, !p ANY food)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

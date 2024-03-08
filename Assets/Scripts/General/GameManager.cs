@@ -1,16 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Profiling.Memory.Experimental;
+﻿using System.Collections;
 using UnityEngine;
-using static UnityEditor.Progress;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
     public static GameManager Instance;
-
     public Coords startCoords;
-
     public Story story;
 
     private void Awake() {
@@ -20,26 +14,32 @@ public class GameManager : MonoBehaviour {
     // Start is called before the GetMainItem frame Update
     void Start() {
 
-        SpecLoader.Instance.Load();
+        DisplayDescription.Instance.Init();
+
         VerbLoader.Instance.Load();
         ContentLoader.Instance.Load();
         ItemLoader.Instance.Load();
+        MapLoader.Instance.Load();
 
-        MapTexture.Instance.CreateMapFromTexture();
+        //MapTexture.Instance.CreateMapFromTexture();
 
         Player.Instance = ItemData.Generate_Special("player") as Player;
 
+        MapTexture.Instance.DisplayMap(TileSet.GetTileSet(0));
+
         WorldData.Init();
 
-        Tile.SetCurrent(TileSet.GetCurrent.GetTile(startCoords));
+        Player.Instance.GetProp("coords").SetValue(Coords.CoordsToText(startCoords));
+        var startTile = TileSet.world.GetTile(Coords.PropToCoords(Player.Instance.GetProp("coords"), 0));
+        WorldData.SetAbstractItem("current tile", startTile);
 
-        Player.Instance.coords = startCoords;
-        Player.Instance.Move(startCoords);
+        var startItem = WorldData.globalItems[0];
+        var startSequence = "triggerEvent(OnStart)";
+        WorldAction startAction = new WorldAction(startItem, new Tile.Info(), startSequence);
+        startAction.Call();
 
         ItemParser.NewParser();
-
-        //ZombieManager.Instance.Parse();
-
-
     }
+    
 }
+

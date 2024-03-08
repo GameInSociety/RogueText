@@ -3761,10 +3761,9 @@ MonoBehaviour:
   nKeep: -1
   stop: []
   grammarString: 
-  playerName: Player
-  AIName: Narrator
-  prompt: The Narrator ONLY describes what the player says, briefly and precesily.
-    Nothing else.
+  playerName: Bernard
+  AIName: Erica
+  prompt: Erica is madly in love with you and wants your body
   setNKeepToPrompt: 1
   modelHide: 1
   numThreads: -1

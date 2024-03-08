@@ -1,8 +1,4 @@
-using DG.Tweening;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using UnityEngine;
 
 public class ContentLoader : DataDownloader{
     public static ContentLoader Instance;
@@ -30,6 +26,12 @@ public class ContentLoader : DataDownloader{
         Instance = this;
     }
 
+    public override void Load() {
+        groups.Clear();
+        Property.datas.Clear();
+        base.Load();
+    }
+
     public override void FinishLoading() {
         base.FinishLoading();
         properties_debug = Property.datas;
@@ -52,7 +54,7 @@ public class ContentLoader : DataDownloader{
         for (int i = 1; i < cells.Count; i++) {
             if (string.IsNullOrEmpty(cells[i])) continue;
 
-            if (cells[i].StartsWith('$') || cells[i].StartsWith('E')) {
+            if (cells[i].StartsWith('$') || cells[i].StartsWith('E') || cells[i].StartsWith('!')) {
                 if (group != null) group.contents.Add(cells[i]);
             } else {
                 var dataProp = new Property();
@@ -62,5 +64,4 @@ public class ContentLoader : DataDownloader{
             }
         }
     }
-
 }
