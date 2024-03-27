@@ -75,23 +75,15 @@ public static class ItemLink
     }
 
     public static string ReplacePropLinks(Item item, string key) {
-        Debug.Log($"Replacing prop links in [{key}]");
         var propLinkIndex = key.IndexOf('{');
         while (propLinkIndex >= 0) {
             string propKey = TextUtils.Extract('{', key, out key);
-            Debug.Log($"prop key : {propKey}");
             var newPart = new ActionPart(propKey);
             if (!newPart.TryInit(item)) {
-                Debug.LogError($"[replace prop] init part");
             }
 
-            if (newPart.prop == null)
-                Debug.LogError($" no prop ");
             var insertKey = newPart.prop.GetTextValue();
-            Debug.Log($"to insert : {insertKey}");
             key = key.Insert(propLinkIndex, insertKey);
-            Debug.Log($"new key : {key}");
-
             propLinkIndex = key.IndexOf('{');
         }
         return key;

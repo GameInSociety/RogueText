@@ -31,6 +31,12 @@ public class ItemParser {
         string str = $"\n{txt_color}{message}</color>";
         log += str;
     }
+    public void AddLog(string message, Color color) {
+
+        var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
+        string str = $" {txt_color}{message}</color>";
+        log += str;
+    }
 
     public List<Item> GetItems() {
         var _its = new List<Item>();
@@ -69,6 +75,9 @@ public class ItemParser {
         void Log(string message, Color color) {
             parser.Log(message, color);
         }
+        void AddLog(string message, Color color) {
+            parser.AddLog(message, color);
+        }
 
         public Part(string _part, ItemParser parser) {
             text = _part;
@@ -78,7 +87,7 @@ public class ItemParser {
 
         public void Parse() {
 
-            Log($"[{text}]", Color.yellow);
+            Log($"part:[{text}]", Color.white);
 
             GetNumber();
             GetItems();
@@ -104,17 +113,28 @@ public class ItemParser {
                 foreach (var prop in properties)
                     propTxt += $"({prop.name}) ";
                 Log($"[props] {propTxt}", Color.magenta);
+            } else {
+                Log("[no props]", Color.magenta);
             }
         }
 
         public void GetItems() {
-            items = AvailableItems.currItems.FindAll(x => x.ContainedInText(text));
+
+            items = AvailableItems.currItems.FindAll(x => x.ContainedInText(text) || x.GetPropsInText(text) != null);
+
+            var itmTxt = "";
+            foreach (var item in items)
+                itmTxt += $"[{item.debug_name}]";
+            Log(itmTxt, Color.yellow);
+
+            // save this before getting every thing all at once
+            /*items = AvailableItems.currItems.FindAll(x => x.ContainedInText(text));
             if (items.Count == 0) {
                 items = AvailableItems.currItems.FindAll(x => x.GetPropsInText(text) != null);
                 if (items.Count > 0)
                     Log($"{items.First().debug_name} (prop)", Color.white);
             } else
-                Log($"{items.First().debug_name} (item name)", Color.white);
+                Log($"{items.First().debug_name} (item name)", Color.white);*/
 
             GetProperties();
 
@@ -181,6 +201,7 @@ public class ItemParser {
 
             }
 
+            // look for an specific item with a property
             var narrowedIts = items.FindAll(x => x.GetPropsInText(text) != null);
             if ( narrowedIts.Count > 0) {
                 items = narrowedIts;
@@ -456,7 +477,7 @@ public class ItemParser {
             var itemText = "";
             for (int i = 0; i < part.items.Count; i++)
                 itemText += $"{part.items[i].debug_name} {TextUtils.GetSpaces(i, part.items.Count)}";
-            Log(itemText, Color.green);
+            Log($"sorted:[{itemText}]", Color.green);
         }
 
         
@@ -513,7 +534,7 @@ public class ItemParser {
         verb = longestVerb;
         _text = _text.Remove(0, _text.IndexOf(verb.GetCurrentWord)+ verb.GetCurrentWord.Length);
         _text = _text.Trim(' ');
-        Log($"found verb : {verb.GetCurrentWord},\nnew text:{_text}", Color.blue);
+        Log($"verb [{verb.GetCurrentWord}]", Color.white);
         return verb;
 
     }

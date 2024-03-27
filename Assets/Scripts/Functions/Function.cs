@@ -90,7 +90,6 @@ public static class Function {
         var targetItem = HasPart(1) ? GetItem(0) : item;
         var container = HasPart(1) ? GetItem(1) : GetItem(0);
 
-
         if (targetItem.HasProp("weight") && container.HasProp("weight") && container.HasProp("capacity")) {
             // get target item pick up props
             var ci_wProp = item.GetProp("weight");
@@ -122,8 +121,6 @@ public static class Function {
     static void createItem() {
 
         // createItem (WHAT ITEM, *HOW MUCH, *WHERE)
-
-
         var itemName = "";
         if (GetPart(0).HasProp())
             itemName = GetProp(0).GetTextValue();
@@ -161,7 +158,7 @@ public static class Function {
             if ( item.HasVisibleItems())
                 ItemDescription.AddItems($"{item.debug_Id} description", item.GetVisibleItems(),$"start:{item.GetText("on the dog")}, ");
             else
-                ItemDescription.AddItems("describe", new List<Item>() {item});
+                ItemDescription.AddItems("describe", new List<Item>() {item}, "list / definite");
             
             if (item.HasVisibleProps())
                 ItemDescription.AddProperties("prop describe", item, item.GetVisibleProps(), "list / definite");

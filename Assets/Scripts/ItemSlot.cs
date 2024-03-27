@@ -34,15 +34,30 @@ public class ItemSlot {
 
     public string ItemsToString() {
 
+        // get item reference
         var fItem = items.First();
 
+        // get noun
         string dog = items.Count > 1 ? "dogs" : "dog";
+        
+        // get articles
         string article = defined ? "the" : (items.Count > 1 ? Phrase.Part.GetRandom("article_mult") : "a");
+
+        var grammar = fItem.GetProp("grammar");
+        if ( grammar != null) {
+            if (grammar.HasPart("article")) {
+                article = grammar.GetPart("article").content;
+            }
+
+        }
+
         var parents = fItem.GetParents();
         var refItem = parents.Find(x => x.HasProp("refer"));
-        if (refItem != null)
+        if (refItem != null) {
             article = refItem.GetProp("refer").GetTextValue();
+        }
 
+        // put phrase together
         var text = $"{article}{NestedPropsToString()}{items.First().GetText($"{dog}")}{DescribePropsToString()}";
         text = text.Trim(' ');
         return text;

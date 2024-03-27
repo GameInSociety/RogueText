@@ -141,7 +141,7 @@ public class ItemDescription {
                     var d = slot.describeProps.Select(x => x.GetCurrentDescription()).Distinct();
                     foreach (var s in d) {
                         var newSlot = new ItemSlot(s);
-                        newSlot.items.AddRange(slot.items.FindAll(x => x.props.Find(p => p.GetCurrentDescription() == s) != null));
+                        newSlot.items.AddRange(slot.items.FindAll(x => x.GetVisibleProps().Find(p => p.GetCurrentDescription() == s) != null));
                         newSlot.describeProps.Add(slot.describeProps.Find(x => x.GetCurrentDescription() == s));
                         newSlots.Add(newSlot);
                     }
