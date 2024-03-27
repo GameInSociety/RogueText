@@ -1,4 +1,4 @@
-help,how,,
+help,how,,0
 "go
 move
 advance
@@ -6,72 +6,74 @@ walk
 continue
 keep going
 return
-climb",where,in,
+climb
+approach",where,in,0
 "enter
 get in
-go in",where,in,
+go in",where,in,0
 "open
 look inside",what,"*
-*",
-close,what,,
-eat,what,,
-sleep,where,on,
+*",3
+close,what,,3
+eat,what,,30
+sleep,where,on,0
 "look at
 look
 observe
-describe
-approach",what,"at
+describe",what,"at
 *
-*",
+*",0
 "take
 pick up",what,"*
-*",
-fill,what,,
-clean,what,,
-drink,what,,
-read,what,,
-cut,what,,
-throw,what,,
+*",3
+fill,what,,10
+clean,what,,20
+drink,what,,10
+read,what,,0
+cut,what,,10
+throw,what,,5
 "equip
 put on
-wear",what,,
+wear",what,,15
 "unequip
-take off",what,,
+take off",what,,10
 "put
-place",where,in,
+place",where,in,5
 "leave
 go out
 exit",from where,"from
-from",
-break,what,,
-tear,what,,
-search,what,,
+from",0
+break,what,,10
+tear,what,,5
+search,what,,120
 "make
-craft",what,,universal
-turn on,what,,
+craft",what,,500
+turn on,what,,5
 "turn off
-put out",what,,
-unlock,what,,
-plant,what,,
-unearth,what,,
-water,what,,
-dig,where or what,,
+put out",what,,5
+unlock,what,,20
+plant,what,,200
+unearth,what,,120
+water,what,,60
+dig,where or what,,100
 "how
 what
 who
-which",know,,
+which",know,,0
 "light
 fire up
 burn
 ignate
-set fire",what,,
+set fire",what,,10
 wait,how long,,
-put away,where,,
-empty,what,,
-charge,what,,
-use,what,with,
-hit,what,,
-smash,what,,
-attack,what,,
-strike,what,,
-yes,no,maybe,
+put away,where,,10
+empty,what,,20
+charge,what,,10
+use,what,with,10
+hit,what,,5
+smash,what,,5
+attack,what,,5
+strike,what,,5
+"dodge
+esquive",what,,2
+yes,no,maybe,1

@@ -3,6 +3,9 @@ using UnityEngine;
 
 public static class WorldData {
     public static List<Item> globalItems = new List<Item>();
+    public static Item GetGlobalItem(string key) {
+        return globalItems.Find(x=>x.debug_name == key);
+    }
     public static Item anyItem;
 
     private static List<AbstractItem> abstractItems = new List<AbstractItem>();

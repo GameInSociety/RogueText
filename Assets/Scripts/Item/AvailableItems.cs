@@ -20,13 +20,7 @@ public static  class AvailableItems {
     }
 
     public static void RemoveFromWorld(Item targetItem) {
-        foreach (var item in currItems) {
-            if (item.hasItem(targetItem)) {
-                item.RemoveItem(targetItem);
-                return;
-            }
-        }
-        Debug.LogError("removing item : " + targetItem.GetWord().GetText + " failed : not in container, tile or inventory");
+        
     }
 
 
@@ -37,7 +31,7 @@ public static  class AvailableItems {
 
         // the tile and all it's contained items
 
-        var tileItems = Tile.GetCurrent.GetChildItems(2);
+        var tileItems = Tile.GetCurrent.GetChildItems(3);
         currItems.AddRange(tileItems);
         LOG("Current Tile", tileItems);
         // it's important that it's after the tile, otherwise the parser will search the inventory GetMainItem (ex: take plate, you already have it)
@@ -97,7 +91,7 @@ public static  class AvailableItems {
                         ADDLOG($"[{prop.name}]", Color.white);
                     }
                     if (prop.HasPart("description")) {
-                        ADDLOG($"[{prop.GetDescription()}]", Color.green);
+                        ADDLOG($"[{prop.GetCurrentDescription()}]", Color.green);
                     }
                 } else {
                     if (prop.HasPart("value")) {

@@ -17,6 +17,7 @@ public class Verb {
     public string question = "";
     public string[] prepositions;
     public string[] words;
+    public int duration = 0;
     public int currentNameIndex = 0;
 
     public string GetFull => $"{GetCurrentWord} {GetPreposition}";

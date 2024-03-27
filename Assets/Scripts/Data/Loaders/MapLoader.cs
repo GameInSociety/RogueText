@@ -57,8 +57,6 @@ public class MapLoader : DataDownloader
             var newTile = Tile.Create(new Tile.Info(coords, 0), tileInfo.value);
             var cProp = newTile.AddProp(Coords.CoordsToProp(coords));
             TileSet.world.Add(coords, newTile);
-            newTile.GenerateChildItems();
-
             if (HasItems) {
                 string[] itemList = cells[x].Remove(0, returnIndex + 1).Split('\n');
                 foreach (string itemName in itemList) {
@@ -66,7 +64,7 @@ public class MapLoader : DataDownloader
                         GameManager.Instance.startCoords = new Coords(x, y);
                         continue;
                     }
-                    newTile.CreateChildItem(itemName);
+                    //newTile.CreateChildItem(itemName);
                 }
             }
         }

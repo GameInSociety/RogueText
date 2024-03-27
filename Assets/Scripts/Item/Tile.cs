@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 [System.Serializable]
 public class Tile : Item {
     // location of tile in world
     public Coords coords {
         get {
-            return TileInfo.coords;
+            return tileInfo.coords;
         }
     }
     [System.Serializable]
@@ -25,7 +26,7 @@ public class Tile : Item {
     public static Tile Create(Info info, string _name, string prop_text = "") {
 
         var tile = ItemData.Generate_Special(_name) as Tile;
-        tile.TileInfo = info;
+        tile.tileInfo = info;
         if (!string.IsNullOrEmpty(prop_text)) {
             tile.SetProp($"dif / description:{prop_text}");
         }
@@ -37,18 +38,14 @@ public class Tile : Item {
     public void Describe() {
         // update tiles to create doors  
         GetAdjacentTiles();
-        WriteDescription();
-    }
-
-    public override void WriteDescription() {
         var itemsToDescribe = new List<Item>();
         if (HasChildItems())
             itemsToDescribe.AddRange(GetChildItems());
 
         itemsToDescribe.AddRange(GetAdjacentTiles());
 
-        string description = $"{GetText("on a dog")}, {ItemDescription.DescribeItems(itemsToDescribe)}";
-        TextManager.Write($"{description}");
+        ItemDescription.AddItems("tile description", itemsToDescribe, $"start:{GetText("on a dog")}, ");
+        //ItemDescription.AddItems("tile description", itemsToDescribe, $"start:{GetText("on a dog")}, / type:group");
     }
     
     public List<Item> GetAdjacentTiles() {
@@ -97,12 +94,20 @@ public class Tile : Item {
     public static Tile GetPrevious => _previous;
 
     private static Tile _current;
-    public static Tile GetCurrent => WorldData.GetAbstractItem("current tile") as Tile;
+    public static Tile GetCurrent {
+        get {
+            var playerts = Player.Instance.tilesetId;
+            var tileset = TileSet.GetTileSet(playerts);
+            var player_coords = Coords.PropToCoords(Player.Instance.GetProp("coords"), playerts);
+            var currentTile = tileset.GetTile(player_coords);
+            if (currentTile == null)
+                Debug.LogError("current tile null");
+            return currentTile;
+        }
+    }
 
     public static void SetCurrent(Tile tile) {
         SetPrevious(_current);
-
-        DebugManager.Instance.TILE = tile;
         _current = tile;
         tile.RemovePropOfType("orientation");
     }

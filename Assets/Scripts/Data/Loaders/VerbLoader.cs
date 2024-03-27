@@ -46,6 +46,12 @@ public class VerbLoader : TextParser {
             }
         }
 
+        if (!string.IsNullOrEmpty(cells[3])) {
+            newVerb.duration = cells[3].Length;
+        } else {
+            newVerb.duration = 0;
+        }
+
         Verb.AddVerb(newVerb);
 
     }

@@ -1,11 +1,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Security.Cryptography;
+using System.Linq;
+using static UnityEditor.Progress;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
+using System.Threading;
+using JetBrains.Annotations;
 
 [System.Serializable]
 public class Property {
 
     public static List<Property> datas = new List<Property>();
+
+    public string name;
+    public bool changed = false;
+    public bool enabled = false;
+    public bool destroy = false;
+    public List<Part> parts = new List<Part>();
+    private Item _linkedItem;
+
+    // in data
+    [System.Serializable]
+    public class Part {
+        public string key;
+        public string content;
+        public Part(string k, string v) {
+            key = k;
+            content = v;
+        }
+    }
 
     public static Property GetDataProp(string name) {
         var prop = datas.Find(x=> x.name == name);
@@ -22,24 +47,10 @@ public class Property {
         datas.Add(prop);
     }
 
-    // in data
-    [System.Serializable]
-    public class Part {
-        public string key;
-        public string content;
-        public Part(string k, string v) {
-            key = k;
-            content = v;
-            //Debug.Log($"new part(key:{k} value:{v})");
-        }
-    }
-
-    public string name;
-    public bool enabled = false;
-    public bool destroy = false;
-    public List<Part> parts = new List<Part>();
 
     public void Init(Item item) {
+
+        _linkedItem = item;
 
         // enable / disable
         if (name.StartsWith('*')) {
@@ -55,17 +66,15 @@ public class Property {
             enabled = true;
         }
 
-        if (HasPart("key")) {
-            var split = GetPart("key").content.Split(", ");
-            if ( split.Length > 1) {
-                RemovePart("key");
-                foreach (var s in split) {
-                    AddPart("key", s);
-                }
+        if (name.Contains('/')) {
+            var split = name.Split('/');
+            name = split[0];
+            for (int i = 1; i < split.Length; i++) {
+                AddPart("key", split[i].Trim(' '));
             }
         }
 
-        InitValue(item);
+        InitValue("value");
         InitDescription();
     }
 
@@ -149,42 +158,25 @@ public class Property {
     #endregion
 
     #region value
-    public void InitValue(Item item) {
+    public void InitValue(string key) {
 
-        string key = "value";
         if (!HasPart(key))
             return;
 
         Part part = GetPart(key);
-        if (part == null) {
-            Debug.LogError($"INIT NUM VALUE : prop {name} doesn't have part with key {key}");
-            return;
-        }
-
-        // check link
-        if (part.content.Contains('[')) {
-            var prop = ItemLink.GetProperty(part.content, null);
-            part.content = prop.GetNumValue().ToString();
-            return;
-        }
 
         if ( !part.content.StartsWith('?') && part.content.Contains('?') ) {
             string[] prts = part.content.Split('?');
             int min = int.Parse(prts[0]);
             int max = int.Parse(prts[1]);
-            int i = UnityEngine.Random.Range(min, max + 1);
+            int i = UnityEngine.Random.Range(min, max);
             part.content = $"{i}";
-            AddPart("max", max.ToString());
         }
-
         if (part.content.Contains('m')) {
-            string[] prts = part.content.Split('m');
-            int min = int.Parse(prts[0]);
-            int max = int.Parse(prts[1]);
-            part.content = min.ToString();
-            AddPart("max", max.ToString());
+            var split = part.content.Split('m');
+            part.content = split[0];
+            SetPart("max", split[1]);
         }
-
         if (part.content.StartsWith('{')) {
             string outText = "";
             var s = TextUtils.Extract('{', part.content, out outText);
@@ -200,7 +192,7 @@ public class Property {
                 case "new tileset":
                     int tilesetId = TileSet.tileSets.Count;
                     part.content = tilesetId.ToString();
-                    TileSet.tileSets.Add(Interior.InitTileSet(item, tilesetId));
+                    TileSet.tileSets.Add(Interior.InitTileSet(_linkedItem, tilesetId));
                     break;
                 default:
                     break;
@@ -211,11 +203,23 @@ public class Property {
         return GetPart(key).content;
     }
     // value can be number or seq. but it's alway dynamic
+    public bool HasNumValue(string key = "value") {
+        return int.TryParse(GetPart(key).content, out _);
+    }
     public int GetNumValue(string key = "value") {
         Part part = GetPart(key);
         if ( part == null) {
-            Debug.LogError($"GET NUM VALUE : prop {name} doesn't have part with key {key}"); 
-            return 0;
+            return -1;
+        }
+
+        // check link
+        if (part.content.Contains('[')) {
+            var propKey = TextUtils.Extract('[', part.content, out _);
+            var linkPart = new ActionPart(propKey);
+            if (!linkPart.TryInit(_linkedItem))
+                Function.LOG($"[{_linkedItem.debug_name}/{name}] OnValue link prop failed", Color.red);
+            part.content = linkPart.prop.GetNumValue().ToString();
+            return linkPart.prop.GetNumValue();
         }
 
         int num = 0;
@@ -227,7 +231,7 @@ public class Property {
     }
     public void SetValue(string text, string part = "value") {
         GetPart(part).content = text;
-
+        SetChanged();
     }
     public void SetValue(int num, string part = "value") {
         if (HasPart("max"))
@@ -236,9 +240,88 @@ public class Property {
             num = 0;
 
         GetPart(part).content = num.ToString();
-
+        SetChanged();
+    }
+    public void SetChanged() {
+        changed = true;
+        CheckValueEvents();
+        if ( WorldAction.current != null) {
+            PropertyDescription.Add(_linkedItem, this, WorldAction.current.source, false);
+        }
     }
     #endregion
+
+    #region on value
+    public enum OnValueCondition {
+        Above,
+        Below,
+        Equals
+    }
+    void CheckValueEvents() {
+        if (!enabled)
+            return;
+
+        var valueEvents = parts.FindAll(x => x.key == "OnValue");
+        if (valueEvents.Count == 0)
+            return;
+
+        foreach (var valueEvent in valueEvents) {
+            var content = valueEvent.content;
+
+            // getting the condition
+            var returnIndex = content.IndexOf('\n');
+            var condition_text = content.Remove(returnIndex);
+            // 
+
+            var propValue = GetNumValue();
+            var targetValue = 0;
+
+            bool call = false;
+
+            var onValCondition = OnValueCondition.Equals;
+            if (condition_text.StartsWith("ABOVE")) {
+                onValCondition = OnValueCondition.Above;
+                condition_text = condition_text.Remove(0, "ABOVE".Length);
+            }
+            if (condition_text.StartsWith("BELOW")) {
+                onValCondition = OnValueCondition.Below;
+                condition_text = condition_text.Remove(0, "BELOW".Length);
+            }
+            condition_text = condition_text.Trim(' ');
+
+            if (condition_text.StartsWith('[')) {
+                var key = TextUtils.Extract('[', condition_text, out condition_text);
+                var onValuePart = new ActionPart(key);
+                if (!onValuePart.TryInit(_linkedItem))
+                    Function.LOG($"[{_linkedItem.debug_name}/{name}] OnValue link prop failed", Color.red);
+                targetValue = onValuePart.prop.GetNumValue();
+            } else {
+                targetValue = int.Parse(condition_text);
+            }
+
+
+            switch (onValCondition) {
+                case OnValueCondition.Above:
+                    call = propValue > targetValue;
+                    break;
+                case OnValueCondition.Below:
+                    call = propValue < targetValue;
+                    break;
+                case OnValueCondition.Equals:
+                    call = propValue == targetValue;
+                    break;
+            }
+
+            // getting the sequence
+            var sequence = content.Remove(0, returnIndex + 1);
+            if (call) {
+                var tileEvent = new WorldAction(_linkedItem, WorldAction.current.tileInfo, sequence);
+                tileEvent.Call();
+            }
+        }
+    }
+    #endregion
+
     #region description
     public void InitDescription() {
         if (!HasPart("description"))
@@ -250,32 +333,115 @@ public class Property {
             var type = TextUtils.Extract('(', description, out description);
             SetPart("description type", type);
             SetPart("description", description);
-        } else if (!HasPart("description type")) {
+        } else
             SetPart("description type","none");
-        }
-        //
+        
+
         // SETUP //
         if (description.StartsWith('[')) {
             var setup = TextUtils.Extract('[', description, out description);
             SetPart("description", description);
             SetPart("description setup", setup);
-        }
+        } else if (!HasPart("description setup"))
+            SetPart("description setup", "is");
         //
-        
+
     }
-    public string GetDescription() {
-        if (!HasPart("description"))
-            return "";
+    public string GetDisplayDescription() {
+
+        if (!enabled) {
+            if (changed)
+                return $"no longer {GetCurrentDescription()}";
+            else return "";
+        }
+
+        if (!changed)
+            return GetCurrentDescription();
+
+        var newDescription = GetCurrentDescription();
+        var result = "";
+        if (HasPart("current description")) {
+            if (newDescription != GetPart("current description").content)
+                result = $"now {newDescription}";
+            else
+                result = $"still {newDescription}";
+        } else
+            result = $"{newDescription}";
+        SetPart("current description", newDescription);
+        changed = false;
+        return result;
+    }
+
+    public bool CanBeDescribed() {
+
+        if (!enabled && !changed) {
+            PropertyDescription.LOG($"[{name}] Skip (Disabled and Unchanged)", Color.red);
+            return false;
+        }
+
+        if (!HasPart("description type")) {
+            PropertyDescription.LOG($"[{name}] Skip (No Description Type)", Color.green);
+            return true;
+        }
+
+        var type = GetPart("description type").content;
+        if (type.EndsWith("%")) {
+            float currentPercent = Mathf.Round((float)GetNumValue() / GetNumValue("max") * 100f);
+            int targetPercent = 0;
+            bool below = false;
+            if (type.StartsWith('<')) {
+                type = type.Substring(1);
+                below = true;
+            }
+
+            if (!int.TryParse(type.TrimEnd('%'), out targetPercent)) {
+                Debug.LogError($"could't parse prop description type {type}");
+                return false;
+            }
+            if (below ? currentPercent <= targetPercent : currentPercent >= targetPercent) {
+                PropertyDescription.LOG($"[{type}] {currentPercent}/{targetPercent} / value={GetNumValue()}] Describing", Color.green);
+                return true;
+            } else {
+                PropertyDescription.LOG($"[{type}] {currentPercent}/{targetPercent} / value={GetNumValue()}] Skipping", Color.red);
+                return false;
+            }
+        }
+        switch (type) {
+            case "always":
+                PropertyDescription.LOG($"[ALWAYS] Describing", Color.gray);
+                return true;
+            case "on change":
+                if (HasPart("changed")) {
+                    PropertyDescription.LOG($"[ON CHANGE] Describing (changed)", Color.green);
+                    return true;
+                }
+                PropertyDescription.LOG($"[ON CHANGE] Skipping (hasn't changed)", Color.red);
+                return false;
+            case "never":
+                PropertyDescription.LOG($"[NEVER] Only context, skipping", Color.red);
+                return false;
+            default:
+                PropertyDescription.LOG($"[NO TYPE] Describing", Color.green);
+                return true;
+        }
 
 
-        var newDescription = GetNewDescription();
-        if (HasPart("cDes") && newDescription != GetPart("cDes").content)
-            SetChanged();
-        SetPart("cDes", newDescription);
-        return newDescription;
     }
-    public bool DescriptionChanged() {
-        return HasPart("changed");
+
+    public string GetCurrentDescription() {
+        var description = GetPart("description").content;
+        if (description.Contains("/")) {
+            var prts = description.Split(" / ");
+            int max = HasPart("max") ? GetNumValue("max") : GetNumValue();
+            int i = GetNumValue();
+            if (i == 0) return prts[0];
+            if ( i == max ) return prts[prts.Length-1];
+            var lerp = (float)i * prts.Length / max;
+            int index = Math.Clamp((int)lerp, 1, prts.Length-2);
+            return $"{GetPart("description start")?.content}{prts[index]}";
+        }
+        description = description.Replace("{value}", GetPart("value")?.content);
+        return description;
     }
 
     public bool Visible() {
@@ -292,34 +458,17 @@ public class Property {
         }
         return true;
     }
-    public void SetChanged() {
-        SetPart("changed", "");
-    }
 
-    private string GetNewDescription() {
-        var description = GetPart("description").content;
-
-        if (description.Contains("/")) {
-            var prts = description.Split(" / ");
-            int max = HasPart("max") ? GetNumValue("max") : GetNumValue();
-            int i = GetNumValue();
-            if (i == 0) return prts[0];
-            if ( i == max ) return prts[prts.Length-1];
-            var lerp = (float)i * prts.Length / max;
-            int index = Math.Clamp((int)lerp, 1, prts.Length-2);
-            return $"{GetPart("description start")?.content}{prts[index]}";
-        }
-        description = description.Replace("{value}", GetPart("value")?.content);
-
-        
-
-        return description;
-    }
-
-    public static string GetDescription(List<Property> props) {
+    public static string GetDescription(List<Property> props, bool and = false) {
         string str = "";
-        for (int i = 0; i < props.Count; i++) {
-            str += $"{props[i].GetDescription()}{TextUtils.GetCommas(i, props.Count, false)}";
+        var props_txt = props.Select(x => x.GetDisplayDescription()).ToList();
+        props_txt.RemoveAll(x => string.IsNullOrEmpty(x));
+        if (props_txt.Count == 0) return "";
+        for (int i = 0; i < props_txt.Count; i++) {
+            var currSetup = props[i].GetPart("description setup").content;
+            var b = i > 0 && props[i - i].GetPart("description setup").content == currSetup;
+            string hook = b ? "" : $"{currSetup} ";
+            str += $"{hook}{props_txt[i]}{TextUtils.GetCommas(i, props_txt.Count)}";
         }
         return str;
     }

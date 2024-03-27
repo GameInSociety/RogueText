@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 [System.Serializable]
@@ -36,7 +37,7 @@ public class WorldEvent {
             worldEvent = CreateWorldEvent(eventName);
         }
 
-        var worldAction = new WorldAction(item, item.TileInfo , sequence); ;
+        var worldAction = new WorldAction(item, item.tileInfo , sequence); ;
         worldEvent.AddWorldAction(worldAction); 
     }
 
@@ -56,6 +57,13 @@ public class WorldEvent {
 
     
     public static void RemoveWorldEventsWithItem(Item item) {
+
+        foreach (var itDes in ItemDescription.itemDescriptions) {
+            foreach (var group in itDes.groups) {
+                group.itemSlots.RemoveAll(x=> x.items.Contains(item));
+            }
+        }
+
         foreach (var worldEvent in worldEvents)
             worldEvent.actions.RemoveAll(x => x .TargetItem() == item);
     }

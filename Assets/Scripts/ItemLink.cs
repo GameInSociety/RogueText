@@ -5,142 +5,157 @@ using UnityEngine;
 public static class ItemLink
 {
     public static string failMessage;
+    static Item sourceItem;
+    public class ItemHistory {
+        public static List<ItemHistory> list = new List<ItemHistory>();
+        public static void Clear() {
+            list.Clear();
+        }
+        public string key;
+        public Item item;
+        public ItemHistory(string  key, Item item) {
+            this.key = key;
+            this.item = item;
+        }
+    }
 
-    public static Item SearchItem(string key) {
+    public static Item SearchItem(string _key) {
+
+        var histItem = ItemHistory.list.Find(x=>x.key == _key);
+        if (histItem != null) {
+            Function.LOG($"getting {histItem.item} from history ({histItem.key})", Color.white);
+            return histItem.item;
+        }
 
         failMessage = "";
 
-        LOG($"NEW ITEM SEARCH [{key}]", Color.white);
+        sourceItem = WorldAction.current.TargetItem();
 
-        baseItem = WorldAction.current.TargetItem();
+
+        string key = _key;
+
+        bool onlyInParser = false;
+        bool random = false;
+        if (key.StartsWith("INPUT ")) {
+            key = key.Remove(0,"INPUT ".Length);
+            onlyInParser = true;
+        }
+        if (key.StartsWith("RANDOM ")) {
+            key = key.Remove(0, "RANDOM ".Length);
+            random = true;
+        }
+       
         var results = ReadKey(key);
 
         if (results == null || results.Count == 0) {
-
             // if no fail message was there, set default one
             if (string.IsNullOrEmpty(failMessage))
                 DisplayFail($"there's no {key} around");
-
-            LOG(failMessage, Color.red);
-            Function.Fail(failMessage);
             return null;
         }
 
-        var item = results[0];
+        if ( ItemParser.GetCurrent != null) {
+            var inParser = ItemParser.GetCurrent.GetItems().FindAll(x=> results.Contains(x));
+            var strIt = "";
+            foreach (var it in inParser)
+                strIt += it.debug_name + " ";
+            if ( inParser.Count > 0)
+                return inParser[0];
+            else if (onlyInParser) {
+                DisplayFail($"specify something in the input");
+                return null;
+            }
+        }
+        var item = random ? results[Random.Range(0, results.Count)] : results[0];
+        if (random) {
+            Debug.Log($"picking random result : {item.debug_name}");
+        }
+        ItemHistory.list.Add(new ItemHistory(_key, item));
         return item;
     }
 
-    static Item baseItem;
+    public static string ReplacePropLinks(Item item, string key) {
+        Debug.Log($"Replacing prop links in [{key}]");
+        var propLinkIndex = key.IndexOf('{');
+        while (propLinkIndex >= 0) {
+            string propKey = TextUtils.Extract('{', key, out key);
+            Debug.Log($"prop key : {propKey}");
+            var newPart = new ActionPart(propKey);
+            if (!newPart.TryInit(item)) {
+                Debug.LogError($"[replace prop] init part");
+            }
+
+            if (newPart.prop == null)
+                Debug.LogError($" no prop ");
+            var insertKey = newPart.prop.GetTextValue();
+            Debug.Log($"to insert : {insertKey}");
+            key = key.Insert(propLinkIndex, insertKey);
+            Debug.Log($"new key : {key}");
+
+            propLinkIndex = key.IndexOf('{');
+        }
+        return key;
+    }
 
     public static List<Item> ReadKey(string key) {
 
         // first, check if the search will be in another item
-        var parent_item = (Item)null;
         if (key.Contains('.')) {
-            // split
-            var parts = key.Split('.');
-            LOG($"Look for parent with key : [{parts[0]}]", Color.grey);
-
-            // get the parent item
-            var results = ReadKey(parts[0]);
-            if (results == null || results.Count == 0) {
-                LOG($"No parent item with key [{key}] was not found", Color.grey);
-                return null;
+            var range = AvailableItems.currItems;
+            while (key.Contains('.')) {
+                // split
+                var parentKey = key.Split('.')[0];
+                // get the parent item
+                var parent = SearchItemsInRange(parentKey, range);
+                if (parent == null || parent.Count == 0)
+                    return null;
+                range = parent[0].GetChildItems(2);
+                key = key.Remove(0, key.IndexOf('.') + 1);
             }
-            key = parts[1];
-            baseItem = parent_item;
+            return SearchItemsInRange(key, range);
         }
 
-        // if parent, search in children
-        if ( parent_item != null) {
-            LOG($"Looking inside parent : {parent_item.debug_name}", Color.grey);
-            return SearchItemsInRange(key, parent_item.GetChildItems(2));
-        }
-
-        // when the key starts with *, it search will only occur in the input items
-        if (key.StartsWith("p ")) {
-            LOG($"Only looking inside Parser", Color.gray);
-            if ( ItemParser.GetCurrent == null) {
-                LOG($"Searching inside Parser in key [{key}], but no Parser Available", Color.red);
-                return null;
-            }
-            var newKey = key.Remove(0, 2).TrimStart(' ');
-            var itemResults = ItemParser.GetCurrent.SearchForItemsInParts(newKey);
-            if (itemResults == null || itemResults.Count ==0 ) {
-                    var verb = ItemParser.GetCurrent.verb;
-                    var currItem = ItemParser.GetCurrent.GetPart(0).items[0];
-                if (ItemParser.GetCurrent.parts.Length < 2)
-                    DisplayFail($"specify something with {newKey}", true);
-                else
-                    DisplayFail($"{ItemParser.GetCurrent.GetPart(1).items.First().GetText("the dog")} doesn't have {newKey}", true);
-            }
-            return itemResults;
-        }
-
-        // if no current item parser, only in surrnouding items ( for events )
-        if (ItemParser.GetCurrent == null) {
-            LOG($"No Parser, Looking In Available Items", Color.grey);
-            return SearchItemsInRange(key, AvailableItems.currItems);
-        }
-
-        // first serach in parsed items
-        LOG($"looking in parser : {key}", Color.gray );
-        var parserItem = ItemParser.GetCurrent.SearchForItemsInParts(key);
-        if (parserItem != null) {
-            LOG($"Found : {parserItem.First().debug_name}", Color.grey);
-            return parserItem;
-        } else {
-            LOG($"found nothing in parser", Color.grey);
-        }
-
-        LOG($"Looking In Available Items", Color.grey);
-        var surroundingItem = SearchItemsInRange(key, AvailableItems.currItems);
-
-        if ( surroundingItem == null) {
-            DisplayFail($"there's no {key} around");
+        var results = SearchItemsInRange(key, AvailableItems.currItems);
+        if ( results == null)
             return null;
-        }
-
-        return surroundingItem;
+        return results;
     }
 
     static void DisplayFail(string message, bool overrideMessage = false) {
-
         failMessage = message;
-        
     }
 
     static void Error(string message) { Debug.LogError(message);}
 
     public static List<Item> SearchItemsInRange(string key, List<Item> range) {
         key = key.Trim(' ');
+
+        Function.ADDLOG($"({key}) ", Color.gray);
+
         // this searches in the parser
-        if (key.StartsWith("ANY")) {
+        if (key.StartsWith("ANY"))
             return GetItemsWithProp(key, range);
-        }
+        
         switch (key) {
-            case "parent":
-                LOG($"Special Key : Parent", Color.gray);
-                return new List<Item>() { baseItem.GetParent() };
+            case "PARENT":
+                return new List<Item>() { sourceItem.GetParent() };
+            case "THIS":
+                return new List<Item>() { sourceItem };
         }
-        var result = range.FindAll(x => x.HasWord(key) && x != baseItem);
-        return result;
+        return range.FindAll(x => x.HasWord(key) && x != sourceItem);
     }
 
     public static Property GetProperty(string key, Item item) {
-        LOG($"NEW PROP SEARCH : [{key}]", Color.white);
+
+
         var prop = (Property)null;
         if (key.StartsWith("ANY ")) {
             key = key.Remove(0, 4);
-            LOG($"Getting ANY Property OF TYPE: [{key}]", Color.grey);
             prop = item.GetPropertyOfType("orientation");
-        } else {
-            LOG($"Getting Property with name [{key}]", Color.grey);
+        } else
             prop = item.GetProp(key);
-        }
 
         if ( prop == null) {
-            LOG($"Failed Looking for Property : [{key}]", Color.grey);
             DisplayFail($"{item.GetText("the dog")} doesn't have any {key}", true);
             return null;
         }
@@ -152,28 +167,10 @@ public static class ItemLink
     }
 
     public static List<Item> GetItemsWithProp (string key, List<Item> range) {
-        LOG($"prop items : {key}", Color.red);
-        key = key.Remove(0, key.IndexOf("ANY") + "ANY".Length);
-        key = key.Trim(' ');
-        LOG($"after handle : {key}", Color.red);
-
-        if ( key.StartsWith("SORT OF")) {
-                LOG($"Looing for any Item with a property OF TYPE : [{key}]", Color.gray);
-            key = key.Remove(0,"SORT OF ".Length);
-            var results = range.FindAll(x => x.GetPropertyOfType(key) != null && x != baseItem);
-            if (results.Count ==0)
-                DisplayFail($"nothing here has {key}");
-            return results;
-        } else {
-            Debug.Log($"search for any {key}");
-            LOG($"Looking for any Item with the property : [{key}]", Color.gray);
-            //var results = range.FindAll(x => x.GetProp(key) != null && x != baseItem);
-            // ici, x != baseITme a été viré parce que ça marche pas avec le any item.
-            // trouver une autre solution quand le probleme se repose
-            var results = range.FindAll(x => x.GetProp(key) != null && x != baseItem);
-            if (results.Count == 0)
-                DisplayFail($"nothing here has {key}");
-            return results;
-        }
+        key = key.Remove(0, key.IndexOf("ANY") + "ANY".Length).Trim(' ');
+        var results = range.FindAll(x => x.GetProp(key) != null && x != sourceItem);
+        if (results.Count == 0)
+            DisplayFail($"nothing here has {key}");
+        return results;
     }
 }

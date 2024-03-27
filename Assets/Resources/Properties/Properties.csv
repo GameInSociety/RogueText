@@ -1,4 +1,4 @@
-"NAME","","","","","","","","","","","","","","","","","","","","",""
+"GLOBAL","PROPERTIES","","","","","","","","","","","","","","","","","","","",""
 "","front
 value:none
 key:forward, front, around
@@ -47,18 +47,26 @@ set(! player>orientation, >ANY orientation)
 set(current tile)
 describe(_TILE)","weight:0
 capacity:1000
-max items:1000m1000","","","","","","","","","","","","","","","","","","",""
+max items:1000","","","","","","","","","","","","","","","","","","",""
 "","cardinal
 value:north
 description:goes north
 after word:yes","","","","","","","","","","","","","","","","","","","",""
 "","weight
 value:0
-description:(on key) about {value}g heavy","","","","","","","","","","","","","","","","","","","",""
-"","capacity
+description:(on key) about {value}g heavy","capacity
 value:0
 description:(on key) can carry up to {value}
-key:carry","","","","","","","","","","","","","","","","","","","",""
+key:carry","max items
+value:0
+description:has {value} items","","","","","","","","","","","","","","","","","",""
+"","armor1
+value:0
+description:wearing something","armor2
+value:0
+description:wearing something","armor3
+value:0
+description:wearing something","","","","","","","","","","","","","","","","","",""
 "","equipment
 target:","","","","","","","","","","","","","","","","","","","",""
 "growable","vegetable
@@ -69,7 +77,7 @@ description:
 just planted / slowing starting to grow / starting to sprout / showing a little green leaf / growing fine / shows flower blooming / will grow in a few days / just about to grow
 layer:1
 
-OnValue:10
+OnValue:ABOVE 50
 disable(>watering)
 createItem(vegetable)
 destroy","watering
@@ -96,7 +104,7 @@ empty / almost empty / half full / almost full / full
 layer:1","$ fill
 add(>water, >[ANY water].water)","E OnRain
 add(>water, 10)","","","","","","","","","","","","","","","","","",""
-"% dirty","clean
+"dirty","clean
 
 value: 0
 
@@ -127,6 +135,7 @@ hardly nourishing / poorly nourishing / rather nourishing / pretty nourishing / 
 layer:1
 OnValue:0
 destroy","$ eat
+breakIf(! player>hunger, equals, 0)
 sub(!player>hunger, >food)"," ","","","","","","","","","","","","","","","","","",""
 "sleep","confort
 value:0
@@ -147,3 +156,57 @@ layer:1
 OnValue:0
 destroy","$ drink
 sub(!player>thirst, hydrate)","","","","","","","","","","","","","","","","","","",""
+"","ignate
+value:1m10
+description: it can light stuff","","","","","","","","","","","","","","","","","","","",""
+"flammable","*burning
+value:10m10
+description:extinguished / about to go out / weakly burning / burning / blazing
+
+OnValue:0
+trigger(go out)","*source of light
+description: lighting things around","! go out
+disable(>burning)
+disable(>source of light)","E OnHours
+sub ( >burning, 5 )","E OnFlames
+enable( >burning )
+enable( >source of light )","","","","","","","","","","","","","","","",""
+"equipable","$ equip
+breakIf (! player.{THIS>body part}>armor{THIS>layer}, enabled)
+transferTo( ! player.{THIS>body part})
+enable(>! player.{THIS>body part}>armor{THIS>layer})
+add(! player.{THIS>body part}>armor{THIS>layer}, >armor)","$ take off
+breakIf (>wearing, enabled)
+sub(! player.{body part}>armor{layer}, >armor)
+disable(>wearing)
+disable(!player.{body part}>armor{layer}, >armor)
+transferTo(! tile)","armor:0
+body part:none
+layer:0","*wearing
+description:[]
+i'm wearing it","","","","","","","","","","","","","","","","",""
+"humanoid","coords:?/?","tileset:0","orientation
+value:north","contents
+head:1
+neck:1
+torso:1
+left hand:1
+right hand:1
+shoulders:1
+left arm:1
+right arm:1
+legs:1
+left foot:1
+right foot:1","","","","","","","","","","","","","","","","",""
+"x","strenght
+value:1?10
+max:10
+description:
+very weak / weak / not particulary muscled / pretty powerful / strenghful / very powerful / extremely strenghtful","dexterity
+value:1?10
+max:10
+description:
+very clumbsy / clumbsy / not particulary handy / pretty sure handed / dexterous / very handy / extremely handy","agility
+value:1m10
+description:
+stiff and lumbering / graceless / not particulaly agile / lightfooted and flexible / very graceful / feline like","","","","","","","","","","","","","","","","","",""

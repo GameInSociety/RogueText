@@ -8,6 +8,7 @@ public class Word {
     public Number defaultNumber = Number.Singular;
     public Number currentNumber;
     public bool defined = false;
+    public bool main = false;
 
     public Word() {
 

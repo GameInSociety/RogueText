@@ -78,33 +78,32 @@ public class WorldAction {
     public void Call(Source source = Source.Event) {
         this.source = source;
         if (onGoing) {
+            if ( stack.Count >= 10) {
+                Debug.LogError($"STACK TO BIG");
+                return;
+            }
             stack.Add(this);
             return;
         }
-        Function.LOG($"\n\n\nWorld Action:[{TargetItem().debug_name}] {source}", Color.cyan);
+        Function.LOG($"\nWorld Action:[{TargetItem().debug_name}] {source}", Color.cyan);
         AvailableItems.UpdateItems();
 
+        ItemLink.ItemHistory.Clear();
         current = this;
         onGoing = true;
         seqIndex = 0;
         sequences = sequence.Split("\n%\n");
+
         CallLine(0);
 
         onGoing = false;
         if ( stack.Count > 0) {
             var next = stack[0];
             stack.RemoveAt(0);
-            Function.LOG($"World Action Succeeded.", Color.green);
             next.Call(next.source);
         } else {
-            Function.LOG($"World Action Finished.", Color.white);
             PropertyDescription.Describe();
-            if ( ItemDescription.delayedItems.Count > 0) {
-                string endDescription = ItemDescription.DescribeItems(ItemDescription.delayedItems);
-                TextManager.Write($"{ItemDescription.delayedSetup}{endDescription}");
-                ItemDescription.delayedSetup = "";
-                ItemDescription.delayedItems.Clear();
-            }
+            ItemDescription.DescribeAll();
         }
     }
 

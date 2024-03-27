@@ -40,6 +40,7 @@ public class DataDownloader : MonoBehaviour {
                 var s = $"{path}/{sheet}";
                 var textAsset = Resources.Load(s) as TextAsset;
                 text = textAsset.text;
+
             }
 
             sheetName = sheetNames[i];
@@ -74,21 +75,27 @@ public class DataDownloader : MonoBehaviour {
             var editIndex = url.IndexOf("edit");
             if (editIndex != -1) {
                 var tmpUrl = url.Remove(editIndex) + linkReplace + sheetNames[sheetIndex];
-
                 Debug.Log("(" + sheetIndex + "/" + sheetNames.Length + ")" + " Fetching " + sheetNames[sheetIndex] + "...");
                 yield return DownloadCSV(tmpUrl, sheetNames[sheetIndex]);
             } else {
                 Debug.LogError("no index for edit in link " + url);
             }
         }
+#if UNITY_EDITOR
+        AssetDatabase.Refresh();
+        Debug.Log($"Importing {sheetName}");
+#endif
 
-        Debug.Log("Done !");
 
     }
 
     public IEnumerator DownloadsCSV(string sheetName) {
         int index = System.Array.FindIndex(sheetNames, x=> x == sheetName);
         yield return DownloadsCSV(index);
+#if UNITY_EDITOR
+        AssetDatabase.Refresh();
+        Debug.Log($"Importing {sheetName}");
+#endif
     }
 
     public IEnumerator DownloadsCSV(int sheetIndex) {
@@ -102,9 +109,10 @@ public class DataDownloader : MonoBehaviour {
         } else {
             Debug.LogError("no index for edit in link " + url);
         }
-
-        Debug.Log("Done !");
-
+#if UNITY_EDITOR
+        AssetDatabase.Refresh();
+        Debug.Log($"Importing {sheetName}");
+#endif
     }
 
     IEnumerator DownloadCSV(string tmpUrl, string sheetName) {
@@ -127,9 +135,10 @@ public class DataDownloader : MonoBehaviour {
             } else {
                 var filepath = $"{Application.dataPath}/Resources/{path}/{sheetName}.csv";
                 System.IO.File.WriteAllText(filepath, www.downloadHandler.text);
-            }
-        }
 
+            }
+
+        }
     }
 
     private static string GetCollumnName(int columnNumber) {

@@ -1,17 +1,16 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Headers;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Test : MonoBehaviour {
 
-    public string tile  = "north";
+    public string tile = "north";
     public Coords coords;
 
-    private void Update() {
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.D)) {
-            Tile.GetCurrent.WriteDescription();
-        }
-    }
+    public List<ItemGroup> groups = new List<ItemGroup>();
+    public string feedback;
+    public List<ItemGroup> samePropGroups = new List<ItemGroup>();
 
-    private void OnDrawGizmos() {
-        //tile = TileSet.GetCurrent.GetTile(coords).debug_name;
-    }
 }

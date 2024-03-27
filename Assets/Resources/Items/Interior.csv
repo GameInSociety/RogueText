@@ -7,7 +7,9 @@ move(>ANY orientation)","$ unlock
 breakIf(>locked, disabled)
 breakIf(!p key>doorID, not same, >doorID)
 disable(>locked)
-write(the door is now unlocked)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+write(the door is now unlocked)","type
+value:0?1
+description:metal/wooden","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "peephole","","","","","contents
 peephole:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "peephole","","","in","","$ look

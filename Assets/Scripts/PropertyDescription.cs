@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations;
 
 [System.Serializable]
 public class PropertyDescription
@@ -17,11 +18,21 @@ public class PropertyDescription
         this.item = item;
     }
 
-    public static void Add(Item item, Property prop, WorldAction.Source source) {
+    public static void Add(Item item, Property prop, WorldAction.Source source, bool failed) {
         if (!prop.HasPart("description"))
             return;
 
-        var propDescription = propDescriptions.Find(x=> x.item == item);
+        if ( source == WorldAction.Source.Event) {
+            LOG($"[{prop.name}] source : {source.ToString()}", Color.magenta);
+            ItemDescription.AddProperties("action", item, new List<Property>() { prop }, "list / definite / filter events");
+        } else {
+            LOG($"[{prop.name}] source : {source.ToString()}", Color.yellow);
+            string opts = failed ? "list / definite / start:can't, " : "list / definite";
+            ItemDescription.AddProperties("action", item, new List<Property>() { prop }, opts);
+        }
+        //ItemDescription.Add(prop, item);
+
+        /*var propDescription = propDescriptions.Find(x=> x.item == item);
 
         if ( propDescription == null) {
             propDescription = new PropertyDescription(item);
@@ -33,15 +44,12 @@ public class PropertyDescription
         if ( propDescription.properties.Contains(prop)) {
             return;
         }
-        propDescription.properties.Add(prop);
+        propDescription.properties.Add(prop);*/
 
     }
 
     public static void Describe() {
         AvailableItems.UpdateItems();
-
-        log = "";
-        LOG($"NEW DESCRIPTION", Color.yellow);
 
         // removing updated items that are not around ( prop update from events )
         var outOfRangeProps = propDescriptions.FindAll(x => !AvailableItems.currItems.Contains(x.item));
@@ -66,7 +74,7 @@ public class PropertyDescription
                 LOG($"[FROM EVENT]", Color.white);
                 for (int j = targetProps.Count - 1; j >= 0; j--) {
                     var prop = targetProps[j];
-                    LOG($"[PROP]:{prop.name} / {prop.GetDescription()}", Color.cyan);
+                    LOG($"[PROP]:{prop.name} / {prop.GetCurrentDescription()}", Color.cyan);
                     if (!DescribeInEvents(prop))
                         targetProps.RemoveAt(j);
                 }
@@ -80,11 +88,11 @@ public class PropertyDescription
             // describing all props
             for (int j = 0; j < targetProps.Count; j++) {
                 var prop = targetProps[j];
-                LOG($"describing : {prop.name}/{prop.GetDescription()}", Color.green);
+                LOG($"describing : {prop.name}/{prop.GetCurrentDescription()}", Color.green);
                 if (!prop.enabled) {
-                    description += $"not {prop.GetDescription()}{TextUtils.GetCommas(j, targetProps.Count)} anymore";
+                    description += $"not {prop.GetCurrentDescription()}{TextUtils.GetCommas(j, targetProps.Count)} anymore";
                 } else {
-                    description += $"{prop.GetDescription()}{TextUtils.GetCommas(j, targetProps.Count)}";
+                    description += $"{prop.GetCurrentDescription()}{TextUtils.GetCommas(j, targetProps.Count)}";
                 }
             }
 
@@ -104,7 +112,7 @@ public class PropertyDescription
         var str = "";
         for (int i = 0;i < props.Count;i++) {
             var prop = props[i];
-            str += $"{prop.GetDescription()}{TextUtils.GetCommas(i, props.Count)}";
+            str += $"{prop.GetCurrentDescription()}{TextUtils.GetCommas(i, props.Count)}";
         }
         return str;
     }

@@ -43,8 +43,9 @@ public class TileSet {
     }
 
     public Tile GetTile(Coords coords) {
-        if (tiles.ContainsKey(coords) == false)
+        if (tiles.ContainsKey(coords) == false) {
             return null;
+        }
         return tiles[coords];
     }
 }

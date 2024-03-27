@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Rendering;
 using static UnityEditor.Progress;
 
 [System.Serializable]
@@ -13,7 +15,7 @@ public class Item {
     public ItemData GetData() { return ItemData.itemDatas[dataIndex]; }
     public int debug_Id;
 
-    public Tile.Info TileInfo;
+    public Tile.Info tileInfo;
 
     public List<Property> props = new List<Property>();
     public int wordIndex = 0;
@@ -37,6 +39,14 @@ public class Item {
 
         foreach (var prop in props)
             prop.Init(this);
+
+        var actName = "OnCreate";
+        var itemAct = GetData().acts.Find(x => x.triggers[0] == actName);
+        if ( itemAct != null) {
+            var action = new WorldAction(this, tileInfo, itemAct.seq); ;
+            action.Call();
+        }
+
     }
 
     /// <summary>
@@ -48,13 +58,11 @@ public class Item {
     public bool HasChildItems() {
         return mChildItems != null && mChildItems.Count > 0;
     }
-    public bool HasExposedItems() {
-        return HasChildItems() && (GetExposedItems() != null && GetExposedItems().Count > 0);
+    public bool HasVisibleItems() {
+        return HasChildItems() && (GetVisibleItems() != null && GetVisibleItems().Count > 0);
     }
-    public List<Item> GetExposedItems() {
-        if (HasProp("exposed"))
-            return mChildItems.FindAll(x => !x.HasProp("hidden"));
-        return null;
+    public List<Item> GetVisibleItems() {
+        return mChildItems.FindAll(x => !x.HasProp("hidden"));
     }
     public List<Item> GetChildItems() {
         return mChildItems;
@@ -142,11 +150,24 @@ public class Item {
         return mParentItem != null;
     }
     public Item GetParent() {
-        if (mParentItem == null) {
-            Debug.LogError($"{debug_name} has no parent");
+        if (mParentItem == null)
             return null;
-        }
         return mParentItem;
+    }
+    public List<Item> GetParents() {
+        var parents = new List<Item>();
+        var parent = GetParent();
+        int b = 0;
+        while ( parent != null) {
+            parents.Add(parent);
+            parent = parent.GetParent();
+            ++b;
+            if (b == 10) {
+                Debug.LogError($"parent loop break");
+                break;
+            }
+        }
+        return parents;
     }
     #endregion
 
@@ -158,7 +179,7 @@ public class Item {
     public Item CreateChildItem(Item item) {
         // vraiment pas sûr que ça devrait être ici
         item.GenerateChildItems();
-        item.TileInfo = TileInfo;
+        item.tileInfo = tileInfo;
         AddChildItem(item);
         return item;
     }
@@ -214,7 +235,7 @@ public class Item {
     public bool SimilarPropsAs(Item otherItem) {
         bool similarProps = false;
         if (GetVisibleProps().Count > 0 && otherItem.GetVisibleProps().Count > 0) {
-            similarProps = GetVisibleProps()[0].GetDescription() == otherItem.GetVisibleProps()[0].GetDescription();
+            similarProps = GetVisibleProps()[0].GetCurrentDescription() == otherItem.GetVisibleProps()[0].GetCurrentDescription();
             if (similarProps) {
                 Debug.Log($"{debug_name} is very similar to {otherItem.debug_name}");
             }
@@ -246,29 +267,20 @@ public class Item {
         // preposition/article/specs/name
 
         // name : dog / dogs
-        var text = prms.Contains("dog") ? GetWord().GetText : "";
-        if (prms.Contains("dogs") && GetWord().defaultNumber != Word.Number.Plural)
+        var word = GetData().words.Find(x => x.main);
+        if (word == null)
+            word = GetWord();
+        var text = prms.Contains("dog") ? word.GetText : "";
+        if (prms.Contains("dogs") && word.defaultNumber != Word.Number.Plural)
             text = $"{text}s";
-
-        // add props descriptions that are always displayed
-        if (!prms.Contains("lone")) {
-            var props = GetVisibleProps("always");
-            if (props.Count > 0) {
-                // add describable props
-                var before = props.FindAll(x => !x.HasPart("after word"));
-                var after = props.FindAll(x => x.HasPart("after word"));
-                if (before.Count > 0) text = text.Insert(0, $"{Property.GetDescription(before)} ");
-                if (after.Count > 0) text = text.Insert(text.Length, $" {Property.GetDescription(after)}");
-            }
-        }
 
         // article
         var articlebound = @$"\ba\b";
         if (Regex.IsMatch(prms, articlebound)) {
             var article = "a";
-            if (GetWord().defined || HasProp("definite")) {
+            if (word.defined || HasProp("definite")) {
                 article = "the";
-            } else if (GetWord().defaultNumber == Word.Number.Plural)
+            } else if (word.defaultNumber == Word.Number.Plural)
                 article = "some";
             else if (Word.StartsWithVowel(text))
                 article = "an";
@@ -280,22 +292,8 @@ public class Item {
         // preposition "on a dog" => in the armory
         var prepBound = @$"\bon\b";
         if (Regex.IsMatch(prms, prepBound))
-            text = text.Insert(0, $"{GetWord().preposition} ");
-        return $"{text}{(DebugManager.Instance.displayItemID ? debug_Id : "")}";
-    }
-
-    public virtual void WriteDescription() {
-        WriteDescription("it's", "a special dog");
-    }
-    public virtual void WriteDescription(string starter, string prms) {
-
-        TextManager.Write($"{starter} {GetText(prms)}");
-
-        if (HasChildItems())
-            WriteChildItems();
-    }
-    public virtual void WriteChildItems() {
-        TextManager.Write(ItemDescription.DescribeItems(GetChildItems()));
+            text = text.Insert(0, $"{word.preposition} ");
+        return $"{text}";
     }
     #endregion
 
@@ -339,30 +337,21 @@ public class Item {
         }
         return -1;
     }
-    public Property GetPropInText(string text) {
-        int index = 0;
-        return GetPropInText(text, out index);
-    }
-    public Property GetPropInText(string text, out int textIndex) {
-        textIndex = -1;
+    public List<Property> GetPropsInText(string text) {
+        var result = new List<Property>();
         foreach (var prop in GetDescribableProps()) {
-            var description = prop.GetDescription();
-            if (Regex.IsMatch(text, @$"\b{description}\b") || Regex.IsMatch(text, @$"\b{prop.name}\b")) {
-                textIndex = text.IndexOf(description);
-                return prop;
-            }
+            var description = prop.GetCurrentDescription();
+            if (Regex.IsMatch(text, @$"\b{description}\b") || Regex.IsMatch(text, @$"\b{prop.name}\b"))
+                result.Add(prop);
         }
 
         // search ( not visible but searchable )
         foreach (var prop in props.FindAll(x => x.HasPart("key"))) {
             var keyPart = prop.parts.Find(x => Regex.IsMatch(text, @$"\b{x.content}\b"));
-            if (keyPart != null) {
-                textIndex = text.IndexOf(keyPart.content);
-                return prop;
-            }
+            if (keyPart != null)
+                result.Add(prop);
         }
-
-        return null;
+        return result.Count > 0 ? result : null;
     }
     #endregion
 
@@ -382,9 +371,10 @@ public class Item {
         }
 
         // check if prop exists in content, to copy data from a higher property
-        var dataProp = Property.datas.Find(x => x.name == p.name);
+        var str = p.name.TrimStart('*');
+        var dataProp = Property.datas.Find(x => x.name == str);
         // le check de contents un peu flou en soi, ça va arriver avec d'autres prop donc il faudra réfléchir
-        if (dataProp != null && dataProp.name != "contents") { 
+        if (dataProp != null && dataProp.name != "contents") {
             // adding implicit parts from the data
             foreach (var part in dataProp.parts) {
                 if (p.parts.Find(x => x.key == part.key) != null)
@@ -531,10 +521,13 @@ public class Item {
         WorldEvent.RemoveWorldEventsWithItem(item);
         foreach (var prop in item.props)
             prop.Destroy();
-        AvailableItems.RemoveFromWorld(item);
+        if (item.HasParent())
+            item.GetParent().RemoveItem(item);
     }
     public void TransferTo(Item item) {
-        AvailableItems.RemoveFromWorld(this);
+        if (HasParent()) {
+            GetParent().RemoveItem(this);
+        }
         item.AddChildItem(this);
     }
     #endregion

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class ContentLoader : DataDownloader{
     public static ContentLoader Instance;
@@ -47,8 +48,13 @@ public class ContentLoader : DataDownloader{
 
         var group = (Group)null;
         if (!string.IsNullOrEmpty(cells[0])) {
-            group = new Group(cells[0]);
-            groups.Add(group);
+            if (cells[0] == "x") {
+                group = groups[groups.Count - 1];
+            } else {
+                group = new Group(cells[0]);
+                groups.Add(group);
+            }
+            
         }
 
         for (int i = 1; i < cells.Count; i++) {

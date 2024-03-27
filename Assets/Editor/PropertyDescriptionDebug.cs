@@ -6,6 +6,7 @@ public class PropertyDescriptionDebug : EditorWindow {
 
     // data
     Verb verb;
+    Vector2 scrollPos = Vector2.zero;
 
     // Add menu named "My Window" to the Window menu
     [MenuItem("Window/Property Description")]
@@ -16,9 +17,13 @@ public class PropertyDescriptionDebug : EditorWindow {
     }
     private void OnGUI() {
         style = new GUIStyle();
-        style.alignment = TextAnchor.MiddleCenter;
+        style.alignment = TextAnchor.MiddleLeft;
         style.richText = true;
+        EditorGUILayout.BeginVertical();
+        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
         GUILayout.Label(PropertyDescription.log, style);
+        GUILayout.EndScrollView();
+        EditorGUILayout.EndVertical();
     }
 
 }

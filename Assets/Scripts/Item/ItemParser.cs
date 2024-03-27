@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Android;
 
 [System.Serializable]
 public class ItemParser {
@@ -28,6 +30,13 @@ public class ItemParser {
         var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
         string str = $"\n{txt_color}{message}</color>";
         log += str;
+    }
+
+    public List<Item> GetItems() {
+        var _its = new List<Item>();
+        foreach (var part in parts)
+            _its.AddRange(part.items);
+        return _its;
     }
 
     public Part GetPart(int i = 0) {
@@ -88,49 +97,41 @@ public class ItemParser {
             if (items.Count == 0)
                 return;
             var item = items[0];
-            var prop = item.GetPropInText(text);
-            if (prop != null) {
-                properties.Add(prop);
-                Log($"found prop : {prop.name}", Color.magenta);
-            } else {
-                Log("no properties", Color.grey);
+            properties = item.GetPropsInText(text);
+            
+            if (properties != null) {
+                var propTxt = "";
+                foreach (var prop in properties)
+                    propTxt += $"({prop.name}) ";
+                Log($"[props] {propTxt}", Color.magenta);
             }
-
         }
 
         public void GetItems() {
             items = AvailableItems.currItems.FindAll(x => x.ContainedInText(text));
             if (items.Count == 0) {
-                items = AvailableItems.currItems.FindAll(x => x.GetPropInText(text) != null);
+                items = AvailableItems.currItems.FindAll(x => x.GetPropsInText(text) != null);
                 if (items.Count > 0)
-                    Log("from props", Color.white);
-            } else {
-                Log("from items", Color.white);
-                // only search properties if the item has been found through an item name (no property)
-                GetProperties();
+                    Log($"{items.First().debug_name} (prop)", Color.white);
+            } else
+                Log($"{items.First().debug_name} (item name)", Color.white);
 
-            }
+            GetProperties();
+
             if (items.Count == 0) {
                 Log("no items", Color.red);
                 return;
             }
-
-            var itemText = "";
-            for (int i = 0; i < items.Count; i++)
-                itemText += $"{items[i].debug_name} {TextUtils.GetSpaces(i, items.Count)}";
-            Log(itemText, Color.green);
         }
 
         public void SortItems() {
-
-            Log("!sorting!", Color.magenta);
             if (items.Count == 1) {
-                Log("only one item, no sorting", Color.magenta);
+                Log("[SORT] only one item, no sorting", Color.gray);
                 return;
             }
 
             if (Regex.IsMatch(text, @$"\ball\b")) {
-                Log("found 'all' in input, no sorting", Color.magenta);
+                Log("[SORT] found 'all' in input, no sorting", Color.gray);
                 return;
             }
 
@@ -142,7 +143,7 @@ public class ItemParser {
                 int half = (int)Mathf.Clamp(Mathf.Round(f), 1, items.Count);
                 if (half < items.Count)
                     items.RemoveRange(half, items.Count - half);
-                Log($"found 'some' in input, returning {half} items", Color.magenta);
+                Log($"[SORT] found 'some' in input, returning {half} items", Color.gray);
                 return;
             }
 
@@ -152,60 +153,59 @@ public class ItemParser {
                     return;
                 for (int i = number; i < items.Count; i++)
                     items.RemoveAt(i);
-                Log($"found number in part, return {number} items", Color.magenta);
+                Log($"[SORT] found number in part, return {number} items", Color.gray);
                 return;
             }
 
 
-            // plural
-            if (MainItem().GetWord().currentNumber == Word.Number.Plural) {
-                Log($"word was found plural, returning all", Color.magenta);
-                return;
-            }
+
 
             AssignOrdinalProps(items);
 
-            var item = (Item)null;
-            // look for specific item
+            var itemFromOtherPart = (Item)null;
+            // look for specific item IN other parts
+            // ( take apple from bag in left hand )
             if (partIndex == 0 && parser.parts.Length > 1) {
                 var nextPart = parser.parts[partIndex + 1];
-                item = items.Find(x => x.GetPropInText(nextPart.text) != null);
-                if ( item != null) {
-                    var nextProp = item.GetPropInText(nextPart.text);
+                itemFromOtherPart = items.Find(x => x.GetPropsInText(nextPart.text) != null);
+                if (itemFromOtherPart != null) {
+                    var nextProps = itemFromOtherPart.GetPropsInText(nextPart.text);
                     nextPart.SetUsed();
-                    Log($"found prop {nextProp.name} in part {nextPart.text} for item {item.debug_name}", Color.magenta);
-                    items.RemoveAll(x=> x!= item);
+                    var propTxt = "";
+                    foreach (var prop in properties)
+                        propTxt += $"({prop.name}) ";
+                    Log($"[SORT] found props {propTxt} in part {nextPart.text} for item {itemFromOtherPart.debug_name}", Color.gray);
+                    items.RemoveAll(x => x != itemFromOtherPart);
                     return;
                 }
 
             }
 
-            item = items.Find(x => x.GetPropInText(text) != null);
-            if (item == null) {
-                if (first.HasProp("dif")) {
-                    Log($"item {items[0].debug_name} must be  disinct, but passing anyways", Color.red);
-                    needsDistinction = true;
+            var narrowedIts = items.FindAll(x => x.GetPropsInText(text) != null);
+            if ( narrowedIts.Count > 0) {
+                items = narrowedIts;
+                var narrowedProp = new List<Property>();
+                string propText = $"";
+                foreach (var item in narrowedIts) {
+                    var props = item.GetPropsInText(text);
+                    foreach (var prop in props) {
+                        if (narrowedProp.Find(x=> x.GetCurrentDescription() == prop.GetCurrentDescription()) == null) {
+                            propText += $"[{prop.name}/{prop.GetCurrentDescription()}]";
+                            narrowedProp.Add(prop);
+                        }
+                    }
                 }
-                Log($"item {items[0].debug_name} does not need distinction, return first", Color.magenta);
-
-                // check if items are differents ( "knife and key" ) ( "apple ( from 5 ) and knife" ), then return one of each
-
-                List<Item> otherItems = items.FindAll(x=> x.dataIndex != items.First().dataIndex);
-                foreach (var other in otherItems) {
-                    Debug.Log($"also found {other.debug_name}");
-                }
-                
-                items = new List<Item>() { items[0] };
-                foreach (var i in otherItems)
-                    items.Add(i);
+                Log($"[SORT] found prop {propText} for item {narrowedIts[0].debug_name}", Color.gray);
+            }
+            
+            // plural
+            if (MainItem().GetWord().currentNumber == Word.Number.Plural) {
+                Log($"[SORT] (plural : all)", Color.gray);
                 return;
             }
 
-            // narrowing an item because a prop was found
-            items.RemoveAll(x => x != item);
-            var prop = item.GetPropInText(text);
-            string propText = $"{prop.name}:{prop.GetDescription()}{prop.GetPart("search")?.content}";
-            Log($"found prop {propText} for item {item.debug_name}", Color.magenta);
+            Log($"[SORT] (no plural : first)", Color.gray);
+            items = new List<Item>() { items.First() };
         }
 
         void AssignOrdinalProps(List<Item> items) {
@@ -311,7 +311,7 @@ public class ItemParser {
         if ( parts.Length == 0) {
             sequence = verb.GetItemSequence(WorldData.anyItem.GetData());
             if (sequence == null) {
-                TextManager.Write($"you can't {verb.GetFull} anything");
+                TextManager.Write($"{verb.question} do you want to {verb.GetFull}");
                 Log($"no action OR any item item for {verb.GetCurrentWord}", Color.red);
                 NewParser();
                 return;
@@ -368,8 +368,15 @@ public class ItemParser {
         }
 
         // trigger action
-        WorldAction parserAction = new WorldAction(GetPart().items, Tile.GetCurrent.TileInfo, sequence);
+        var parserAction = new WorldAction(GetPart().items, Tile.GetCurrent.tileInfo, sequence);
         parserAction.Call(WorldAction.Source.PlayerAction);
+
+        if (verb.duration > 0) {
+            var timeSeq = $"add( !second>seconds passed, {verb.duration})";
+            var timeAction = new WorldAction(GetPart().items, Tile.GetCurrent.tileInfo, timeSeq);
+            timeAction.Call(WorldAction.Source.Event);
+        }
+
         NewParser();
     }
 
@@ -551,9 +558,7 @@ public class ItemParser {
     }
     public static void NewParser(){
             _prev = _curr;
-        DebugManager.Instance.previousParser = _prev;
         _curr = new ItemParser();
-        DebugManager.Instance.currentParser = _curr;
     }
     #endregion
 

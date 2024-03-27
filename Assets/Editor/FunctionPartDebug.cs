@@ -19,7 +19,7 @@ public class FunctionPartDebug : EditorWindow {
             Function.log = "";
 
         style = new GUIStyle();
-        style.alignment = TextAnchor.MiddleCenter;
+        style.alignment = TextAnchor.UpperLeft;
         style.richText = true;
         EditorGUILayout.BeginVertical();
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);

@@ -8,13 +8,6 @@ public class ItemLoader : DataDownloader {
     // singleton
     public static ItemLoader Instance;
     int currIndex = 0;
-    public List<DebugGroup> debugGroups = new List<DebugGroup>();
-
-    [System.Serializable]
-    public class DebugGroup {
-        public string name;
-        public List<ItemData> debug_items = new List<ItemData>();
-    }
 
     private void Awake() {
         Instance = this;
@@ -35,9 +28,8 @@ public class ItemLoader : DataDownloader {
         if (rowIndex == 0)
             return;
         // skip empty
-        if (cells.Count <= 1) {
+        if (cells.Count <= 1)
             return;
-        }
 
         if (string.IsNullOrEmpty(cells[0])) {
             LoadProperties(ItemData.itemDatas[currIndex-1], cells);
@@ -48,14 +40,12 @@ public class ItemLoader : DataDownloader {
         var newItemData = new ItemData();
         var nameCell = cells[0];
         var synonyms = nameCell.Split('\n');
-        
 
         // HasPart numberSpecific class name
         if (!string.IsNullOrEmpty(cells[1]))
             newItemData.className = cells[1];
 
         newItemData.debugName = synonyms[0];
-
         // SYNONYMS HERE
         // new word
         for (var i = 0; i < synonyms.Length; i++) {
@@ -70,16 +60,23 @@ public class ItemLoader : DataDownloader {
                 newItemData.properties.Add(prop);
             }
 
-            var word = synonyms[i];
+            
 
-            if (word.EndsWith('s'))
-                newWord.defaultNumber = Word.Number.Plural;
-            if (word.EndsWith("(s)")) {
-                newWord.defaultNumber = Word.Number.Plural;
-                word = word.Remove(word.IndexOf('('));
+            var word_txt = synonyms[i];
+
+            if (synonyms[i].StartsWith('(')) {
+                newWord.main = true;
+                word_txt = TextUtils.Extract('(', word_txt, out word_txt);
             }
 
-            newWord.SetText(word);
+            if (word_txt.EndsWith('s'))
+                newWord.defaultNumber = Word.Number.Plural;
+            if (word_txt.EndsWith("(s)")) {
+                newWord.defaultNumber = Word.Number.Plural;
+                word_txt = word_txt.Remove(word_txt.IndexOf('('));
+            }
+
+            newWord.SetText(word_txt);
             newItemData.words.Add(newWord);
         }
 
@@ -90,8 +87,7 @@ public class ItemLoader : DataDownloader {
         newItemData.properties.Add(rangeProp);
 
         // preposition
-        if (cells[3].Length > 1)
-            newItemData.words[0].preposition = cells[3];
+        newItemData.words[0].preposition = cells[3].Length > 1 ? cells[3] : "in";
 
         // TYPES
         if (!string.IsNullOrEmpty(cells[4])) {
@@ -114,13 +110,6 @@ public class ItemLoader : DataDownloader {
             LoadProperties(newItemData, cells);
         }
 
-        var debugGroup = debugGroups.Find(x => x.name == sheetName);
-        if (debugGroup == null) {
-            debugGroup = new DebugGroup();
-            debugGroup.name = sheetName;
-            debugGroups.Add(debugGroup);
-        }
-        debugGroup.debug_items.Add(newItemData);
         ItemData.itemDatas.Add(newItemData);
         ++currIndex;
     }
@@ -136,7 +125,7 @@ public class ItemLoader : DataDownloader {
             if (content.StartsWith('%')) {
                 // loading all properties of a group
                 // extracting the first line ( in the case there is replacements )
-                var groupName = content.Substring(2);
+                var groupName = content.TrimStart('%').TrimStart(' ');
                 int exit = groupName.IndexOf('\n');
                 if (exit>=0)
                     groupName = groupName.Remove(exit);
@@ -145,7 +134,7 @@ public class ItemLoader : DataDownloader {
                 ContentLoader.Group group = ContentLoader.GetGroup(groupName);
                 if (group == null) {
                     TextManager.Write($"[Prop Load Error ] : No property group named : {groupName}", Color.red);
-                    Debug.LogError($"no group named {content}");
+                    Debug.LogError($"no group named {group}");
                     continue;
                 }
 
@@ -166,19 +155,25 @@ public class ItemLoader : DataDownloader {
                 continue;
             }
 
-            // load sequences
-            if (content.StartsWith('$') || content.StartsWith('E') || cells[i].StartsWith('!')) {
-                var cellParts = cells[i].Split(new char[1] { '\n' }, 2);
-                var triggers = cellParts[0].Remove(0, 2);
-                var seq = new Sequence(triggers, cellParts[1]);
-                if (content.StartsWith('$'))
-                    data.verbSequences.Add(seq);
-                if (content.StartsWith('E'))
-                    data.events.Add(seq);
-                if (content.StartsWith('!')) {
-                    data.acts.Add(seq);
+            try {
+                // load sequences
+                if (content.StartsWith('$') || content.StartsWith('E') || cells[i].StartsWith('!')) {
+                    var cellParts = cells[i].Split(new char[1] { '\n' }, 2);
+                    var triggers = cellParts[0].Remove(0, 2);
+                    var seq = new Sequence(triggers, cellParts[1]);
+                    if (content.StartsWith('$'))
+                        data.verbSequences.Add(seq);
+                    if (content.StartsWith('E'))
+                        data.events.Add(seq);
+                    if (content.StartsWith('!')) {
+                        data.acts.Add(seq);
+                    }
+                    continue;
                 }
-                continue;
+            } catch (Exception e) {
+                Debug.LogError($"cell : {cells[i]} / sheet : {sheetName}");
+                TextManager.Write($"error loading content : {content} on {data.name}", Color.red);
+                Debug.LogException(e);
             }
 
             var cellLines = content.Split('\n');
@@ -198,7 +193,7 @@ public class ItemLoader : DataDownloader {
                     prop.Parse(cellLines);
                     data.properties.Add(prop);
                 } catch (Exception e) {
-                        var str = "";
+                    var str = "";
                     foreach (var line in cellLines) {
                         foreach (var item in cellLines)
                             str += $"\n{item}";

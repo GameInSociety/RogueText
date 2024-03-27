@@ -9,8 +9,15 @@ transferTo(!p ANY capacity)
 %
 transferTo(! tile)
 *sub(! parent>max items, 1)","$ pick up
-breakIf(!p ANY capacity>max items, max, too much)
-transferTo(!p ANY capacity)
-add(!p ANY capacity>max items, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"","","","","","$ wait
-wait(1)","","",""," ","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+*breakIf(! ANY capacity>max items, max, too much)
+transferTo(!  player.ANY capacity)
+*add(! ANY capacity>max items, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","$ light
+breakIf (! ANY fire>fire, not empty )
+breakIf ( ! ANY ignate>ignate, empty )
+add ( ! ANY fire>fire, ! ANY ignate> ignate )","$ sleep
+add(>sleep, 1)","$ eat
+add(! player>hunger, !p ANY food>food)",""," ","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","$ dodge
+breakIf( ! player>agility, NOT PERCENT, 50, 90, you failed dodging)
+enable(!player>dodging)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

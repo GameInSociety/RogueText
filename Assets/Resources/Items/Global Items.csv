@@ -1,73 +1,117 @@
 "","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"GLOBAL","","s","","global","E OnStart
-describe(_TILE)","tilesets
+"GLOBAL","","s","","global","! OnCreate
+describe(_TILE)
+createItem( undead, 1, [! player>coords])","tilesets
 value:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"floor","","s","on","global","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"weather","","s","in","global","*raining
-value:0m40
-rate:10?40
+"rain","","s","in","global","*rain
+value:0
+max:[>duration]
 description:(on change)
-raining cats and dogs / still raining / raining / starting to clear off / about to stop raining
+falling / still falling / pouring down / getting lighter / about to stop
 
-OnValue:rate
-set(>raining, 0)
+OnValue:ABOVE 0
+triggerEvent(OnRain)
+
+OnValue:ABOVE [>duration]
+set(>rain, 0)
 disable(>rain)
-write(it stopped raining)
-enable(>sky)
-set(>sky/rate, 0?50)","sky
-value:0m50
-rate:0?50
-description:(lerp8)
-clear / clear / cloudy / getting cloudier / all gray / gonna rain
+enable(! sky >sky)
+set(!sky>hours to rain, 20?50)","duration
+value:5?50","E OnHours
+add(>rain, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"sky","","","in","global","sky
+value:0
+max:[>hours to rain]
+description:(75%)
+clear / clear / cloudy / getting cloudier / gray and humid, it's gonna rain
 
-OnValue:50
-enable(>raining)
-set(>raining, 0)
-set(>raining/rate, 10?40)
-disable(>sky)
-triggerEvent(OnRain)","E OnHours
-add(>raining, 1)
+OnValue:ABOVE [>hours to rain]
+enable(!rain>rain)
+set(! rain>rain, 0)
+set(! rain >duration, 10?40)
+disable(>sky)","hours to rain
+value:10","E OnHours
 add(>sky, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"time","","","","global","hours
-value:6m24
-description:(never)it's {value} o'clock
+"second","","","","global","seconds
+value:0
 
-OnValue:>0
+OnValue:ABOVE 0
+triggerEvent(OnSeconds)
+
+OnValue:ABOVE 60
+sub(>seconds, 60)
+add(! minutes>minutes, 1)","seconds passed
+value:0
+
+OnValue:ABOVE 0
+sub(>seconds passed, 1)
+add(>seconds, 1)","$ wait
+add(>seconds passed, {input num})
+write ( some time passes by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"minutes","","","","global","minutes
+value:0
+OnValue:ABOVE 60
+sub(>minutes, 60)
+add(! hours>hours, 1)","$ wait
+add(>minutes, {input num})
+write ( some time passes by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"hour","","","","global","hours
+value:6
+max:24
+description:(never) is {value} o'clock
+
+OnValue:ABOVE 0
 triggerEvent(OnHours)
 
 OnValue:24
 set(>hours, 0)
 add(>days, 1)
-set(>part of day, 0)","part of day
-value:6m24
+set(>part of day, 0)","$ wait
+add(>hours passed, {input num})
+write ( hours pass by )","hours passed
+value:0
+OnValue:ABOVE 0
+add(>hours, 1)
+sub(>hours passed, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"part of day","","","","global","part of day
+value:6
+max:24
 description:(on change)
-it's still dark around / the sun is slowly starting to rise / the sun is risen, it's morning time / the sun is in the middle of the sky, it's noon / the sun is still here / light is slowly desappearing into the distance / the night is setting, as things go darker around you / the night is here, it's dark around","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+it's still dark around / the sun is slowly starting to rise / the sun is risen, it's morning time / the sun is in the middle of the sky, it's noon / the sun is still here / light is slowly desappearing into the distance / the night is setting, as things go darker around you / the night is here, it's dark around","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "day","","","","global","days
 value:0?30
+max:30
 description:
 it's the {value} of [mounth>mounths]
 
-OnValue:>0
+OnValue:ABOVE 0
 triggerEvent(OnDays)
 
 OnValue:30
 add(>mounths, 1)
-set(>days, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+set(>days, 0)","$ wait
+add(>day, {input num})
+write ( some days by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "mounth","","","","global","mounths
 value:0?12
+max:12
 description:
 january / february / march / april / may / june / july / august / september / october / november / december
 
-OnValue:>0
+OnValue:ABOVE 0
 triggerEvent(OnMounths)
 
 OnValue:12
 set(>mounths, 0)
-add(>years, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+add(>years, 1)","$ wait
+add(>mounth, {input num})
+write ( mounths pass by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "year","","","","global","years
 value:2000
 description:
 it's {value}
 
-OnValue:>0
-triggerEvent(OnYears)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+OnValue:ABOVE 0
+triggerEvent(OnYears)","$ wait
+add(>year, {input num})
+write ( years pass by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

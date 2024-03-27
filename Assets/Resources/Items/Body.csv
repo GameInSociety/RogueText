@@ -1,42 +1,76 @@
-"NAME","","N.","PREP.","TYPES","types","PROPERTIES","","","PROPERTIES","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
-"body","","","on","","contents
-head:1
-neck:1
-torso:1
-shoulders:1
-left arm:1
-right arm:1
-left hand:1
-right hand:1
-left leg:1
-right leg:1
-left foot:1
-right foot:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"head","","","on","body part","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"neck","","","on","body part","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"torso","","","on","body part","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"shoulders","","","on","body part","weight:0
+"NAME","","N.","PREP.","TYPES","types","PROPERTIES","","","PROPERTIES","","","ACTIONS","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"head","","","on","body part","*hurt
+value:5
+description:hurt","prec malus
+value:5m5
+description:hard to miss / not likely to miss / easely missed","hidden","","*armor1:0
+*armor2:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"neck","","","on","body part","*hurt
+value:3
+description:hurt","prec malus
+value:4m5
+description:hard to miss / not likely to miss / easely missed","hidden","","*armor1:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"torso","","","on","body part","*hurt
+value:2
+description:hurt","prec malus
+value:0m5
+description:hard to miss / not likely to miss / easely missed","hidden","","*armor1:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"shoulders","","","on","body part","*hurt
+value:1
+description:hurt","prec malus
+value:1m5
+description:hard to miss / not likely to miss / easely missed","hidden","","*armor1:0","weight:0
 capacity:50
-max items:0m1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+max items:0m1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "left arm","","","on","body part
-arms","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+arms","*hurt
+value:1
+description:hurt","prec malus
+value:3m5
+description:hard to miss / not likely to miss / easely missed","hidden","","*armor1:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "right arm","","","on","body part
-arms","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+arms","*hurt
+value:1
+description:hurt","prec malus
+value:3m5
+description:hard to miss / not likely to miss / easely missed","hidden","","*armor1:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "left hand","","","on","body part
 hands
-hand","weight:0
-capacity:3
-max items:0m1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+hand","*hurt
+value:1
+description:hurt","prec malus
+value:2m5
+description:hard to miss / not likely to miss / easely missed","hidden","damage
+value:1","*armor1:0","weight:0
+capacity:5
+max items:0m1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "right hand","","","on","body part
 hands
-hand","weight:0
-capacity:3
-max items:0m1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"left leg","","","on","body part
-legs","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"right leg","","","on","body part
-legs","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+hand","*hurt
+value:1
+description:hurt","prec malus
+value:2m5
+description:hard to miss / not likely to miss / easely missed","hidden","damage
+value:1","*armor1:0","weight:0
+capacity:5
+max items:0m1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"legs","","","on","body part","*hurt
+value:1
+description:hurt","prec malus
+value:2m5
+description:hard to miss / not likely to miss / easely missed","hidden","","*armor1:0
+*armor2:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "left foot","","","on","body part
-feet","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+feet","*hurt
+value:1
+description:hurt","prec malus
+value:2m5
+description:hard to miss / not likely to miss / easely missed","hidden","damage
+value:1","*armor1:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "right foot","","","on","body part
-feet","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+feet","*hurt
+value:1
+description:hurt","prec malus
+value:2m5
+description:hard to miss / not likely to miss / easely missed","hidden","damage
+value:1","*armor1:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
