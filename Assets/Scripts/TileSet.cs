@@ -8,7 +8,6 @@ public class TileSet {
     public static TileSet GetCurrent {
         get {
             var tilesetId = tileSets[Player.Instance.tilesetId];
-            MapTexture.Instance.DisplayMap(tilesetId);
             return tilesetId;
         }
     }
@@ -24,8 +23,8 @@ public class TileSet {
     public Coords Center => new Coords((int)(width / 2f), (int)(height / 2f));
 
     public void Init() {
-        width = MapTexture.Instance.mainMap_Texture.width;
-        height = MapTexture.Instance.mainMap_Texture.height;
+        width = MapTexture.Instance.mainMap_Texture.width+1;
+        height = MapTexture.Instance.mainMap_Texture.height+1;
     }
 
     public Coords GetRandomCoords() {
@@ -35,9 +34,9 @@ public class TileSet {
 
     public void Add(Coords c, Tile newTile) {
         if ( c.x > width )
-            width = c.x;
+            width = c.x+1;
         if ( c.y > height )
-            height = c.y;
+            height = c.y+1;
 
         tiles.Add(c, newTile);
     }

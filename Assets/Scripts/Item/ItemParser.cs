@@ -120,28 +120,19 @@ public class ItemParser {
 
         public void GetItems() {
 
-            items = AvailableItems.currItems.FindAll(x => x.ContainedInText(text) || x.GetPropsInText(text) != null);
-
-            var itmTxt = "";
-            foreach (var item in items)
-                itmTxt += $"[{item.debug_name}]";
-            Log(itmTxt, Color.yellow);
-
-            // save this before getting every thing all at once
-            /*items = AvailableItems.currItems.FindAll(x => x.ContainedInText(text));
-            if (items.Count == 0) {
-                items = AvailableItems.currItems.FindAll(x => x.GetPropsInText(text) != null);
-                if (items.Count > 0)
-                    Log($"{items.First().debug_name} (prop)", Color.white);
-            } else
-                Log($"{items.First().debug_name} (item name)", Color.white);*/
+            items = AvailableItems.currItems.FindAll(x => x.ContainedInText(text));
+            if (items.Count > 0) {
+                Log($"Item Reference:{string.Join('/', items.Select(x=>x.debug_name))}", Color.white);
+            } else {
+                items = AvailableItems.currItems.FindAll(x => x.GetPropsInText(text) !=null);
+                if (items.Count == 0) {
+                    Log($"No Items", Color.red);
+                } else {
+                    Log($"Prop Reference:{string.Join('/', items.Select(x => x.debug_name))}", Color.white);
+                }
+            }
 
             GetProperties();
-
-            if (items.Count == 0) {
-                Log("no items", Color.red);
-                return;
-            }
         }
 
         public void SortItems() {
@@ -205,16 +196,11 @@ public class ItemParser {
             var narrowedIts = items.FindAll(x => x.GetPropsInText(text) != null);
             if ( narrowedIts.Count > 0) {
                 items = narrowedIts;
-                var narrowedProp = new List<Property>();
+                var narrowedProps = new List<Property>();
                 string propText = $"";
                 foreach (var item in narrowedIts) {
-                    var props = item.GetPropsInText(text);
-                    foreach (var prop in props) {
-                        if (narrowedProp.Find(x=> x.GetCurrentDescription() == prop.GetCurrentDescription()) == null) {
-                            propText += $"[{prop.name}/{prop.GetCurrentDescription()}]";
-                            narrowedProp.Add(prop);
-                        }
-                    }
+                    narrowedProps.AddRange(item.GetPropsInText(text));
+                    propText = string.Join('/', narrowedProps.Select(x => x.name).ToList());
                 }
                 Log($"[SORT] found prop {propText} for item {narrowedIts[0].debug_name}", Color.gray);
             }
@@ -238,7 +224,7 @@ public class ItemParser {
                     ordinal_prop.name = "ordinal";
                     ordinal_prop.AddPart("search", ordinal);
                 }
-                items[i].SetProp($"ordinal / search:{ordinal}");
+                items[i].SetProp($"ordinal | search:{ordinal}");
             }
         }
 
@@ -388,15 +374,17 @@ public class ItemParser {
             }
         }
 
-        // trigger action
-        var parserAction = new WorldAction(GetPart().items, Tile.GetCurrent.tileInfo, sequence);
-        parserAction.Call(WorldAction.Source.PlayerAction);
-
         if (verb.duration > 0) {
             var timeSeq = $"add( !second>seconds passed, {verb.duration})";
-            var timeAction = new WorldAction(GetPart().items, Tile.GetCurrent.tileInfo, timeSeq);
-            timeAction.Call(WorldAction.Source.Event);
+            var timeAction = new WorldAction(GetPart().items.First(), timeSeq);
+            timeAction.Stack(timeAction);
         }
+
+        // trigger action
+        var parserAction = new WorldAction(GetPart().items, sequence);
+        parserAction.Call(WorldAction.Source.PlayerAction);
+
+        
 
         NewParser();
     }

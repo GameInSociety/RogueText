@@ -70,10 +70,10 @@ put away,where,,10
 empty,what,,20
 charge,what,,10
 use,what,with,10
-hit,what,,5
-smash,what,,5
-attack,what,,5
-strike,what,,5
+"hit
+smash
+attack
+strike",what,,1
 "dodge
-esquive",what,,2
+esquive",what,,4
 yes,no,maybe,1

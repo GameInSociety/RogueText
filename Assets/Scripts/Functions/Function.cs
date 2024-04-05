@@ -8,6 +8,7 @@ using UnityEngine;
 public static class Function {
 
     public static List<ActionPart> parts = new List<ActionPart>();
+    static Tile tile;
     static Item item;
     static bool continueOnFail;
     static bool failed = false;
@@ -21,7 +22,7 @@ public static class Function {
 
         // target item
         item = _item;
-
+        tile = WorldAction.current.tile;
         // search for []
         var functionName = line;
 
@@ -104,13 +105,13 @@ public static class Function {
             }
         }
 
-        if (container.hasItem(targetItem)) {
+        if (container.HasItem(targetItem) && WorldAction.current.source == WorldAction.Source.PlayerAction ) {
             Fail($"{container.GetText("the dog")} already contains {targetItem.GetText("the dog")}");
             return;
         }
         targetItem.TransferTo(container);
 
-        TextManager.Write($"{targetItem.GetText("the dog")} is now in {container.GetText("the dog")}");
+        ItemDescription.AddItems("describe", new List<Item>() { targetItem }, $"start:{container.GetText("on the dog")}, ");
     }
     static void destroy() {
         var targetItem = HasPart(0) ? GetItem(0) : item;
@@ -129,9 +130,8 @@ public static class Function {
 
         var targetTile = WorldAction.current.tile;
         // tile
-        if (GetPart(2).HasTile())
-            targetTile = GetPart(2).tile;
-
+        if (GetPart(2).HasItem())
+            targetTile = (Tile)GetPart(2).item;
         var newItem = targetTile.CreateChildItem(itemName);
 
         // amount
@@ -139,12 +139,11 @@ public static class Function {
         for (var i = 1; i < amount; i++)
             _ = targetTile.CreateChildItem(itemName);
 
-        
-
         if (targetTile == Tile.GetCurrent) {
-            TextManager.Write($"{newItem.GetText("a dog")} appeared");
+            ItemDescription.AddItems("new items", new List<Item>() { newItem });
         } else {
-            TextManager.Write($"target tile : {Tile.GetCurrent.coords.ToString()} / event tile : {WorldAction.current.tile.coords.ToString()}");
+            // in other tile
+            //TextManager.Write($"target tile : {Tile.GetCurrent.GetCoords().ToString()} / event tile : {WorldAction.current.tile.GetCoords().ToString()}");
         }
     }
 
@@ -201,42 +200,52 @@ public static class Function {
         var targetItem = GetPart(0).HasItem() ? GetItem(0) : item;
         var actName = GetText(0);
         var itemAct = targetItem.GetData().acts.Find(x=> x.triggers[0] == actName);
-        var action = new WorldAction(item, WorldAction.current.tileInfo, itemAct.seq);
+        var action = new WorldAction(item, itemAct.seq);
         action.Call(); 
     }
 
     static void breakIf() {
         bool fail = false;
 
-        var targetItem = GetPart(0).HasItem() ? GetItem(0) : item;
+        var targetItem = GetPart(0).item!=null ? GetItem(0) : item;
         var targetProp = GetProp(0);
         var feedback = "";
 
+        var condition = GetText(1).ToUpper();
+
         switch (GetText(1)) {
-            case "enabled":
+            case "PRESENT":
+                fail = GetProp(0) != null;
+                if ( fail) {
+                    Debug.LogError($"{targetItem.debug_name} has prop {GetProp(0).name}");
+                } else {
+                    Debug.Log($"{targetItem.debug_name} DOESNT have prop {GetProp(0).name}");
+                }
+                break;
+            case "ENABLED":
                 fail = targetProp == null || targetProp != null && targetProp.enabled;
                 feedback = $"can't, {targetItem.GetText("the dog")} is already {targetProp.GetCurrentDescription()}";
                 break;
-            case "disabled":
+            case "DISABLED":
                 fail = targetProp == null || targetProp != null && !targetProp.enabled;
                 feedback = $"can't {targetItem.GetText("the dog")} isn't {targetProp.GetCurrentDescription()}";
                 break;
-            case "max":
+            case "MAX":
                 fail = targetProp.GetNumValue() >= targetProp.GetNumValue("max");
                 break;
-            case "empty":
+            case "EMPTY":
                 fail = targetProp.GetNumValue() == 0;
                 break;
-            case "not empty":
+            case "NOT EMPTY":
                 fail = targetProp.GetNumValue() > 0;
                 feedback = $"can't, {targetItem.GetText("the dog")} is already {targetProp.GetCurrentDescription()}";
                 break;
-            case "not":
+            case "NOT":
                 fail = targetProp.GetTextValue() != GetProp(2).GetTextValue();
                 feedback = $"this {targetItem.debug_name}({targetProp.GetTextValue()})" +
                     $"doesn't match this {GetItem(2).debug_name}({GetProp(2).GetTextValue()})";
                 break;
-            case "equals":
+            case "EQUALS":
                 string checkValue = (GetPart(2).HasProp() ? GetProp(2).GetTextValue() : GetPart(2).text);
                 fail = targetProp.GetTextValue() == checkValue;
                 break;
@@ -245,6 +254,20 @@ public static class Function {
                 break;
             case "BELOW":
                 fail = targetProp.GetNumValue() < (GetPart(2).HasProp() ? GetProp(2).GetNumValue() : GetPart(2).value);
+                break;
+            case "CONTAINS":
+            case "NCONTAINS":
+                if (GetText(1).StartsWith('N')) {
+                    fail = !GetPart(0).item.HasItem(GetText(2));
+                    Debug.Log(fail?$"BREAK:{GetPart(0).item.debug_name} doesn't have{GetText(2)}": $"PASS:{GetPart(0).item.debug_name} has {GetText(2)}");
+                } else {
+                    fail = GetPart(0).item.HasItem(GetText(2));
+                    Debug.Log(fail?$"BREAK:{GetPart(0).item.debug_name} doesn't have{GetText(2)}": $"PASS:{GetPart(0).item.debug_name} has {GetText(2)}");
+                }
+                if (fail) {
+                }
+
+                feedback = $"{GetPart(0).item} doesn't have any {GetText(2)}";
                 break;
             case "PERCENT":
             case "NOT PERCENT":
@@ -265,13 +288,23 @@ public static class Function {
                 Debug.Log($"fail ? : {fail}");
                 feedback = GetPart(4).text;
                 break;
+            case "EXISTS":
+                fail = GetPart(0).item == null;
+                break;
             default:
                 break;
         }
 
         if (fail) {
-            if ( string.IsNullOrEmpty( feedback ) ) {
-                feedback = $"can't, {targetItem.GetText("the dog")} is {targetProp.GetCurrentDescription()}";
+            if ( string.IsNullOrEmpty( feedback ) && targetProp != null ) {
+                var d = targetProp.CanBeDescribed() ? targetProp.GetCurrentDescription() : targetProp.name;
+                feedback = $"can't, {targetItem.GetText("the dog")} is {d}";
+            }
+            foreach (var part in parts) {
+                if (part.text.StartsWith("f:")) {
+                    feedback = part.text.Substring(2);
+                    Debug.Log($"custom feedback : {feedback}");
+                }
             }
             var str = feedback;
             Fail($"{str}");
@@ -333,8 +366,6 @@ public static class Function {
     static void sub() {
 
         var targetProp = GetProp(0);
-        var targetItem = GetPart(0).HasItem() ? GetItem(0) : item;
-
         if (!targetProp.enabled)
             return;
 
@@ -454,7 +485,7 @@ public static class Function {
             // getting the sequence
             var sequence = content.Remove(0, returnIndex + 1);
             if (call) {
-                var tileEvent = new WorldAction(targetItem, WorldAction.current.tileInfo, sequence);
+                var tileEvent = new WorldAction(targetItem, sequence);
                 tileEvent.Call();
             }
         }
@@ -467,7 +498,7 @@ public static class Function {
         foreach (var s in split) {
             var part = new ActionPart(s.Trim(' '));
             parts.Add(part);
-            ADDLOG($" [{part.text}] ", Color.white);
+            LOG($"{part.text}", Color.white);
             if (!part.TryInit(item))
                 return false;
         }

@@ -56,7 +56,7 @@ public static class Interior {
             }
 
             for (int x = -1; x < 2; x += 2) {
-                var newRoomCoords = newHallwayTile.coords + new Coords(x, 0);
+                var newRoomCoords = newHallwayTile.GetCoords() + new Coords(x, 0);
 
                 int rnd = Random.Range(0, tileNames.Count);
                 var tileName = tileNames[rnd];

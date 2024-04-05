@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.ParticleSystem;
 
 [System.Serializable]
 public class ItemSlot {
@@ -18,48 +19,123 @@ public class ItemSlot {
         this.key = key;
     }
 
-    public string DescribePropsToString() {
-        if (describeProps.Count == 0) return " ";
-        string text = Property.GetDescription(describeProps, true);
+    public string PropsToString(List<Property> props) {
+        if (props.Count == 0) return " ";
+
+        string text = "";
+
+        // get text in properties
+        var props_txt = props.Select(x => x.GetDisplayDescription()).ToList();
+        props_txt.RemoveAll(x => string.IsNullOrEmpty(x));
+        if (props_txt.Count == 0) return "";
+        
+        // add properties
+        for (int i = 0; i < props_txt.Count; i++) {
+            var currSetup = props[i].GetPart("description setup").content;
+
+            // on verra
+            if (currSetup == "is")
+                currSetup = IsMultiple() ? "are" : "is";
+
+            // aggregate prop texts
+            var b = i > 0 && props[i - i].GetPart("description setup").content == currSetup;
+            string hook = b ? "" : $"{currSetup} ";
+            text += $"{hook}{props_txt[i]}{TextUtils.GetCommas(i, props_txt.Count)}";
+        }
         if (string.IsNullOrEmpty(text)) return " ";
         return $" {text} ";
     }
 
-    public string NestedPropsToString() {
-        if (nestedProps.Count == 0) return " ";
-        string text = Property.GetDescription(nestedProps, true);
-        if (string.IsNullOrEmpty(text)) return " ";
-        return $" {text} ";
+    bool IsMultiple() {
+        return items.Count > 1 || items.First().GetWord().defaultNumber == Word.Number.Plural;
     }
 
     public string ItemsToString() {
 
-        // get item reference
-        var fItem = items.First();
+        
 
         // get noun
-        string dog = items.Count > 1 ? "dogs" : "dog";
-        
-        // get articles
-        string article = defined ? "the" : (items.Count > 1 ? Phrase.Part.GetRandom("article_mult") : "a");
+        string selfRef = GetSelfRef();
 
-        var grammar = fItem.GetProp("grammar");
-        if ( grammar != null) {
-            if (grammar.HasPart("article")) {
-                article = grammar.GetPart("article").content;
+        // get articles
+        string article = GetArticle();
+        // put phrase together
+        var text = $"{article}{PropsToString(nestedProps)}{selfRef}{PropsToString(describeProps)}";
+        text = text.Trim(' ');
+
+        ItemDescription.describedItems.Add(RefItem.dataIndex);
+        return text;
+    }
+
+
+    string GetSelfRef() {
+        var grammar = RefItem.GetProp("grammar");
+        if (grammar != null) {
+            if (grammar.HasPart("self ref")) {
+                var selfRef = grammar.GetPart("self ref").content;
+                var split = selfRef.Split(" THEN ");
+                if ( split.Length > 1) {
+                    if (FirstTimeDescribed()) {
+                        // first time
+                        selfRef = split[0];
+                    } else {
+                        // second time
+                        selfRef = split[1];
+                    }
+                }
+
+                if (selfRef == "X")
+                    return "";
+
+                if (selfRef == "normal") {
+
+                } else {
+                    return selfRef;
+                }
             }
 
         }
 
-        var parents = fItem.GetParents();
-        var refItem = parents.Find(x => x.HasProp("refer"));
-        if (refItem != null) {
-            article = refItem.GetProp("refer").GetTextValue();
+        string dog = IsMultiple() ? "dogs" : "dog";
+        return items.First().GetText($"{dog}");
+    }
+
+    bool FirstTimeDescribed() {
+        return !ItemDescription.describedItems.Contains(RefItem.dataIndex);
+    }
+    Item RefItem {
+        get {
+            return items.First();
+        }
+    }
+
+    string GetArticle() {
+
+        var article = "";
+        var grammar = RefItem.GetProp("grammar");
+        if (grammar != null) {
+            if (grammar.HasPart("article")) {
+                article = grammar.GetPart("article").content;
+                if (article.Contains(" THEN ")) {
+                    var split = article.Split(" THEN ");
+                    if ( FirstTimeDescribed() ) {
+                        // first time
+                        article = split[0];
+                    } else {
+                        // second time
+                        article = split[1];
+                    }
+                }
+
+                if (article == "X") {
+                    return "";
+                } if (article != "normal") {
+                    return article;
+                }
+            }
         }
 
-        // put phrase together
-        var text = $"{article}{NestedPropsToString()}{items.First().GetText($"{dog}")}{DescribePropsToString()}";
-        text = text.Trim(' ');
-        return text;
+
+        return defined ? "the" : (IsMultiple() ? Phrase.Part.GetRandom("article_mult") : "a");
     }
 }

@@ -8,6 +8,8 @@ public class WorldAction {
     public static List<WorldAction> stack = new List<WorldAction>();
     public string debug_name;
 
+  
+
     public DataDownloader[] dataDownloaders;
 
     private List<Item> _items = new List<Item>();
@@ -58,23 +60,28 @@ public class WorldAction {
 
     int seqIndex = 0;
 
-    public WorldAction(Item item, Tile.Info info, string sequence) {
+    public WorldAction(Item item, string sequence) {
         debug_name = $"{item.debug_name})";
         AddItem(item);
-        tileInfo = info;
+        tileInfo.coords = item.GetCoords();
+        tileInfo.tilesetId = item.GetTileSet();
         this.sequence = sequence;
     }
-    public WorldAction(List<Item> items, Tile.Info info, string sequence) {
+    public WorldAction(List<Item> items, string sequence) {
         debug_name = $"{items[0].debug_name})";
         foreach (var item in items) {
             AddItem(item);
         }
-        this.tileInfo = info;
+        this.tileInfo.coords = items.First().GetCoords();
+        this.tileInfo.tilesetId = items.First().GetTileSet();
         this.sequence = sequence;
     }
 
     #region call
     static bool onGoing = false;
+    public void Stack(WorldAction action) {
+        stack.Add(action);
+    }
     public void Call(Source source = Source.Event) {
         this.source = source;
         if (onGoing) {
@@ -88,11 +95,11 @@ public class WorldAction {
         Function.LOG($"\nWorld Action:[{TargetItem().debug_name}] {source}", Color.cyan);
         AvailableItems.UpdateItems();
 
-        ItemLink.ItemHistory.Clear();
         current = this;
         onGoing = true;
         seqIndex = 0;
         sequences = sequence.Split("\n%\n");
+        ItemLink.history.Clear();
 
         CallLine(0);
 
@@ -104,6 +111,7 @@ public class WorldAction {
         } else {
             PropertyDescription.Describe();
             ItemDescription.DescribeAll();
+            MapTexture.Instance.DisplayMap();
         }
     }
 

@@ -47,7 +47,7 @@ public class VerbLoader : TextParser {
         }
 
         if (!string.IsNullOrEmpty(cells[3])) {
-            newVerb.duration = cells[3].Length;
+            newVerb.duration = int.Parse(cells[3]);
         } else {
             newVerb.duration = 0;
         }

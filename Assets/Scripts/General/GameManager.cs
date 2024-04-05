@@ -24,17 +24,15 @@ public class GameManager : MonoBehaviour {
 
         MapLoader.Instance.Load();
 
-
         Player.Instance = ItemData.Generate_Special("player") as Player;
         Player.Instance.GetProp("coords").SetValue(Coords.CoordsToText(startCoords));
-        MapTexture.Instance.DisplayMap(TileSet.GetTileSet(0));
 
         Player.Instance.GenerateChildItems();
         foreach (var tile in TileSet.GetCurrent.tiles.Values.ToList())
             tile.GenerateChildItems();
 
-
         WorldData.Init();
+
 
         ItemParser.NewParser();
     }

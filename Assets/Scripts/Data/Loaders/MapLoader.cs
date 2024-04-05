@@ -12,6 +12,7 @@ public class MapLoader : DataDownloader
     public class TileInfo {
         public string value;
         public string key;
+        public Color color = Color.white;
     }
 
     private void Awake() {
@@ -35,9 +36,7 @@ public class MapLoader : DataDownloader
 
     public override void GetCell(int row, List<string> cells) {
         base.GetCell(row, cells);
-
         for (int x = 0; x < cells.Count; x++) {
-
             // void
             if (string.IsNullOrEmpty(cells[x]) )
                 continue;
@@ -52,7 +51,7 @@ public class MapLoader : DataDownloader
                 continue;
             }
 
-            int y = (lineAmount - row)-1;
+            int y = lineAmount - row - 1;
             var coords = new Coords(x, y);
             var newTile = Tile.Create(new Tile.Info(coords, 0), tileInfo.value);
             var cProp = newTile.AddProp(Coords.CoordsToProp(coords));

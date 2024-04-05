@@ -44,16 +44,16 @@ add(! minutes>minutes, 1)","seconds passed
 value:0
 
 OnValue:ABOVE 0
-sub(>seconds passed, 1)
-add(>seconds, 1)","$ wait
-add(>seconds passed, {input num})
+add(>seconds, 1)
+sub(>seconds passed, 1)","$ wait
+add(>seconds passed, INPUT NUM)
 write ( some time passes by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "minutes","","","","global","minutes
 value:0
 OnValue:ABOVE 60
 sub(>minutes, 60)
 add(! hours>hours, 1)","$ wait
-add(>minutes, {input num})
+add(>minutes, INPUT NUM)
 write ( some time passes by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "hour","","","","global","hours
 value:6
@@ -67,7 +67,7 @@ OnValue:24
 set(>hours, 0)
 add(>days, 1)
 set(>part of day, 0)","$ wait
-add(>hours passed, {input num})
+add(>hours passed, INPUT NUM)
 write ( hours pass by )","hours passed
 value:0
 OnValue:ABOVE 0
@@ -90,7 +90,7 @@ triggerEvent(OnDays)
 OnValue:30
 add(>mounths, 1)
 set(>days, 0)","$ wait
-add(>day, {input num})
+add(>day, INPUT NUM)
 write ( some days by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "mounth","","","","global","mounths
 value:0?12
@@ -104,7 +104,7 @@ triggerEvent(OnMounths)
 OnValue:12
 set(>mounths, 0)
 add(>years, 1)","$ wait
-add(>mounth, {input num})
+add(>mounth, INPUT NUM)
 write ( mounths pass by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "year","","","","global","years
 value:2000
@@ -113,5 +113,5 @@ it's {value}
 
 OnValue:ABOVE 0
 triggerEvent(OnYears)","$ wait
-add(>year, {input num})
+add(>year, INPUT NUM)
 write ( years pass by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

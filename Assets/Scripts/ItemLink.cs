@@ -1,39 +1,46 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.Networking.UnityWebRequest;
 
 public static class ItemLink
 {
     public static string failMessage;
     static Item sourceItem;
-    public class ItemHistory {
-        public static List<ItemHistory> list = new List<ItemHistory>();
-        public static void Clear() {
-            list.Clear();
-        }
-        public string key;
-        public Item item;
-        public ItemHistory(string  key, Item item) {
-            this.key = key;
-            this.item = item;
-        }
-    }
 
     public static Item SearchItem(string _key) {
-
-        var histItem = ItemHistory.list.Find(x=>x.key == _key);
-        if (histItem != null) {
-            Function.LOG($"getting {histItem.item} from history ({histItem.key})", Color.white);
-            return histItem.item;
-        }
 
         failMessage = "";
 
         sourceItem = WorldAction.current.TargetItem();
 
-
+        // KEY TRIM //
         string key = _key;
+        
+        // SET START INDEX ( IF TILE )
+        int startIndex = key.Contains('[') ? key.IndexOf(']') : 0;
 
+        // remove prop > symbols
+        int propIndex = key.IndexOf('>', startIndex);
+        if ( propIndex >= 0)
+            key = key.Remove(propIndex);
+
+        // remove item ! symbol
+        int itemIndex = key.IndexOf('!', startIndex);
+        if (  itemIndex >= 0 ) {
+            key = key.Remove(0, startIndex);
+            key = key.Remove(0, itemIndex+1);
+        }
+        key = key.Trim(' ');
+
+        // search in history
+        var itemInHistory = ItemLink.CheckForItemInHistory(key);
+        if (itemInHistory != null) {
+            Function.ADDLOG($"(h:{itemInHistory.debug_name})", Color.yellow);
+            return itemInHistory;
+        }
+
+        // special searches
         bool onlyInParser = false;
         bool random = false;
         if (key.StartsWith("INPUT ")) {
@@ -45,7 +52,9 @@ public static class ItemLink
             random = true;
         }
        
+        // get result
         var results = ReadKey(key);
+
 
         if (results == null || results.Count == 0) {
             // if no fail message was there, set default one
@@ -67,10 +76,9 @@ public static class ItemLink
             }
         }
         var item = random ? results[Random.Range(0, results.Count)] : results[0];
-        if (random) {
-            Debug.Log($"picking random result : {item.debug_name}");
-        }
-        ItemHistory.list.Add(new ItemHistory(_key, item));
+
+        history.Add(new ItemHistory(key, item));
+
         return item;
     }
 
@@ -78,10 +86,11 @@ public static class ItemLink
         var propLinkIndex = key.IndexOf('{');
         while (propLinkIndex >= 0) {
             string propKey = TextUtils.Extract('{', key, out key);
+            Debug.Log($"prop key : {propKey}");
             var newPart = new ActionPart(propKey);
             if (!newPart.TryInit(item)) {
             }
-
+            Debug.Log($"prop : {newPart.prop.name}");
             var insertKey = newPart.prop.GetTextValue();
             key = key.Insert(propLinkIndex, insertKey);
             propLinkIndex = key.IndexOf('{');
@@ -91,6 +100,7 @@ public static class ItemLink
 
     public static List<Item> ReadKey(string key) {
 
+        Debug.Log($"KEY:{key}");
         // first, check if the search will be in another item
         if (key.Contains('.')) {
             var range = AvailableItems.currItems;
@@ -101,6 +111,7 @@ public static class ItemLink
                 var parent = SearchItemsInRange(parentKey, range);
                 if (parent == null || parent.Count == 0)
                     return null;
+                Function.ADDLOG($">in parent {parent[0].debug_name}", Color.gray);
                 range = parent[0].GetChildItems(2);
                 key = key.Remove(0, key.IndexOf('.') + 1);
             }
@@ -122,7 +133,8 @@ public static class ItemLink
     public static List<Item> SearchItemsInRange(string key, List<Item> range) {
         key = key.Trim(' ');
 
-        Function.ADDLOG($"({key}) ", Color.gray);
+        if (key.StartsWith('['))
+            return new List<Item>() { GetTile(key) };
 
         // this searches in the parser
         if (key.StartsWith("ANY"))
@@ -154,15 +166,94 @@ public static class ItemLink
         return prop;
     }
 
+    static Item GetTile(string key) {
+        key = TextUtils.Extract('[', key, out _);
+        var tilesetId = Player.Instance.tilesetId;
+        // check for other tile set
+        if (key.Contains('{')) {
+            var tilesetKey = TextUtils.Extract('{', key, out key);
+            if (tilesetKey.Contains('>')) {
+                var tsIt = sourceItem;
+                if (tilesetKey.Contains('!')) {
+                    tsIt = SearchItem(tilesetKey);
+                    if (tsIt == null)
+                        return null;
+                }
+                var tilesetProp = GetProperty(tilesetKey, tsIt);
+                tilesetId = tilesetProp.GetNumValue();
+            } else {
+                tilesetId = int.Parse(tilesetKey);
+            }
+        }
+
+        // check for addition
+        var split = key.Split('+');
+        var coords = new Coords();
+        foreach (var s in split) {
+
+            var ap = new ActionPart(s);
+            if(!ap.TryInit(sourceItem)) {
+                Debug.LogError($"action part fail in : {s}");
+                return null;
+            }
+            var newCoords = Coords.zero;
+            if (ap.HasProp()) {
+                newCoords = Coords.PropToCoords(ap.prop, tilesetId);
+                ap.prop.SetValue(Coords.CoordsToText(newCoords));
+            } else {
+                newCoords = Coords.TextToCoords(s, tilesetId);
+            }
+            coords += newCoords;
+        }
+
+        var result = TileSet.tileSets[tilesetId].GetTile(coords);
+        if (result == null) {
+            Debug.LogError($"no tile for {key}");
+            return null;
+        }
+        return result;
+    }
+
     static void LOG(string message, Color c) {
         Function.LOG(message, c);
     }
 
     public static List<Item> GetItemsWithProp (string key, List<Item> range) {
         key = key.Remove(0, key.IndexOf("ANY") + "ANY".Length).Trim(' ');
+
+        bool highest = false;
+        if ( key.StartsWith("H ")) {
+            highest = true;
+            key = key.Substring(2).Trim(' ');
+        }
+
         var results = range.FindAll(x => x.GetProp(key) != null && x != sourceItem);
         if (results.Count == 0)
             DisplayFail($"nothing here has {key}");
+
+        if(highest) {
+            var hItem = results[0];
+            for (int i = 1; i < results.Count; i++) {
+                if (results[i].GetProp(key).GetNumValue() > hItem.GetProp(key).GetNumValue()) {
+                    hItem = results[i];
+                }
+            }
+            return new List<Item> { hItem };
+        }
+
         return results;
     }
+    public static Item CheckForItemInHistory(string key) {
+        return history.Find(x => x.key == key).item;
+    }
+
+    public struct ItemHistory {
+        public ItemHistory(string k, Item i) {
+            key = k;
+            item = i;
+        }
+        public string key;
+        public Item item;
+    }
+    public static List<ItemHistory> history = new List<ItemHistory>();
 }

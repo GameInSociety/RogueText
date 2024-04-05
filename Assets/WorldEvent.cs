@@ -37,7 +37,7 @@ public class WorldEvent {
             worldEvent = CreateWorldEvent(eventName);
         }
 
-        var worldAction = new WorldAction(item, item.tileInfo , sequence); ;
+        var worldAction = new WorldAction(item , sequence); ;
         worldEvent.AddWorldAction(worldAction); 
     }
 

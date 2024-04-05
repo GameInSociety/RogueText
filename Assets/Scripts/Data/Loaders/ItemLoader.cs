@@ -63,12 +63,6 @@ public class ItemLoader : DataDownloader {
             
 
             var word_txt = synonyms[i];
-
-            if (synonyms[i].StartsWith('(')) {
-                newWord.main = true;
-                word_txt = TextUtils.Extract('(', word_txt, out word_txt);
-            }
-
             if (word_txt.EndsWith('s'))
                 newWord.defaultNumber = Word.Number.Plural;
             if (word_txt.EndsWith("(s)")) {

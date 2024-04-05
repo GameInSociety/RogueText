@@ -1,24 +1,21 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 [System.Serializable]
 public class Tile : Item {
     // location of tile in world
-    public Coords coords {
-        get {
-            return tileInfo.coords;
-        }
-    }
+    
     [System.Serializable]
     public struct Info {
         public Coords coords;
-        public int setID;
+        public int tilesetId;
         public Info(Coords c, int i) {
             coords = c;
-            setID = i;
+            tilesetId = i;
         }
         public Tile GetTile() {
-            return TileSet.GetTileSet(setID).GetTile(coords);
+            return TileSet.GetTileSet(tilesetId).GetTile(coords);
         }
     }
 
@@ -26,9 +23,8 @@ public class Tile : Item {
     public static Tile Create(Info info, string _name, string prop_text = "") {
 
         var tile = ItemData.Generate_Special(_name) as Tile;
-        tile.tileInfo = info;
         if (!string.IsNullOrEmpty(prop_text)) {
-            tile.SetProp($"dif / description:{prop_text}");
+            tile.SetProp($"dif | description:{prop_text}");
         }
 
         return tile;
@@ -65,7 +61,7 @@ public class Tile : Item {
                 exit = GetChildItems()?.Find(x=> x.HasProp(orientation.ToString()));
                 if (exit == null)
                     exit = CreateChildItem("door");
-                exit.SetProp($"link / description:{adjacentTile.GetText("the dog")}");
+                exit.SetProp($"link | description:{adjacentTile.GetText("the dog")}");
             } else {
                 exit = adjacentTile;
                 exits.Add(exit);
@@ -73,7 +69,7 @@ public class Tile : Item {
 
             exit.RemovePropOfType("orientation");
             var prop = exit.AddProp(orientation.ToString());
-            prop.SetValue(Player.Instance.GetCardinalFromOrientation(orientation));
+            prop.SetValue(Player.Instance.GetCardinalFromOrientation(orientation), "value", false);
         }
 
         return exits;
@@ -81,7 +77,7 @@ public class Tile : Item {
 
 
     public Tile GetAdjacentTile(string orientation) {
-        var targetCoords = coords + Player.Instance.GetCoordsFromOrientation(orientation);
+        var targetCoords = GetCoords() + Player.Instance.GetCoordsFromOrientation(orientation);
         var tile = TileSet.GetCurrent.GetTile(targetCoords);
         return tile;
     }

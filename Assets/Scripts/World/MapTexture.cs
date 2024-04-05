@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class MapTexture : MonoBehaviour {
@@ -10,8 +12,14 @@ public class MapTexture : MonoBehaviour {
     public Image feedbackMap_Image;
     public Texture2D feedbackMap_Texture;
 
+    public MapFeedback feedback_Prefab;
+    public List<MapFeedback> feedback_Pool = new List<MapFeedback>();
+    int feedback_CurrentIndex;
+    public float feedback_decal = 15f;
+
     public int range = 1;
     private int scale = 0;
+    public float mult = 130f;
 
     [System.Serializable]
     public struct TileInfo {
@@ -28,11 +36,13 @@ public class MapTexture : MonoBehaviour {
         Instance = this;
     }
 
+    public void DisplayMap() {
+        DisplayMap(TileSet.GetCurrent);
+    }
     public void DisplayMap(TileSet tileSet) {
         mainMap_Texture = new Texture2D(tileSet.width, tileSet.height);
         mainMap_Texture.filterMode = FilterMode.Point;
         mainMap_Image.sprite = Sprite.Create(mainMap_Texture, new Rect(0, 0, tileSet.width, tileSet.height), Vector2.one * 0.5f);
-
         for (var x = 0; x < tileSet.width; x++) {
             for (var y = 0; y < tileSet.height; y++) {
                 var tile = tileSet.GetTile(new Coords(x, y));
@@ -53,18 +63,56 @@ public class MapTexture : MonoBehaviour {
         mainMap_Texture.Apply();
 
         UpdateFeedbackMap();
+
+        for (var x = 0;x < tileSet.width; x++) {
+            for(var y = 0;y < tileSet.height; y++) {
+                var c = new Coords(x, y);
+                var tile = tileSet.GetTile(c);
+                var tc = Coords.PropToCoords(tile.GetProp("coords"));
+                DisplayFeedback(tc, $"{tile.debug_name}\n({tc.ToString()})", Color.white);
+            }
+        }
     }
 
     public void UpdateFeedbackMap() {
-        feedbackMap_Image.sprite = Sprite.Create(feedbackMap_Texture, new Rect(0, 0, mainMap_Texture.width, mainMap_Texture.height), Vector2.one * 0.5f);
-        for (var x = 0; x < feedbackMap_Texture.width; x++) {
-            for (var y = 0; y < feedbackMap_Texture.height; y++)
-                feedbackMap_Texture.SetPixel(x, y, Color.clear);
+
+        feedback_CurrentIndex = 0;
+
+        foreach (var item in feedback_Pool) {
+            item.Hide();
         }
 
-        var c = Coords.PropToCoords(Player.Instance.GetProp("coords"));
-        feedbackMap_Texture.SetPixel(c.x,  c.y, Color.blue);
-        feedbackMap_Texture.Apply();
+        var playerCoords = Coords.PropToCoords(Player.Instance.GetProp("coords"));
+        DisplayFeedback(playerCoords, "player", Color.blue);
+
+        foreach (var tile in TileSet.GetCurrent.tiles.Values.ToList()) {
+            if ( tile.HasItem("undead")) {
+                var undead = tile.GetItem("undead");
+                var undeadCoords = Coords.PropToCoords(undead.GetProp("coords"));
+                DisplayFeedback(undeadCoords, "undead", Color.green);
+            }
+        }
+
+    }
+
+    void DisplayFeedback(Coords coords, string title, Color color) {
+        if ( feedback_CurrentIndex >= feedback_Pool.Count)
+            feedback_Pool.Add(Instantiate(feedback_Prefab, transform));
+
+        var mapFeedback = feedback_Pool[feedback_CurrentIndex];
+        mapFeedback.Display(coords, title, color);
+
+        float x = coords.x * mult + feedback_decal;
+        float y = coords.y * mult + feedback_decal;
+        Vector2 v = new Vector2(x, y);
+
+        var sameCoordsFeedbacks = feedback_Pool.FindAll(x => x.coords == coords);
+        for ( var i = 0; i < sameCoordsFeedbacks.Count; i++) {
+            v.x += i * feedback_decal;
+            sameCoordsFeedbacks[i].rectTransform.anchoredPosition = v;
+        }
+
+        feedback_CurrentIndex++;
     }
 
 }

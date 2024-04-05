@@ -1,14 +1,16 @@
 "NAME","","V.","PREP.","TYPES","PROPERTIES","","","","","","","","","SEQUENCES","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
 "player
 myself
-(you)
-my","Player","0","on","humanoid","% humanoid","moves
+you","Player","0","on","humanoid","% humanoid","moves
 value:0
 OnValue:ABOVE [hourRate]
 add(! time>hours, 1)
 add(! part of day, 1)","hourRate
 value:3","grammar
-article:","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+article:X
+self ref:you
+child article:your
+child key:my","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","health
 
 value: 5
@@ -63,12 +65,34 @@ key:skill, know about plants, know about flowers
 description:(on key)[]
 don't know anything about flowers / are an amateur botanist / are an expert botanist","*dodging
 value:3
-description:dodging
+description:[are] dodging
 OnValue:0
 set(>dodging, 3)
 disable(>dodging)","E OnSeconds
 sub(>dodging, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"undead","","10","","humanoid","% humanoid","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"undead","","10","","humanoid","% humanoid","grammar
+article:normal THEN X
+self ref:normal THEN he
+child article:name THEN his
+child key:his","*dead
+description:lying on the floor","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","E OnHours
+write(the undead moves)
+breakIf([>coords+0/0], EXISTS)
+breakIf([>coords+0/0]>block, EQUALS, y)
+set(>coords, [>coords+0/0]>coords)
+transferTo([>coords])
+breakIf(>coords, EQUALS, ! player>coords)
+write(the undead follows the player)","E OnSeconds
+add(>seconds to move, 1)
+add(>seconds to attack, 1)","E OnHof
+write(the undead moves)
+breakIf([>coords+-1?1/-1?1], EXISTS)
+breakIf([>coords+-1?1/-1?1]>block, EQUALS, y)
+set(>coords, [>coords+-1?1/-1?1]>coords)
+transferTo([>coords])
+breakIf(! [>coords+-1?1/-1?1].player, EXISTS)
+write(the undead follows the player)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","health
 
 value: 1?10
@@ -79,18 +103,19 @@ dead / dying / critically hurt / badly hurt / slightly hurt / fine / in perfect 
 
 OnValue:0
 disable(>seconds to move)
-disable(>distance)","distance
-value: 5?10
+disable(>distance)
+disable(>seconds to attack)
+enable(>dead)","*distance
+value: 0
 max:10
 
-description:
-at reach / far, geting closer / far, moving towards you / at a distance / pretty far / at a distance
+description:[moving, ]
+almost in front of you / geting closer / still far / at a distance / pretty far / at a distance
 
 OnValue:0
 disable(>seconds to move)
 enable(>seconds to attack)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"","","","","","refer
-value:his","*seconds to attack
+"","","","","","*seconds to attack
 value:0m7
 description:[]
 stands in front of you / prepares to attack / is about to attack / launches at you
@@ -101,15 +126,20 @@ value:0
 OnValue:[>speed]
 set(>seconds to move, 0)
 sub(>distance, 1)","speed
-value:1","E OnSeconds
-add(>seconds to move, 1)
-add(>seconds to attack, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","$ hit
-breakIf(>distance, ABOVE, 3)
-breakIf(!player>dexterity, PERCENT, 50, % 100-! RANDOM THIS.ANY hurt>prec malus, you miss)
+breakIf(>dead, enabled)
+breakIf(>distance, ABOVE, 2)
+enable(!RANDOM THIS.ANY hurt>hurt)
+sub(>health, % !RANDOM THIS.ANY hurt>hurt + ! player.ANY H damage>damage)","! hit
+breakIf(! player>dodging, enabled, f:you dodged the undead)
+breakIf(>dexterity, PERCENT, 70, % 100-! RANDOM player.ANY hurt>prec malus, the undead misses)
+enable(!RANDOM player.ANY hurt>hurt)
+sub(!player>health, !RANDOM player.ANY hurt>hurt)","$ move
+sub(>distance, INPUT NUM)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","$ hitdqsdq
+breakIf(>distance, ABOVE, 2)
+breakIf(!player>dexterity, PERCENT, 70, % 100-! RANDOM THIS.ANY hurt>prec malus, you miss)
 breakIf(>agility, PERCENT, 50, 90, the undead dodges)
-enable(!RANDOM THIS.ANY hurt>hurt)","! hit
-breakIf(! player>dodging, enabled)
-breakIf(>dexterity, PERCENT, 50, % 100-! RANDOM player.ANY hurt>prec malus, the undead misses)
-enable(!RANDOM player.ANY hurt>hurt)","$ move
-sub(>distance, {input num})","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+enable(!RANDOM THIS.ANY hurt>hurt)
+sub(>health, % !RANDOM THIS.ANY hurt>hurt + ! player.ANY H damage>damage)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

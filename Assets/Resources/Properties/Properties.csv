@@ -185,7 +185,7 @@ body part:none
 layer:0","*wearing
 description:[]
 i'm wearing it","","","","","","","","","","","","","","","","",""
-"humanoid","coords:?/?","tileset:0","orientation
+"humanoid","coords:1/1","tileset:0","orientation
 value:north","contents
 head:1
 neck:1
@@ -201,12 +201,12 @@ right foot:1","","","","","","","","","","","","","","","","",""
 "x","strenght
 value:1?10
 max:10
-description:
+description:(on key)
 very weak / weak / not particulary muscled / pretty powerful / strenghful / very powerful / extremely strenghtful","dexterity
 value:1?10
 max:10
-description:
+description:(on key)
 very clumbsy / clumbsy / not particulary handy / pretty sure handed / dexterous / very handy / extremely handy","agility
 value:1m10
-description:
+description:(on key)
 stiff and lumbering / graceless / not particulaly agile / lightfooted and flexible / very graceful / feline like","","","","","","","","","","","","","","","","","",""

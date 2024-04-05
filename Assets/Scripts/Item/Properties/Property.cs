@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 [System.Serializable]
 public class Property {
 
+
     public static List<Property> datas = new List<Property>();
 
     public string name;
@@ -204,7 +205,7 @@ public class Property {
     }
     // value can be number or seq. but it's alway dynamic
     public bool HasNumValue(string key = "value") {
-        return int.TryParse(GetPart(key).content, out _);
+        return HasPart(key) && int.TryParse(GetPart(key).content, out _);
     }
     public int GetNumValue(string key = "value") {
         Part part = GetPart(key);
@@ -229,9 +230,11 @@ public class Property {
         }
         return num;
     }
-    public void SetValue(string text, string part = "value") {
+    public void SetValue(string text, string part = "value", bool setChanged = true) {
         GetPart(part).content = text;
-        SetChanged();
+        if ( setChanged)
+            SetChanged();
+
     }
     public void SetValue(int num, string part = "value") {
         if (HasPart("max"))
@@ -315,7 +318,7 @@ public class Property {
             // getting the sequence
             var sequence = content.Remove(0, returnIndex + 1);
             if (call) {
-                var tileEvent = new WorldAction(_linkedItem, WorldAction.current.tileInfo, sequence);
+                var tileEvent = new WorldAction(_linkedItem, sequence);
                 tileEvent.Call();
             }
         }
@@ -332,7 +335,6 @@ public class Property {
         if (description.StartsWith('(')) {
             var type = TextUtils.Extract('(', description, out description);
             SetPart("description type", type);
-            SetPart("description", description);
         } else
             SetPart("description type","none");
         
@@ -340,11 +342,12 @@ public class Property {
         // SETUP //
         if (description.StartsWith('[')) {
             var setup = TextUtils.Extract('[', description, out description);
-            SetPart("description", description);
             SetPart("description setup", setup);
         } else if (!HasPart("description setup"))
             SetPart("description setup", "is");
         //
+
+        SetPart("description", description.Trim(' ', '\n'));
 
     }
     public string GetDisplayDescription() {
@@ -373,6 +376,9 @@ public class Property {
     }
 
     public bool CanBeDescribed() {
+
+        if (!HasPart("description"))
+            return false;
 
         if (!enabled && !changed) {
             PropertyDescription.LOG($"[{name}] Skip (Disabled and Unchanged)", Color.red);
@@ -459,19 +465,6 @@ public class Property {
         return true;
     }
 
-    public static string GetDescription(List<Property> props, bool and = false) {
-        string str = "";
-        var props_txt = props.Select(x => x.GetDisplayDescription()).ToList();
-        props_txt.RemoveAll(x => string.IsNullOrEmpty(x));
-        if (props_txt.Count == 0) return "";
-        for (int i = 0; i < props_txt.Count; i++) {
-            var currSetup = props[i].GetPart("description setup").content;
-            var b = i > 0 && props[i - i].GetPart("description setup").content == currSetup;
-            string hook = b ? "" : $"{currSetup} ";
-            str += $"{hook}{props_txt[i]}{TextUtils.GetCommas(i, props_txt.Count)}";
-        }
-        return str;
-    }
     #endregion
 
     public void Destroy() {

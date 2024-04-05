@@ -51,7 +51,7 @@ value:1
 description:hurt","prec malus
 value:2m5
 description:hard to miss / not likely to miss / easely missed","hidden","damage
-value:1","*armor1:0","weight:0
+value:2","*armor1:0","weight:0
 capacity:5
 max items:0m1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "legs","","","on","body part","*hurt

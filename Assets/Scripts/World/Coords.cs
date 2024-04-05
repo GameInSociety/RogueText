@@ -1,21 +1,44 @@
-﻿using UnityEngine;
+﻿using System.Security.Cryptography;
+using UnityEngine;
 
 [System.Serializable]
 public struct Coords {
     public int x;
     public int y;
 
+    public void Set(int i, int c) {
+        if (i == 0)
+            x = c;
+        else
+            y = c;
+    }
+    public int Get(int i) {
+        if (i == 0)
+            return x;
+        else
+            return y;
+    }
+
     public static Coords TextToCoords(string text, int tilesetId = 0) {
         var split = text.Split('/');
-        int x = 0;
-        if (split[0] == "?") {
-            Debug.Log($"getting random coords {text} in tile set : {tilesetId}");
-            var randomCoords = TileSet.GetTileSet(tilesetId).GetRandomCoords();
-            Debug.Log($"random coords : {randomCoords}");
-            return randomCoords;
+        var coords = new Coords();
+        for (int i = 0; i < 2; ++i) {
+            var s = split[i];
+            if (s == "?") {
+                var randomCoords = TileSet.GetTileSet(tilesetId).GetRandomCoords();
+                coords.Set(i, randomCoords.Get(i));
+            } else if (split[0].Contains('?')) {
+                var rs = split[0].Split('?');
+                var min = int.Parse(rs[0]);
+                var max = int.Parse(rs[1])+1;
+                int r = Random.Range(min, max);
+                coords.Set(i, r);
+            } else
+                coords.Set(i, int.Parse(split[i]));
+
         }
 
-        return new Coords(int.Parse(split[0]), int.Parse(split[1]));
+        return coords;
     }
     public static Coords PropToCoords(Property prop, int tilesetId = 0) {
         return TextToCoords(prop.GetTextValue(), tilesetId);

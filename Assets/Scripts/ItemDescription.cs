@@ -15,6 +15,7 @@ public class ItemDescription {
 
     public static List<ItemDescription> archive = new List<ItemDescription>();
     public static List<ItemDescription> itemDescriptions = new List<ItemDescription>();
+    public static List<int> describedItems = new List<int>();
 
     public string name;
     public Options options;
@@ -30,10 +31,12 @@ public class ItemDescription {
     public static void DescribeAll() {
         if (itemDescriptions.Count == 0)
             return;
+
         foreach (var itDes in itemDescriptions)
             TextManager.Write($"{itDes.GetDescription()}\n");
         archive.AddRange(itemDescriptions);
         itemDescriptions.Clear();
+        describedItems.Clear();
     }
 
     public static void AddItems(string descriptionName, List<Item> items, string opts = "") {
@@ -52,9 +55,15 @@ public class ItemDescription {
                 itDes.groups.Add(group);
             }
             if ( group.itemSlots.Count == 0) {
-                group.itemSlots.Add(new ItemSlot($"{item.debug_name}"));
+                var slot = new ItemSlot($"{item.debug_name}");
+                group.itemSlots.Add(slot);
+                group.itemSlots[0].items.Add(item);
             }
-            group.itemSlots[0].items.Add(item);
+
+            var vProp = item.GetVisibleProps().Find(x => x.GetPart("description type").content == "always");
+            if ( vProp != null) {
+                AddProperties(descriptionName, item,new List<Property> { vProp });
+            }
         }
 
     }
@@ -81,13 +90,12 @@ public class ItemDescription {
         }
         
         // find / create slot
-        var slot = group.itemSlots.Find(x=> x.items.First().debug_name == item.debug_name);
+        var slot = group.itemSlots.Find(x=> x.items.First().dataIndex == item.dataIndex);
         if (slot == null) {
             slot = new ItemSlot("all");
             group.itemSlots.Add(slot);
-        }
-        if (!slot.items.Contains(item))
             slot.items.Add(item);
+        }
 
         foreach (var prop in props) {
             if (slot.describeProps.Find(x => x.GetCurrentDescription() == prop.GetCurrentDescription()) == null)
@@ -114,7 +122,7 @@ public class ItemDescription {
 
             // PLACEHOLDER. SINON LES ITEMS APPARAISSENT SANS PROPERTIES POUR LES EVENTS (The rain is.)
             if (options.list)
-                group.itemSlots.RemoveAll(x => x.DescribePropsToString() == " ");
+                group.itemSlots.RemoveAll(x => x.PropsToString(x.describeProps) == " ");
 
             tmp_slots.AddRange(group.itemSlots);
         }

@@ -39,7 +39,7 @@ public class Phrase {
         public List<string> pool = new List<string>();
 
         public static string GetRandom(int left, int right) {
-            var part = parts.Find(x => x.leftMin >= left && x.rightMin >= right);
+            var part = parts.Find(x => left >= x.leftMin && right >= x.rightMin);
             if ( part == null) {
                 Debug.LogError($"no part with left {left} and right {right}");
                 return "part error";

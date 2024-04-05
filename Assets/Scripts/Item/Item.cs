@@ -9,13 +9,25 @@ using static UnityEditor.Progress;
 
 [System.Serializable]
 public class Item {
+    public int GetTileSet() {
+        var p = GetProp("tileset");
+        if (p == null) {
+            return 0;
+        }
 
+        return p.GetNumValue();
+    }
+    public Coords GetCoords() {
+        var p = GetProp("coords");
+        if( p == null) {
+            return Coords.zero;
+        }
+        return Coords.PropToCoords(p);
+    }
     public string debug_name;
     public int dataIndex;
     public ItemData GetData() { return ItemData.itemDatas[dataIndex]; }
     public int debug_Id;
-
-    public Tile.Info tileInfo;
 
     public List<Property> props = new List<Property>();
     public int wordIndex = 0;
@@ -28,25 +40,25 @@ public class Item {
     public virtual void Init() {
         debug_name = GetData().words[0].GetText;
 
-        foreach (var seq in GetData().events) {
-            // trying alternative method for events.
-            var content = $"{seq.triggers[0]}\n{seq.seq}";
-            WorldEvent.SubscribeItem(this, content);
-        }
         foreach (var dataProp in GetData().properties) {
             AddProp(dataProp, false);
         }
 
         foreach (var prop in props)
             prop.Init(this);
+        foreach (var seq in GetData().events) {
+            // trying alternative method for events.
+            var content = $"{seq.triggers[0]}\n{seq.seq}";
+            WorldEvent.SubscribeItem(this, content);
+        }
+       
 
         var actName = "OnCreate";
         var itemAct = GetData().acts.Find(x => x.triggers[0] == actName);
         if ( itemAct != null) {
-            var action = new WorldAction(this, tileInfo, itemAct.seq); ;
+            var action = new WorldAction(this, itemAct.seq); ;
             action.Call();
         }
-
     }
 
     /// <summary>
@@ -84,7 +96,7 @@ public class Item {
         return items;
     }
     public bool IsAChildItemOf(Item item) {
-        return item.hasItem(this);
+        return item.HasItem(this);
     }
     public void GenerateChildItems(Property prop = null) {
 
@@ -132,11 +144,15 @@ public class Item {
                     var f = UnityEngine.Random.value * 100f;
                     if (f < percent) {
                         _ = CreateChildItem(it_name);
+                        var refProp = GetProp("grammar")?.GetPart("ref")?.content;
+                        if (refProp != null) {
+                            Debug.Log($"{debug_name} has ref grammar.");
+                        }
                     }
                 }
             } catch (Exception e) {
                 TextManager.Write($"Error loading item content\n[{part.key}:{part.content}]\n in item \n[{debug_name}]", Color.red);
-                Debug.Log($"{e.Message}");
+                Debug.LogException(e);
             }
         }
     }
@@ -179,7 +195,8 @@ public class Item {
     public Item CreateChildItem(Item item) {
         // vraiment pas sûr que ça devrait être ici
         item.GenerateChildItems();
-        item.tileInfo = tileInfo;
+        item.SetProp($"coords|value:{Coords.CoordsToText(GetCoords())}");
+        item.SetProp($"tileset|value:{GetTileSet()}");
         AddChildItem(item);
         return item;
     }
@@ -202,7 +219,23 @@ public class Item {
         }
 
         // commented to resolve weight found every where bug
-        item.SetProp($"contained / search:{debug_name}");
+        var keys = GetData().words.Select(x => x._text).ToList();
+        var childkeys = GetProp("grammar")?.GetPart("child key")?.content;
+        if (childkeys != null) {
+            keys.AddRange(childkeys.Split('/'));
+        }
+        var str = string.Join('/', keys);
+        item.SetProp($"contained | key:{str}");
+
+        var childArticle = GetProp("grammar")?.GetPart("child article")?.content;
+        if (childArticle != null) {
+            var childGrammar = item.GetProp("grammar");
+            if (childGrammar == null) childGrammar = item.SetProp("grammar");
+
+            childArticle = childArticle.Replace("name", $"{GetText("the dog")}'s");
+
+            childGrammar.SetPart("article", childArticle);
+        }
     }
 
     // remove item
@@ -228,7 +261,10 @@ public class Item {
         return tmpItem;
     }
 
-    public bool hasItem(Item item) {
+    public bool HasItem(string name) {
+        return GetItem(name) != null;
+    }
+    public bool HasItem(Item item) {
         return mChildItems != null && mChildItems.Contains(item);
     }
 
@@ -267,9 +303,7 @@ public class Item {
         // preposition/article/specs/name
 
         // name : dog / dogs
-        var word = GetData().words.Find(x => x.main);
-        if (word == null)
-            word = GetWord();
+        var word = GetWord();
         var text = prms.Contains("dog") ? word.GetText : "";
         if (prms.Contains("dogs") && word.defaultNumber != Word.Number.Plural)
             text = $"{text}s";
@@ -347,9 +381,12 @@ public class Item {
 
         // search ( not visible but searchable )
         foreach (var prop in props.FindAll(x => x.HasPart("key"))) {
-            var keyPart = prop.parts.Find(x => Regex.IsMatch(text, @$"\b{x.content}\b"));
-            if (keyPart != null)
+            var keys = prop.GetPart("key").content.Split('/').ToList();
+            var key = keys.Find(x => Regex.IsMatch(text, @$"\b{x}\b"));
+            if (key!=null) {
+                Debug.Log($"[item:{debug_name}], found key {key} on property {prop.name}");
                 result.Add(prop);
+            }
         }
         return result.Count > 0 ? result : null;
     }
@@ -415,7 +452,12 @@ public class Item {
 
     public Property SetProp(string prms) {
 
-        var split = prms.Split(" / ");
+        var split = prms.Split('|');
+        for (int i = 0; i < split.Length; i++) {
+            split[i] = split[i].Trim(' ');
+        }
+
+
         var name = split[0];
 
         // check if prop is already here
@@ -435,7 +477,6 @@ public class Item {
 
         prop = new Property();
         prop.name = name;
-
         for (int i = 1; i < split.Length; i++) {
             var part = split[i].Split(':');
             prop.AddPart(part[0], part[1]);
@@ -490,7 +531,6 @@ public class Item {
         return GetChildItems().Find(x => x.HasProp(propertyName)) != null;
     }
     //
-
     #endregion
 
     #region visible props ?

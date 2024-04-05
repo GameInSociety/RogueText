@@ -19,5 +19,6 @@ add ( ! ANY fire>fire, ! ANY ignate> ignate )","$ sleep
 add(>sleep, 1)","$ eat
 add(! player>hunger, !p ANY food>food)",""," ","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","$ dodge
+breakIf(! player>dodging, enabled)
 breakIf( ! player>agility, NOT PERCENT, 50, 90, you failed dodging)
 enable(!player>dodging)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
