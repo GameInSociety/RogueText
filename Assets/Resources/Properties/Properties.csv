@@ -1,23 +1,23 @@
 "GLOBAL","PROPERTIES","","","","","","","","","","","","","","","","","","","",""
 "","front
 value:none
-key:forward, front, around
-description:(always) in front of you
+key: where,forward, front, around
+description: in front of you
 after word:yes
 type:orientation","right
 value:none
-key: right, around
-description:(always) at your right
+key: where, right, around
+description: at your right
 after word:yes
 type:orientation","back
 value:none
-key: back, backwards, behind, around
-description:(always) behind you
+key: where, back, backwards, behind, around
+description: behind you
 after word:yes
 type:orientation","left
 value:none
-key: left, around
-description:(always) at your left
+key: where, left, around
+description: at your left
 after word:yes
 type:orientation","link
 value:none
@@ -58,8 +58,7 @@ description:(on key) about {value}g heavy","capacity
 value:0
 description:(on key) can carry up to {value}
 key:carry","max items
-value:0
-description:has {value} items","","","","","","","","","","","","","","","","","",""
+value:0","","","","","","","","","","","","","","","","","",""
 "","armor1
 value:0
 description:wearing something","armor2

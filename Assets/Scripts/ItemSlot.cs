@@ -38,7 +38,7 @@ public class ItemSlot {
                 currSetup = IsMultiple() ? "are" : "is";
 
             // aggregate prop texts
-            var b = i > 0 && props[i - i].GetPart("description setup").content == currSetup;
+            var b = i > 0 && props[i - i].GetPart("description setup").content == props[i].GetPart("description setup").content;
             string hook = b ? "" : $"{currSetup} ";
             text += $"{hook}{props_txt[i]}{TextUtils.GetCommas(i, props_txt.Count)}";
         }
@@ -56,11 +56,12 @@ public class ItemSlot {
 
         // get noun
         string selfRef = GetSelfRef();
+        var phrase = $"{PropsToString(nestedProps)}{selfRef}{PropsToString(describeProps)}";
 
         // get articles
-        string article = GetArticle();
+        string article = GetArticle(phrase);
         // put phrase together
-        var text = $"{article}{PropsToString(nestedProps)}{selfRef}{PropsToString(describeProps)}";
+        var text = $"{article}{phrase}";
         text = text.Trim(' ');
 
         ItemDescription.describedItems.Add(RefItem.dataIndex);
@@ -109,7 +110,7 @@ public class ItemSlot {
         }
     }
 
-    string GetArticle() {
+    string GetArticle(string text) {
 
         var article = "";
         var grammar = RefItem.GetProp("grammar");
@@ -135,7 +136,14 @@ public class ItemSlot {
             }
         }
 
+        return defined ? "the" : (IsMultiple() ? Phrase.Part.GetRandom("article_mult") : (startWithVowel(text)?"an":"a"));
+    }
 
-        return defined ? "the" : (IsMultiple() ? Phrase.Part.GetRandom("article_mult") : "a");
+    bool startWithVowel(string text) {
+        char[] vowels = new char[] {
+            'a','e','i','o','u'
+        };
+        int i = text.Trim(' ')  .IndexOfAny(vowels);    
+        return i == 0;
     }
 }

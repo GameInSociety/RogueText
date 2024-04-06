@@ -57,13 +57,13 @@ public class ItemDescription {
             if ( group.itemSlots.Count == 0) {
                 var slot = new ItemSlot($"{item.debug_name}");
                 group.itemSlots.Add(slot);
-                group.itemSlots[0].items.Add(item);
             }
+            group.itemSlots[0].items.Add(item);
 
             var vProp = item.GetVisibleProps().Find(x => x.GetPart("description type").content == "always");
             if ( vProp != null) {
                 AddProperties(descriptionName, item,new List<Property> { vProp });
-            }
+            }   
         }
 
     }
@@ -126,8 +126,11 @@ public class ItemDescription {
 
             tmp_slots.AddRange(group.itemSlots);
         }
-        while (tmp_slots.Count > 0)
-            description += $"{Phrase.GetPhrase(tmp_slots, out tmp_slots, options)}\n";
+        while (tmp_slots.Count > 0) {
+            string phrase = Phrase.GetPhrase(tmp_slots, out tmp_slots, options);
+            phrase = TextUtils.FirstLetterCap(phrase);
+            description += $"{phrase}. ";
+        }
         return $"{options.start}{description}";
     }
 

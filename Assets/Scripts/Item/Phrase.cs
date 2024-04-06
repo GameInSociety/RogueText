@@ -61,6 +61,9 @@ public class Phrase {
             int i = Random.Range(0, part.pool.Count);
             var content = part.pool[i];
             part.pool.RemoveAt(i);
+            if ( content == "x") {
+                return "";
+            }
             return content;
         }
     }
@@ -69,8 +72,9 @@ public class Phrase {
     public static string GetPhrase(List<ItemSlot> input, out List<ItemSlot> output, ItemDescription.Options options) {
 
         var slotCount = options.groupedSlots ? input.Count : Random.Range(1, 4);
+        //slotCount = Mathf.Clamp(slotCount, 1, input.Count);
+        slotCount = input.Count;
 
-        slotCount = Mathf.Clamp(slotCount, 1, input.Count);
         List<ItemSlot> slots = new List<ItemSlot>();
         for (int i = 0; i < slotCount; i++) {
             slots.Add(input[i]);

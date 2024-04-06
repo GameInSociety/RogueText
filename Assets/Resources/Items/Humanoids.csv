@@ -41,17 +41,7 @@ filled / a bit hungry / getting hungry / really hungry / critivally hungry
 
 OnValue:ABOVE 20
 write(you're dying of hunger)
-sub(health, 1)","sleep
-
-value: 0
-max:30
-
-description:(60%)[are]
-full of energy / wide awake / feeling feeble / getting sleepy / really sleepy / drained / in drastic need of sleep
-
-OnValue:ABOVE 50
-write(you're so tired you're dying)
-sub(health, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+sub(health, 1)","mai","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","E OnHours
 add(>thirst, 1)
 add(>hunger, 1)
@@ -109,8 +99,8 @@ enable(>dead)","*distance
 value: 0
 max:10
 
-description:[moving, ]
-almost in front of you / geting closer / still far / at a distance / pretty far / at a distance
+description:[] (always)
+almost in front of you / rather close / rather far / at a distance / pretty far / at a distance
 
 OnValue:0
 disable(>seconds to move)

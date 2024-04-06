@@ -33,12 +33,13 @@ public class Tile : Item {
     #region tile description
     public void Describe() {
         // update tiles to create doors  
-        GetAdjacentTiles();
+        var adjTiles = GetAdjacentTiles();
         var itemsToDescribe = new List<Item>();
         if (HasChildItems())
             itemsToDescribe.AddRange(GetChildItems());
 
-        itemsToDescribe.AddRange(GetAdjacentTiles());
+        itemsToDescribe.AddRange(adjTiles);
+        Debug.Log($"adjacent tiles : {adjTiles.Count}");
 
         ItemDescription.AddItems("tile description", itemsToDescribe, $"start:{GetText("on a dog")}, ");
         //ItemDescription.AddItems("tile description", itemsToDescribe, $"start:{GetText("on a dog")}, / type:group");
