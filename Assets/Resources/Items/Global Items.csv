@@ -1,7 +1,7 @@
 "","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
 "GLOBAL","","s","","global","! OnCreate
 describe(_TILE)
-createItem( undead, 1, [! player>coords])","tilesets
+createItem( undead, 1, [! player>coords+0/1])","tilesets
 value:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "rain","","s","in","global","*rain
 value:0
@@ -16,9 +16,11 @@ OnValue:ABOVE [>duration]
 set(>rain, 0)
 disable(>rain)
 enable(! sky >sky)
-set(!sky>hours to rain, 20?50)","duration
-value:5?50","E OnHours
-add(>rain, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+set(!sky>hours to rain, 20?50)
+
+E OnHours:
+add(>rain, 1)","duration
+value:5?50","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "sky","","","in","global","sky
 value:0
 max:[>hours to rain]
@@ -29,32 +31,32 @@ OnValue:ABOVE [>hours to rain]
 enable(!rain>rain)
 set(! rain>rain, 0)
 set(! rain >duration, 10?40)
-disable(>sky)","hours to rain
-value:10","E OnHours
-add(>sky, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+disable(>sky)
+
+E OnHours:
+add(> sky, 1)","hours to rain
+value:10","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"time","","","","global","seconds passed
+value:0
+
+OnValue:ABOVE 0
+add(!second>seconds, 1)
+triggerEvent(OnSeconds)
+sub(>seconds passed, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "second","","","","global","seconds
 value:0
 
-OnValue:ABOVE 0
-triggerEvent(OnSeconds)
-
 OnValue:ABOVE 60
 sub(>seconds, 60)
-add(! minutes>minutes, 1)","seconds passed
-value:0
-
-OnValue:ABOVE 0
-add(>seconds, 1)
-sub(>seconds passed, 1)","$ wait
-add(>seconds passed, INPUT NUM)
-write ( some time passes by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"minutes","","","","global","minutes
+triggerEvent(OnMinutes)
+add(! minute>minutes, 1)","$ wait
+add(!time>seconds passed, _InputValue)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"minute","","","","global","minutes
 value:0
 OnValue:ABOVE 60
-sub(>minutes, 60)
-add(! hours>hours, 1)","$ wait
-add(>minutes, INPUT NUM)
-write ( some time passes by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+set(>minutes, 60)
+add(! hour>hours, 1)","$ wait
+add(!time>seconds passed, % _InputValue X 60)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "hour","","","","global","hours
 value:6
 max:24
@@ -65,14 +67,9 @@ triggerEvent(OnHours)
 
 OnValue:24
 set(>hours, 0)
-add(>days, 1)
-set(>part of day, 0)","$ wait
-add(>hours passed, INPUT NUM)
-write ( hours pass by )","hours passed
-value:0
-OnValue:ABOVE 0
-add(>hours, 1)
-sub(>hours passed, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+add(!day>days, 1)
+set(!part of day>part of day, 0)","$ wait
+add(!time>seconds passed, % _InputValue X 3600)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "part of day","","","","global","part of day
 value:6
 max:24
@@ -88,9 +85,9 @@ OnValue:ABOVE 0
 triggerEvent(OnDays)
 
 OnValue:30
-add(>mounths, 1)
+add(mounth>mounths, 1)
 set(>days, 0)","$ wait
-add(>day, INPUT NUM)
+add(>day, _InputValue)
 write ( some days by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "mounth","","","","global","mounths
 value:0?12
@@ -103,8 +100,8 @@ triggerEvent(OnMounths)
 
 OnValue:12
 set(>mounths, 0)
-add(>years, 1)","$ wait
-add(>mounth, INPUT NUM)
+add(year>years, 1)","$ wait
+add(>mounth, _InputValue)
 write ( mounths pass by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "year","","","","global","years
 value:2000
@@ -113,5 +110,5 @@ it's {value}
 
 OnValue:ABOVE 0
 triggerEvent(OnYears)","$ wait
-add(>year, INPUT NUM)
+add(>year, _InputValue)
 write ( years pass by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

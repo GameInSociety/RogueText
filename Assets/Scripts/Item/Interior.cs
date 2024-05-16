@@ -46,7 +46,7 @@ public static class Interior {
         while (tileNames.Count > 0) {
 
             // add new hallway tile
-            var newHallwayTile = Tile.Create(new Tile.Info(hallway_Coords, id), "hallway" );
+            var newHallwayTile = Tile.Create("hallway" );
 
             tileSet.Add(hallway_Coords, newHallwayTile);
 
@@ -60,7 +60,7 @@ public static class Interior {
 
                 int rnd = Random.Range(0, tileNames.Count);
                 var tileName = tileNames[rnd];
-                var newRoomTile = Tile.Create(new Tile.Info(newRoomCoords, id), tileName);
+                var newRoomTile = Tile.Create( tileName);
                 tileNames.RemoveAt(rnd);
                 tileSet.Add(newRoomCoords, newRoomTile);
                 if (tileNames.Count == 0) {

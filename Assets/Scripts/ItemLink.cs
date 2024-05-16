@@ -16,42 +16,50 @@ public static class ItemLink
 
         // KEY TRIM //
         string key = _key;
-        
+
         // SET START INDEX ( IF TILE )
         int startIndex = key.Contains('[') ? key.IndexOf(']') : 0;
 
         // remove prop > symbols
         int propIndex = key.IndexOf('>', startIndex);
-        if ( propIndex >= 0)
+        if (propIndex >= 0)
             key = key.Remove(propIndex);
 
         // remove item ! symbol
         int itemIndex = key.IndexOf('!', startIndex);
-        if (  itemIndex >= 0 ) {
+        if (itemIndex >= 0) {
             key = key.Remove(0, startIndex);
-            key = key.Remove(0, itemIndex+1);
+            key = key.Remove(0, itemIndex + 1);
         }
         key = key.Trim(' ');
 
         // search in history
-        var itemInHistory = ItemLink.CheckForItemInHistory(key);
-        if (itemInHistory != null) {
-            Function.ADDLOG($"(h:{itemInHistory.debug_name})", Color.yellow);
+        var searchKey = key.Trim(new char[] { '[', ']' });
+        var itemInHistory = CheckForItemInHistory(searchKey);
+        if (itemInHistory != null)
             return itemInHistory;
+
+        var HKey = "";
+        if (key.Contains(':')) {
+            HKey = key.Remove(key.IndexOf(':')).Trim(' ', '[');
+            if (key.Contains('[')) {
+                key = $"[{key.Remove(0, key.IndexOf(':')+1)}";
+            } else {
+                key = $"{key.Remove(0, key.IndexOf(':') + 1)}";
+            }
+
+        } else {
+            HKey = key;
         }
 
         // special searches
         bool onlyInParser = false;
-        bool random = false;
         if (key.StartsWith("INPUT ")) {
             key = key.Remove(0,"INPUT ".Length);
             onlyInParser = true;
+            Debug.Log($"search in input");
         }
-        if (key.StartsWith("RANDOM ")) {
-            key = key.Remove(0, "RANDOM ".Length);
-            random = true;
-        }
-       
+
         // get result
         var results = ReadKey(key);
 
@@ -63,8 +71,8 @@ public static class ItemLink
             return null;
         }
 
-        if ( ItemParser.GetCurrent != null) {
-            var inParser = ItemParser.GetCurrent.GetItems().FindAll(x=> results.Contains(x));
+        if ( ItemParser.Instance != null) {
+            var inParser = ItemParser.Instance.GetItems().FindAll(x=> results.Contains(x));
             var strIt = "";
             foreach (var it in inParser)
                 strIt += it.debug_name + " ";
@@ -75,10 +83,8 @@ public static class ItemLink
                 return null;
             }
         }
-        var item = random ? results[Random.Range(0, results.Count)] : results[0];
-
-        history.Add(new ItemHistory(key, item));
-
+        var item = results[Random.Range(0, results.Count)];
+        history.Add(new ItemHistory(HKey, item));
         return item;
     }
 
@@ -87,7 +93,7 @@ public static class ItemLink
         while (propLinkIndex >= 0) {
             string propKey = TextUtils.Extract('{', key, out key);
             Debug.Log($"prop key : {propKey}");
-            var newPart = new ActionPart(propKey);
+            var newPart = new LinePart(propKey);
             if (!newPart.TryInit(item)) {
             }
             Debug.Log($"prop : {newPart.prop.name}");
@@ -100,7 +106,6 @@ public static class ItemLink
 
     public static List<Item> ReadKey(string key) {
 
-        Debug.Log($"KEY:{key}");
         // first, check if the search will be in another item
         if (key.Contains('.')) {
             var range = AvailableItems.currItems;
@@ -111,7 +116,6 @@ public static class ItemLink
                 var parent = SearchItemsInRange(parentKey, range);
                 if (parent == null || parent.Count == 0)
                     return null;
-                Function.ADDLOG($">in parent {parent[0].debug_name}", Color.gray);
                 range = parent[0].GetChildItems(2);
                 key = key.Remove(0, key.IndexOf('.') + 1);
             }
@@ -128,7 +132,6 @@ public static class ItemLink
         failMessage = message;
     }
 
-    static void Error(string message) { Debug.LogError(message);}
 
     public static List<Item> SearchItemsInRange(string key, List<Item> range) {
         key = key.Trim(' ');
@@ -166,6 +169,7 @@ public static class ItemLink
         return prop;
     }
 
+
     static Item GetTile(string key) {
         key = TextUtils.Extract('[', key, out _);
         var tilesetId = Player.Instance.tilesetId;
@@ -191,7 +195,7 @@ public static class ItemLink
         var coords = new Coords();
         foreach (var s in split) {
 
-            var ap = new ActionPart(s);
+            var ap = new LinePart(s);
             if(!ap.TryInit(sourceItem)) {
                 Debug.LogError($"action part fail in : {s}");
                 return null;
@@ -212,10 +216,6 @@ public static class ItemLink
             return null;
         }
         return result;
-    }
-
-    static void LOG(string message, Color c) {
-        Function.LOG(message, c);
     }
 
     public static List<Item> GetItemsWithProp (string key, List<Item> range) {
@@ -247,6 +247,7 @@ public static class ItemLink
         return history.Find(x => x.key == key).item;
     }
 
+    [System.Serializable]
     public struct ItemHistory {
         public ItemHistory(string k, Item i) {
             key = k;

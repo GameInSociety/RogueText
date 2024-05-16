@@ -2,13 +2,13 @@
 "key","","0","","wallet misc
 small misc","weight:0","doorID
 value:0","$ use
-breakIf(!p door>locked, disabled)
-breakIf(! door>doorID, not same, >doorID)
-disable(! door>locked)
+X (Disabled, !p door>locked)
+X (Different, ! door>doorID, >doorID)
+DISABLE (! door>locked)
 write(the door is now unlocked)
 %
-breakIf(!p door>locked, enabled)
-breakIf(! door>doorID, not same, >doorID)
+X (!p door>locked, enabled)
+X (! door>doorID, not MATCH, >doorID)
 enable(! door>locked)
 write(the door is now locked)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "book","","","","shelf misc","weight:2","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

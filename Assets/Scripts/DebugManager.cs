@@ -3,12 +3,6 @@ using UnityEngine;
 
 public class DebugManager : MonoBehaviour {
 
-    // TESTS //
-    // 1) plates (10x, tester les piles)
-    // 2) flashlight (flashlight + battery)
-    // 3) gardening (graine)
-    // 4) doors & keys
-    // 5) boat (� voir)
 
     [Header("[ITEM LINK]")]
     public List<Item> itemsFound = new List<Item>();
@@ -51,8 +45,7 @@ public class DebugManager : MonoBehaviour {
     public Player PLAYER;
 
     private void Start() {
-        currentParser = ItemParser.GetCurrent;
-        previousParser = ItemParser.GetPrevious;
+        currentParser = ItemParser.Instance;
 
         availableItems = AvailableItems.currItems;
 

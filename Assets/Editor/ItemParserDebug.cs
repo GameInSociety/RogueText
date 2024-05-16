@@ -18,10 +18,8 @@ public class ItemParserDebug : EditorWindow {
         style = new GUIStyle();
         style.alignment = TextAnchor.MiddleCenter;
         style.richText = true;
-        GUILayout.Label("previous");
-        DisplayParser(ItemParser.GetPrevious);
         GUILayout.Label("current");
-        DisplayParser(ItemParser.GetCurrent);
+        DisplayParser(ItemParser.Instance);
     }
 
     void DisplayParser(ItemParser parser) {

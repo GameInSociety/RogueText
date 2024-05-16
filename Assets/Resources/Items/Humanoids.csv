@@ -1,4 +1,4 @@
-"NAME","","V.","PREP.","TYPES","PROPERTIES","","","","","","","","","SEQUENCES","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
+"ste","","V.","PREP.","TYPES","PROPERTIES","","","","","","","","","SEQUENCES","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
 "player
 myself
 you","Player","0","on","humanoid","% humanoid","moves
@@ -10,7 +10,8 @@ value:3","grammar
 article:X
 self ref:you
 child article:your
-child key:my","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+child key:my","*blocked
+description:[] (never) can't move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","health
 
 value: 5
@@ -31,7 +32,10 @@ fully hydrated / not thirsty / slightly thirsty / willing to drink something / g
 
 OnValue:ABOVE 15
 write(you're dying of thirst)
-sub(health,1)","hunger
+sub(health,1)
+
+E OnHours:
+add(>thirst, 1)","hunger
 
 value: 5
 max:20
@@ -41,14 +45,26 @@ filled / a bit hungry / getting hungry / really hungry / critivally hungry
 
 OnValue:ABOVE 20
 write(you're dying of hunger)
-sub(health, 1)","mai","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"","","","","","E OnHours
-add(>thirst, 1)
-add(>hunger, 1)
-add(>sleep, 1)","strenght
+sub(health, 1)
+
+E OnHours:
+add(>hunger, 1)","sleep
+
+value: 0
+max:20
+
+description:(60%)[are]
+full of energy / full of energy / well awake / well awake / well awake / well awake / getting sleepy / really tired / exhausted / about to pass out of exthaustion
+ 
+OnValue:ABOVE 20
+write (you pass out of exhaustion, il faut ecrire ça par contre )
+
+E OnHours:
+add(>sleep, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+"","","","","","strenght
 description setup:are","dexterity
 description setup:are","agility
-description setup:are","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+description setup:are","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","botany
 value:0
 key:skill, know about plants, know about flowers
@@ -56,10 +72,13 @@ description:(on key)[]
 don't know anything about flowers / are an amateur botanist / are an expert botanist","*dodging
 value:3
 description:[are] dodging
+
 OnValue:0
 set(>dodging, 3)
-disable(>dodging)","E OnSeconds
-sub(>dodging, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+disable(>dodging)
+
+E OnSeconds:
+sub(>dodging)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "undead","","10","","humanoid","% humanoid","grammar
 article:normal THEN X
 self ref:normal THEN he
@@ -67,22 +86,21 @@ child article:name THEN his
 child key:his","*dead
 description:lying on the floor","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","E OnHours
-write(the undead moves)
-breakIf([>coords+0/0], EXISTS)
-breakIf([>coords+0/0]>block, EQUALS, y)
-set(>coords, [>coords+0/0]>coords)
+
+/ MOVE UNDEAD
+x(>noticed == 1)
+x([Tile:>coords+0/-1]>block == y)
+set(>coords, ! Tile>coords)
 transferTo([>coords])
-breakIf(>coords, EQUALS, ! player>coords)
-write(the undead follows the player)","E OnSeconds
-add(>seconds to move, 1)
-add(>seconds to attack, 1)","E OnHof
-write(the undead moves)
-breakIf([>coords+-1?1/-1?1], EXISTS)
-breakIf([>coords+-1?1/-1?1]>block, EQUALS, y)
-set(>coords, [>coords+-1?1/-1?1]>coords)
-transferTo([>coords])
-breakIf(! [>coords+-1?1/-1?1].player, EXISTS)
-write(the undead follows the player)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+
+/ CHECK FOR PLAYER
+set(>noticed, 0)
+disable(>seconds to move)
+disable(>seconds to attack)
+x( >coords != ! player>coords)
+write(the undead saw the player)
+set(>noticed, 1)
+enable(>seconds to move)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","health
 
 value: 1?10
@@ -95,41 +113,63 @@ OnValue:0
 disable(>seconds to move)
 disable(>distance)
 disable(>seconds to attack)
-enable(>dead)","*distance
+enable(>dead)","distance
 value: 0
 max:10
 
-description:[] (always)
-almost in front of you / rather close / rather far / at a distance / pretty far / at a distance
+description:(always)
+in front of you / almost in front of you / rather close / rather far / at a distance / pretty far / at a distance
 
 OnValue:0
+x ( ! player>coords != >coords)
 disable(>seconds to move)
-enable(>seconds to attack)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+enable(>seconds to attack)
+enable(! player>blocked)
+
+OnValue:ABOVE 0
+disable(! player>blocked)","noticed
+value:0m1
+description:[] (on change) hasn't noticed the player / is moving toward the player","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","*seconds to attack
 value:0m7
 description:[]
-stands in front of you / prepares to attack / is about to attack / launches at you
+prepares to attack / is about to attack / launches at you
 OnValue:7
 set(>seconds to attack, 0)
-trigger(hit)","seconds to move
+trigger(hit)
+
+E OnSeconds:
+add(>seconds to attack, 1)","*seconds to move
 value:0
 OnValue:[>speed]
 set(>seconds to move, 0)
-sub(>distance, 1)","speed
+sub(>distance, 1)
+
+E OnSeconds:
+add(>seconds to move, 1)","speed
 value:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","$ hit
-breakIf(>dead, enabled)
-breakIf(>distance, ABOVE, 2)
-enable(!RANDOM THIS.ANY hurt>hurt)
-sub(>health, % !RANDOM THIS.ANY hurt>hurt + ! player.ANY H damage>damage)","! hit
-breakIf(! player>dodging, enabled, f:you dodged the undead)
-breakIf(>dexterity, PERCENT, 70, % 100-! RANDOM player.ANY hurt>prec malus, the undead misses)
-enable(!RANDOM player.ANY hurt>hurt)
-sub(!player>health, !RANDOM player.ANY hurt>hurt)","$ move
-sub(>distance, INPUT NUM)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"","","","","","$ hitdqsdq
-breakIf(>distance, ABOVE, 2)
-breakIf(!player>dexterity, PERCENT, 70, % 100-! RANDOM THIS.ANY hurt>prec malus, you miss)
-breakIf(>agility, PERCENT, 50, 90, the undead dodges)
-enable(!RANDOM THIS.ANY hurt>hurt)
-sub(>health, % !RANDOM THIS.ANY hurt>hurt + ! player.ANY H damage>damage)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+
+/ GETTING THE ITEMS
+key(! Body Part:THIS.ANY hurt)
+key(! Weapon:player.ANY H damage)
+
+/ BREAK IF DEAD, TOO FAR, HIT MISS OR TARGET DODGE
+X (>dead == enabled)
+X (>distance >> 0)
+X (0?100 >> % ! player>hit chance - ! Body Part>prec malus, f:you miss the undead)
+X (0?100 >> >dodge chance, f:the undead dodges)
+
+enable(! Body Part>hurt)
+sub(>health, % ! Body Part + ! Weapon>damage)","! hit
+
+/ GETTING THE ITEMS
+key(! Body Part:player.ANY hurt)
+key(! Weapon:THIS.ANY H damage)
+
+/ BREAK IF HIT MISS OR TARGET DODGE
+X (0?100 >> % ! >hit chance - ! Body Part>prec malus, f:the undead misses)
+
+enable(! Body Part>hurt)
+sub(!player>health, % ! Body Part + ! Weapon>damage)","$ move
+sub(>distance, _InputValue)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

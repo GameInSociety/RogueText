@@ -1,22 +1,10 @@
 "NAME","C.","V.","PREP.","INF.","PROPERTIES","","","","","","","","","","","","","","","","","","","",""
 "clearing","Tile","10","on","","contents
-knife:1
-jeans:1
-underwear:1","$ set fire
+crotte:1","$ set fire
 sub (! ANY ignate>ignate, 1)
-triggerEvent(OnFlames)","cront
-branch:5
-twig:5
-match:1","block:n","","","","","","","","","","","","","","","","",""
-"match","","","","","ignate
-OnValue:0
-destroy","","","","","","","","","","","","","","","","","","","",""
-"branch","","","","","% flammable","","","","","","","","","","","","","","","","","","","",""
-"twig","","","in","","% flammable","","","","","","","","","","","","","","","","","","","",""
-"piece of wood","","","","","% flammable","","","","","","","","","","","","","","","","","","","",""
-"crotte","","","","","% flammable","","","","","","","","","","","","","","","","","","","",""
-"shed","","","","","material
-value:0?2
-description:wooden / stone / covered in vines","shape
-value:0?1
-description:small / huge","","","","","","","","","","","","","","","","","","",""
+triggerEvent(OnFlames)","block:n","","","","","","","","","","","","","","","","","",""
+"crotte","","","","","prout
+value:0
+description:pas prout / prout
+E OnMinutes:
+set(>prout, 1)","","","","","","","","","","","","","","","","","","","",""

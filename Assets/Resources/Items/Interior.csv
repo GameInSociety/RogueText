@@ -2,10 +2,10 @@
 "door","","3","on","","*?50%? locked
 description:locked","","doorID
 value:0","$ open / use / go / take / go in / leave
-breakIf(>locked, enabled)
+X (>locked, enabled)
 move(>ANY orientation)","$ unlock
-breakIf(>locked, disabled)
-breakIf(!p key>doorID, not same, >doorID)
+X (>locked, disabled)
+X (!p key>doorID, not MATCH, >doorID)
 disable(>locked)
 write(the door is now unlocked)","type
 value:0?1

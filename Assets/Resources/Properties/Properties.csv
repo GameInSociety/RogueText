@@ -41,10 +41,10 @@ describe","contents
 window:4*50
 window:1","","","","","","","","","","","","","","",""
 "tile","$ go
+X (ENABLED, ! player>blocked)
 set(! player>coords, >coords)
 add(!player>moves, 1)
 set(! player>orientation, >ANY orientation)
-set(current tile)
 describe(_TILE)","weight:0
 capacity:1000
 max items:1000","","","","","","","","","","","","","","","","","","",""
@@ -134,7 +134,7 @@ hardly nourishing / poorly nourishing / rather nourishing / pretty nourishing / 
 layer:1
 OnValue:0
 destroy","$ eat
-breakIf(! player>hunger, equals, 0)
+X (Same, ! player>hunger, 0)
 sub(!player>hunger, >food)"," ","","","","","","","","","","","","","","","","","",""
 "sleep","confort
 value:0
@@ -171,11 +171,11 @@ sub ( >burning, 5 )","E OnFlames
 enable( >burning )
 enable( >source of light )","","","","","","","","","","","","","","","",""
 "equipable","$ equip
-breakIf (! player.{THIS>body part}>armor{THIS>layer}, enabled)
-transferTo( ! player.{THIS>body part})
-enable(>! player.{THIS>body part}>armor{THIS>layer})
-add(! player.{THIS>body part}>armor{THIS>layer}, >armor)","$ take off
-breakIf (>wearing, enabled)
+X  (Enabled, ! Body Part : player.{THIS>body part} > Armor : armor{THIS>layer}, enabled)
+transferTo( ! Body part )
+enable(>! Body Part > Armor )
+add(! Body Part > Armor, >armor)","$ take off
+X  (>wearing, enabled)
 sub(! player.{body part}>armor{layer}, >armor)
 disable(>wearing)
 disable(!player.{body part}>armor{layer}, >armor)
@@ -208,4 +208,8 @@ description:(on key)
 very clumbsy / clumbsy / not particulary handy / pretty sure handed / dexterous / very handy / extremely handy","agility
 value:1m10
 description:(on key)
-stiff and lumbering / graceless / not particulaly agile / lightfooted and flexible / very graceful / feline like","","","","","","","","","","","","","","","","","",""
+stiff and lumbering / graceless / not particulaly agile / lightfooted and flexible / very graceful / feline like","hit chance
+value:[% >dexterity X 10]","","","","","","","","","","","","","","","","",""
+"x","","hit chance
+value:[% >dexterity X 10]","dodge chance
+value:[% >agility X 10]","","","","","","","","","","","","","","","","","",""

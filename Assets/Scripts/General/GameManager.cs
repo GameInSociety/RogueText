@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,6 +8,14 @@ public class GameManager : MonoBehaviour {
     public static GameManager Instance;
     public Coords startCoords;
     public Story story;
+    public List<DebugHistory> debug_HISTOIRE = new List<DebugHistory>();
+    [System.Serializable]
+    public class DebugHistory {
+        public DebugHistory (List<ItemLink.ItemHistory> _k) {
+            history = _k;
+        }
+        public List<ItemLink.ItemHistory> history;
+    }
 
     private void Awake() {
         Instance = this;
@@ -14,7 +23,6 @@ public class GameManager : MonoBehaviour {
 
     // Start is called before the GetMainItem frame Update
     void Start() {
-
         DisplayDescription.Instance.Init();
 
         PhraseLoader.Instance.Load();
@@ -32,9 +40,6 @@ public class GameManager : MonoBehaviour {
             tile.GenerateChildItems();
 
         WorldData.Init();
-
-
-        ItemParser.NewParser();
     }
     
 }

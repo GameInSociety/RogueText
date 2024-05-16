@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +11,7 @@ public class DisplayDescription : MonoBehaviour {
     public ScrollRect scrollRect;
 
     public Text uiText;
-    public Text uiText_Old;
+    string text_archive;
 
     public int letterRate = 1;
 
@@ -19,7 +20,8 @@ public class DisplayDescription : MonoBehaviour {
     public float rate = 0.2f;
     bool typing = false;
     Color initColor;
-    public List<Chunk> chunks = new List<Chunk>();
+    public List<Chunk> oldChunks = new List<Chunk>();
+    public List<Chunk> newChunks = new List<Chunk>();
 
     float timer = 0f;
 
@@ -39,8 +41,11 @@ public class DisplayDescription : MonoBehaviour {
         public string targetText;
         public string currText;
         string htlm = "";
-        public string GetText() {
-            return $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>{currText}</color>";
+        public string GetFullText() {
+            return $"<color=#{htlm}>{targetText}</color>";
+        }
+        public string GetCurrentText() {
+            return $"<color=#{htlm}>{currText}</color>";
         }
     }
 
@@ -51,11 +56,21 @@ public class DisplayDescription : MonoBehaviour {
     public void Init() {
         initColor = uiText.color;
         uiText.text = "";
-        uiText_Old.text = "";
+        text_archive = "";
         ClearDescription();
     }
 
+    public delegate void OnPressReturn();
+    public OnPressReturn onPressReturn;
+
     private void Update() {
+
+        if (PressReturn()) {
+            if ( onPressReturn != null) {
+                onPressReturn();
+            }
+        }
+
         if ( typing ) {
             Typing_Update();
         } else if (newText){
@@ -64,10 +79,8 @@ public class DisplayDescription : MonoBehaviour {
     }
 
     void Typing_Start(){
-        chunkIndex = 0;
         timer = 0f;
         typing = true;
-        DisplayInput.Instance.Hide();
         scrollRect.verticalNormalizedPosition = 0f;
     }
 
@@ -86,51 +99,58 @@ public class DisplayDescription : MonoBehaviour {
         timer += Time.deltaTime;
     }
 
-    public int chunkIndex;
+    bool PressReturn() {
+        return Input.GetKeyDown(KeyCode.Return);
+    }
     void Type() {
 
-        var currChunk = chunks[chunkIndex];
+        var currChunk = newChunks[0];
 
         if (typeIndex >= currChunk.targetText.Length){
-            currChunk.currText = currChunk.targetText;
-            text += currChunk.GetText();
+            // finish chunk
+            text_archive += currChunk.GetFullText();
+            newChunks.RemoveAt(0);
             typeIndex = 0;
-            ++chunkIndex;
         }
-        if ( chunkIndex == chunks.Count) {
+        if ( newChunks.Count == 0) {
             Typing_Exit();
             return;
         }
 
-        currChunk.currText = currChunk.targetText.Remove(typeIndex);
-        uiText.text = text+currChunk.GetText()+"■";
+        currChunk.currText = currChunk.targetText.Remove(typeIndex)+"■";
+        uiText.text = $"{text_archive}{currChunk.GetCurrentText()}";
 
         ++typeIndex;
     }
 
+    public delegate void OnTypeExit();
+    public OnTypeExit onTypeExit;
+
     void Typing_Exit(){
-        text = "";
-        foreach (var chunk in chunks) {
-            chunk.currText = chunk.targetText;
-            text += chunk.GetText();
+
+        foreach (var ch in newChunks) {
+            text_archive += ch.GetFullText();
         }
-        wholeText += text;
-        uiText.text = $"{wholeText}";
+        newChunks.Clear();
+
+        uiText.text = text_archive;
         typing = false;
-        DisplayInput.Instance.Show();
         newText = false;
-        chunks.Clear();
+
+        if (onTypeExit != null) {
+            onTypeExit();
+        }
     }
 
     public void ClearDescription() {
         newText = false;
         typing = false;
-        uiText_Old.text += wholeText;
+        text_archive = "";
         wholeText = "";
         text = "";
         typeIndex = 0;
         uiText.text = "";
-        chunks.Clear();
+        newChunks.Clear();
     }
 
 
@@ -142,7 +162,7 @@ public class DisplayDescription : MonoBehaviour {
     }
     private void AddToDescription(Chunk chunk) {
         chunk.targetText = TextUtils.FirstLetterCap(chunk.targetText);
-        chunks.Add(chunk);
+        newChunks.Add(chunk);
         newText = true;
     }
 

@@ -23,20 +23,6 @@ public class ItemParser {
     string _text = "";
     public int currentState = 0;
 
-    public string log;
-    [HideInInspector] public ItemParser parser;
-    public void Log(string message, Color color) {
-
-        var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
-        string str = $"\n{txt_color}{message}</color>";
-        log += str;
-    }
-    public void AddLog(string message, Color color) {
-
-        var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
-        string str = $" {txt_color}{message}</color>";
-        log += str;
-    }
 
     public List<Item> GetItems() {
         var _its = new List<Item>();
@@ -82,13 +68,10 @@ public class ItemParser {
         public Part(string _part, ItemParser parser) {
             text = _part;
             this.parser = parser;
-
         }
 
         public void Parse() {
-
             Log($"part:[{text}]", Color.white);
-
             GetNumber();
             GetItems();
         }
@@ -249,7 +232,6 @@ public class ItemParser {
         }
     }
     public void Parse(string txt) {
-
         // assigning seq
         _text = txt.ToLower();
         Log(_text, Color.cyan);
@@ -298,7 +280,6 @@ public class ItemParser {
         foreach (var part in parts) {
             if (!part.HasItems()) {
                 TextManager.Write($"there's no {part.text} around");
-                NewParser();
                 return false;
             }
             if (part.needsDistinction) {
@@ -320,7 +301,6 @@ public class ItemParser {
             if (sequence == null) {
                 TextManager.Write($"{verb.question} do you want to {verb.GetFull}");
                 Log($"no action OR any item item for {verb.GetCurrentWord}", Color.red);
-                NewParser();
                 return;
             }
             parts = new Part[1];
@@ -337,7 +317,6 @@ public class ItemParser {
             if (sequence == null) {
                 TextManager.Write($"you can't {verb.GetFull} {actionItem.GetText("the dog")}");
                 Log($"no action for {verb.GetCurrentWord} and {GetPart().items[0].debug_name}", Color.red);
-                NewParser();
                 return;
             }
         }
@@ -369,24 +348,25 @@ public class ItemParser {
             if (!part.used ) {
                 Log($"part : {part.text} has not been used", Color.red);
                 TextManager.Write($"there's no {GetPart(0).MainItem().debug_name} {part.text}");
-                NewParser();
                 return;
             }
         }
 
+        TextManager.Write($"you {verb.GetCurrentWord} {GetPart(0).items.First().GetText("a dog")}", Color.yellow);
+
         if (verb.duration > 0) {
-            var timeSeq = $"add( !second>seconds passed, {verb.duration})";
-            var timeAction = new WorldAction(GetPart().items.First(), timeSeq);
-            timeAction.Stack(timeAction);
+            var timeSeq = $"add( !time>seconds passed, {verb.duration})";
+            var timeAction = new WorldAction(GetPart().items.First(), timeSeq, "Player Action Duration");
+            timeAction.StartSequence();
         }
 
         // trigger action
-        var parserAction = new WorldAction(GetPart().items, sequence);
-        parserAction.Call(WorldAction.Source.PlayerAction);
+        foreach(var item in GetPart().items) {
+            var parserAction = new WorldAction(item, sequence, "Player Action");
+            parserAction.StartSequence(WorldAction.Source.PlayerAction);
+        }
 
-        
-
-        NewParser();
+        //NewParser();
     }
 
     List<string> GetItemKeys(string sequence) {
@@ -530,46 +510,51 @@ public class ItemParser {
     public void Break(string message_hold, string message_fail, int state) {
         var str = currentState == state ? message_fail : message_hold;
         TextManager.Write(str);
-        if (currentState == state) {
-            NewParser();
+        if (currentState == state)
             return;
-        }
         currentState = state;
     }
 
     public List<Item> SearchForItemsInParts(string key) {
         foreach (var part in parts) {
             if (part.skip) {
-                Function.LOG($"skipping part : {part.text}", Color.gray);
                 continue;
             }
             var its = ItemLink.SearchItemsInRange(key, part.items);
             if (its.Count > 0)
                 return its;
-            else
-                Function.LOG($"no item : {key} in part : {part.text} / {part.items.First()}", Color.gray);
         }
         return null;
     }
 
     #region singleton
-    private static ItemParser _prev;
-    private static ItemParser _curr;
-    public static ItemParser GetPrevious{
-        get{
-            return _prev;
-        }
-    }
-    public static ItemParser GetCurrent {
+    private static ItemParser _instance;
+    public static ItemParser Instance {
         get {
-            return _curr;
+            return _instance;
         }
     }
-    public static void NewParser(){
-            _prev = _curr;
-        _curr = new ItemParser();
+    public static void Clear(){
+        _instance = new ItemParser();
     }
     #endregion
 
-    
+    ///
+    /// DEBUG
+    /// 
+
+    public string log;
+    public void Log(string message, Color color) {
+
+        var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
+        string str = $"\n{txt_color}{message}</color>";
+        log += str;
+    }
+    public void AddLog(string message, Color color) {
+
+        var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
+        string str = $" {txt_color}{message}</color>";
+        log += str;
+    }
+
 }

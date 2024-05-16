@@ -155,10 +155,8 @@ public class ItemLoader : DataDownloader {
                     var cellParts = cells[i].Split(new char[1] { '\n' }, 2);
                     var triggers = cellParts[0].Remove(0, 2);
                     var seq = new Sequence(triggers, cellParts[1]);
-                    if (content.StartsWith('$'))
+                    if (content.StartsWith('$')) 
                         data.verbSequences.Add(seq);
-                    if (content.StartsWith('E'))
-                        data.events.Add(seq);
                     if (content.StartsWith('!')) {
                         data.acts.Add(seq);
                     }

@@ -20,17 +20,17 @@ disable(>charge)","*source of light
 
 description: lighting things around","weight:2","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","$ turn on
-breakIf(>charge, empty)
+X (>charge, empty)
 set(>on, 1)
 enable(>source of light)
 enable(>charge)","$ turn off
 set(>on, 0)
 disable(>source of light)
 disable(>charge)","$ charge
-breakIf(>charge, not empty)
+X (>charge, not empty)
 add(>charge, ! battery>charge)
 destroy(! battery)","$ empty
-breakIf(>charge, empty)
+X (>charge, empty)
 createItem(battery)
 set(! battery>charge, >charge)","E OnHours
 sub(>charge, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
@@ -38,10 +38,10 @@ sub(>charge, 1)","","","","","","","","","","","","","","","","","","","","","",
 write(_north)","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "scissors (p)","","","","tools","","","","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "battery","","","","tools","$ put
-breakIf(!p flashlight>battery, not empty)
+X (!p flashlight>battery, not empty)
 add(!p flashlight>battery, >charge)
 destroy","$ charge
-breakIf(>battery, not empty)
+X (>battery, not empty)
 add(battery, ! battery>charge)
 destroy(! battery)","charge
 value: 10","","weight:1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

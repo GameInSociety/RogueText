@@ -1,178 +1,195 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [System.Serializable]
 public class WorldAction {
-
-    public static List<WorldAction> stack = new List<WorldAction>();
-    public string debug_name;
-
-  
-
-    public DataDownloader[] dataDownloaders;
-
-    private List<Item> _items = new List<Item>();
-    public void SetItems(List<Item> its) {
-        _items = its;
-        foreach (Item it in its ) {
-            Debug.Log( it.debug_name );
-        }
-    }
-    public void AddItem(Item it) {
-        _items.Add(it);
-    }
-    public void RemoveItem(Item it) {
-        _items.Remove(it);
-    }
-    public List<Item> GetItems() {
-        return _items;
-    }
-    public Item TargetItem() {
-        return _items.First();
-    }
-    public Tile.Info tileInfo;
-    public Tile tile => tileInfo.GetTile();
-    public string sequence;
-
-    public Source source;
+    public bool skip = false;
     public enum Source {
         PlayerAction,
         Event,
     }
 
-    public enum State {
-        Suceed,
-        Next,
-        Fail
-    }
+    // Static
+    public static List<WorldAction> debug_list = new List<WorldAction>();
+
+    public List<Line> lines = new List<Line>();
+    public bool debug_selected = false;
+    public static List<ItemLink.ItemHistory> history = new List<ItemLink.ItemHistory>();
 
     public static WorldAction current;
+    public List<WorldAction> nestedActions = new List<WorldAction>();
 
-    // only fail one function, move to next
-    public bool failed = false;
-    public bool goToNextPart = false;
-    // fail all functions
+    public Source source;
+    private Item item;
+
+    public static int breakCount = 20;
+    static int currentBreak = 0;
+    public static WorldAction pendingAction = null;
+    public static bool finishedAllSequences = true;
+
+
+    /// <summary>
+    /// SEQUNCES
+    /// </summary>
+    public int sequenceIndex = 0;
+    public string content;
     public bool stopped = false;
-    string[] sequences;
-    // feedback
-    public string feedback;
+    public bool failed = false;
+    public bool timeAction = false;
+    public string debug_additionalInfo;
+    public bool origin = false;
+    public int lineIndex;
+    static int globalIndex;
+    public int index;
 
-    int seqIndex = 0;
+    public string Name {
+        get {
+            Color c = lines.Find(x => x.failed) != null ? Color.red : timeAction ? Color.cyan : source == WorldAction.Source.PlayerAction ? Color.yellow: Color.white;
 
-    public WorldAction(Item item, string sequence) {
-        debug_name = $"{item.debug_name})";
-        AddItem(item);
-        tileInfo.coords = item.GetCoords();
-        tileInfo.tilesetId = item.GetTileSet();
-        this.sequence = sequence;
-    }
-    public WorldAction(List<Item> items, string sequence) {
-        debug_name = $"{items[0].debug_name})";
-        foreach (var item in items) {
-            AddItem(item);
+            if ( index == 0) {
+                ++globalIndex;
+                index = globalIndex;
+            }
+
+            string name = $" [<color={c}>{TargetItem().debug_name} ({index})</color>] : {debug_additionalInfo}";
+            return $"{name}";
         }
-        this.tileInfo.coords = items.First().GetCoords();
-        this.tileInfo.tilesetId = items.First().GetTileSet();
-        this.sequence = sequence;
     }
 
+
+    public Item TargetItem() {
+        return item;
+    }
+
+    public WorldAction(Item item, string content, string additionalinfo) {
+        this.item = item;
+        this.content = content;
+        debug_additionalInfo = additionalinfo;
+    }
     #region call
-    static bool onGoing = false;
-    public void Stack(WorldAction action) {
-        stack.Add(action);
+    public void StartSequence() {
+        StartSequence(Source.Event);
     }
-    public void Call(Source source = Source.Event) {
-        this.source = source;
-        if (onGoing) {
-            if ( stack.Count >= 10) {
-                Debug.LogError($"STACK TO BIG");
+    public void StartSequence(Source source = Source.Event) {
+
+        if (finishedAllSequences) {
+            DisplayInput.Instance.Disable();
+            finishedAllSequences = false;
+        }
+
+        pendingAction = null;
+        // debug
+        if ( current != null) {
+            current.lines[current.lineIndex].content += $" <color=magenta>(Call : {Name})</color>";
+
+            // stack
+            if (TargetItem().debug_name == "time") {
+                pendingAction = this;
+                timeAction = true;
                 return;
             }
-            stack.Add(this);
-            return;
-        }
-        Function.LOG($"\nWorld Action:[{TargetItem().debug_name}] {source}", Color.cyan);
-        AvailableItems.UpdateItems();
-
-        current = this;
-        onGoing = true;
-        seqIndex = 0;
-        sequences = sequence.Split("\n%\n");
-        ItemLink.history.Clear();
-
-        CallLine(0);
-
-        onGoing = false;
-        if ( stack.Count > 0) {
-            var next = stack[0];
-            stack.RemoveAt(0);
-            next.Call(next.source);
         } else {
-            PropertyDescription.Describe();
-            ItemDescription.DescribeAll();
-            MapTexture.Instance.DisplayMap();
+            origin = true;
         }
+
+
+        debug_list.Add(this);
+
+        // special
+        this.source = source;
+        
+        // get & clear items
+        AvailableItems.UpdateItems();
+        history.Clear();
+
+        CallFirstLine();
     }
 
-    void CallLine(int i) {
-        var seq = sequences[seqIndex];
-        var lines = seq.Split('\n');
-        if (string.IsNullOrEmpty(lines[i])) {
-            Debug.Log($"skip line");
-            goto Skip;
+    void CallFirstLine() {
+        // creating lines
+        lines = new List<Line>();
+        foreach (var s in content.Split('\n')) {
+            if (string.IsNullOrEmpty(s) || s.StartsWith('/'))
+                continue;
+            lines.Add(new Line(s, this));
         }
-        if (lines[i].StartsWith('~')) {
-            Debug.Log($"reached ~~");
-            goToNextPart = false;
-            goto Skip;
-        }
-        if (goToNextPart) {
-            Debug.Log($"going to next ~~");
-            goto Skip;
-        }
+        // boot sequence
+        lineIndex = 0;
+        CallLine();
+    }
 
-        bool tryNextSequence = false;
-        feedback = "";
-        foreach (var item in _items) {
-            failed = false;
-            Function.TryCall(lines[i], item);
+    public void CallLine() {
 
-            if (failed) {
-                Function.LOG($"World Action Failed.", Color.red);
-                tryNextSequence = true;
-                break;
-            }
-        }
-        if (tryNextSequence) {
-            // try next sequence
-            ++seqIndex;
-            // if it's the last one, show feedback
-            if (seqIndex == sequences.Length) {
-                TextManager.Write(feedback, Color.red);
-                return;
-            }
-            CallLine(0);
+        // set world action every line to keep track of current
+        current = this;
+
+        // parse current line
+        var line = lines[lineIndex];
+        line.Parse(this);
+
+        // break sequence
+        if (line.failed) {
+            if (source == WorldAction.Source.PlayerAction)
+                TextManager.Write(line.fail_feedback, Color.red);
+            else
+                Debug.LogError($"EVENT FAIL : {line.fail_feedback}");
             return;
         }
 
-        Skip:
-        // end of sequence
-        if (i + 1 == lines.Length)
-            return;
         // call next line
-        CallLine(i + 1);
+        CallNextLine();
     }
 
-    public void Fail(string message) {
-        failed = true;
-        feedback = message;
+    void CallNextLine() {
+        if (lineIndex + 1 == lines.Count) {
+            EndSequence();
+        } else {
+            ++lineIndex;
+            CallLine();
+        }
     }
-    public void Stop(string message) {
-        Debug.LogError($"STOP : {message}");
-        stopped = true;
-        feedback = message;
+
+    void EndSequence() {
+        current = null;
+
+        if (origin) {
+
+            if (pendingAction != null) {
+                if (ItemDescription.DescriptionPending()) {
+                    skip = false;
+                    currentBreak = 0;
+                    ItemDescription.StartDescription();
+                    WorldActionManager.Instance.DelaySequence(pendingAction);
+                } else {
+                    WorldActionManager.Instance.QuickDelaySequence(pendingAction);
+                    pendingAction.skip = true;
+                    if (timeAction) skip = true;
+                }
+
+                var secondsLeft = WorldData.GetGlobalItem("time").GetProp("seconds passed").GetNumValue();
+                DisplayInput.Instance.DisplayFeedback($"time left : {secondsLeft}");
+
+            } else {
+
+                finishedAllSequences = true;
+                if (ItemDescription.DescriptionPending()) {
+                    ItemDescription.StartDescription();
+                }
+
+                DisplayInput.Instance.Enable();
+            }
+
+            
+
+        }
+
+        
+    }
+
+    public void Error(string message) {
+
     }
     #endregion
-
 }

@@ -27,13 +27,19 @@ public class ItemDescription {
         options = new Options(opts);
     }
 
-    // static describe
-    public static void DescribeAll() {
-        if (itemDescriptions.Count == 0)
-            return;
+    public static bool DescriptionPending() {
+        return itemDescriptions.Count > 0;
+    }
 
-        foreach (var itDes in itemDescriptions)
-            TextManager.Write($"{itDes.GetDescription()}\n");
+    // static describe
+    public static void StartDescription() {
+        MapTexture.Instance.DisplayMap();
+
+        foreach (var itDes in itemDescriptions) {
+            var des = itDes.GetDescription();
+            des = des.Trim('\n');
+            TextManager.Write($"{des}\n");
+        }
         archive.AddRange(itemDescriptions);
         itemDescriptions.Clear();
         describedItems.Clear();
@@ -69,18 +75,15 @@ public class ItemDescription {
     }
     public static void AddProperties(string descriptionName, Item item, List<Property> props, string opts = "") {
 
+        
         // find /create item description
         var itDes = itemDescriptions.Find(x => x.name == descriptionName);
         if (itDes == null) {
             itDes = new ItemDescription(descriptionName, opts);
             itemDescriptions.Add(itDes);
         }
-
-        if (itDes.options.filterEvents) {
-            int c = props.RemoveAll(x => !x.CanBeDescribed());
-            if ( props.Count == 0)
-                return;
-        }
+       
+        
 
         // find / create group
         var group = itDes.groups.Find(x => x.dataIndex == item.dataIndex);
@@ -129,9 +132,10 @@ public class ItemDescription {
         while (tmp_slots.Count > 0) {
             string phrase = Phrase.GetPhrase(tmp_slots, out tmp_slots, options);
             phrase = TextUtils.FirstLetterCap(phrase);
-            description += $"{phrase}. ";
+            description += $"{phrase}";
         }
-        return $"{options.start}{description}";
+        var whole = $"{options.start}{description}";
+        return whole;
     }
 
     private void SplitSlotByPropertyName() {

@@ -4,23 +4,9 @@ using UnityEngine;
 
 [System.Serializable]
 public class Tile : Item {
-    // location of tile in world
-    
-    [System.Serializable]
-    public struct Info {
-        public Coords coords;
-        public int tilesetId;
-        public Info(Coords c, int i) {
-            coords = c;
-            tilesetId = i;
-        }
-        public Tile GetTile() {
-            return TileSet.GetTileSet(tilesetId).GetTile(coords);
-        }
-    }
 
     public static bool itemsChanged = false;
-    public static Tile Create(Info info, string _name, string prop_text = "") {
+    public static Tile Create(string _name, string prop_text = "") {
 
         var tile = ItemData.Generate_Special(_name) as Tile;
         if (!string.IsNullOrEmpty(prop_text)) {
@@ -38,10 +24,8 @@ public class Tile : Item {
         if (HasChildItems())
             itemsToDescribe.AddRange(GetChildItems());
 
-        itemsToDescribe.AddRange(adjTiles);
-        Debug.Log($"adjacent tiles : {adjTiles.Count}");
-
         ItemDescription.AddItems("tile description", itemsToDescribe, $"start:{GetText("on a dog")}, ");
+        ItemDescription.AddItems("other tiles", adjTiles, $"");
         //ItemDescription.AddItems("tile description", itemsToDescribe, $"start:{GetText("on a dog")}, / type:group");
     }
     

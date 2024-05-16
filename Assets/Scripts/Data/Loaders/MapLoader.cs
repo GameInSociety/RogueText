@@ -53,7 +53,7 @@ public class MapLoader : DataDownloader
 
             int y = lineAmount - row - 1;
             var coords = new Coords(x, y);
-            var newTile = Tile.Create(new Tile.Info(coords, 0), tileInfo.value);
+            var newTile = Tile.Create( tileInfo.value);
             var cProp = newTile.AddProp(Coords.CoordsToProp(coords));
             TileSet.world.Add(coords, newTile);
             if (HasItems) {

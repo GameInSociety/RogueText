@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using UnityEngine;
 
 [System.Serializable]
@@ -10,7 +11,6 @@ public class Phrase {
         public string key;
         public List<Phrase> phrases = new List<Phrase>();
     }
-    public static List<PhraseType> phraseTypes = new List<PhraseType>();
     public static List<Part> parts = new List<Part>();
 
     public string text;
@@ -30,6 +30,9 @@ public class Phrase {
                 var split = key.Split('/');
                 leftMin = int.Parse(split[0]);
                 rightMin = int.Parse(split[1]);
+            } else {
+                leftMin = 100;
+                rightMin = 100;
             }
         }
         public string key = "";
@@ -39,7 +42,9 @@ public class Phrase {
         public List<string> pool = new List<string>();
 
         public static string GetRandom(int left, int right) {
-            var part = parts.Find(x => left >= x.leftMin && right >= x.rightMin);
+            var _ptrs = parts.FindAll(x => left >= x.leftMin && right >= x.rightMin);
+            var i = Random.Range(0, _ptrs.Count);
+            var part = _ptrs[i];
             if ( part == null) {
                 Debug.LogError($"no part with left {left} and right {right}");
                 return "part error";
@@ -64,7 +69,7 @@ public class Phrase {
             if ( content == "x") {
                 return "";
             }
-            return content;
+            return $"{content}";
         }
     }
     
@@ -82,25 +87,28 @@ public class Phrase {
         }
         input.RemoveRange(0, slotCount);
 
-        var result = "";
 
         var slots_multItems = slots.FindAll(x => x.items.Count > 1);
         var slots_singleItems = slots.FindAll(x => x.items.Count  == 1);
 
-        int sepIndex = Random.Range(0, slotCount - 1);
-
-        var left = sepIndex;
-        var right = slots.Count - sepIndex;
+        var sepIndex = Random.Range(0,slots.Count+1);
+        bool after = Random.value > 0.5f;
+        
+        var results = new List<string>();
         for (int i = 0; i < slots.Count; i++) {
-            var slot = slots[i];
-            if ( options.list) {
-                result += $"{slot.ItemsToString()}.\n";
-            } else {
-                if (i == sepIndex)
-                    result += $"{Part.GetRandom(left, right)} ";
-                result += $"{slot.ItemsToString()}{TextUtils.GetCommas(i, slots.Count)}";
-            }
+
+            string itemText = options.list ? TextUtils.FirstLetterCap(slots[i].ItemsToString()) : slots[i].ItemsToString();
+            string end = options.list ? "\n" : TextUtils.GetCommas(i, i < sepIndex ? sepIndex : slots.Count);
+            results.Add($"{itemText}{end}");
+
         }
+        if (!options.list) {
+            var insert = $" {Part.GetRandom(sepIndex, slots.Count - sepIndex)} ";
+            results.Insert(sepIndex, insert);
+        }
+
+
+        var result = string.Join("", results);
         output = input;
         return result.Trim(' ');
 

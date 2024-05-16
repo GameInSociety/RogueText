@@ -9,6 +9,10 @@ using static UnityEditor.Progress;
 
 [System.Serializable]
 public class Item {
+
+    public Tile GetTile() {
+        return TileSet.GetTileSet(GetTileSet()).GetTile(GetCoords());
+    }
     public int GetTileSet() {
         var p = GetProp("tileset");
         if (p == null) {
@@ -46,18 +50,12 @@ public class Item {
 
         foreach (var prop in props)
             prop.Init(this);
-        foreach (var seq in GetData().events) {
-            // trying alternative method for events.
-            var content = $"{seq.triggers[0]}\n{seq.seq}";
-            WorldEvent.SubscribeItem(this, content);
-        }
        
-
         var actName = "OnCreate";
         var itemAct = GetData().acts.Find(x => x.triggers[0] == actName);
         if ( itemAct != null) {
-            var action = new WorldAction(this, itemAct.seq); ;
-            action.Call();
+            var action = new WorldAction(this, itemAct.seq, "On Create Event");
+            action.StartSequence();
         }
     }
 

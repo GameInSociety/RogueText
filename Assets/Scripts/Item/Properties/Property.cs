@@ -1,13 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Security.Cryptography;
-using System.Linq;
-using static UnityEditor.Progress;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-using System.Threading;
-using JetBrains.Annotations;
+using Newtonsoft.Json.Linq;
 
 [System.Serializable]
 public class Property {
@@ -16,11 +10,12 @@ public class Property {
     public static List<Property> datas = new List<Property>();
 
     public string name;
-    public bool changed = false;
+    public bool updated = false;
     public bool enabled = false;
     public bool destroy = false;
     public List<Part> parts = new List<Part>();
     private Item _linkedItem;
+    public bool debug_selected = false;
 
     // in data
     [System.Serializable]
@@ -53,18 +48,17 @@ public class Property {
 
         _linkedItem = item;
 
+        bool startEnable = true;
         // enable / disable
         if (name.StartsWith('*')) {
             name = name.Substring(1);
             if (name.StartsWith('?')) {
                 var percent = TextUtils.Extract('?', name, out name);
                 float r = UnityEngine.Random.value * 100f;
-                enabled = r < int.Parse(percent.Trim('%'));
+                startEnable = r < int.Parse(percent.Trim('%'));
             } else {
-                enabled = false;
+                startEnable = false;
             }
-        } else {
-            enabled = true;
         }
 
         if (name.Contains('/')) {
@@ -75,8 +69,37 @@ public class Property {
             }
         }
 
+
+        // enable
+        if (startEnable) Enable(); else Disable();
+
+        // v & d
         InitValue("value");
         InitDescription();
+    }
+
+    public void Enable() {
+        if (enabled)
+            return;
+        enabled = true;
+        var eventParts = parts.FindAll(x => x.key.StartsWith('E'));
+        foreach (var e in eventParts) {
+            string eventName = e.key.Remove(0, 2);
+            string sequence = e.content;
+            WorldEvent.Subscribe(eventName, _linkedItem, this, sequence);
+        }
+    }
+
+    public void Disable() {
+        if (!enabled)
+            return;
+        enabled = false;
+        var eventParts = parts.FindAll(x => x.key.StartsWith('E'));
+        foreach (var e in eventParts) {
+            string eventName = e.key.Remove(0, 2);
+            string sequence = e.content;
+            WorldEvent.Unsubscribe(eventName, _linkedItem, this, sequence);
+        }
     }
 
     public void Parse(string[] lines) {
@@ -95,6 +118,7 @@ public class Property {
                     var strs = lines[i].Split(':');
                     var text = strs[1].Trim(chars);
                     AddPart(strs[0], text);
+
                 } else {
                     // continue part
                     var str = lines[i].Trim(chars);
@@ -205,7 +229,7 @@ public class Property {
     }
     // value can be number or seq. but it's alway dynamic
     public bool HasNumValue(string key = "value") {
-        return HasPart(key) && int.TryParse(GetPart(key).content, out _);
+        return HasPart(key) && GetNumValue(key) > -1;
     }
     public int GetNumValue(string key = "value") {
         Part part = GetPart(key);
@@ -216,18 +240,17 @@ public class Property {
         // check link
         if (part.content.Contains('[')) {
             var propKey = TextUtils.Extract('[', part.content, out _);
-            var linkPart = new ActionPart(propKey);
+            Debug.Log($"prop to link : {propKey}");
+            var linkPart = new LinePart(propKey);
             if (!linkPart.TryInit(_linkedItem))
-                Function.LOG($"[{_linkedItem.debug_name}/{name}] OnValue link prop failed", Color.red);
-            part.content = linkPart.prop.GetNumValue().ToString();
-            return linkPart.prop.GetNumValue();
+                return -1;
+            //part.content = linkPart.prop.GetNumValue().ToString();
+            return linkPart.value;
         }
 
         int num = 0;
-        if (!int.TryParse(part.content, out num)) {
-            Debug.LogError($"GET NUM VALUE : value of {name} ({part.content}) can't be parsed");
+        if (!int.TryParse(part.content, out num))
             return -1;
-        }
         return num;
     }
     public void SetValue(string text, string part = "value", bool setChanged = true) {
@@ -246,7 +269,7 @@ public class Property {
         SetChanged();
     }
     public void SetChanged() {
-        changed = true;
+        updated = true;
         CheckValueEvents();
         if ( WorldAction.current != null) {
             PropertyDescription.Add(_linkedItem, this, WorldAction.current.source, false);
@@ -294,9 +317,9 @@ public class Property {
 
             if (condition_text.StartsWith('[')) {
                 var key = TextUtils.Extract('[', condition_text, out condition_text);
-                var onValuePart = new ActionPart(key);
+                var onValuePart = new LinePart(key);
                 if (!onValuePart.TryInit(_linkedItem))
-                    Function.LOG($"[{_linkedItem.debug_name}/{name}] OnValue link prop failed", Color.red);
+                    return;
                 targetValue = onValuePart.prop.GetNumValue();
             } else {
                 targetValue = int.Parse(condition_text);
@@ -318,8 +341,8 @@ public class Property {
             // getting the sequence
             var sequence = content.Remove(0, returnIndex + 1);
             if (call) {
-                var tileEvent = new WorldAction(_linkedItem, sequence);
-                tileEvent.Call();
+                var propertyEvent = new WorldAction(_linkedItem, sequence, $"On Value:{name}");
+                propertyEvent.StartSequence();
             }
         }
     }
@@ -330,17 +353,19 @@ public class Property {
         if (!HasPart("description"))
             return;
         var description = GetPart("description").content;
+        description = description.Trim(' ');
 
         // TYPE //
-        if (description.StartsWith('(')) {
+        int typeIndex = description.IndexOf('(');
+        if (typeIndex>= 0) {
             var type = TextUtils.Extract('(', description, out description);
             SetPart("description type", type);
         } else
             SetPart("description type","none");
-        
 
+        int setupIndex = description.IndexOf('[');
         // SETUP //
-        if (description.StartsWith('[')) {
+        if (setupIndex >= 0) {
             var setup = TextUtils.Extract('[', description, out description);
             SetPart("description setup", setup);
         } else if (!HasPart("description setup"))
@@ -353,12 +378,12 @@ public class Property {
     public string GetDisplayDescription() {
 
         if (!enabled) {
-            if (changed)
+            if (updated)
                 return $"no longer {GetCurrentDescription()}";
             else return "";
         }
 
-        if (!changed)
+        if (!updated)
             return GetCurrentDescription();
 
         var newDescription = GetCurrentDescription();
@@ -371,7 +396,7 @@ public class Property {
         } else
             result = $"{newDescription}";
         SetPart("current description", newDescription);
-        changed = false;
+        updated = false;
         return result;
     }
 
@@ -379,16 +404,6 @@ public class Property {
 
         if (!HasPart("description"))
             return false;
-
-        if (!enabled && !changed) {
-            PropertyDescription.LOG($"[{name}] Skip (Disabled and Unchanged)", Color.red);
-            return false;
-        }
-
-        if (!HasPart("description type")) {
-            PropertyDescription.LOG($"[{name}] Skip (No Description Type)", Color.green);
-            return true;
-        }
 
         var type = GetPart("description type").content;
         if (type.EndsWith("%")) {
@@ -405,45 +420,54 @@ public class Property {
                 return false;
             }
             if (below ? currentPercent <= targetPercent : currentPercent >= targetPercent) {
-                PropertyDescription.LOG($"[{type}] {currentPercent}/{targetPercent} / value={GetNumValue()}] Describing", Color.green);
+                PropertyDescription.LOG($"[{name}] {currentPercent}/{targetPercent} / value={GetNumValue()} / ({type})", Color.green);
                 return true;
             } else {
-                PropertyDescription.LOG($"[{type}] {currentPercent}/{targetPercent} / value={GetNumValue()}] Skipping", Color.red);
+                PropertyDescription.LOG($"[{name}] {currentPercent}/{targetPercent} / value={GetNumValue()} / ({type})", Color.red);
                 return false;
             }
         }
         switch (type) {
             case "always":
-                PropertyDescription.LOG($"[ALWAYS] Describing", Color.gray);
+                PropertyDescription.LOG($"[{name}] (Always)", Color.green);
                 return true;
             case "on change":
                 if (HasPart("changed")) {
-                    PropertyDescription.LOG($"[ON CHANGE] Describing (changed)", Color.green);
+                    PropertyDescription.LOG($"[{name}] (Changed)", Color.green);
                     return true;
                 }
-                PropertyDescription.LOG($"[ON CHANGE] Skipping (hasn't changed)", Color.red);
+                PropertyDescription.LOG($"[{name}] (Unchanged)", Color.red);
                 return false;
             case "never":
-                PropertyDescription.LOG($"[NEVER] Only context, skipping", Color.red);
+            case "hidden":
+                    PropertyDescription.LOG($"[{name}] (Hidden)", Color.green);
                 return false;
             default:
-                PropertyDescription.LOG($"[NO TYPE] Describing", Color.green);
-                return true;
+                if (updated) {
+                    PropertyDescription.LOG($"[{name}] (Updated)", Color.green);
+                    return true;
+                } else {
+                    PropertyDescription.LOG($"[{name}] (No Update)", Color.red);
+                    return false;
+                }
         }
 
 
     }
 
     public string GetCurrentDescription() {
+        if (!HasPart("description")) {
+            Debug.LogError($"{name} of {_linkedItem.debug_name} doesnt have description");
+            return "";
+        }
         var description = GetPart("description").content;
         if (description.Contains("/")) {
             var prts = description.Split(" / ");
             int max = HasPart("max") ? GetNumValue("max") : GetNumValue();
             int i = GetNumValue();
             if (i == 0) return prts[0];
-            if ( i == max ) return prts[prts.Length-1];
             var lerp = (float)i * prts.Length / max;
-            int index = Math.Clamp((int)lerp, 1, prts.Length-2);
+            int index = Math.Clamp((int)lerp, 1, prts.Length-1);
             return $"{GetPart("description start")?.content}{prts[index]}";
         }
         description = description.Replace("{value}", GetPart("value")?.content);
