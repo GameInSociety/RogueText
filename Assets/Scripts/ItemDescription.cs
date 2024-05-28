@@ -1,14 +1,6 @@
-using JetBrains.Annotations;
-using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Data.SqlTypes;
 using System.Linq;
-using TMPro;
-using UnityEditor.PackageManager;
-using UnityEditor.Search;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 [System.Serializable]
 public class ItemDescription {
@@ -27,12 +19,14 @@ public class ItemDescription {
         options = new Options(opts);
     }
 
+    // for now the only 
     public static bool DescriptionPending() {
         return itemDescriptions.Count > 0;
     }
 
     // static describe
     public static void StartDescription() {
+        Debug.Log($"Starting Description");
         MapTexture.Instance.DisplayMap();
 
         foreach (var itDes in itemDescriptions) {

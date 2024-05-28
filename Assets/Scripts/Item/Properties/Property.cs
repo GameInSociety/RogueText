@@ -240,7 +240,6 @@ public class Property {
         // check link
         if (part.content.Contains('[')) {
             var propKey = TextUtils.Extract('[', part.content, out _);
-            Debug.Log($"prop to link : {propKey}");
             var linkPart = new LinePart(propKey);
             if (!linkPart.TryInit(_linkedItem))
                 return -1;
@@ -269,10 +268,11 @@ public class Property {
         SetChanged();
     }
     public void SetChanged() {
+        // if the value has been changed, so that the item description displays it
         updated = true;
         CheckValueEvents();
-        if ( WorldAction.current != null) {
-            PropertyDescription.Add(_linkedItem, this, WorldAction.current.source, false);
+        if ( WorldAction.active != null) {
+            PropertyDescription.Add(_linkedItem, this, WorldAction.active.source, false);
         }
     }
     #endregion
@@ -462,13 +462,16 @@ public class Property {
         }
         var description = GetPart("description").content;
         if (description.Contains("/")) {
-            var prts = description.Split(" / ");
+            var split = description.Split('/');
+            for (int i = 0; i < split.Length; i++)
+                split[i] = split[i].Trim(' ');
+            
             int max = HasPart("max") ? GetNumValue("max") : GetNumValue();
-            int i = GetNumValue();
-            if (i == 0) return prts[0];
-            var lerp = (float)i * prts.Length / max;
-            int index = Math.Clamp((int)lerp, 1, prts.Length-1);
-            return $"{GetPart("description start")?.content}{prts[index]}";
+            int value = GetNumValue();
+            if (value == 0) return split[0];
+            var lerp = (float)value * split.Length / max;
+            int index = Math.Clamp((int)lerp, 1, split.Length-1);
+            return $"{GetPart("description start")?.content}{split[index]}";
         }
         description = description.Replace("{value}", GetPart("value")?.content);
         return description;

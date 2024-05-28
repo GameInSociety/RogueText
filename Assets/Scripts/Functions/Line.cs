@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using UnityEditor;
@@ -65,15 +66,6 @@ public class Line {
             Debug.LogException(e);
             Fail($"Unity Error on line:\n{content}\nitem:{item.debug_name}");
         }
-
-
-        /*foreach (var part in parts) {
-            if (part.prop != null) {
-                var it = part.HasItem() ? part.item : item;
-                Property_CheckEvents(it, part.prop);
-                PropertyDescription.Add(it, part.prop, WorldAction.current.source, failed);
-            }
-        }*/
     }
 
     #region write
@@ -85,6 +77,9 @@ public class Line {
     #region time
     void triggerevent() {
         WorldEvent.TriggerEvent(GetText(0));
+    }
+    void interupt() {
+        WorldActionManager.Instance.interuptNextSequence = true;
     }
     #endregion
 
@@ -113,7 +108,7 @@ public class Line {
             }
         }
 
-        if (container.HasItem(targetItem) && WorldAction.current.source == WorldAction.Source.PlayerAction ) {
+        if (container.HasItem(targetItem) && WorldAction.active.source == WorldAction.Source.PlayerAction ) {
             Fail($"{container.GetText("the dog")} already contains {targetItem.GetText("the dog")}");
             return;
         }
@@ -382,7 +377,7 @@ public class Line {
             var sourceProp = GetProp(1);
 
             subValue = sourceProp.GetNumValue();
-            if (subValue == 0 && WorldAction.current.source == WorldAction.Source.PlayerAction) {
+            if (subValue == 0 && WorldAction.active.source == WorldAction.Source.PlayerAction) {
                 Fail($"{sourceItem.GetText("the dog")} doesn't have any {GetProp(1).name} left");
                 return;
             }

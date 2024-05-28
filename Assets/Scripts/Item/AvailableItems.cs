@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Unity.Android.Types;
 using UnityEngine;
 
-public static  class AvailableItems {
+public static class AvailableItems {
     public static List<Item> currItems = new List<Item>();
     public static List<Item> testItems = new List<Item>();
     private static Item noItem;
@@ -20,7 +20,7 @@ public static  class AvailableItems {
 
     public static Item NoItem() {
 
-        if ( noItem == null)
+        if (noItem == null)
             noItem = ItemData.Generate_Simple("no item");
         return noItem;
     }
@@ -33,21 +33,20 @@ public static  class AvailableItems {
     }
 
     public static void RemoveFromWorld(Item targetItem) {
-        
+
     }
 
 
     public static void UpdateItems() {
 
         currItems.Clear();
-        log = "";
         categories.Clear();
 
         // the tile and all it's contained items
 
         var tileItems = Tile.GetCurrent.GetChildItems(3);
         currItems.AddRange(tileItems);
-        SHOWITEMS("Current Tile", tileItems);
+        DEBUG_SETCATEGORY("Current Tile", tileItems);
         // it's important that it's after the tile, otherwise the parser will search the inventory GetMainItem (ex: take plate, you already have it)
         // add spec "my" ou "inventory"// add different keys to specs (my+inventory+in bag)
         // ah non. parce que �a peut �tre un container aussi. "take field plate". "take bag plate". �a y est toujorus �a ?
@@ -55,39 +54,27 @@ public static  class AvailableItems {
 
         var adjTiles = Tile.GetCurrent.GetAdjacentTiles();
         currItems.AddRange(adjTiles);
-        SHOWITEMS("Adjacent Tiles", adjTiles);
+        DEBUG_SETCATEGORY("Adjacent Tiles", adjTiles);
 
         // the player and all it's things
 
         var playerItems = Player.Instance.GetChildItems(5);
         currItems.AddRange(playerItems);
-        SHOWITEMS("Player Items", playerItems);
+        DEBUG_SETCATEGORY("Player Items", playerItems);
 
         var globalItems = WorldData.globalItems;
         currItems.AddRange(globalItems);
-        SHOWITEMS("Global Items", globalItems);
+        DEBUG_SETCATEGORY("Global Items", globalItems);
 
         var abstractItems = WorldData.GetAbstractItems();
         currItems.AddRange(abstractItems);
-        SHOWITEMS("Abstract Items", abstractItems);
+        DEBUG_SETCATEGORY("Abstract Items", abstractItems);
     }
-
-    public static string log;
-    public static void LOG(string message, Color color) {
-        var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
-        string str = $"\n{txt_color}{message}</color>";
-        log += str;
-    }
-    public static void ADDLOG(string message, Color color) {
-        var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
-        string str = $" {txt_color}{message}</color>";
-        log += str;
-    }
-    public static void SHOWITEMS(string cat, List<Item> items) {
+    public static void DEBUG_SETCATEGORY(string cat, List<Item> items) {
 
         categories.Add(new Category(cat, items));
 
-        LOG($"\n\n[{cat.ToUpper()}]", Color.cyan);
+        /*LOG($"\n\n[{cat.ToUpper()}]", Color.cyan);
         foreach (var item in items) {
             string str = "";
             var parent = item.HasParent() ? item.GetParent() : null;
@@ -96,7 +83,7 @@ public static  class AvailableItems {
                 parent = parent.HasParent() ? parent.GetParent() : null;
             }
             str += $"[{item.debug_name}]";
-           
+
             //LOG(str, Color.yellow);
             int a = 0;
 
@@ -120,6 +107,6 @@ public static  class AvailableItems {
                 }
                 ++a;
             }
-        }
+        }*/
     }
 }

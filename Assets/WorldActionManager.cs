@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.SceneManagement;
@@ -11,9 +12,12 @@ public class WorldActionManager : MonoBehaviour
     public List<WorldAction> stack = new List<WorldAction>();
     public List<WorldAction> debug_list = new List<WorldAction>();
     public int breakIndex;
+    public int breakLimit = 10;
     public bool finishedSequence = false;
     public bool onGoing = false;
     public bool skipLines = false;
+
+    public bool interuptNextSequence = false;
 
     // fail
     public bool failed = false;
@@ -30,28 +34,98 @@ public class WorldActionManager : MonoBehaviour
         Instance = this;
     }
 
-    public void QuickDelaySequence(WorldAction sequence) {
-        nextSequence = sequence;
-        Invoke("Continue", 0f);
+    public bool waitingForInput = false;
+
+    private void Update() {
+        if (waitingForInput) {
+            if (Input.GetKeyDown(KeyCode.Y)) {
+                ContinueSequence();
+            }
+            if (Input.GetKeyDown(KeyCode.N)) {
+                ResumeGame();
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            Interup();
+        }
     }
-    public void DelaySequence(WorldAction sequence) {
+
+    public void NextSequence(WorldAction sequence) {
+
+        nextSequence = sequence;
+
+        var secondsLeft = WorldData.GetGlobalItem("time").GetProp("seconds passed").GetNumValue();
+        if ( secondsLeft > 3600) {
+            breakLimit = 30;
+        } else if (secondsLeft > 60) {
+            breakLimit = 5;
+        } else { breakLimit = 0; }
+
+        DisplayTime();
+        Invoke("ContinueSequence", 0f);
+
+        /*if ( breakIndex >= breakLimit) {
+            PauseSequence(nextSequence);
+            breakIndex = 0;
+        } else {
+            ContinueSequence();
+        }*/
+        ++breakIndex;
+
+
+    }
+
+    public void PendSequence() {
+        DisplayTime();
+        ItemDescription.StartDescription();
+            Debug.Log($"pending");
+        Invoke("ContinueSequence", 1f);
+    }
+
+    void Interup() {
+        interuptNextSequence =true;
+    }
+
+    public void PauseSequence(WorldAction sequence) {
+
+
+        DisplayTime();
+        ItemDescription.StartDescription();
+
+        TimeDebug.Instance.DisplayText("Interupted !");
+
         nextSequence = sequence;
         DisplayDescription.Instance.onTypeExit += Delay;
     }
 
+    void DisplayTime() {
+        var secondsLeft = WorldData.GetGlobalItem("time").GetProp("seconds passed").GetNumValue();
+        TimeSpan t = TimeSpan.FromSeconds(secondsLeft);
+        TimeDebug.Instance.Push(secondsLeft);
+
+        string time_str = string.Format("{0:D2}h, {1:D2}m, {2:D2}s",
+                        t.Hours,
+                        t.Minutes,
+                        t.Seconds,
+                        t.Milliseconds);
+        TimeDebug.Instance.DisplayText(time_str);
+
+    }
+
     void Delay() {
         DisplayDescription.Instance.onTypeExit -= Delay;
-        DisplayInput.Instance.DisplayFeedback("continue?");
-        DisplayDescription.Instance.onPressReturn += Continue;
+        TimeDebug.Instance.DisplayText("Interupted ! continue ? ( y/n )");
+
+        waitingForInput = true;
+
     }
 
-    void Continue() {
-        DisplayDescription.Instance.onPressReturn = null;
+    void ResumeGame() {
+        DisplayInput.Instance.Enable();
+    }
+
+    void ContinueSequence() {
         nextSequence.StartSequence();
-    }
-
-    public bool PendingDescription() {
-        return ItemDescription.itemDescriptions.Count > 0;
     }
 
     public void CallNextAction() {

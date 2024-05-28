@@ -65,12 +65,6 @@ public class DisplayDescription : MonoBehaviour {
 
     private void Update() {
 
-        if (PressReturn()) {
-            if ( onPressReturn != null) {
-                onPressReturn();
-            }
-        }
-
         if ( typing ) {
             Typing_Update();
         } else if (newText){
@@ -99,9 +93,6 @@ public class DisplayDescription : MonoBehaviour {
         timer += Time.deltaTime;
     }
 
-    bool PressReturn() {
-        return Input.GetKeyDown(KeyCode.Return);
-    }
     void Type() {
 
         var currChunk = newChunks[0];

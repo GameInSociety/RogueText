@@ -1,11 +1,13 @@
+using JetBrains.Annotations;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 [System.Serializable]
 public class WorldAction {
-    public bool skip = false;
+
     public enum Source {
         PlayerAction,
         Event,
@@ -15,19 +17,27 @@ public class WorldAction {
     public static List<WorldAction> debug_list = new List<WorldAction>();
 
     public List<Line> lines = new List<Line>();
-    public bool debug_selected = false;
     public static List<ItemLink.ItemHistory> history = new List<ItemLink.ItemHistory>();
 
-    public static WorldAction current;
-    public List<WorldAction> nestedActions = new List<WorldAction>();
+    public static WorldAction parent;
+    public bool origin = false;
+    public static WorldAction active;
+
+    public List<WorldAction> children = new List<WorldAction>();
 
     public Source source;
     private Item item;
 
     public static int breakCount = 20;
     static int currentBreak = 0;
-    public static WorldAction pendingAction = null;
+    public static WorldAction nextTimeAction = null;
     public static bool finishedAllSequences = true;
+
+    // debug
+    public bool debug_selected = false;
+    public int debug_count = 1;
+    public bool debug_skipped = false;
+    public bool interupted = false;
 
 
     /// <summary>
@@ -37,16 +47,19 @@ public class WorldAction {
     public string content;
     public bool stopped = false;
     public bool failed = false;
-    public bool timeAction = false;
+    public bool IsTimeAction {
+        get {
+            return TargetItem().debug_name == "time";
+        }
+    }
     public string debug_additionalInfo;
-    public bool origin = false;
     public int lineIndex;
     static int globalIndex;
     public int index;
 
     public string Name {
         get {
-            Color c = lines.Find(x => x.failed) != null ? Color.red : timeAction ? Color.cyan : source == WorldAction.Source.PlayerAction ? Color.yellow: Color.white;
+            Color c = lines.Find(x => x.failed) != null ? Color.red : IsTimeAction ? Color.cyan : source == WorldAction.Source.PlayerAction ? Color.yellow: Color.white;
 
             if ( index == 0) {
                 ++globalIndex;
@@ -78,24 +91,27 @@ public class WorldAction {
             DisplayInput.Instance.Disable();
             finishedAllSequences = false;
         }
+        
 
-        pendingAction = null;
-        // debug
-        if ( current != null) {
-            current.lines[current.lineIndex].content += $" <color=magenta>(Call : {Name})</color>";
+        nextTimeAction = null;
+        if ( active != null) {
+            // debug
+            active.lines[active.lineIndex].content += $" <color=magenta>(Call : {Name})</color>";
 
             // stack
-            if (TargetItem().debug_name == "time") {
-                pendingAction = this;
-                timeAction = true;
+            if (IsTimeAction) {
+                nextTimeAction = this;
                 return;
             }
         } else {
             origin = true;
+            parent = this;
         }
 
-
-        debug_list.Add(this);
+        if (origin)
+            AddDebug();
+        else
+            parent.children.Add(this);
 
         // special
         this.source = source;
@@ -105,6 +121,17 @@ public class WorldAction {
         history.Clear();
 
         CallFirstLine();
+    }
+
+    void AddDebug() {
+        if (debug_list.Count > 0 && debug_list.Last().IsTimeAction && !debug_list.Last().interupted) {
+            debug_list.Last().debug_count++;
+            debug_additionalInfo = debug_list.Last().debug_count.ToString();
+            debug_skipped = true;
+        } else {
+            debug_list.Add(this);
+        }
+        return;
     }
 
     void CallFirstLine() {
@@ -123,7 +150,7 @@ public class WorldAction {
     public void CallLine() {
 
         // set world action every line to keep track of current
-        current = this;
+        active = this;
 
         // parse current line
         var line = lines[lineIndex];
@@ -152,40 +179,47 @@ public class WorldAction {
     }
 
     void EndSequence() {
-        current = null;
+        // remove active
+        active = null;
+        
+        // only try another sequence if active is main
+        if (!origin)
+            return;
 
-        if (origin) {
+        if (nextTimeAction != null) {
+            NextTimeAction();
+        } else
+            EndSequences();
+    }
 
-            if (pendingAction != null) {
-                if (ItemDescription.DescriptionPending()) {
-                    skip = false;
-                    currentBreak = 0;
-                    ItemDescription.StartDescription();
-                    WorldActionManager.Instance.DelaySequence(pendingAction);
-                } else {
-                    WorldActionManager.Instance.QuickDelaySequence(pendingAction);
-                    pendingAction.skip = true;
-                    if (timeAction) skip = true;
-                }
+    void NextTimeAction() {
 
-                var secondsLeft = WorldData.GetGlobalItem("time").GetProp("seconds passed").GetNumValue();
-                DisplayInput.Instance.DisplayFeedback($"time left : {secondsLeft}");
-
-            } else {
-
-                finishedAllSequences = true;
-                if (ItemDescription.DescriptionPending()) {
-                    ItemDescription.StartDescription();
-                }
-
-                DisplayInput.Instance.Enable();
-            }
-
-            
-
+        if (WorldActionManager.Instance.interuptNextSequence) {
+            WorldActionManager.Instance.interuptNextSequence = false;
+            interupted = true;
         }
 
-        
+        if (interupted) {
+            // debug
+            if (debug_skipped) {
+                debug_list.Last().debug_count--;
+                debug_list.Add(this);
+            }
+            currentBreak = 0;
+            WorldActionManager.Instance.PauseSequence(nextTimeAction);
+        } else {
+            WorldActionManager.Instance.NextSequence(nextTimeAction);
+        }
+    }
+
+    public void EndSequences() {
+        active = null;
+        finishedAllSequences = true;
+        if (ItemDescription.DescriptionPending())
+            ItemDescription.StartDescription();
+
+        DisplayInput.Instance.Enable();
+        Debug.Log($"end of all sequences !");
     }
 
     public void Error(string message) {

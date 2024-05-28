@@ -13,13 +13,6 @@ public class FunctionPartDebug : EditorWindow {
     Vector2 currOffset = Vector2.zero;
 
     // Add menu named "My Window" to the Window menu
-    [MenuItem("Window/Function Part")]
-    static void Init() {
-        // Get existing open window or if none, make a new one:
-        var window = (FunctionPartDebug)GetWindow(typeof(FunctionPartDebug));
-        window.Show();
-    }
-
     private void OnGUI() {
 
         if (WorldActionManager.Instance == null)
@@ -27,12 +20,11 @@ public class FunctionPartDebug : EditorWindow {
 
 
         foreach (var worldAction in WorldAction.debug_list) {
-            DisplayWorldAction(worldAction);
         }
     }
 
     void DisplayWorldAction(WorldAction worldAction) {
-        string c = worldAction.lines.Find(x => x.failed) != null ? "red" : worldAction.timeAction ? "blue" : "yellow";
+        string c = worldAction.lines.Find(x => x.failed) != null ? "red" : worldAction.IsTimeAction ? "blue" : "yellow";
         string name = $" [<color={c}>{worldAction.TargetItem().debug_name}</color>] ({worldAction.source})";
         if (worldAction.debug_selected) {
             foreach (var line in worldAction.lines) {

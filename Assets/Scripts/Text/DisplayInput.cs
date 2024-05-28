@@ -20,6 +20,7 @@ public class DisplayInput : MonoBehaviour {
     }
 
     public void Enable() {
+        TimeDebug.Instance.Hide();
         inputField.enabled = true;
         Focus();
     }

@@ -9,7 +9,6 @@ public class TimeDebug : MonoBehaviour
     public static TimeDebug Instance;
 
     public Image fillImage;
-
     public Text uiText;
 
     public int currentMax = 0;
@@ -20,15 +19,29 @@ public class TimeDebug : MonoBehaviour
 
     private void Start() {
         Reset();
+        Hide();
+    }
+
+    public void Hide() {
+        gameObject.SetActive(false);
+    }
+    public void Show() {
+        gameObject.SetActive(true);
     }
 
     public void Push(int i) {
+
+        Show();
+
         if ( i > currentMax ) {
             currentMax = i;
         }
 
-        fillImage.DOFillAmount((float)(currentMax-i) / currentMax, 0.3f);
-        uiText.text = $"{currentMax-i} / {currentMax}";
+        fillImage.fillAmount = (float)(currentMax - i) / currentMax;
+    }
+
+    public void DisplayText(string text) {
+        uiText.text = text;
     }
 
     public void Reset() {   

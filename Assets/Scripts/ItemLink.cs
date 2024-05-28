@@ -12,7 +12,7 @@ public static class ItemLink
 
         failMessage = "";
 
-        sourceItem = WorldAction.current.TargetItem();
+        sourceItem = WorldAction.active.TargetItem();
 
         // KEY TRIM //
         string key = _key;

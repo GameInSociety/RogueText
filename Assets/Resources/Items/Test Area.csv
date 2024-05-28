@@ -3,8 +3,18 @@
 crotte:1","$ set fire
 sub (! ANY ignate>ignate, 1)
 triggerEvent(OnFlames)","block:n","","","","","","","","","","","","","","","","","",""
-"crotte","","","","","prout
+"crotte","","","","","test
 value:0
-description:pas prout / prout
+
+description:small test
+
 E OnMinutes:
-set(>prout, 1)","","","","","","","","","","","","","","","","","","","",""
+add(>test, 1)
+
+OnValue:20
+add(>caca, 1)
+set(>test, 0)
+interupt","caca
+value:0
+
+description:big ready","","","","","","","","","","","","","","","","","","",""
