@@ -1,35 +1,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using Newtonsoft.Json.Linq;
+using System.Linq;
 
 [System.Serializable]
 public class Property {
-
-
-    public static List<Property> datas = new List<Property>();
-
+    public static List<Property> sharedProps = new List<Property>();
     public string name;
     public bool updated = false;
     public bool enabled = false;
     public bool destroy = false;
-    public List<Part> parts = new List<Part>();
     private Item _linkedItem;
     public bool debug_selected = false;
 
-    // in data
-    [System.Serializable]
+    public List<Part> parts = new List<Part>();
+
     public class Part {
-        public string key;
-        public string content;
-        public Part(string k, string v) {
-            key = k;
-            content = v;
+        public string key = "";
+        public string content = "";
+        public Part(string key, string content) {
+            this.key = key;
+            this.content = content;
         }
     }
 
     public static Property GetDataProp(string name) {
-        var prop = datas.Find(x=> x.name == name);
+        var prop = sharedProps.Find(x=> x.name == name);
         if ( name == "contents") {
             Debug.Log($"pourquoi ?");
         }
@@ -40,9 +36,8 @@ public class Property {
     }
 
     public static void AddPropertyData(Property prop) {
-        datas.Add(prop);
+        sharedProps.Add(prop);
     }
-
 
     public void Init(Item item) {
 
@@ -74,9 +69,11 @@ public class Property {
         if (startEnable) Enable(); else Disable();
 
         // v & d
-        InitValue("value");
+        InitPart("value");
         InitDescription();
     }
+    
+    
 
     public void Enable() {
         if (enabled)
@@ -86,7 +83,7 @@ public class Property {
         foreach (var e in eventParts) {
             string eventName = e.key.Remove(0, 2);
             string sequence = e.content;
-            WorldEvent.Subscribe(eventName, _linkedItem, this, sequence);
+            WorldEvent.Unsubscribe(eventName, _linkedItem, this, sequence);
         }
     }
 
@@ -94,7 +91,7 @@ public class Property {
         if (!enabled)
             return;
         enabled = false;
-        var eventParts = parts.FindAll(x => x.key.StartsWith('E'));
+        var eventParts = parts.Where(x => x.key.StartsWith('E'));
         foreach (var e in eventParts) {
             string eventName = e.key.Remove(0, 2);
             string sequence = e.content;
@@ -122,7 +119,7 @@ public class Property {
                 } else {
                     // continue part
                     var str = lines[i].Trim(chars);
-                    var part = parts[parts.Count - 1];
+                    var part = parts.Last();
                     part.content += string.IsNullOrEmpty(part.content) ? str : $"\n{str}";
                 }
             } catch (Exception e) {
@@ -135,136 +132,129 @@ public class Property {
 
     #region parts
     // adding
-    public Part AddPart(string key, string text) {
-        return AddPart(new Part(key, text));
-    }
-    public Part AddPart(Part part) {
-        parts.Add(part);
-        return part;
+    public void AddPart(string key, string content) {
+        parts.Add(new Part(key,content));
     }
 
     // setting
-    public void SetPart(string key, string text) {
-        var part = GetPart(key);
-        if (part == null) {
-            part = AddPart(key, text);
-        } else {
-            //Debug.Log($"property {key} already has part{key} with {text}");
-        }
-        part.content = text;
+    public void SetPart(string key, string content) {
+        if (!HasPart(key))
+            AddPart(key, content);
+        else
+            SetContent(key, content);
     }
 
     // removing
-    public void RemovePart(string str) {
-        var p = GetPart(str);
-        parts.Remove(p);
+    public void RemovePart(string key) {
+        int index = parts.FindIndex(x=> x.key == key);
+        parts.RemoveAt(index);
     }
-
 
     // checking
-    public bool HasPart(string str) {
-        return parts.Find(x => x.key == str) != null;
-    }
-    public int ParsePart(string str) {
-        int i = -1;
-        if (int.TryParse(GetPart(str).content, out i))
-            return i;
-        else
-            return -1;
-    }
-
-    // getting
-    public List<Part> GetParts(string key) {
-        return parts.FindAll(x=> x.key == key);
+    public bool HasPart(string key) {
+        return parts.Find(x => x.key == key) != null;
     }
     public Part GetPart(string key) {
-        return parts.Find(x => x.key == key);
+        return parts.Find(x=> x.key.Equals(key));
+    }
+    public void SetContent(string key, string content) {
+        GetPart(key).content = content;
+    }
+    public string GetContent(string key) {
+
+        if (!HasPart(key)) {
+            Debug.LogError($"ITEM ({_linkedItem.DebugName}) doesn't have PART ({key}) on PROP ({name})");
+            return "error";
+        }
+        string content = GetPart(key).content;
+
+        // if the key starts with an asterisk, the link will happen everytime
+        bool keepLink = content.StartsWith('*');
+        string result = LinePart.ParseBrackets(content, _linkedItem);
+        if ( !keepLink) {
+            GetPart(key).content = result;
+        }
+        return result;
     }
     #endregion
 
     #region value
-    public void InitValue(string key) {
+    public void InitPart(string key) {
 
         if (!HasPart(key))
             return;
 
-        Part part = GetPart(key);
 
-        if ( !part.content.StartsWith('?') && part.content.Contains('?') ) {
-            string[] prts = part.content.Split('?');
-            int min = int.Parse(prts[0]);
-            int max = int.Parse(prts[1]);
-            int i = UnityEngine.Random.Range(min, max);
-            part.content = $"{i}";
+        var newContent = GetContent(key);
+
+        if (newContent.Contains("MAX")) {
+            var split = newContent.Split("MAX");
+            newContent = split[0].Trim (' ');
+            SetPart("max", split[1].Trim(' '));
         }
-        if (part.content.Contains('m')) {
-            var split = part.content.Split('m');
-            part.content = split[0];
-            SetPart("max", split[1]);
+
+        if ( newContent.Contains('?') ) {
+            var split = newContent.Split('?');
+            if ( split.Length <= 2 && int.TryParse(split[0], out _)) {
+                int min = int.Parse(split[0]);
+                int max = int.Parse(split[1]);
+                int i = UnityEngine.Random.Range(min, max);
+                newContent = $"{i}";
+            }else
+                newContent = split[UnityEngine.Random.Range(0, split.Length)].Trim(' ');
+            
         }
-        if (part.content.StartsWith('{')) {
+        
+        if (newContent.StartsWith('{')) {
             string outText = "";
-            var s = TextUtils.Extract('{', part.content, out outText);
+            var s = TextUtils.Extract('{', newContent, out outText);
             var parts = s.Split('/');
             switch (parts[0]) {
                 case "type":
                     string type = ItemData.GetItemData(ItemData.GetRandomDataOfType(parts[1])).name;
                     Debug.Log($"setting value of property {name} to {type}");
-                    part.content = type;
+                    newContent = type;
                     break;
                 case "adj":
                     break;
                 case "new tileset":
                     int tilesetId = TileSet.tileSets.Count;
-                    part.content = tilesetId.ToString();
+                    newContent = tilesetId.ToString();
                     TileSet.tileSets.Add(Interior.InitTileSet(_linkedItem, tilesetId));
                     break;
                 default:
                     break;
             }
         }
+
+        SetContent(key, newContent);
     }
     public string GetTextValue(string key = "value") {
-        return GetPart(key).content;
+        return GetContent(key);
     }
     // value can be number or seq. but it's alway dynamic
     public bool HasNumValue(string key = "value") {
         return HasPart(key) && GetNumValue(key) > -1;
     }
     public int GetNumValue(string key = "value") {
-        Part part = GetPart(key);
-        if ( part == null) {
-            return -1;
-        }
-
-        // check link
-        if (part.content.Contains('[')) {
-            var propKey = TextUtils.Extract('[', part.content, out _);
-            var linkPart = new LinePart(propKey);
-            if (!linkPart.TryInit(_linkedItem))
-                return -1;
-            //part.content = linkPart.prop.GetNumValue().ToString();
-            return linkPart.value;
-        }
-
         int num = 0;
-        if (!int.TryParse(part.content, out num))
+        if (!int.TryParse(GetContent(key), out num))
             return -1;
         return num;
     }
-    public void SetValue(string text, string part = "value", bool setChanged = true) {
-        GetPart(part).content = text;
+    public void SetValue(string content, bool setChanged = true) {
+        SetContent("value", content);
         if ( setChanged)
             SetChanged();
 
     }
-    public void SetValue(int num, string part = "value") {
+    public void SetValue(int num) {
         if (HasPart("max"))
             num = Math.Clamp(num, 0, GetNumValue("max"));
         if (num < 0)
             num = 0;
 
-        GetPart(part).content = num.ToString();
+        SetContent("value", num.ToString());
         SetChanged();
     }
     public void SetChanged() {
@@ -317,9 +307,7 @@ public class Property {
 
             if (condition_text.StartsWith('[')) {
                 var key = TextUtils.Extract('[', condition_text, out condition_text);
-                var onValuePart = new LinePart(key);
-                if (!onValuePart.TryInit(_linkedItem))
-                    return;
+                var onValuePart = LinePart.Parse(key, _linkedItem, "OnValue Condition");
                 targetValue = onValuePart.prop.GetNumValue();
             } else {
                 targetValue = int.Parse(condition_text);
@@ -349,31 +337,40 @@ public class Property {
     #endregion
 
     #region description
-    public void InitDescription() {
+    void InitDescription() {
         if (!HasPart("description"))
             return;
-        var description = GetPart("description").content;
-        description = description.Trim(' ');
 
-        // TYPE //
+        string description = GetPart("description").content;
         int typeIndex = description.IndexOf('(');
-        if (typeIndex>= 0) {
+        int b = 0;
+        while (typeIndex >= 0) {
             var type = TextUtils.Extract('(', description, out description);
-            SetPart("description type", type);
-        } else
-            SetPart("description type","none");
+            if (type == "strict") {
+                SetPart("strict", "y");
+            } else if ( type == "b") {
+                SetPart("before", "y");
+            }
+            else if (type.StartsWith("s/")) {
+                var setup = type.Remove(0, 2);
+                SetPart("description setup", setup == "x" ? "" : setup);
+            } else
+                SetPart("description type", type);
 
-        int setupIndex = description.IndexOf('[');
-        // SETUP //
-        if (setupIndex >= 0) {
-            var setup = TextUtils.Extract('[', description, out description);
-            SetPart("description setup", setup);
-        } else if (!HasPart("description setup"))
+            typeIndex = description.IndexOf('(');
+            ++b;
+            if (b == 10) {
+                Debug.LogError($"description init break");
+                break;
+            }
+        }
+        if (!HasPart("description setup")) {
             SetPart("description setup", "is");
-        //
+        }
+        if (!HasPart("description type"))
+            SetPart("description type", "none");
 
-        SetPart("description", description.Trim(' ', '\n'));
-
+        GetPart("description").content = description;
     }
     public string GetDisplayDescription() {
 
@@ -389,7 +386,7 @@ public class Property {
         var newDescription = GetCurrentDescription();
         var result = "";
         if (HasPart("current description")) {
-            if (newDescription != GetPart("current description").content)
+            if (newDescription != GetContent("current description"))
                 result = $"now {newDescription}";
             else
                 result = $"still {newDescription}";
@@ -405,7 +402,7 @@ public class Property {
         if (!HasPart("description"))
             return false;
 
-        var type = GetPart("description type").content;
+        var type = GetContent("description type");
         if (type.EndsWith("%")) {
             float currentPercent = Mathf.Round((float)GetNumValue() / GetNumValue("max") * 100f);
             int targetPercent = 0;
@@ -429,7 +426,7 @@ public class Property {
         }
         switch (type) {
             case "always":
-                PropertyDescription.LOG($"[{name}] (Always)", Color.green);
+                PropertyDescription.LOG($"[{name}] (Always)", Color.green);  
                 return true;
             case "on change":
                 if (HasPart("changed")) {
@@ -443,9 +440,11 @@ public class Property {
                     PropertyDescription.LOG($"[{name}] (Hidden)", Color.green);
                 return false;
             default:
+                PropertyDescription.LOG($"[{name}] (Default)", Color.red);
+                return false;
                 if (updated) {
                     PropertyDescription.LOG($"[{name}] (Updated)", Color.green);
-                    return true;
+                    return false;
                 } else {
                     PropertyDescription.LOG($"[{name}] (No Update)", Color.red);
                     return false;
@@ -457,23 +456,28 @@ public class Property {
 
     public string GetCurrentDescription() {
         if (!HasPart("description")) {
-            Debug.LogError($"{name} of {_linkedItem.debug_name} doesnt have description");
+            Debug.LogError($"{name} of {_linkedItem.DebugName} doesnt have description");
             return "";
         }
-        var description = GetPart("description").content;
+
+        string description = GetContent("description");
+
         if (description.Contains("/")) {
+            // get description array
             var split = description.Split('/');
             for (int i = 0; i < split.Length; i++)
                 split[i] = split[i].Trim(' ');
             
+            // get value && max
             int max = HasPart("max") ? GetNumValue("max") : GetNumValue();
             int value = GetNumValue();
+            var lerp = (float)value / max;
             if (value == 0) return split[0];
-            var lerp = (float)value * split.Length / max;
-            int index = Math.Clamp((int)lerp, 1, split.Length-1);
-            return $"{GetPart("description start")?.content}{split[index]}";
+            if ( value == max) return split[split.Length - 1];  
+            if (HasPart("strict"))
+                return split[(int)(lerp * split.Length)];
+            return split[(int)(lerp * (split.Length - 2))];
         }
-        description = description.Replace("{value}", GetPart("value")?.content);
         return description;
     }
 
@@ -483,7 +487,7 @@ public class Property {
             return false;
 
         if (HasPart("condition")) {
-            var condition = GetPart("condition").content;
+            var condition = GetContent("condition");
             var split = condition.Split('/');
             var prop = Player.Instance.GetProp(split[0]);
             if (prop != null && split[1] != prop.GetTextValue())

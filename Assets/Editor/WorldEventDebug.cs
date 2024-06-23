@@ -42,7 +42,7 @@ public class WorldEventDebug : EditorWindow {
             if (worldEvent.debug_selected) {
                 foreach (var itemGroup in worldEvent.itemGroups) {
 
-                    if (GUILayout.Button(itemGroup.item.debug_name, item_Style))
+                    if (GUILayout.Button(itemGroup.item.DebugName, item_Style))
                         itemGroup.debug_selected = !itemGroup.debug_selected;
 
                     if (itemGroup.debug_selected) {

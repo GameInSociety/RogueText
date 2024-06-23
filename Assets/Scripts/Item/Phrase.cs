@@ -83,7 +83,7 @@ public class Phrase {
         List<ItemSlot> slots = new List<ItemSlot>();
         for (int i = 0; i < slotCount; i++) {
             slots.Add(input[i]);
-            slots[i].defined = options.definite;
+            slots[i].definite = options.definite;
         }
         input.RemoveRange(0, slotCount);
 
@@ -97,7 +97,7 @@ public class Phrase {
         var results = new List<string>();
         for (int i = 0; i < slots.Count; i++) {
 
-            string itemText = options.list ? TextUtils.FirstLetterCap(slots[i].ItemsToString()) : slots[i].ItemsToString();
+            string itemText = options.list ? slots[i].Describe() : slots[i].Describe();
             string end = options.list ? "\n" : TextUtils.GetCommas(i, i < sepIndex ? sepIndex : slots.Count);
             results.Add($"{itemText}{end}");
 

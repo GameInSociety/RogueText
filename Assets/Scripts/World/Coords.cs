@@ -27,17 +27,17 @@ public struct Coords {
             if (s == "?") {
                 var randomCoords = TileSet.GetTileSet(tilesetId).GetRandomCoords();
                 coords.Set(i, randomCoords.Get(i));
-            } else if (split[0].Contains('?')) {
-                var rs = split[0].Split('?');
+            } else if (s.Contains('?')) {
+                var rs = s.Split('?');
                 var min = int.Parse(rs[0]);
                 var max = int.Parse(rs[1])+1;
                 int r = Random.Range(min, max);
                 coords.Set(i, r);
-            } else
-                coords.Set(i, int.Parse(split[i]));
+            } else {
+                coords.Set(i, int.Parse(s));
+            }
 
         }
-
         return coords;
     }
     public static Coords PropToCoords(Property prop, int tilesetId = 0) {

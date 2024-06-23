@@ -34,10 +34,10 @@ public static class Interior {
                 Debug.Log($"prop : {prop.name}");
             }
 
-                Debug.LogError($"item : {item.debug_name} has no prop ROOMS");
+                Debug.LogError($"item : {item.DebugName} has no prop ROOMS");
             return null;
         }
-        var tileNames = rooms.GetPart("tiles").content.Split('\n').ToList();
+        var tileNames = rooms.GetContent("tiles").Split('\n').ToList();
         // Create hallway
         var startCoords = item.GetProp("start coords");
         var hallway_Coords = Coords.PropToCoords(startCoords);

@@ -19,20 +19,6 @@ public class ItemDescriptionDebug : EditorWindow {
     }
     private void OnGUI() {
 
-        if (GUILayout.Button("CLEAR LOG"))
-            ItemDescription.archive.Clear();
-
-        LOG("[ARCHIVES]", Color.gray);
-        UpdateLog(ItemDescription.archive);
-
-        style = new GUIStyle();
-        style.alignment = TextAnchor.MiddleCenter;
-        style.richText = true;
-        EditorGUILayout.BeginVertical();
-        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-        GUILayout.Label(ItemDescription.log, style);
-        GUILayout.EndScrollView();
-        EditorGUILayout.EndVertical();
     }
 
     void UpdateLog(List<ItemDescription> ids) {

@@ -8,31 +8,14 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class DebugButton : MonoBehaviour, IPointerClickHandler {
+    public RectTransform rectTransform;
     public Image image;
     public Text uiText;
+    public Text uiText_secundary;
     CanvasGroup _cg;
     public int seconds = 0;
-
-    public WorldAction _worldAction;
-    public Line _line;
-
+    public bool selected = false;
     public bool clear = false;
-
-    public enum Type {
-        WA,
-        Line,
-        Part
-    }
-    public Type type;
-
-    public void SetWA(WorldAction wa) {
-        _worldAction = wa;
-        type = Type.WA;
-    }
-    public void SetLine(Line line) {
-        _line = line;
-        type = Type.Line;
-    }
 
     CanvasGroup CanvasGroup {
         get {
@@ -45,24 +28,15 @@ public class DebugButton : MonoBehaviour, IPointerClickHandler {
     }
 
 
-    public void Display(string text, Color color) {
+    public void Display(string text, Color color, string sec = "") {
         uiText.text = seconds > 0 ? seconds.ToString() : text;
+        uiText_secundary.text = sec;
         image.color = color;
     }
 
     public void OnPointerClick(PointerEventData eventData) {
-        if (clear) {
-            WorldAction.debug_list.Clear();
-        } else {
-            if ( type == Type.WA) {
-                _worldAction.debug_selected = !_worldAction.debug_selected;
-                UpdateUI(_worldAction.debug_selected);
-            } else if (type == Type.Line) {
-                Debug.Log($"pressin line");
-                _line.debug_selected = !_line.debug_selected;
-                UpdateUI(_line.debug_selected);
-            }
-        }
+        selected = !selected;
+        UpdateUI(selected);
     }
 
     public void UpdateUI(bool selected) {

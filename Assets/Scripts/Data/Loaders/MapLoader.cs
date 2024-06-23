@@ -6,6 +6,8 @@ public class MapLoader : DataDownloader
     public static MapLoader Instance;
 
     public int mapToLoad;
+    public int width;
+    public int height;
 
     public List<TileInfo> tileInfos = new List<TileInfo>();
     [System.Serializable]
@@ -20,9 +22,6 @@ public class MapLoader : DataDownloader
     }
 
     public override void Load() {
-        WorldEvent.worldEvents.Clear();
-        PropertyDescription.propDescriptions.Clear();
-        ContentLoader.groups.Clear();
 
         TileSet.tileSets.Clear();
         TileSet.tileSets.Add(new TileSet());
@@ -36,6 +35,12 @@ public class MapLoader : DataDownloader
 
     public override void GetCell(int row, List<string> cells) {
         base.GetCell(row, cells);
+
+        if (row == 0) {
+            width = cells.Count-1;
+            height = lineAmount;
+        }
+
         for (int x = 0; x < cells.Count; x++) {
             // void
             if (string.IsNullOrEmpty(cells[x]) )
@@ -63,7 +68,7 @@ public class MapLoader : DataDownloader
                         GameManager.Instance.startCoords = new Coords(x, y);
                         continue;
                     }
-                    //newTile.CreateChildItem(itemName);
+                    newTile.CreateChildItem(itemName);
                 }
             }
         }

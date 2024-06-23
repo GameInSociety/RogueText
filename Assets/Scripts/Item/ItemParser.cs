@@ -72,6 +72,11 @@ public class ItemParser {
 
         public void Parse() {
             Log($"part:[{text}]", Color.white);
+
+            if ( text.Contains(" all ")) {
+                Debug.LogError($"THE PARSER WILL TARGET ALL THE ITEMS OF THIS PART");
+            }
+
             GetNumber();
             GetItems();
         }
@@ -103,15 +108,15 @@ public class ItemParser {
 
         public void GetItems() {
 
-            items = AvailableItems.currItems.FindAll(x => x.ContainedInText(text));
+            items = AvailableItems.GetAll().FindAll(x => x.ContainedInText(text));
             if (items.Count > 0) {
-                Log($"Item Reference:{string.Join('/', items.Select(x=>x.debug_name))}", Color.white);
+                Log($"Item Reference:{string.Join('/', items.Select(x=>x.DebugName))}", Color.white);
             } else {
-                items = AvailableItems.currItems.FindAll(x => x.GetPropsInText(text) !=null);
+                items = AvailableItems.GetAll().FindAll(x => x.GetPropsInText(text) !=null);
                 if (items.Count == 0) {
                     Log($"No Items", Color.red);
                 } else {
-                    Log($"Prop Reference:{string.Join('/', items.Select(x => x.debug_name))}", Color.white);
+                    Log($"Prop Reference:{string.Join('/', items.Select(x => x.DebugName))}", Color.white);
                 }
             }
 
@@ -162,13 +167,9 @@ public class ItemParser {
             if (partIndex == 0 && parser.parts.Length > 1) {
                 var nextPart = parser.parts[partIndex + 1];
                 itemFromOtherPart = items.Find(x => x.GetPropsInText(nextPart.text) != null);
-                if (itemFromOtherPart != null) {
+                if (itemFromOtherPart != null ) {
                     var nextProps = itemFromOtherPart.GetPropsInText(nextPart.text);
                     nextPart.SetUsed();
-                    var propTxt = "";
-                    foreach (var prop in properties)
-                        propTxt += $"({prop.name}) ";
-                    Log($"[SORT] found props {propTxt} in part {nextPart.text} for item {itemFromOtherPart.debug_name}", Color.gray);
                     items.RemoveAll(x => x != itemFromOtherPart);
                     return;
                 }
@@ -185,7 +186,7 @@ public class ItemParser {
                     narrowedProps.AddRange(item.GetPropsInText(text));
                     propText = string.Join('/', narrowedProps.Select(x => x.name).ToList());
                 }
-                Log($"[SORT] found prop {propText} for item {narrowedIts[0].debug_name}", Color.gray);
+                Log($"[SORT] found prop {propText} for item {narrowedIts[0].DebugName}", Color.gray);
             }
             
             // plural
@@ -316,7 +317,7 @@ public class ItemParser {
 
             if (sequence == null) {
                 TextManager.Write($"you can't {verb.GetFull} {actionItem.GetText("the dog")}");
-                Log($"no action for {verb.GetCurrentWord} and {GetPart().items[0].debug_name}", Color.red);
+                Log($"no action for {verb.GetCurrentWord} and {GetPart().items[0].DebugName}", Color.red);
                 return;
             }
         }
@@ -347,7 +348,7 @@ public class ItemParser {
         foreach (var part in parts) {
             if (!part.used ) {
                 Log($"part : {part.text} has not been used", Color.red);
-                TextManager.Write($"there's no {GetPart(0).MainItem().debug_name} {part.text}");
+                TextManager.Write($"there's no {GetPart(0).MainItem().DebugName} {part.text}");
                 return;
             }
         }
@@ -430,7 +431,6 @@ public class ItemParser {
     /// <returns></returns>
 
     void FetchItems() {
-        AvailableItems.UpdateItems();
 
         var split = SplitParts();
         parts = new Part[split.Length];
@@ -444,7 +444,7 @@ public class ItemParser {
             part.SortItems();
             var itemText = "";
             for (int i = 0; i < part.items.Count; i++)
-                itemText += $"{part.items[i].debug_name} {TextUtils.GetSpaces(i, part.items.Count)}";
+                itemText += $"{part.items[i].DebugName} {TextUtils.GetSpaces(i, part.items.Count)}";
             Log($"sorted:[{itemText}]", Color.green);
         }
 

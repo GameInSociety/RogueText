@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -93,6 +92,7 @@ public class DisplayDescription : MonoBehaviour {
         timer += Time.deltaTime;
     }
 
+    bool lineBreak = false;
     void Type() {
 
         var currChunk = newChunks[0];
@@ -110,7 +110,6 @@ public class DisplayDescription : MonoBehaviour {
 
         currChunk.currText = currChunk.targetText.Remove(typeIndex)+"■";
         uiText.text = $"{text_archive}{currChunk.GetCurrentText()}";
-
         ++typeIndex;
     }
 
@@ -152,7 +151,19 @@ public class DisplayDescription : MonoBehaviour {
         AddToDescription(new Chunk(str, initColor));
     }
     private void AddToDescription(Chunk chunk) {
-        chunk.targetText = TextUtils.FirstLetterCap(chunk.targetText);
+
+        /*string[] lines = chunk.targetText.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+        chunk.targetText = "";
+
+        // Loop through each line and capitalize the first character
+        for (int i = 0; i < lines.Length; i++) {
+            if (lines[i].Length > 0) {
+                // Capitalize the first character and concatenate with the rest of the string
+                chunk.targetText += char.ToUpper(lines[i][0]) + lines[i].Substring(1) + '\n';
+            }
+        }*/
+
+        // Join the lines back into a single string with line breaks
         newChunks.Add(chunk);
         newText = true;
     }

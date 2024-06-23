@@ -29,13 +29,13 @@ public class ContentLoader : DataDownloader{
 
     public override void Load() {
         groups.Clear();
-        Property.datas.Clear();
+        Property.sharedProps.Clear();
         base.Load();
     }
 
     public override void FinishLoading() {
         base.FinishLoading();
-        properties_debug = Property.datas;
+        properties_debug = Property.sharedProps;
         groups_debug = groups;
         sequences_debug = Sequence.sequences;
     }

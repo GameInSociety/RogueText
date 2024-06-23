@@ -5,19 +5,6 @@ using UnityEngine.Animations;
 [System.Serializable]
 public class PropertyDescription
 {
-    public string name;
-    public Item item;
-    public WorldAction.Source source;
-    public List<Property> properties;
-
-    public static List<PropertyDescription> propDescriptions = new List<PropertyDescription>();
-
-    public PropertyDescription(Item item) {
-        name = item.debug_name;
-        properties = new List<Property>();
-        this.item = item;
-    }
-
     public static void Add(Item item, Property prop, WorldAction.Source source, bool failed) {
         if (!prop.HasPart("description"))
             return;
@@ -25,10 +12,10 @@ public class PropertyDescription
         if ( source == WorldAction.Source.Event) {
             if (!prop.CanBeDescribed())
                 return;
-            ItemDescription.AddProperties("events", item, new List<Property>() { prop }, "list / definite / filter events");
+            ItemDescription.AddProperties($"Event Properties ({item._debugName})", item, new List<Property>() { prop }, "list / definite / filter events");
         } else {
             string opts = failed ? "list / definite / start:can't, " : "list / definite";
-            ItemDescription.AddProperties("action", item, new List<Property>() { prop }, opts);
+            ItemDescription.AddProperties($"Player Action Properties ({item._debugName})", item, new List<Property>() { prop }, opts);
         }
 
     }

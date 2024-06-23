@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TMPro.EditorUtilities;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
@@ -104,6 +105,18 @@ public class ItemLoader : DataDownloader {
             LoadProperties(newItemData, cells);
         }
 
+        // add grammar
+        if (newItemData.properties.Find(x=> x.name == "grammar") == null) {
+            var gProp = new Property();
+            gProp.name = "grammar";
+            newItemData.properties.Add(gProp);
+        }
+
+        var nameProp = new Property();
+        nameProp.name = "name";
+        nameProp.AddPart("value", $"{newItemData.name}");
+        newItemData.properties.Add(nameProp);
+
         ItemData.itemDatas.Add(newItemData);
         ++currIndex;
     }
@@ -153,7 +166,10 @@ public class ItemLoader : DataDownloader {
                 // load sequences
                 if (content.StartsWith('$') || content.StartsWith('E') || cells[i].StartsWith('!')) {
                     var cellParts = cells[i].Split(new char[1] { '\n' }, 2);
-                    var triggers = cellParts[0].Remove(0, 2);
+                    var triggers = cellParts[0].Remove(0, 2).Split('/');
+                    for (int t = 0; t < triggers.Length; t++)
+                        triggers[t] = triggers[t].Trim(' ');
+
                     var seq = new Sequence(triggers, cellParts[1]);
                     if (content.StartsWith('$')) 
                         data.verbSequences.Add(seq);
@@ -173,11 +189,14 @@ public class ItemLoader : DataDownloader {
             if (cellLines[0].Contains(':')) {
                 // one liners
                 for (int a = 0; a < cellLines.Length; a++) {
-                    var prop = new Property();
                     var split = cellLines[a].Split(':');
-                    prop.name = split[0];
-                    prop.AddPart("value", split[1]);
-                    data.properties.Add(prop);
+                    var prop = data.properties.Find(x => x.name == split[0]);
+                    if ( prop == null) {
+                        prop = new Property();
+                        prop.name = split[0];
+                        data.properties.Add(prop);
+                    }
+                    prop.SetPart("value", split[1]);
                 }
             } else {
                 try {

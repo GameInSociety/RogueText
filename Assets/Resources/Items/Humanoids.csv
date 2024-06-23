@@ -1,17 +1,12 @@
 "ste","","V.","PREP.","TYPES","PROPERTIES","","","","","","","","","SEQUENCES","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
 "player
 myself
-you","Player","0","on","humanoid","% humanoid","moves
-value:0
-OnValue:ABOVE [hourRate]
-add(! time>hours, 1)
-add(! part of day, 1)","hourRate
-value:3","grammar
+you","Player","0","on","humanoid","% humanoid","grammar
 article:X
 self ref:you
 child article:your
 child key:my","*blocked
-description:[] (never) can't move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+description:[] (never) can't move","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","health
 
 value: 5
@@ -57,7 +52,7 @@ description:(60%)[are]
 full of energy / full of energy / well awake / well awake / well awake / well awake / getting sleepy / really tired / exhausted / about to pass out of exthaustion
  
 OnValue:ABOVE 20
-write (you pass out of exhaustion, il faut ecrire ça par contre )
+write (you pass out of exhaustion, il faut ecrire ça par contre)
 
 E OnHours:
 add(>sleep, 1)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
@@ -166,6 +161,9 @@ sub(>health, % ! Body Part + ! Weapon>damage)","! hit
 / GETTING THE ITEMS
 key(! Body Part:player.ANY hurt)
 key(! Weapon:THIS.ANY H damage)
+
+/ SET NOTICES
+set(>noticed, 1)
 
 / BREAK IF HIT MISS OR TARGET DODGE
 X (0?100 >> % ! >hit chance - ! Body Part>prec malus, f:the undead misses)

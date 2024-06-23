@@ -3,7 +3,7 @@ using Unity.Android.Types;
 using UnityEngine;
 
 public static class AvailableItems {
-    public static List<Item> currItems = new List<Item>();
+    private static List<Item> currItems = new List<Item>();
     public static List<Item> testItems = new List<Item>();
     private static Item noItem;
 
@@ -11,10 +11,23 @@ public static class AvailableItems {
 
     public class Category {
         public string name;
-        public List<Item> items;
-        public Category(string _name, List<Item> _items) {
+        public List<Item> items = new List<Item>();
+        public Category(string _name) {
             name = _name;
-            items = _items;
+        }
+
+        public void AddItems(List<Item> items) {
+            foreach (Item item in items) {
+                AddItem(item);
+            }
+        }
+        public void AddItem(Item item) {
+            if (items.Contains(item)) {
+                Debug.Log($"{name} already contains ({item._debugName})");
+                return;
+            }
+            items.Add(item);
+            currItems.Add(item);
         }
     }
 
@@ -36,77 +49,37 @@ public static class AvailableItems {
 
     }
 
-
+    // items are updated :
+    // - on input
+    // - when an item is added / removed / transfered
     public static void UpdateItems() {
 
-        currItems.Clear();
-        categories.Clear();
-
-        // the tile and all it's contained items
-
-        var tileItems = Tile.GetCurrent.GetChildItems(3);
-        currItems.AddRange(tileItems);
-        DEBUG_SETCATEGORY("Current Tile", tileItems);
-        // it's important that it's after the tile, otherwise the parser will search the inventory GetMainItem (ex: take plate, you already have it)
-        // add spec "my" ou "inventory"// add different keys to specs (my+inventory+in bag)
-        // ah non. parce que �a peut �tre un container aussi. "take field plate". "take bag plate". �a y est toujorus �a ?
-        // the surrouning tiles
-
-        var adjTiles = Tile.GetCurrent.GetAdjacentTiles();
-        currItems.AddRange(adjTiles);
-        DEBUG_SETCATEGORY("Adjacent Tiles", adjTiles);
-
-        // the player and all it's things
-
-        var playerItems = Player.Instance.GetChildItems(5);
-        currItems.AddRange(playerItems);
-        DEBUG_SETCATEGORY("Player Items", playerItems);
-
-        var globalItems = WorldData.globalItems;
-        currItems.AddRange(globalItems);
-        DEBUG_SETCATEGORY("Global Items", globalItems);
-
-        var abstractItems = WorldData.GetAbstractItems();
-        currItems.AddRange(abstractItems);
-        DEBUG_SETCATEGORY("Abstract Items", abstractItems);
+        Debug.Log($"Available Items: The Current Tile should reset here");
     }
-    public static void DEBUG_SETCATEGORY(string cat, List<Item> items) {
+    public static void Add(string cat, List<Item> items) {
+        var category = categories.Find(x => x.name == cat);
+        if ( category == null) {
+            category = new Category(cat);
+            categories.Add(category);
+        }
+        category.AddItems(items);
+    }
+    public static void Add(string cat, Item item) {
+        Add (cat, new List<Item>() { item});
+    }
 
-        categories.Add(new Category(cat, items));
+    public static void Clear(string cat) {
+        var category = categories.Find(x=> x.name == cat);
+        if (category == null) {
+            Debug.LogError($"Available Items : no category named {cat}");
+            return;
+        }
+        int count = currItems.RemoveAll(x => category.items.Contains(x));
+        Debug.Log($"removed {count} items from {cat}" );
+        categories.Remove(category);
+    }
 
-        /*LOG($"\n\n[{cat.ToUpper()}]", Color.cyan);
-        foreach (var item in items) {
-            string str = "";
-            var parent = item.HasParent() ? item.GetParent() : null;
-            while (parent != null) {
-                str += ">    ";
-                parent = parent.HasParent() ? parent.GetParent() : null;
-            }
-            str += $"[{item.debug_name}]";
-
-            //LOG(str, Color.yellow);
-            int a = 0;
-
-            foreach (var prop in item.props) {
-                if (prop.enabled) {
-                    if (prop.HasPart("value")) {
-                        ADDLOG($"[{prop.name}]", Color.magenta);
-                        ADDLOG($"{prop.GetPart("value").content}", Color.Lerp(Color.magenta, Color.black, 0.3f));
-                    } else {
-                        ADDLOG($"[{prop.name}]", Color.white);
-                    }
-                    if (prop.HasPart("description")) {
-                        ADDLOG($"[{prop.GetPart("description").content}]", Color.green);
-                    }
-                } else {
-                    if (prop.HasPart("value")) {
-                        ADDLOG($"[{prop.name}]", Color.gray);
-                        ADDLOG($"{prop.GetPart("value").content}", Color.Lerp(Color.gray, Color.black, 0.3f));
-                    } else
-                        ADDLOG($"[{prop.name}]", Color.gray);
-                }
-                ++a;
-            }
-        }*/
+    public static List<Item> GetAll() {
+        return currItems;
     }
 }

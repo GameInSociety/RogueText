@@ -1,8 +1,16 @@
 "","","N.","PREP.","TYPES","PROPERTIES","","","","","","","","","","","","","","","CONTAINED ITEMS","","","","","","","","","","","","","","","","","","","","","","","","",""
 "GLOBAL","","s","","global","! OnCreate
-describe(_TILE)
-createItem( undead, 1, [! player>coords+0/1])","tilesets
-value:0","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+start({!player>coords}, Area Description)","! Describe Direction / TILEX / TILEY
+key ( Tile : {!player>coords+ [TILEX] / [TILEY] } )
+x ( % ! Tile>visibility - [% !player>coords DIS ! Tile>coords] << 0 )
+x ( >highest >> ! Tile>visibility)
+set(>highest, ! Tile>visibility)
+write( [ ! Tile>N the dog ] is at player range )","map width:0
+map height:0
+highest:0","tilesets
+value:0","! OnCreate
+key ( Start Tile : {!player>coords} )
+start(! Start Tile, Area Description)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "rain","","s","in","global","*rain
 value:0
 max:[>duration]
@@ -20,7 +28,9 @@ set(!sky>hours to rain, 20?50)
 
 E OnHours:
 add(>rain, 1)","duration
-value:5?50","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+value:5?50","! OnCreatedfsfdsdf
+set(>highest, 0)
+start (Describe Direction, 1@10, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "sky","","","in","global","sky
 value:0
 max:[>hours to rain]
@@ -46,15 +56,16 @@ sub(>seconds passed, 1)","","","","","","","","","","","","","","","","","","","
 "second","","","","global","seconds
 value:0
 
-OnValue:ABOVE 60
-sub(>seconds, 60)
+OnValue:60
 triggerEvent(OnMinutes)
+set(>seconds, 0)
 add(! minute>minutes, 1)","$ wait
 add(!time>seconds passed, _InputValue)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "minute","","","","global","minutes
 value:0
-OnValue:ABOVE 60
-set(>minutes, 60)
+OnValue:60
+triggerEvent(OnHours)
+set(>minutes, 0)
 add(! hour>hours, 1)","$ wait
 add(!time>seconds passed, % _InputValue X 60)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "hour","","","","global","hours
@@ -62,13 +73,12 @@ value:6
 max:24
 description:(never) is {value} o'clock
 
-OnValue:ABOVE 0
-triggerEvent(OnHours)
-
 OnValue:24
+triggerEvent(OnDays)
 set(>hours, 0)
 add(!day>days, 1)
-set(!part of day>part of day, 0)","$ wait
+set(!part of day>part of day, 0)
+interupt","$ wait
 add(!time>seconds passed, % _InputValue X 3600)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "part of day","","","","global","part of day
 value:6
@@ -79,14 +89,12 @@ it's still dark around / the sun is slowly starting to rise / the sun is risen, 
 value:0?30
 max:30
 description:
-it's the {value} of [mounth>mounths]
-
-OnValue:ABOVE 0
-triggerEvent(OnDays)
+it's the [>days] of [! mounth>mounths]
 
 OnValue:30
-add(mounth>mounths, 1)
-set(>days, 0)","$ wait
+triggerEvent(OnMounts)
+set(>days, 0)
+add(mounth>mounths, 1)","$ wait
 add(>day, _InputValue)
 write ( some days by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "mounth","","","","global","mounths
@@ -95,10 +103,8 @@ max:12
 description:
 january / february / march / april / may / june / july / august / september / october / november / december
 
-OnValue:ABOVE 0
-triggerEvent(OnMounths)
-
 OnValue:12
+triggerEvent(OnYears)
 set(>mounths, 0)
 add(year>years, 1)","$ wait
 add(>mounth, _InputValue)
@@ -106,9 +112,6 @@ write ( mounths pass by )","","","","","","","","","","","","","","","","","",""
 "year","","","","global","years
 value:2000
 description:
-it's {value}
-
-OnValue:ABOVE 0
-triggerEvent(OnYears)","$ wait
+it's {value}","$ wait
 add(>year, _InputValue)
 write ( years pass by )","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""

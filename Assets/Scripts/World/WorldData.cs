@@ -4,7 +4,7 @@ using UnityEngine;
 public static class WorldData {
     public static List<Item> globalItems = new List<Item>();
     public static Item GetGlobalItem(string key) {
-        return globalItems.Find(x=>x.debug_name == key);
+        return globalItems.Find(x=>x.DebugName == key);
     }
     public static Item anyItem;
 
@@ -36,6 +36,11 @@ public static class WorldData {
             var newItem = ItemData.Generate_Simple(itemData.debugName);
             globalItems.Add(newItem);
         }
+
+        GetGlobalItem("GLOBAL").GetProp("map width").SetValue(MapLoader.Instance.width);
+        GetGlobalItem("GLOBAL").GetProp("map height").SetValue(MapLoader.Instance.height);
+
+        AvailableItems.Add("Global Items", globalItems);
     }
 
     public static void SetAbstractItem(string key, Item item) {

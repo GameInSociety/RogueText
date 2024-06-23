@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class TestTile : MonoBehaviour
 {
+    public int x = 0;
+    public int y = 0;
     public Image image;
     public TextMeshProUGUI uiText;
     public RectTransform rectTransform;

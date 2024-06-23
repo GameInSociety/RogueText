@@ -29,9 +29,9 @@ public class Map_Tests : MonoBehaviour
 
                 var tile = TileSet.GetCurrent.GetTile(new Coords(x, y));
 
-                var ti = MapLoader.Instance.tileInfos.Find(x => x.value == tile.debug_name);
+                var ti = MapLoader.Instance.tileInfos.Find(x => x.value == tile.DebugName);
 
-                var s = $"{tile.debug_name}\n({tile.GetProp("visibility")?.GetNumValue()})";
+                var s = $"{tile.DebugName}\n({tile.GetProp("visibility")?.GetNumValue()})";
                 testTile.Display(s, ti.color);
 
             }
@@ -50,9 +50,9 @@ public class Map_Tests : MonoBehaviour
 
                 var tile = TileSet.GetCurrent.GetTile(new Coords(x, y));
 
-                var ti = MapLoader.Instance.tileInfos.Find(x => x.value == tile.debug_name);
+                var ti = MapLoader.Instance.tileInfos.Find(x => x.value == tile.DebugName);
 
-                var s = $"{tile.debug_name}\n({tile.GetProp("visibility")?.GetNumValue()})";
+                var s = $"{tile.DebugName}\n({tile.GetProp("visibility")?.GetNumValue()})";
                 testTile.Display(s, ti.color);
 
             }

@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,9 +13,24 @@ public class WorldAction {
         PlayerAction,
         Event,
     }
+    public enum State {
+        None,
+        Done,
+        Broken,
+        Paused,
+        Error,
+    }
+    public bool skipping = false;
+    public struct Param {
+        public Param(string k, string v) {
+            key = k; value = v;
+        }
+        public string key;
+
+        public string value;
+    }
 
     // Static
-    public static List<WorldAction> debug_list = new List<WorldAction>();
 
     public List<Line> lines = new List<Line>();
     public static List<ItemLink.ItemHistory> history = new List<ItemLink.ItemHistory>();
@@ -24,20 +40,31 @@ public class WorldAction {
     public static WorldAction active;
 
     public List<WorldAction> children = new List<WorldAction>();
+    
+    // parameters
+    public List<Param> parameters;
+   
 
+    // world action source
     public Source source;
+
+    // target item
     private Item item;
 
+    // flow 
+    public State state;
     public static int breakCount = 20;
+    public string stop_feedback;
+    public string error_feedback;
     static int currentBreak = 0;
     public static WorldAction nextTimeAction = null;
     public static bool finishedAllSequences = true;
 
     // debug
+    public static List<WorldAction> debug_list = new List<WorldAction>();
     public bool debug_selected = false;
     public int debug_count = 1;
     public bool debug_skipped = false;
-    public bool interupted = false;
 
 
     /// <summary>
@@ -45,28 +72,24 @@ public class WorldAction {
     /// </summary>
     public int sequenceIndex = 0;
     public string content;
-    public bool stopped = false;
-    public bool failed = false;
-    public bool IsTimeAction {
-        get {
-            return TargetItem().debug_name == "time";
-        }
-    }
     public string debug_additionalInfo;
     public int lineIndex;
     static int globalIndex;
     public int index;
+    public bool IsTimeAction {
+        get {
+            return TargetItem().DebugName == "time";
+        }
+    }
 
     public string Name {
         get {
-            Color c = lines.Find(x => x.failed) != null ? Color.red : IsTimeAction ? Color.cyan : source == WorldAction.Source.PlayerAction ? Color.yellow: Color.white;
-
             if ( index == 0) {
                 ++globalIndex;
                 index = globalIndex;
             }
 
-            string name = $" [<color={c}>{TargetItem().debug_name} ({index})</color>] : {debug_additionalInfo}";
+            string name = $" [{TargetItem()._debugName} ({index})] : {debug_additionalInfo}";
             return $"{name}";
         }
     }
@@ -82,6 +105,9 @@ public class WorldAction {
         debug_additionalInfo = additionalinfo;
     }
     #region call
+    public void InvokeSequence() {
+        WorldActionManager.Instance.InvokeSequence(this);
+    }
     public void StartSequence() {
         StartSequence(Source.Event);
     }
@@ -91,9 +117,12 @@ public class WorldAction {
             DisplayInput.Instance.Disable();
             finishedAllSequences = false;
         }
-        
 
+        this.source = source;
         nextTimeAction = null;
+        origin = true;
+        parent = this;
+        debug_list.Add(this);
         if ( active != null) {
             // debug
             active.lines[active.lineIndex].content += $" <color=magenta>(Call : {Name})</color>";
@@ -108,23 +137,25 @@ public class WorldAction {
             parent = this;
         }
 
-        if (origin)
+        /*if (origin) {
             AddDebug();
-        else
+            // special
+            this.source = source;
+        } else {
+            // special
+            this.source = parent.source;
             parent.children.Add(this);
+        }*/
 
-        // special
-        this.source = source;
-        
+
         // get & clear items
-        AvailableItems.UpdateItems();
         history.Clear();
 
         CallFirstLine();
     }
 
     void AddDebug() {
-        if (debug_list.Count > 0 && debug_list.Last().IsTimeAction && !debug_list.Last().interupted) {
+        if (debug_list.Count > 0 && debug_list.Last().IsTimeAction && debug_list.Last().state != WorldAction.State.Paused) {
             debug_list.Last().debug_count++;
             debug_additionalInfo = debug_list.Last().debug_count.ToString();
             debug_skipped = true;
@@ -135,6 +166,8 @@ public class WorldAction {
     }
 
     void CallFirstLine() {
+
+        ItemLink.history.Clear();
         // creating lines
         lines = new List<Line>();
         foreach (var s in content.Split('\n')) {
@@ -154,14 +187,46 @@ public class WorldAction {
 
         // parse current line
         var line = lines[lineIndex];
+
+        if (line.content.StartsWith('-')) {
+            line.state = Line.State.Skipped;
+            if (line.content.StartsWith("--")) {
+                EndSkipping();
+                CallNextLine();
+                return;
+            } else {
+                skipping = !skipping;
+            }
+            CallNextLine();
+            return;
+        }
+        if (skipping) {
+            line.state = Line.State.Skipped;
+            CallNextLine();
+            return;
+        }
+
         line.Parse(this);
 
+        // unity error
+        if ( line.state == Line.State.Error) {
+            TextManager.Write($"ERROR : {line.error_feedback}");
+            return;
+        }
+
         // break sequence
-        if (line.failed) {
-            if (source == WorldAction.Source.PlayerAction)
-                TextManager.Write(line.fail_feedback, Color.red);
-            else
-                Debug.LogError($"EVENT FAIL : {line.fail_feedback}");
+        if (line.state == Line.State.Broken ) {
+            if (line.continueOnFail) {
+                line.state = Line.State.Skipped;
+                CallNextLine();
+                return;
+            }
+            state = State.Broken;
+            stop_feedback = line.stop_feedback;
+
+            if (source == WorldAction.Source.PlayerAction) {
+                TextManager.Write(line.error_feedback, Color.red);
+            }
             return;
         }
 
@@ -170,6 +235,7 @@ public class WorldAction {
     }
 
     void CallNextLine() {
+        if (lines[lineIndex].state == Line.State.None) { lines[lineIndex].state = Line.State.Done; }
         if (lineIndex + 1 == lines.Count) {
             EndSequence();
         } else {
@@ -181,7 +247,8 @@ public class WorldAction {
     void EndSequence() {
         // remove active
         active = null;
-        
+        state = State.Done;
+
         // only try another sequence if active is main
         if (!origin)
             return;
@@ -196,10 +263,10 @@ public class WorldAction {
 
         if (WorldActionManager.Instance.interuptNextSequence) {
             WorldActionManager.Instance.interuptNextSequence = false;
-            interupted = true;
+            state = State.Paused;
         }
 
-        if (interupted) {
+        if (state == State.Paused) {
             // debug
             if (debug_skipped) {
                 debug_list.Last().debug_count--;
@@ -219,11 +286,17 @@ public class WorldAction {
             ItemDescription.StartDescription();
 
         DisplayInput.Instance.Enable();
-        Debug.Log($"end of all sequences !");
     }
 
     public void Error(string message) {
+        state = State.Error;
+    }
 
+    public void StartSkipping() {
+        skipping = true;
+    }
+    public void EndSkipping() {
+        skipping = false;
     }
     #endregion
 }

@@ -43,7 +43,7 @@ public class Verb {
             // see if one of the verbs of the sequenbe match this verb
             foreach (var potVerb in sequence.triggers) {
                 if (words.Contains(potVerb))
-                    return sequence.seq;
+                    return sequence.content;
             }
         }
 

@@ -52,7 +52,7 @@ public class DisplayRecordFeedback : MonoBehaviour {
 
     public void Hide() {
         Debug.Log("parsing phrase : " + uiText.text);
-        ItemParser.Instance.Parse(uiText.text);
+       //ItemParser.Instance.Parse(uiText.text);
 
         _ = canvasGroup.DOFade(0f, duration);
 

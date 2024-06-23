@@ -23,24 +23,36 @@ public class GameManager : MonoBehaviour {
 
     // Start is called before the GetMainItem frame Update
     void Start() {
+
         DisplayDescription.Instance.Init();
+
+        WorldEvent.worldEvents.Clear();
 
         PhraseLoader.Instance.Load();
         VerbLoader.Instance.Load();
         ContentLoader.Instance.Load();
         ItemLoader.Instance.Load();
 
+
         MapLoader.Instance.Load();
+        
 
         Player.Instance = ItemData.Generate_Special("player") as Player;
         Player.Instance.GetProp("coords").SetValue(Coords.CoordsToText(startCoords));
+        
+        WorldData.Init();
 
         Player.Instance.GenerateChildItems();
+        // update available items
+        var playerItems = Player.Instance.GetChildItems(5);
+        AvailableItems.Add("Player Items", playerItems);
+
+
         foreach (var tile in TileSet.GetCurrent.tiles.Values.ToList())
             tile.GenerateChildItems();
 
-        WorldData.Init();
+
     }
-    
+
 }
 

@@ -7,7 +7,6 @@ public class Word {
     public string preposition = "";
     public Number defaultNumber = Number.Singular;
     public Number currentNumber;
-    public bool defined = false;
 
     public Word() {
 
@@ -17,7 +16,6 @@ public class Word {
         this.preposition = copy.preposition;
         this._text = copy._text;
         this.defaultNumber = copy.defaultNumber;
-        this.defined = copy.defined;
     }
 
     #region number
@@ -34,12 +32,6 @@ public class Word {
             default:
                 defaultNumber = Number.Singular;
                 break;
-        }
-
-        if (parts.Length > 1) {
-            if (parts[1] == "d") {
-                defined = true;
-            }
         }
     }
     #endregion

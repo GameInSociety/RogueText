@@ -51,7 +51,7 @@ public class MapTexture : MonoBehaviour {
                     mainMap_Texture.SetPixel(x, y, Color.black);
                     continue;
                 }
-                var name = tile.debug_name;
+                var name = tile._debugName;
                 var tileInfo = System.Array.Find(tileInfos, t => t.name == name);
                 if ( string.IsNullOrEmpty(tileInfo.name)) {
                     Debug.LogError($"[MAP TEXTURE] : could't find a tile with name : {name}");
@@ -69,7 +69,7 @@ public class MapTexture : MonoBehaviour {
                 var c = new Coords(x, y);
                 var tile = tileSet.GetTile(c);
                 var tc = Coords.PropToCoords(tile.GetProp("coords"));
-                DisplayFeedback(tc, $"{tile.debug_name}\n({tc.ToString()})", Color.white);
+                DisplayFeedback(tc, $"{tile.DebugName}\n({tc.ToString()})", Color.white);
             }
         }
     }

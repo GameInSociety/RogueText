@@ -1,11 +1,18 @@
+using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 [System.Serializable]
 public class ItemDescription {
 
-    public static List<ItemDescription> archive = new List<ItemDescription>();
+    public class DescriptionGroup {
+        public string Name;
+        public List<ItemDescription> ids = new List<ItemDescription>();
+    }
+    public static List<DescriptionGroup> archive = new List<DescriptionGroup>();
+
     public static List<ItemDescription> itemDescriptions = new List<ItemDescription>();
     public static List<int> describedItems = new List<int>();
 
@@ -26,19 +33,42 @@ public class ItemDescription {
 
     // static describe
     public static void StartDescription() {
-        Debug.Log($"Starting Description");
         MapTexture.Instance.DisplayMap();
 
         foreach (var itDes in itemDescriptions) {
             var des = itDes.GetDescription();
             des = des.Trim('\n');
-            TextManager.Write($"{des}\n");
+            TextManager.Write($"{des}");
         }
-        archive.AddRange(itemDescriptions);
+
+        // debug
+        var debug_archive = new DescriptionGroup();
+        debug_archive.Name = "Description";
+        debug_archive.ids.AddRange(itemDescriptions);
+        archive.Add(debug_archive);
+
         itemDescriptions.Clear();
         describedItems.Clear();
     }
 
+    public static string GetTestDescription() {
+        MapTexture.Instance.DisplayMap();
+
+        string text = "";
+        foreach (var itDes in itemDescriptions) {
+            var des = itDes.GetDescription();
+            des = des.Trim('\n');
+            text += des;
+        }
+        itemDescriptions.Clear();
+        describedItems.Clear();
+        return text;
+
+    }
+
+    public static void AddLineBreak() {
+        itemDescriptions.Add(new ItemDescription("line break", "start:\n"));
+    }
     public static void AddItems(string descriptionName, List<Item> items, string opts = "") {
         // find item description
         var itDes = itemDescriptions.Find(x=> x.name == descriptionName);
@@ -49,18 +79,19 @@ public class ItemDescription {
 
         for (int i = 0; i < items.Count; ++i) {
             var item = items[i];
+            AvailableItems.Add("Described Items", item);
             var group = itDes.groups.Find(x => x.dataIndex == item.dataIndex);
             if (group == null) {
-                group = new ItemGroup($"{item.debug_name}", item.dataIndex);
+                group = new ItemGroup($"{item.DebugName}", item.dataIndex);
                 itDes.groups.Add(group);
             }
             if ( group.itemSlots.Count == 0) {
-                var slot = new ItemSlot($"{item.debug_name}");
+                var slot = new ItemSlot($"{item.DebugName}");
                 group.itemSlots.Add(slot);
             }
             group.itemSlots[0].items.Add(item);
 
-            var vProp = item.GetVisibleProps().Find(x => x.GetPart("description type").content == "always");
+            var vProp = item.props.Find(x => x.HasPart("description") && x.GetContent("description type") == "always");
             if ( vProp != null) {
                 AddProperties(descriptionName, item,new List<Property> { vProp });
             }   
@@ -82,7 +113,7 @@ public class ItemDescription {
         // find / create group
         var group = itDes.groups.Find(x => x.dataIndex == item.dataIndex);
         if ( group == null) {
-            group = new ItemGroup(item.debug_name, item.dataIndex);
+            group = new ItemGroup(item.DebugName, item.dataIndex);
             itDes.groups.Add(group);
         }
         
@@ -95,8 +126,12 @@ public class ItemDescription {
         }
 
         foreach (var prop in props) {
-            if (slot.describeProps.Find(x => x.GetCurrentDescription() == prop.GetCurrentDescription()) == null)
-                slot.describeProps.Add(prop);
+            if (slot.describeProps.Find(x => x.GetCurrentDescription() == prop.GetCurrentDescription()) == null) {
+                if (prop.HasPart("before"))
+                    slot.nestedProps.Add(prop);
+                else
+                    slot.describeProps.Add(prop);
+            }
         }
     }
 
@@ -116,16 +151,10 @@ public class ItemDescription {
         var description = "";
         var tmp_slots = new List<ItemSlot>();
         foreach (var group in groups) {
-
-            // PLACEHOLDER. SINON LES ITEMS APPARAISSENT SANS PROPERTIES POUR LES EVENTS (The rain is.)
-            if (options.list)
-                group.itemSlots.RemoveAll(x => x.PropsToString(x.describeProps) == " ");
-
             tmp_slots.AddRange(group.itemSlots);
         }
         while (tmp_slots.Count > 0) {
             string phrase = Phrase.GetPhrase(tmp_slots, out tmp_slots, options);
-            phrase = TextUtils.FirstLetterCap(phrase);
             description += $"{phrase}";
         }
         var whole = $"{options.start}{description}";
@@ -207,20 +236,24 @@ public class ItemDescription {
         return result;
     }
 
-    public struct Options {
+    public class Options {
+        public string start;
+        public bool definite;
+        public bool list;
+        public bool groupedSlots;
+        public bool filterEvents;
         public Options(string txt) {
-            var lines = txt.Split('/');
-            start = "";
-            definite= false;
-            list = false;
-            groupedSlots = false;
-            filterEvents = false;
-            foreach (var line in lines) {
-                var l = line.Trim(' ');
-                if (l.StartsWith("start"))
-                    start = $"{l.Split(':')[1]} ";
+
+            if (string.IsNullOrEmpty(txt))
+                return;
+
+            var split = txt.Split('/');
+            foreach (var _str in split) {
+                string str = _str.Trim(' ');
+                if (str.StartsWith("start"))
+                    start = $"{str.Split(':')[1]} ";
                 else {
-                    switch (l) {
+                    switch (str) {
                         case "definite":
                             definite = true;
                             break;
@@ -230,16 +263,15 @@ public class ItemDescription {
                         case "filter events":
                             filterEvents = true;
                             break;
+                        default:
+                            Debug.LogError($"Item Description : Unrecognized Option ({str})");
+                            break;
                     }
                 }
             }
         }
 
-        public string start;
-        public bool definite;
-        public bool list;
-        public bool groupedSlots;
-        public bool filterEvents;
+        
     }
 
     public static string log = "";

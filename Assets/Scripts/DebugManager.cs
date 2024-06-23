@@ -3,60 +3,37 @@ using UnityEngine;
 
 public class DebugManager : MonoBehaviour {
 
+    public int value;
+    public int max;
+    public float lerp;
+    public int index;
+    public string result;
+    public string descriptions;
+    public bool strict = false;
 
-    [Header("[ITEM LINK]")]
-    public List<Item> itemsFound = new List<Item>();
-    public List<Property> propsFound = new List<Property>();
+    private void Update() {
+        /*lerp = (float)value / max;
+        var split = descriptions.Split('/');
+        index = (int)(lerp * split.Length);
+        result = split[index];*/
 
-    [Space]
-    [Header("[TILE]")]
-    public Tile TILE;
-    public List<Item> adjacentTiles;
-
-
-    [Space]
-    [Header("[PARSER]")]
-    public ItemParser previousParser;
-    public ItemParser currentParser;
-
-    [Space]
-    [Header("[FUNCTION]")]
-    public FunctionSequence currentFunctionList;
-
-    [Space]
-    [Header("[TEXT]")]
-    public bool colorWords = true;
-
-    [Space]
-    [Header("[AVAILABLE ITEMS]")]
-    public List<Item> availableItems;
-
-    public List<Item> globalItems;
-
-    [Space]
-    [Header("[ITEM EVENTS]")]
-    public List<WorldEvent> debug_worldEvents = new List<WorldEvent>();
-    public List<PropertyDescription> debug_PropertyDescriptions;
-
-    public bool displayItemID;
-
-    [Space]
-    [Header("[PLAYER]")]
-    public Player PLAYER;
-
-    private void Start() {
-        currentParser = ItemParser.Instance;
-
-        availableItems = AvailableItems.currItems;
-
-        globalItems = WorldData.globalItems;
-        debug_worldEvents = WorldEvent.worldEvents;
-
-
-        debug_PropertyDescriptions = PropertyDescription.propDescriptions;
-
-        PLAYER = Player.Instance;
+        if (strict) {
+            lerp = (float)value / max;
+            var split = descriptions.Split('/');
+            index = (int)(lerp * split.Length);
+            result = split[index];
+        } else {
+            lerp = (float)value / max;
+            var split = descriptions.Split('/');
+            index = (int)(lerp * (split.Length - 2));
+            if (value == 0)
+                result = split[0];
+            else
+                result = split[1 + index];
+        }
     }
+
+
     private static DebugManager _instance;
     public static DebugManager Instance {
         get {
@@ -66,5 +43,4 @@ public class DebugManager : MonoBehaviour {
         }
     }
 
-    
 }

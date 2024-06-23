@@ -1,36 +1,5 @@
 "GLOBAL","PROPERTIES","","","","","","","","","","","","","","","","","","","",""
-"","front
-value:none
-key: where,forward, front, around
-description: in front of you
-after word:yes
-type:orientation","right
-value:none
-key: where, right, around
-description: at your right
-after word:yes
-type:orientation","back
-value:none
-key: where, back, backwards, behind, around
-description: behind you
-after word:yes
-type:orientation","left
-value:none
-key: where, left, around
-description: at your left
-after word:yes
-type:orientation","link
-value:none
-description:to {value}
-after word:yes","","","","","","","","","","","","","","","",""
-"interior","$ enter
-set(! player>tileset, >tileset)
-set(! player>coords, >start coords)
-set(! player>hourRate, 10)
-set(#interior, this)
-set(#current tile, [>start coords])
-set(!player>orientation, north)
-describe(_TILE)","tileset:{new tileset}","start coords:5/5","rooms
+"interior"," ","tileset:{new tileset}","start coords:5/5","rooms
 tiles:
 bathroom
 children's room
@@ -40,14 +9,6 @@ toilets","$ go
 describe","contents
 window:4*50
 window:1","","","","","","","","","","","","","","",""
-"tile","$ go
-X (ENABLED, ! player>blocked)
-set(! player>coords, >coords)
-add(!player>moves, 1)
-set(! player>orientation, >ANY orientation)
-describe(_TILE)","weight:0
-capacity:1000
-max items:1000","","","","","","","","","","","","","","","","","","",""
 "","cardinal
 value:north
 description:goes north
@@ -171,10 +132,12 @@ sub ( >burning, 5 )","E OnFlames
 enable( >burning )
 enable( >source of light )","","","","","","","","","","","","","","","",""
 "equipable","$ equip
-X  (Enabled, ! Body Part : player.{THIS>body part} > Armor : armor{THIS>layer}, enabled)
+key(! Body Part : player.[THIS>body part] )
+key(> Armor : ! Body Part>armor[THIS>layer])
+X  (> Armor == enabled)
 transferTo( ! Body part )
-enable(>! Body Part > Armor )
-add(! Body Part > Armor, >armor)","$ take off
+enable(> Armor )
+add(> Armor, >armor)","$ take off
 X  (>wearing, enabled)
 sub(! player.{body part}>armor{layer}, >armor)
 disable(>wearing)
@@ -184,8 +147,12 @@ body part:none
 layer:0","*wearing
 description:[]
 i'm wearing it","","","","","","","","","","","","","","","","",""
-"humanoid","coords:1/1","tileset:0","orientation
-value:north","contents
+"humanoid","coords:1/1","tileset:0","new here:0/0
+new front:0/1
+new right:1/0
+new back:0/-1
+new left:-1/0
+setup:are","contents
 head:1
 neck:1
 torso:1
@@ -201,15 +168,5 @@ right foot:1","","","","","","","","","","","","","","","","",""
 value:1?10
 max:10
 description:(on key)
-very weak / weak / not particulary muscled / pretty powerful / strenghful / very powerful / extremely strenghtful","dexterity
-value:1?10
-max:10
-description:(on key)
-very clumbsy / clumbsy / not particulary handy / pretty sure handed / dexterous / very handy / extremely handy","agility
-value:1m10
-description:(on key)
-stiff and lumbering / graceless / not particulaly agile / lightfooted and flexible / very graceful / feline like","hit chance
-value:[% >dexterity X 10]","","","","","","","","","","","","","","","","",""
-"x","","hit chance
-value:[% >dexterity X 10]","dodge chance
-value:[% >agility X 10]","","","","","","","","","","","","","","","","","",""
+very weak / weak / not particulary muscled / pretty powerful / strenghful / very powerful / extremely strenghtful","","","","","","","","","","","","","","","","","","","",""
+"x","","","","","","","","","","","","","","","","","","","","",""

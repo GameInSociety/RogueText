@@ -24,23 +24,15 @@ public class FunctionPartDebug : EditorWindow {
     }
 
     void DisplayWorldAction(WorldAction worldAction) {
-        string c = worldAction.lines.Find(x => x.failed) != null ? "red" : worldAction.IsTimeAction ? "blue" : "yellow";
-        string name = $" [<color={c}>{worldAction.TargetItem().debug_name}</color>] ({worldAction.source})";
+        string name = $" [{worldAction.TargetItem().DebugName}] ({worldAction.source})";
         if (worldAction.debug_selected) {
             foreach (var line in worldAction.lines) {
-
-                if (line.failed) {
-                    line_Style.normal.textColor = line.continueOnFail ? Color.magenta : Color.red;
-                } else {
-                    line_Style.normal.textColor = Color.yellow;
-                }
-
                 if (GUILayout.Button(line.content, line_Style))
                     line.debug_selected = !line.debug_selected;
 
                 if (line.debug_selected) {
                     foreach (var part in line.parts) {
-                        GUILayout.Label($"<color=cyan>{part.text}</color> [ {part.debug_feedback} ]", part_Style);
+                        GUILayout.Label($"<color=cyan>{part.output}</color>", part_Style);
                     }
                 }
             }

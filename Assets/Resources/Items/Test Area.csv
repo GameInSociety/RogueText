@@ -1,20 +1,4 @@
 "NAME","C.","V.","PREP.","INF.","PROPERTIES","","","","","","","","","","","","","","","","","","","",""
-"clearing","Tile","10","on","","contents
-crotte:1","$ set fire
-sub (! ANY ignate>ignate, 1)
-triggerEvent(OnFlames)","block:n","","","","","","","","","","","","","","","","","",""
-"crotte","","","","","test
-value:0
-
-description:small test
-
-E OnMinutes:
-add(>test, 1)
-
-OnValue:20
-add(>caca, 1)
-set(>test, 0)
-interupt","caca
-value:0
-
-description:big ready","","","","","","","","","","","","","","","","","","",""
+"clearing","Tile","10","on","","% tile","contents
+forest misc:10*50%","","","","","","","","","","","","","","","","","","",""
+"","","","",""," ","","","","","","","","","","","","","","","","","","","",""

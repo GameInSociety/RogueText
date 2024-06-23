@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 [System.Serializable]
@@ -17,28 +16,17 @@ public class Tile : Item {
     }
 
     #region tile description
-    public void Describe() {
-        // update tiles to create doors  
-        var adjTiles = GetAdjacentTiles();
-        var itemsToDescribe = new List<Item>();
-        if (HasChildItems())
-            itemsToDescribe.AddRange(GetChildItems());
-
-        ItemDescription.AddItems("tile description", itemsToDescribe, $"start:{GetText("on a dog")}, ");
-        ItemDescription.AddItems("other tiles", adjTiles, $"");
-        //ItemDescription.AddItems("tile description", itemsToDescribe, $"start:{GetText("on a dog")}, / type:group");
-    }
     
     public List<Item> GetAdjacentTiles() {
-
         List<Item> exits = new List<Item>();
-
         for (int i = 0; i < Humanoid.orientations.Count; i++) {
             var orientation = Humanoid.orientations[i];
             var adjacentTile = GetAdjacentTile(orientation);
             // skip if the tile is null (a void)
             if (adjacentTile == null)
                 continue;
+            
+                
             var exit = (Item)null;
                 // if the tile is enclosed (often an interior)
             if (GetProp("enclosed")?.GetNumValue() == 1 || adjacentTile.GetProp("enclosed")?.GetNumValue() == 1) {
@@ -49,12 +37,14 @@ public class Tile : Item {
                 exit.SetProp($"link | description:{adjacentTile.GetText("the dog")}");
             } else {
                 exit = adjacentTile;
+               
                 exits.Add(exit);
             }
 
+            // done ?
             exit.RemovePropOfType("orientation");
             var prop = exit.AddProp(orientation.ToString());
-            prop.SetValue(Player.Instance.GetCardinalFromOrientation(orientation), "value", false);
+            prop.SetValue(Player.Instance.GetCardinalFromOrientation(orientation), false);
         }
 
         return exits;

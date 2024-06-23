@@ -30,6 +30,8 @@ public class WorldActionManager : MonoBehaviour
 
     public WorldAction nextSequence = null;
 
+    public List<WorldAction> delayedSequences = new List<WorldAction>();
+
     private void Awake() {
         Instance = this;
     }
@@ -48,6 +50,23 @@ public class WorldActionManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape)) {
             Interup();
         }
+
+    }
+
+    public void InvokeSequence(WorldAction action) {
+        if ( delayedSequences.Count == 0) {
+            Invoke("InvokeSequenceDelay", 0f);
+        }
+
+        delayedSequences.Add(action);
+        
+    }
+
+    void InvokeSequenceDelay() {
+        foreach (var s in delayedSequences) {
+            s.StartSequence(WorldAction.Source.Event);
+        }
+        delayedSequences.Clear();
     }
 
     public void NextSequence(WorldAction sequence) {
