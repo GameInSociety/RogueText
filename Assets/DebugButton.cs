@@ -10,6 +10,7 @@ using UnityEngine.UI;
 public class DebugButton : MonoBehaviour, IPointerClickHandler {
     public RectTransform rectTransform;
     public Image image;
+    public Image outline;
     public Text uiText;
     public Text uiText_secundary;
     CanvasGroup _cg;
@@ -28,10 +29,14 @@ public class DebugButton : MonoBehaviour, IPointerClickHandler {
     }
 
 
-    public void Display(string text, Color color, string sec = "") {
+    public void Display(string text, Color color, string sec, int fontSize, Color outlineColor) {
         uiText.text = seconds > 0 ? seconds.ToString() : text;
         uiText_secundary.text = sec;
+
+        uiText.fontSize = fontSize;
+        uiText_secundary.fontSize = fontSize;
         image.color = color;
+        outline.color = outlineColor;
     }
 
     public void OnPointerClick(PointerEventData eventData) {

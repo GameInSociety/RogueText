@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -89,7 +90,8 @@ public class WorldAction {
                 index = globalIndex;
             }
 
-            string name = $" [{TargetItem()._debugName} ({index})] : {debug_additionalInfo}";
+            //string name = $" [{TargetItem()._debugName} ({index})] : {debug_additionalInfo}";
+            string name = $"<color=magenta>{TargetItem()._debugName}</color> {debug_additionalInfo}";
             return $"{name}";
         }
     }
@@ -120,12 +122,10 @@ public class WorldAction {
 
         this.source = source;
         nextTimeAction = null;
-        origin = true;
-        parent = this;
-        debug_list.Add(this);
         if ( active != null) {
             // debug
-            active.lines[active.lineIndex].content += $" <color=magenta>(Call : {Name})</color>";
+
+            active.children.Add(this);
 
             // stack
             if (IsTimeAction) {
@@ -134,6 +134,7 @@ public class WorldAction {
             }
         } else {
             origin = true;
+            debug_list.Add(this);
             parent = this;
         }
 
@@ -246,7 +247,6 @@ public class WorldAction {
 
     void EndSequence() {
         // remove active
-        active = null;
         state = State.Done;
 
         // only try another sequence if active is main

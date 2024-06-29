@@ -12,8 +12,7 @@ public class ItemSlot {
     public bool definite;
     public bool overall;
     public List<Item> items = new List<Item>();
-    public List<Property> nestedProps = new List<Property>();
-    public List<Property> describeProps = new List<Property>();
+    public List<Property> props = new List<Property>();
     Property grammar;
 
     public ItemSlot (string key) {
@@ -25,7 +24,7 @@ public class ItemSlot {
         grammar = RefItem.GetProp("grammar");
 
         // get noun
-        var phrase = $"{GetProps(nestedProps)} {GetName()} {GetProps(describeProps, true)}";
+        var phrase = $"[{GetName()}] ({GetProps(props, true)})";
         phrase = phrase.Trim(' ');
 
         // get articles

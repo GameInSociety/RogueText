@@ -12,7 +12,7 @@ public class PropertyDescription
         if ( source == WorldAction.Source.Event) {
             if (!prop.CanBeDescribed())
                 return;
-            ItemDescription.AddProperties($"Event Properties ({item._debugName})", item, new List<Property>() { prop }, "list / definite / filter events");
+            //ItemDescription.AddProperties($"Event Properties ({item._debugName})", item, new List<Property>() { prop }, "list / definite / filter events");
         } else {
             string opts = failed ? "list / definite / start:can't, " : "list / definite";
             ItemDescription.AddProperties($"Player Action Properties ({item._debugName})", item, new List<Property>() { prop }, opts);

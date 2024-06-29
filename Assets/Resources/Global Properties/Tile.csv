@@ -26,13 +26,17 @@ key: where, left, around
 description: (always) at your left
 after word:yes
 type:orientation
-description setup:[>setup]","","","","","","","","","","","","","","","",""
+description setup:[>setup]","distance
+value:0?10
+max:5
+description:(always) close to you / further away / even further / in the distance / far away / very far away","","","","","","","","","","","","","","",""
 "tile","weight:0
 capacity:1000
 max items:1000","block:n
 described:n
 visited:n
-visibility:1","","","","","","","","","","","","","","","","","","",""
+visibility:1
+distance:0","","","","","","","","","","","","","","","","","","",""
 "x","setup:starts?emerges?appears?begins?arises?commences
 path setup:winding its way ? leading ? streching ? meandering ? heading ? exending ? reaching out
 path continue:proceeding ? carrying ? jeeps going ? keeps winding its way ? keeps leading ? keeps streching ? keeps meandering ? keeps heading ? keeps exending ? keeps reaching out","","","","","","","","","","","","","","","","","","","",""
@@ -55,8 +59,20 @@ start(turn)
 
 start(Area Description)","! Area Description
 
-start(Update Tile, front, 0)","! Update Tile / DIRECTION / RANGE
-key(Tile : {!player>coords+[ ! player>[DIRECTION] X [RANGE] ] })
+
+start(Update Tile, right, 1@5)","! Update Tile / DIRECTION / RANGE
+key(Tile : {[ ! player>coords + [! player>[DIRECTION] X [RANGE] ] ]} )
+x (! Tile>described == y)
+*remove(!Tile >ANY orientation)
+addNew(! Tile, [DIRECTION])
+
+set (!Tile>distance, [RANGE])
+
+si ([DIRECTION] == here)
+describe(! Tile, start:you are in)
+-
+describe(! Tile)","! Update Tile / DIRECTION
+key(Tile : { [ ! player>coords + ! player>[DIRECTION] ] } )
 x (! Tile>described == y)
 *remove(!Tile >ANY orientation)
 addNew(! Tile, [DIRECTION])
@@ -64,7 +80,7 @@ addNew(! Tile, [DIRECTION])
 si ([DIRECTION] == here)
 describe(! Tile, start:you are in)
 -
-describe(! Tile)","","","","","","","","","","","","","","","","","",""
+describe(! Tile)","","","","","","","","","","","","","","","","",""
 "x","! Describe Direction / TILEX / TILEY
 key ( Tile : {!player>coords+ [TILEX] / [TILEY] } )
 x ( % ! Tile>visibility - [% !player>coords DIS ! Tile>coords] << 0 )

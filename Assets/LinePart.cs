@@ -1,29 +1,18 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics.Tracing;
 using System.Linq;
-using System.Xml.Linq;
-using System.Xml.Schema;
-using UnityEditor.Compilation;
-using UnityEditorInternal;
 using UnityEngine;
-using static UnityEditor.Progress;
 public class LinePart {
+
+    /// <summary>
+    ///  input parameters
+    /// </summary>
     // input text
     public string input;
     // modified test
     public string output;
     // input item
     public Item defaultItem;
-
-    [Serializable]
-    public class LineFailException : Exception {
-        public LineFailException() : base() { }
-        public LineFailException(string message) : base(message) { }
-        public LineFailException(string message, Exception inner) : base(message, inner) { }
-    }
 
     public enum State {
         None,
@@ -49,6 +38,36 @@ public class LinePart {
             return items.First();
         }
     }
+
+    public bool HasCoords(int tileset) {
+        var c = GetCoords(tileset);
+        return c.x != -1 && c.y != -1;
+    }
+
+    public Coords GetCoords(int tileset) {
+
+        Coords c = new Coords(-1, -1);
+
+
+        if (HasValue()) {
+            Debug.Log($"value : {value}");
+        }
+
+        if (HasProp()) {
+            c = Coords.PropToCoords(prop, tileset);
+            if (c == Coords.none) {
+                Debug.Log($"coords doesn't match");
+            }
+            return c;
+        } else {
+            if (output.Contains('/')) {
+                return Coords.TextToCoords(output);
+            } else {
+                return c;
+            }
+        }
+    }
+
     // output properties
     public Property prop;
     public bool HasProp() => prop != null;
@@ -65,6 +84,8 @@ public class LinePart {
     public string label = "";
 
     public static LinePart Parse( string input, Item defaultItem, string label) {
+
+
         var newLinePart = new LinePart();
         newLinePart.input = input;
         newLinePart.defaultItem = defaultItem;
@@ -84,10 +105,9 @@ public class LinePart {
             parent = current;
             current.children.Add(this);
         } else {
-            if (label != "Sequence")
+            if (label != "Sequence") 
                 debug_lineParts.Add(this);
         }
-        Debug.LogError($"New line part : {input}");
         current = this;
         output = input;
 
@@ -99,14 +119,10 @@ public class LinePart {
             return;
         }
 
-        // operation ?
-        if (output.Contains('%')) {
-            TryOperations();
-        } else {
-            TryItems();
-            TryProperties();
-            TryValue();
-        }
+        TryOperations();
+        TryItems();
+        TryProperties();
+        TryValue();
 
         if (value >= 0)
             output = value.ToString();
@@ -122,48 +138,66 @@ public class LinePart {
     
 
     void TryOperations() {
-        output = output.Remove(0, output.IndexOf('%') + 1).TrimStart(' ');
 
         var operations = new string[4] { " + ", " - ", " X ", " DIS " };
-
+        var operation = "";
         for (int i = 0; i < operations.Length; i++) {
             if (output.Contains(operations[i])) {
-                var operation = operations[i];
-                var split = output.Split(operation);
-                var part1 = LinePart.Parse(split[0], defaultItem, "Operation: First Part");
-                var part2 = LinePart.Parse(split[1], defaultItem, "Operation: Second Part");
-
-                switch (operation) {
-                    case " + ":
-                        value = part1.value + part2.value;
-                        break;
-                    case " - " :
-                        value = part1.value - part2.value;
-                        break;
-                    case " X ":
-                        Debug.Log($"multiplication");
-                        Debug.Log($"{part1.value} * {part2.value}");
-                        value = part1.value * part2.value;
-                        break;
-                    case " DIS ":
-                        var c1 = Coords.TextToCoords(part1.output);
-                        var c2 = Coords.TextToCoords(part2.output);
-                        float distanceBetweenTiles = Mathf.Pow(c2.x - c1.x, 2) + Mathf.Pow(c2.y - c1.y, 2);
-                        distanceBetweenTiles = Mathf.Sqrt(distanceBetweenTiles);
-                        distanceBetweenTiles = Mathf.RoundToInt(distanceBetweenTiles);
-                        value = (int)distanceBetweenTiles;
-                        break;
-                }
-                return;
+                operation = operations[i];
             }
         }
-        ThrowFail("Line Part Operation : Found no operation Symbol");
-    }
-    void TryItems() {
-
-        if (!output.Contains('{') && !output.Contains('!'))
+        if (string.IsNullOrEmpty(operation))
             return;
 
+        int TEMP_symbolIndex = output.IndexOf('%');
+        if ( TEMP_symbolIndex >= 0) {
+            output = output.Remove(0, TEMP_symbolIndex + 1).TrimStart(' ');
+            Debug.Log($"{input} still has öperation symbol % left");
+        } else {
+            output = output.Trim(' ');
+        }
+
+        var split = output.Split(operation);
+        var part1 = LinePart.Parse(split[0], defaultItem, "Operation: First Part");
+        var part2 = LinePart.Parse(split[1], defaultItem, "Operation: Second Part");
+
+        switch (operation) {
+            case " + ":
+                if (part1.HasCoords(0)) {
+                    var newCoords = part1.GetCoords(0) + part2.GetCoords(0);
+                    output = $"{newCoords.x}/{newCoords.y}";
+                } else {
+                    value = part1.value + part2.value;
+                }
+                break;
+            case " - ":
+                value = part1.value - part2.value;
+                output = value.ToString();
+                break;
+            case " X ":
+                if (part1.HasCoords(0)) {
+                    var newCoords = part1.GetCoords(0) * part2.value;
+                    output = $"{newCoords.x}/{newCoords.y}";
+                } else {
+                    value = part1.value * part2.value;
+                }
+
+                break;
+            case " DIS ":
+                var c1 = Coords.TextToCoords(part1.output);
+                var c2 = Coords.TextToCoords(part2.output);
+                float distanceBetweenTiles = Mathf.Pow(c2.x - c1.x, 2) + Mathf.Pow(c2.y - c1.y, 2);
+                distanceBetweenTiles = Mathf.Sqrt(distanceBetweenTiles);
+                distanceBetweenTiles = Mathf.RoundToInt(distanceBetweenTiles);
+                value = (int)distanceBetweenTiles;
+                output = value.ToString();
+                break;
+        }
+
+    }
+    void TryItems() {
+        if (!output.Contains('{') && !output.Contains('!'))
+            return;
         var key = output;
         // search
         var result = ItemLink.SearchItem(key, defaultItem);
@@ -245,31 +279,8 @@ public class LinePart {
         return str;
     }
 
-    string ParseActParams(string input) {
-        if (WorldAction.active?.parameters == null)
-            return input;
 
-        var b = 0;
-        string output = input;
-        var index = output.IndexOf('[');
-        while (index >= 0) {
-            var key = TextUtils.Extract('[', output, out output);
-            var param = WorldAction.active.parameters.Find(x => x.key == key);
-            if (string.IsNullOrEmpty(param.key))
-                return input;
-
-            output = output.Insert(index, param.value);
-            index = output.IndexOf("[", index);
-
-            ++b;
-            if (b >= 10) {
-                break;
-            }
-        }
-        return output;
-    }
-
-
+    #region text replacement
     public static string ParseBrackets(string input, Item item) {
 
         var b = 0;
@@ -318,8 +329,6 @@ public class LinePart {
             } else
                 content = param.value;
 
-            Debug.Log($"input : {input}");
-            Debug.Log($"content to insert : {content }");
             input = input.Remove(startIndex, extracted.Length + 2);
             input = input.Insert(startIndex, content);
             /*int valueIndex = keys.FindIndex(x => x == extracted);
@@ -350,35 +359,35 @@ public class LinePart {
 
         return counter == 0 ? closeIndex : -1;
     }
+    #endregion
 
-
-    /*public static string ParseBrackets (string input, Item item) {
-        var b = 0;
-        string key = input;
-        var index = key.IndexOf('[');
-        while (index >= 0) {
-            var extract = TextUtils.Extract('[', key, out key);
-            var contentParsing = LinePart.Parse(extract, item, "Content Parsing");
-            key = key.Insert(index, contentParsing.output);
-            index = key.IndexOf("[", index);
-
-            ++b;
-            if (b >= 10) {
-                Debug.LogError($"break error ");
-                break;
-            }
-        }
-
-        return key;
-    }*/
-
+    #region error handling
+    /// <summary>
+    /// fails & erros
+    /// </summary>
+    /// <param name="msg"></param>
+    /// <param name="additionalInfo"></param>
     public void Error(string msg, string additionalInfo = "") {
         state = State.Error;
         errors.Add($"<color=red>{msg}</color>");
     }
-
     public void ThrowFail(string msg, string additionInfo = "") {
         state = State.Failed;
+        output = msg;
+
         throw new LineFailException(msg);
     }
+
+
+    /// <summary>
+    /// EXCEPTION
+    /// </summary>
+    /// 
+    [Serializable]
+    public class LineFailException : Exception {
+        public LineFailException() : base() { }
+        public LineFailException(string message) : base(message) { }
+        public LineFailException(string message, Exception inner) : base(message, inner) { }
+    }
+    #endregion
 }

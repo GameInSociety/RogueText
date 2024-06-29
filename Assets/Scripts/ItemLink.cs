@@ -216,27 +216,47 @@ public static class ItemLink
             Log($"Found Tileset : {tilesetPart.value}");
         }
 
-        // check for addition
-        var split = key.Split('+');
-        var coords = new Coords();
-        foreach (var s in split) {
-            var coords_part = LinePart.Parse(s, sourceItem, "Tile Coords");
-            var newCoords = Coords.zero;
-            if (coords_part.HasProp()) {
-                newCoords = Coords.PropToCoords(coords_part.prop, tilesetId);
-                coords_part.prop.SetValue(Coords.CoordsToText(newCoords));
-            } else {
-                newCoords = Coords.TextToCoords(s, tilesetId);
-            }
-            coords += newCoords;
-        }
-
+        var linePart = LinePart.Parse(key, sourceItem, "Tile Fetching");
+        var coords = linePart.GetCoords(tilesetId);
         var result = TileSet.tileSets[tilesetId].GetTile(coords);
         if (result == null)
             return null;
         Log($"Tile Result : {result.DebugName} (Coords:{coords})");
 
         return result;
+
+        /// LES OPERATION NE SERVENT PLUS A RIEN DANS LES TILES ?
+        /*var operations = new string[4] { " + ", " - ", " X ", " DIS " };
+        for (int i = 0; i < operations.Length; i++) {
+            if (!key.Contains(operations[i])) {
+                continue;
+            }
+            var operation = operations[i];
+            Debug.Log($"coords operation : {operation}");
+            var split = key.Split(operation);
+            Debug.Log($"first part: {split[0]}");
+            Debug.Log($"second part: {split[1]}");
+
+            var part_1 = LinePart.Parse(split[0], sourceItem, "Coords Operation (1)");
+            var part_2 = LinePart.Parse(split[1], sourceItem, "Coords Operation (2)");
+
+            switch (operation) {
+                case " + ":
+                    Debug.Log($"addition");
+                    coords = part_1.GetCoords(tilesetId) + part_2.GetCoords(tilesetId);
+                    Debug.Log($"resutl : {coords}");
+                    break;
+                case " X ":
+                    Debug.Log($"multiplcation");
+                    coords = part_1.GetCoords(tilesetId) * part_2.value;
+                    Debug.Log($"result : {coords}");
+                    break;
+                default:
+                    break;
+            }
+        }*/
+
+
     }
 
     public static List<Item> GetItemsWithProp (string key, List<Item> range) {

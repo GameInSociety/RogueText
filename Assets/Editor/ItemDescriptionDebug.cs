@@ -31,14 +31,10 @@ public class ItemDescriptionDebug : EditorWindow {
 
                 foreach (var itemSlot in group.itemSlots) {
                     LOG($"[{itemSlot.key}] : {itemSlot.items.Count}", Color.white);
-                    string nested_text = "";
-                    foreach (var prop in itemSlot.nestedProps)
-                        nested_text += $"({prop.GetCurrentDescription()}) ";
-                    LOG($"Nested : {nested_text}", Color.white);
                     string describt_text = "";
-                    foreach (var prop in itemSlot.describeProps)
+                    foreach (var prop in itemSlot.props)
                         describt_text += $"({prop.GetCurrentDescription()}) ";
-                    LOG($"Describe : {describt_text}", Color.magenta);
+                    LOG($"Props : {describt_text}", Color.magenta);
 
                 }
             }

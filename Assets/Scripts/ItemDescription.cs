@@ -38,7 +38,7 @@ public class ItemDescription {
         foreach (var itDes in itemDescriptions) {
             var des = itDes.GetDescription();
             des = des.Trim('\n');
-            TextManager.Write($"{des}");
+            TextManager.Write($"{des}\n");
         }
 
         // debug
@@ -66,9 +66,6 @@ public class ItemDescription {
 
     }
 
-    public static void AddLineBreak() {
-        itemDescriptions.Add(new ItemDescription("line break", "start:\n"));
-    }
     public static void AddItems(string descriptionName, List<Item> items, string opts = "") {
         // find item description
         var itDes = itemDescriptions.Find(x=> x.name == descriptionName);
@@ -77,30 +74,37 @@ public class ItemDescription {
             itemDescriptions.Add(itDes);
         }
 
+
         for (int i = 0; i < items.Count; ++i) {
+            // set item
             var item = items[i];
+
+            // add to available items because described
             AvailableItems.Add("Described Items", item);
+
+            // find matching item group
             var group = itDes.groups.Find(x => x.dataIndex == item.dataIndex);
             if (group == null) {
                 group = new ItemGroup($"{item.DebugName}", item.dataIndex);
                 itDes.groups.Add(group);
             }
+
+            // find matchig item s
             if ( group.itemSlots.Count == 0) {
                 var slot = new ItemSlot($"{item.DebugName}");
                 group.itemSlots.Add(slot);
             }
             group.itemSlots[0].items.Add(item);
 
-            var vProp = item.props.Find(x => x.HasPart("description") && x.GetContent("description type") == "always");
-            if ( vProp != null) {
-                AddProperties(descriptionName, item,new List<Property> { vProp });
-            }   
+            var constant_props = item.props.FindAll(x => x.HasPart("description") && x.GetContent("description type") == "always");
+            if ( constant_props != null) {
+                AddProperties(descriptionName, item, constant_props);
+            }
         }
 
     }
     public static void AddProperties(string descriptionName, Item item, List<Property> props, string opts = "") {
 
-        
         // find /create item description
         var itDes = itemDescriptions.Find(x => x.name == descriptionName);
         if (itDes == null) {
@@ -126,22 +130,24 @@ public class ItemDescription {
         }
 
         foreach (var prop in props) {
-            if (slot.describeProps.Find(x => x.GetCurrentDescription() == prop.GetCurrentDescription()) == null) {
-                if (prop.HasPart("before"))
-                    slot.nestedProps.Add(prop);
-                else
-                    slot.describeProps.Add(prop);
+            if (slot.props.Find(x => x.GetCurrentDescription() == prop.GetCurrentDescription()) == null) {
+                slot.props.Add(prop);
             }
         }
+    }
+
+    void SplitByProps() {
+
     }
 
     public string GetDescription() {
 
         // group properties
-        SplitSlotByPropertyName();
+       /* SplitSlotByPropertyName();
 
         // merge groups with same properties
-        MergeSlotsWithSameProperties();
+        MergeSlotsWithSameProperties();*/
+
 
         groups.RemoveAll(x=> x.itemSlots.Count == 0);
         foreach (var gr in groups)
@@ -166,8 +172,8 @@ public class ItemDescription {
             var confName = "";
             var newSlots = new List<ItemSlot>();
             foreach (var slot in group.itemSlots) {
-                foreach (var prop in slot.describeProps) {
-                    var similarProp = slot.describeProps.Find(x => x.name == prop.name && x.GetCurrentDescription() != prop.GetCurrentDescription());
+                foreach (var prop in slot.props) {
+                    var similarProp = slot.props.Find(x => x.name == prop.name && x.GetCurrentDescription() != prop.GetCurrentDescription());
                     if (similarProp != null) {
                         // delete all properties that don't have the same name
                         confName = similarProp.name;
@@ -175,12 +181,12 @@ public class ItemDescription {
                     }
                 }
                 if (confName != "") {
-                    slot.describeProps.RemoveAll(x => x.name != confName);
-                    var d = slot.describeProps.Select(x => x.GetCurrentDescription()).Distinct();
+                    slot.props.RemoveAll(x => x.name != confName);
+                    var d = slot.props.Select(x => x.GetCurrentDescription()).Distinct();
                     foreach (var s in d) {
                         var newSlot = new ItemSlot(s);
                         newSlot.items.AddRange(slot.items.FindAll(x => x.GetVisibleProps().Find(p => p.GetCurrentDescription() == s) != null));
-                        newSlot.describeProps.Add(slot.describeProps.Find(x => x.GetCurrentDescription() == s));
+                        newSlot.props.Add(slot.props.Find(x => x.GetCurrentDescription() == s));
                         newSlots.Add(newSlot);
                     }
                 }
@@ -201,12 +207,12 @@ public class ItemDescription {
             var baseGroup = groups[i];
             for (int j = 0; j < baseGroup.itemSlots.Count; j++) {
                 var baseSlot = baseGroup.itemSlots[j];
-                if (baseSlot.describeProps.Count == 0) continue;
+                if (baseSlot.props.Count == 0) continue;
                 var sameSlots = SlotsWithSameProperties(baseSlot, allSlots);
                 if (sameSlots.Count > 0) {
                     foreach (var slt in sameSlots) {
                         var targetGroup = groups.Find(x => x.itemSlots.Find(s => s == slt) != null);
-                        slt.describeProps.Clear();
+                        slt.props.Clear();
                         baseGroup.itemSlots.Add(slt);
                         targetGroup.itemSlots.RemoveAll(x=> sameSlots.Find(s=> s == slt) != null);
                     }
@@ -222,10 +228,10 @@ public class ItemDescription {
         var result = new List<ItemSlot>();
         foreach (var slot in slots) {
             if (baseSlot == slot) continue;
-            if ( baseSlot.describeProps.Count == slot.describeProps.Count) {
+            if ( baseSlot.props.Count == slot.props.Count) {
                 bool same = true;
-                for (int i = 0; i < baseSlot.describeProps.Count; i++) {
-                    if (baseSlot.describeProps[i].GetCurrentDescription() != slot.describeProps[i].GetCurrentDescription())
+                for (int i = 0; i < baseSlot.props.Count; i++) {
+                    if (baseSlot.props[i].GetCurrentDescription() != slot.props[i].GetCurrentDescription())
                         same = false;
                 }
                 if (same)

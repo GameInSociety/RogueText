@@ -3367,6 +3367,8 @@ MonoBehaviour:
     children: []
     source: 0
     state: 0
+    stop_feedback: 
+    error_feedback: 
     debug_selected: 0
     debug_count: 0
     debug_skipped: 0
@@ -4202,21 +4204,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6b64b9ed0333584abd964b91f9f1ece, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  decal: 30
-  displayIndex: 0
+  parent: {fileID: 1912524706}
   wa_scale: 30
   line_scale: 25
   linePart_Scale: 20
-  linePartContent_Scale: 15
-  parent: {fileID: 1912524706}
+  linePartContent_Scale: 18
   category: 0
-  previousSelected: -1
-  group: {fileID: 1351033135}
-  visible: 0
   categoryParent: {fileID: 1179030018}
   categoryButtons: []
+  buttons_Decal: 30
+  buttons_DisplayIndex: 0
   buttons: []
-  prefab: {fileID: 5595308330619224294, guid: e9cab6d71e43ebf4e85c598620100451, type: 3}
+  debugButton_Prefab: {fileID: 5595308330619224294, guid: e9cab6d71e43ebf4e85c598620100451,
+    type: 3}
+  show_group: {fileID: 1351033135}
+  wa_fontSize: 13
+  line_fontSize: 10
 --- !u!1 &1420245277 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5322256303505575243, guid: 96f534ca718d58b4495230377d56e777,
@@ -5064,7 +5067,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 20, y: 0}
+  m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1823244844
 MonoBehaviour:

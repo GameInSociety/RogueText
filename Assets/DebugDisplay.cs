@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO.Pipes;
 using System.Linq.Expressions;
+using System.Net.Http.Headers;
+using System.Runtime.ExceptionServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Analytics;
@@ -8,37 +11,37 @@ using UnityEngine.UI;
 
 public class DebugDisplay : MonoBehaviour
 {
-    public static DebugDisplay Instance;
-    public float decal = 30f;
-    public int displayIndex = 0;
-
-    public float wa_scale = 60f;
-    public float line_scale = 40f;
-    public float linePart_Scale = 25f;
-    public float linePartContent_Scale = 15f;
-
-    public Transform parent;
-
     public enum Category {
         None,
         WorldActions,
         AvailableItems,
         LineParts
     }
+
+    public static DebugDisplay Instance;
+
+    public Transform parent;
+    
+    // params
+    public float wa_scale = 60f;
+    public float line_scale = 40f;
+    public float linePart_Scale = 25f;
+    public float linePartContent_Scale = 15f;
+
+    // category
     public Category category;
-
-    public int previousSelected = -1;
-
-    public GameObject group;
-    public bool visible = false;
-
-
     public GameObject categoryParent;
     public Image[] categoryButtons;
-
+    // buttons
+    public float buttons_Decal = 30f;
+    public int buttons_DisplayIndex = 0;
     public List<DebugButton> buttons = new List<DebugButton>();
-    public DebugButton prefab;
-    int currentCount = 0;
+    public DebugButton debugButton_Prefab;
+
+    public GameObject show_group;
+
+    public int wa_fontSize = 13;
+    public int line_fontSize = 10;
 
     private void Awake() {
         Instance = this;
@@ -50,7 +53,7 @@ public class DebugDisplay : MonoBehaviour
     }
 
     private void Update() {
-        displayIndex = 0;
+        buttons_DisplayIndex = 0;
         switch ((int)category) {
             case 0:
                 return;
@@ -69,9 +72,10 @@ public class DebugDisplay : MonoBehaviour
             default : break;
         }
 
-        for (int i = displayIndex; i < buttons.Count; i++) {
+        for (int i = buttons_DisplayIndex; i < buttons.Count; i++) {
             buttons[i].gameObject.SetActive(false);
         }
+
     }
 
     public void SetCategory(int i) {
@@ -82,38 +86,28 @@ public class DebugDisplay : MonoBehaviour
 
         if ( category == (Category)i) {
             category = Category.None;
-            group.SetActive(false);
+            show_group.SetActive(false);
             return;
         }
         
         categoryButtons[i - 1].color = Color.gray;
 
-        group.SetActive(true);
+        show_group.SetActive(true);
 
         category = (Category)i;
     }
 
     #region world actions
+    float wa_offset = 0f;
     public void UpdateWorldActions() {
         for (int i = 0; i < WorldAction.debug_list.Count; i++) {
-            var parent_worldACtions = WorldAction.debug_list[i];
-            DisplayWorldAction(parent_worldACtions);
-            if (parent_worldACtions.origin) {
-            }
+            var wa = WorldAction.debug_list[i];
+            wa_offset = 0f;
+            var origin_button = DisplayWorldAction(wa, wa_offset);
+           
         }
 
         
-    }
-    private void DisplayWorldAction(WorldAction wa) {
-
-        float offset = 0f;
-        var origin_button = DisplayWorldAction(wa, offset);
-        if (origin_button.selected) {
-            offset += decal;
-            foreach (var child in wa.children) {
-                var child_button = DisplayWorldAction(child, offset);
-            }
-        }
     }
 
     // time = magenta
@@ -126,48 +120,46 @@ public class DebugDisplay : MonoBehaviour
 
     DebugButton DisplayWorldAction(WorldAction wa, float offset) {
 
-        Color color = wa.source == WorldAction.Source.PlayerAction ? Color.yellow : wa.IsTimeAction ? Color.magenta : Color.cyan;
-        string text = "";
+        Color color = wa.source == WorldAction.Source.PlayerAction ? Color.yellow : wa.IsTimeAction ? Color.magenta : Color.white;
+        string sideLabel = "";
         switch (wa.state) {
             case WorldAction.State.None:
             color = Color.Lerp(color, Color.clear, 0.5f);
-                text = "None";
+                sideLabel = "None";
                 break;
             case WorldAction.State.Done:
-                text = "Done";
+                sideLabel = "Done";
             color = Color.Lerp(color, Color.green, 0.5f);
                 break;
             case WorldAction.State.Broken:
-                text = $"Stopped : {wa.stop_feedback}";
+                sideLabel = $"Stopped : {wa.stop_feedback}";
             color = Color.Lerp(color, Color.gray, 0.5f);
                 break;
             case WorldAction.State.Paused:
-                text = "Paused";
+                sideLabel = "Paused";
             color = Color.Lerp(color, Color.blue, 0.5f);
                 break;
             case WorldAction.State.Error:
-                text = "Error";
+                sideLabel = "Error";
             color = Color.Lerp(color, Color.red, 0.5f);
                 break;
         }
 
-        string label = wa.Name;
-        string add_info = "";
+        string mainLabel = wa.Name;
         if (wa.IsTimeAction) {
             if (wa.state == WorldAction.State.Paused) {
-                label = wa.Name;
-                add_info = "Pause";
+                mainLabel = wa.Name;
             } else {
-                label = wa.debug_count.ToString();
-                add_info = "Time";
+                mainLabel = wa.debug_count.ToString();
             }
         }
 
-        label += $"{label} {(wa.children.Count > 0 ? wa.children.Count.ToString() : "")}";
-        var button = DisplayNewButton($"{label}||{text}", color, offset, wa_scale);
+        sideLabel += wa.children.Count > 0 ? $" (+{wa.children.Count})" : "";
 
-        if (button.selected) {
-            offset += decal;
+        var wa_button = DisplayNewButton($"{mainLabel}||{sideLabel}", color, offset, wa_scale,wa_fontSize,  Color.yellow);
+
+        if (wa_button.selected) {
+            offset += buttons_Decal;
             foreach (var line in wa.lines) {
                 Color lineColor = Color.white;
                 string lineText = "";
@@ -195,17 +187,29 @@ public class DebugDisplay : MonoBehaviour
                     default:
                         break;
                 }
-                var line_button = DisplayNewButton($"{line.content} || {lineText} ({line.parts.Count})", lineColor, offset, line_scale);
+                var line_button = DisplayNewButton($"{line.content}\n{line.debug_text} || {lineText}", lineColor, offset, line_scale, line_fontSize, Color.blue);
                 if (line_button.selected) {
                     string p = "";
-                    foreach (var part in line.parts) {
-                        DisplayLinePart(part, offset + decal);
+                    for (int i = 0; i < line.parts.Count; i++) {
+                        DisplayLinePart(line.parts[i], offset + buttons_Decal);
                     }
                 }
             }
+
+            if ( wa.children.Count > 0 ) {
+                var children_button = DisplayNewButton($"Show ${wa.children.Count} Children", Color.gray, offset, line_scale, line_fontSize);
+                if (children_button.selected) {
+                    foreach (var child in wa.children) {
+                        var child_button = DisplayWorldAction(child, offset);
+                    }
+                }
+            }
+            
         }
 
-        return button;
+
+
+        return wa_button;
     }
     #endregion
 
@@ -213,16 +217,16 @@ public class DebugDisplay : MonoBehaviour
     void UpdateAvailableItems() {
         foreach (var cat in AvailableItems.categories) {
             float offset = 0f;
-            var catButton = DisplayNewButton(cat.name, Color.magenta, 0f, wa_scale);
+            var catButton = DisplayNewButton(cat.name, Color.magenta, 0f, wa_scale, wa_fontSize, Color.yellow);
             if (!catButton.selected)
                 continue;
             foreach (var item in cat.items.FindAll(x=>!x.HasParent())) {
-                DisplayItem(item, offset + decal);
+                DisplayItem(item, offset + buttons_Decal);
             }
         }
     }
     void DisplayItem(Item item, float offset) {
-        var item_button = DisplayNewButton(item.DebugName, Color.yellow, offset, line_scale);
+        var item_button = DisplayNewButton(item.DebugName, Color.yellow, offset, line_scale, line_fontSize, Color.blue);
        if (item_button.selected) {
             foreach (var prop in item.props) {
 
@@ -230,10 +234,10 @@ public class DebugDisplay : MonoBehaviour
                 if (prop.HasPart("value"))
                     prop_txt += $"  (<color=red>{prop.GetPart("value").content}</color>)";
 
-                var prop_button = DisplayNewButton(prop_txt, Color.cyan, offset + (decal*2), linePart_Scale);
+                var prop_button = DisplayNewButton(prop_txt, Color.cyan, offset + (buttons_Decal*2), linePart_Scale, line_fontSize, Color.magenta);
                 if ( prop_button.selected) {
                     foreach (var part in prop.parts) {
-                        DisplayNewButton($"<i>{part.key}</i> <color=white>{part.content}</color>", Color.gray, offset+ (decal*3), linePartContent_Scale);
+                        DisplayNewButton($"<i>{part.key}</i> <color=white>{part.content}</color>", Color.gray, offset+ (buttons_Decal*3), linePartContent_Scale);
                     }
                 }
             }
@@ -241,7 +245,7 @@ public class DebugDisplay : MonoBehaviour
             if (!item.HasChildItems())
                 return;
             foreach (var child in item.GetChildItems())
-                DisplayItem(child, offset + decal);
+                DisplayItem(child, offset + buttons_Decal);
         }
     }
     #endregion
@@ -281,17 +285,18 @@ public class DebugDisplay : MonoBehaviour
 
         string str = $"<i>{linePart.input}</i> => <b>{linePart.output}</b>";
         string sec = $"{ feedback +  (linePart.children.Count > 0 ? $"(+{linePart.children.Count})" : "")}{linePart.label}";
-        var partButton = DisplayNewButton($"<color=white>{str}</color>||<color=white>{sec}</color>", baseColor, offset, linePart_Scale);
-        if (partButton.selected) {
 
-            var logButton = DisplayNewButton("Search Log", Color.gray, offset + (decal * 2f), linePartContent_Scale);
+        var partButton = DisplayNewButton($"<color=white>{str}</color>||<color=white>{sec}</color>", baseColor, offset, linePart_Scale);
+
+        if (partButton.selected) {
+            var logButton = DisplayNewButton("Search Log", Color.gray, offset + (buttons_Decal * 2f), linePartContent_Scale);
             if (logButton.selected) {
                 foreach (var log in linePart.linkLog) {
-                    DisplayNewButton(log, Color.gray, offset + (decal * 2f), linePartContent_Scale);
+                    DisplayNewButton(log, Color.gray, offset + (buttons_Decal * 2f), linePartContent_Scale);
                 }
             }
 
-            DisplayNewButton($"text:{linePart.output}", Color.white, offset + decal, linePartContent_Scale);
+            /*DisplayNewButton($"text:{linePart.output}", Color.white, offset + decal, linePartContent_Scale);
             if (linePart.item != null)
                 DisplayNewButton($"Item : {linePart.item.DebugName}", Color.white, offset + decal, linePartContent_Scale);
             if (linePart.prop != null)
@@ -299,11 +304,11 @@ public class DebugDisplay : MonoBehaviour
             if (linePart.HasValue())
                 DisplayNewButton($"Value : {linePart.value}", Color.white, offset + decal, linePartContent_Scale);
             foreach (var line in linePart.errors)
-                DisplayNewButton(line, Color.red, offset + decal, linePartContent_Scale);
+                DisplayNewButton(line, Color.red, offset + decal, linePartContent_Scale);*/
 
             if ( linePart.children.Count > 0) {
                 foreach (var child in linePart.children) {
-                    DisplayLinePart(child, offset + decal);
+                    DisplayLinePart(child, offset + buttons_Decal);
                 }
             }
 
@@ -324,31 +329,29 @@ public class DebugDisplay : MonoBehaviour
 
                     // SHOW ITEM DESCRIPTION
                     if (id.name == "line break") {
-                        DisplayNewButton(id.name, Color.gray, offset + (decal * 1), linePartContent_Scale);
+                        DisplayNewButton(id.name, Color.gray, offset + (buttons_Decal * 1), linePartContent_Scale);
                         continue;
                     }
-                    var id_button = DisplayNewButton(id.name, Color.cyan, offset + (decal * 1), line_scale);
+                    var id_button = DisplayNewButton(id.name, Color.cyan, offset + (buttons_Decal * 1), line_scale);
                     if (id_button.selected) {
                         foreach (var itGrp in id.groups) {
                             string s = $"[{itGrp.key}:{itGrp.itemSlots.Count}]";
 
                             // SHOW ITEM GROUP 
-                            var itGrp_button = DisplayNewButton(s, Color.white, offset + (decal * 2), linePart_Scale);
+                            var itGrp_button = DisplayNewButton(s, Color.white, offset + (buttons_Decal * 2), linePart_Scale);
                             if (itGrp_button.selected) {
                                 foreach (var itemSlot in itGrp.itemSlots) {
                                     string it_s = $"[{itemSlot.key}] : {itemSlot.items.Count}";
                                     // ITEM SLOTS
-                                    var it_button = DisplayNewButton(it_s, Color.yellow, offset + (decal * 3), linePartContent_Scale);
+                                    var it_button = DisplayNewButton(it_s, Color.yellow, offset + (buttons_Decal * 3), linePartContent_Scale);
                                     string np_s = "";
-                                    foreach (var prop in itemSlot.nestedProps)
-                                        np_s += $"({prop.GetCurrentDescription()}) ";
                                     // NESTED PROPS
-                                    var np_button = DisplayNewButton($"Nested : {np_s}", Color.magenta, offset + (decal * 3), linePartContent_Scale);
+                                    var np_button = DisplayNewButton($"Nested : {np_s}", Color.magenta, offset + (buttons_Decal * 3), linePartContent_Scale);
                                     string dp_s = "";
-                                    foreach (var prop in itemSlot.describeProps)
+                                    foreach (var prop in itemSlot.props)
                                         dp_s += $"({prop.GetCurrentDescription()}) ";
                                     // DESCRUBE PROPS
-                                    var dp_button = DisplayNewButton($"Describe : {dp_s}", Color.magenta, offset + (decal * 3), linePartContent_Scale);
+                                    var dp_button = DisplayNewButton($"Describe : {dp_s}", Color.magenta, offset + (buttons_Decal * 3), linePartContent_Scale);
 
                                 }
                             }
@@ -360,8 +363,7 @@ public class DebugDisplay : MonoBehaviour
         }
     }
     #endregion
-    DebugButton DisplayNewButton(string text, Color c, float offset, float height) {
-
+    DebugButton DisplayNewButton(string text, Color c, float offset, float height, int fontSize = 10, Color outlineColor = new Color()) {
         string sec = "";
         if (text.Contains("||")) {
             var split = text.Split("||");
@@ -369,15 +371,18 @@ public class DebugDisplay : MonoBehaviour
             sec = split[1];
         }
 
-        if (displayIndex >= buttons.Count)
-            buttons.Add(Instantiate(prefab, parent));
+        if (buttons_DisplayIndex >= buttons.Count)
+            buttons.Add(Instantiate(debugButton_Prefab, parent));
 
-        var button = buttons[displayIndex];
+
+        var button = buttons[buttons_DisplayIndex];
+        button.transform.SetParent(parent);
         button.gameObject.SetActive(true);
-        button.Display(text, c, sec);
+        button.Display(text, c, sec, fontSize, outlineColor);
         button.image.rectTransform.offsetMin = new Vector2(offset, button.image.rectTransform.offsetMin.y);
         button.rectTransform.sizeDelta = new Vector2(button.rectTransform.sizeDelta.x, height);
-        ++displayIndex;
+        ++buttons_DisplayIndex;
         return button;
     }
+
 }

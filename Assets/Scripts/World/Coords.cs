@@ -41,6 +41,10 @@ public struct Coords {
         return coords;
     }
     public static Coords PropToCoords(Property prop, int tilesetId = 0) {
+        if (!prop.GetTextValue().Contains('/')) {
+            Debug.Log($"{prop.name} has no coords value");
+            return Coords.none;
+        }
         return TextToCoords(prop.GetTextValue(), tilesetId);
     }
     public static string CoordsToText(Coords coords) {
@@ -58,6 +62,7 @@ public struct Coords {
         this.y = y;
     }
 
+    public static Coords none => new Coords(-1, -1);
     public static Coords zero => new Coords(0, 0);
     // overrides
     // == !=
@@ -94,6 +99,13 @@ public struct Coords {
     }
     public static bool operator <=(Coords c1, int i) {
         return c1.x <= i || c1.y <= i;
+    }
+
+    public static Coords operator *(Coords c1, Coords c2) {
+        return new Coords(c1.x * c2.x, c1.y * c2.y);
+    }
+    public static Coords operator *(Coords c1, int i) {
+        return new Coords(c1.x * i, c1.y * i);
     }
 
     // + -

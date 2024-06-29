@@ -23,7 +23,6 @@ public static class AvailableItems {
         }
         public void AddItem(Item item) {
             if (items.Contains(item)) {
-                Debug.Log($"{name} already contains ({item._debugName})");
                 return;
             }
             items.Add(item);

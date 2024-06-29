@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ public class Line {
     public State state = State.None;
 
     public string content;
+    public string debug_text = "";
     public string error_feedback = "";
     public string stop_feedback = "";
 
@@ -62,17 +64,25 @@ public class Line {
         // init parameters
         if (functionName.Contains('(')) {
             functionName = functionName.Remove(functionName.IndexOf('(')).Trim(' ');
-            
+            debug_text = $"<color=white>{functionName} (</color>";
             var paramerets_all = TextUtils.Extract('(', content, out _);
             var split = paramerets_all.Split(part_Separators, StringSplitOptions.None);
+            int index = 0;
             foreach (var s in split) {
                 try {
-                    parts.Add(LinePart.Parse(s.Trim(' '), item, "Sequence"));
+                    var newLinePart = LinePart.Parse(s.Trim(' '), item, "Sequence");
+                    string colorstr = newLinePart.state == LinePart.State.Done ? "green" : newLinePart.state == LinePart.State.Error ? "red" : "yellow";
+                    debug_text += $"<color={colorstr}> {newLinePart.output}{TextUtils.GetCommas(index, split.Length, false)} </color>";
+                    parts.Add(newLinePart);
                 } catch (LinePart.LineFailException le) {
                     current.parts.Add(LinePart.current);
                     current.Break(le.Message);
                 }
+
+                ++index;
             }
+
+            debug_text += "<color=white> )</color>";
         }
 
         MethodInfo info = typeof(Line).GetMethod(
@@ -115,6 +125,7 @@ public class Line {
     }
     void start() {
 
+
         // get parts
         var targetItem = GetPart(0).HasItem() ? GetItem(0) : item;
         var actName = GetPart(0).HasItem() ? GetText(1) : GetText(0);
@@ -144,6 +155,7 @@ public class Line {
     }
     private protected WorldAction TriggerAction(Sequence sequence, Item targetItem, List<WorldAction.Param> _parameters) {
 
+
         // create action
         for (int i = 0; i < _parameters.Count; i++) {
             var prm = _parameters[i];
@@ -167,6 +179,8 @@ public class Line {
                 int br = 0;
                 int dir = b > a ? 1 : -1;
                 for (int l = a; l < b; l += dir) {
+                    WorldAction.active = worldAction;
+
                     var newParams = new List<WorldAction.Param>(_parameters);
                     newParams[i] = new WorldAction.Param(prm.key, $"{l}");
                     var loopwa = TriggerAction(sequence, targetItem, newParams);
@@ -185,7 +199,11 @@ public class Line {
             }
         }
 
-        var action = new WorldAction(targetItem, sequence.content, $"Item Act:{sequence.triggers[0]}");
+        string param_text = "";
+        foreach (var prm in _parameters) {
+            param_text += $"{prm.key}({prm.value}) /";
+        }
+        var action = new WorldAction(targetItem, sequence.content, $"start() : {sequence.triggers[0]} ({param_text})");
         action.parameters = _parameters;
         action.StartSequence();
         return action;
@@ -283,13 +301,13 @@ public class Line {
                 ItemDescription.AddProperties($"Property From Input ({targetItem._debugName})", targetItem, ItemParser.Instance.GetPart(0).properties, "list / definite");
                 return;
             }
-            ItemDescription.AddLineBreak();
-            ItemDescription.AddItems($"Description ({targetItem._debugName})", new List<Item>() { targetItem }, description_options);
-            if (targetItem.HasVisibleProps())
-                ItemDescription.AddProperties($"Description ({targetItem._debugName})", targetItem, targetItem.GetVisibleProps());
+
+            ItemDescription.AddItems($"Description", new List<Item>() { targetItem }, "list");
+            //ItemDescription.AddItems($"Description", new List<Item>() { targetItem }, description_options);
+            /*if (targetItem.HasVisibleProps())
+                ItemDescription.AddProperties($"Description ({targetItem._debugName})", targetItem, targetItem.GetVisibleProps());*/
             if (targetItem.HasVisibleItems()) {
                 //ItemDescription.AddItems($"Child Items ({targetItem._debugName})", targetItem.GetVisibleItems(), "start:there's"); */
-                Debug.Log($"next step : child item description in excel");
             }
             return;
         }
