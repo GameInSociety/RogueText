@@ -15,7 +15,7 @@ public class PropertyDescription
             //ItemDescription.AddProperties($"Event Properties ({item._debugName})", item, new List<Property>() { prop }, "list / definite / filter events");
         } else {
             string opts = failed ? "list / definite / start:can't, " : "list / definite";
-            ItemDescription.AddProperties($"Player Action Properties ({item._debugName})", item, new List<Property>() { prop }, opts);
+            DescriptionGroup.AddProperties($"Player Action Properties ({item._debugName})", item, new List<Property>() { prop }, opts);
         }
 
     }

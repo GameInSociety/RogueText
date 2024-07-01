@@ -5,49 +5,50 @@ using UnityEditor;
 using UnityEngine;
 
 [System.Serializable]
-public class ItemDescription {
-
-    public class DescriptionGroup {
-        public string Name;
-        public List<ItemDescription> ids = new List<ItemDescription>();
-    }
+public class DescriptionGroup {
+    
     public static List<DescriptionGroup> archive = new List<DescriptionGroup>();
-
-    public static List<ItemDescription> itemDescriptions = new List<ItemDescription>();
+    public static List<DescriptionGroup> descriptionGroups = new List<DescriptionGroup>();
     public static List<int> describedItems = new List<int>();
 
+    /// <summary>
+    /// parameters
+    /// </summary>
     public string name;
     public Options options;
-    public List<ItemGroup> groups;
+    public List<ItemSlot> slots;
+    public List<Property> properties = new List<Property>();
 
-    public ItemDescription (string name, string opts) {
+    public DescriptionGroup (string name, string opts) {
         this.name = name;
-        groups = new List<ItemGroup>();
+        slots = new List<ItemSlot>();
         options = new Options(opts);
     }
 
     // for now the only 
     public static bool DescriptionPending() {
-        return itemDescriptions.Count > 0;
+        return descriptionGroups.Count > 0;
     }
 
     // static describe
     public static void StartDescription() {
         MapTexture.Instance.DisplayMap();
 
-        foreach (var itDes in itemDescriptions) {
-            var des = itDes.GetDescription();
+        for (int i = 0; i < descriptionGroups.Count; i++) {
+            descriptionGroups[i].HandleProps();
+        }
+        descriptionGroups.RemoveAll(x => x.slots.Count == 0);
+
+        foreach (var group in descriptionGroups) {
+            var des = group.GetDescription();
             des = des.Trim('\n');
             TextManager.Write($"{des}\n");
         }
 
         // debug
-        var debug_archive = new DescriptionGroup();
-        debug_archive.Name = "Description";
-        debug_archive.ids.AddRange(itemDescriptions);
-        archive.Add(debug_archive);
+        archive.AddRange(descriptionGroups);
 
-        itemDescriptions.Clear();
+        descriptionGroups.Clear();
         describedItems.Clear();
     }
 
@@ -55,25 +56,24 @@ public class ItemDescription {
         MapTexture.Instance.DisplayMap();
 
         string text = "";
-        foreach (var itDes in itemDescriptions) {
+        foreach (var itDes in descriptionGroups) {
             var des = itDes.GetDescription();
             des = des.Trim('\n');
             text += des;
         }
-        itemDescriptions.Clear();
+        descriptionGroups.Clear();
         describedItems.Clear();
         return text;
 
     }
 
-    public static void AddItems(string descriptionName, List<Item> items, string opts = "") {
+    public static DescriptionGroup AddItems(string descriptionName, List<Item> items, string opts = "") {
         // find item description
-        var itDes = itemDescriptions.Find(x=> x.name == descriptionName);
-        if (itDes == null) {
-            itDes = new ItemDescription(descriptionName, opts);
-            itemDescriptions.Add(itDes);
+        var dGroup = descriptionGroups.Find(x=> x.name == descriptionName);
+        if (dGroup == null) {
+            dGroup = new DescriptionGroup(descriptionName, opts);
+            descriptionGroups.Add(dGroup);
         }
-
 
         for (int i = 0; i < items.Count; ++i) {
             // set item
@@ -81,48 +81,35 @@ public class ItemDescription {
 
             // add to available items because described
             AvailableItems.Add("Described Items", item);
+            var slot = dGroup.AddItem(item);
 
-            // find matching item group
-            var group = itDes.groups.Find(x => x.dataIndex == item.dataIndex);
-            if (group == null) {
-                group = new ItemGroup($"{item.DebugName}", item.dataIndex);
-                itDes.groups.Add(group);
+            if (false /* in event : add all visible properties */ ) {
+                // add properties that need to be described ( maybe event not always )
+            } else {
+                // add contstant props
+                var constant_props = item.props.FindAll(x => x.HasPart("description") && x.GetContent("description type") == "always");
+                if (constant_props != null) {
+                    slot.props.AddRange(constant_props);
+                }
             }
-
-            // find matchig item s
-            if ( group.itemSlots.Count == 0) {
-                var slot = new ItemSlot($"{item.DebugName}");
-                group.itemSlots.Add(slot);
-            }
-            group.itemSlots[0].items.Add(item);
-
-            var constant_props = item.props.FindAll(x => x.HasPart("description") && x.GetContent("description type") == "always");
-            if ( constant_props != null) {
-                AddProperties(descriptionName, item, constant_props);
-            }
+           
         }
+
+        return dGroup;
 
     }
     public static void AddProperties(string descriptionName, Item item, List<Property> props, string opts = "") {
 
         // find /create item description
-        var itDes = itemDescriptions.Find(x => x.name == descriptionName);
+        var itDes = descriptionGroups.Find(x => x.name == descriptionName);
         if (itDes == null) {
-            itDes = new ItemDescription(descriptionName, opts);
-            itemDescriptions.Add(itDes);
+            itDes = new DescriptionGroup(descriptionName, opts);
+            descriptionGroups.Add(itDes);
         }
        
         
-
-        // find / create group
-        var group = itDes.groups.Find(x => x.dataIndex == item.dataIndex);
-        if ( group == null) {
-            group = new ItemGroup(item.DebugName, item.dataIndex);
-            itDes.groups.Add(group);
-        }
-        
         // find / create slot
-        var slot = group.itemSlots.Find(x=> x.items.First().dataIndex == item.dataIndex);
+        /*var slot = group.itemSlots.Find(x=> x.items.First().dataIndex == item.dataIndex);
         if (slot == null) {
             slot = new ItemSlot("all");
             group.itemSlots.Add(slot);
@@ -133,14 +120,74 @@ public class ItemDescription {
             if (slot.props.Find(x => x.GetCurrentDescription() == prop.GetCurrentDescription()) == null) {
                 slot.props.Add(prop);
             }
+        }*/
+    }
+
+    void HandleProps() {
+
+        // remove doubles inside groups 
+        foreach (var slot in slots) {
+            for (int i = slot.props.Count-1; i >= 0; i--) {
+                var prop = slot.props[i];
+                var count = slot.props.FindAll(x => x.GetCurrentDescription() == prop.GetDisplayDescription()).Count;
+                if ( count > 1) {
+                    slot.props.RemoveAt(i);
+                }
+            }
+        }
+
+        // find props common to each slots
+        var commonProps = new List<Property>();
+        var allProps = new List<Property>();
+        foreach (var slot in slots)
+            allProps.AddRange(slot.props);
+
+        for (int i = slots.Count-1; i >= 0; i--) {
+            var slot = slots[i];
+            for (int j = slot.props.Count-1; j >= 0; j--) {
+                var prop = slot.props[j];
+                var count = allProps.FindAll(x => x.GetCurrentDescription() == prop.GetCurrentDescription()).Count;
+                if (count > 1) {
+                    if (commonProps.Find(x => x.GetCurrentDescription() == prop.GetCurrentDescription()) == null) {
+                        commonProps.Add(prop);
+                        Debug.Log($"Create called {prop.GetCurrentDescription()} a group here");
+                    }
+                    Debug.Log($"move {slot.items.First().DebugName} to other group");
+                    slot.props.RemoveAt(j);
+                    slots.RemoveAt(i);
+                    TransferToGroup(prop, slot);
+                }
+            }
         }
     }
 
-    void SplitByProps() {
+    void TransferToGroup(Property prop, ItemSlot slot) {
+        var group = descriptionGroups.Find(x => x.name == prop.GetCurrentDescription());
+        if (group == null) {
+            group = new DescriptionGroup(prop.GetCurrentDescription(), "list");
+            group.properties.Add(prop);
+            descriptionGroups.Add(group);
+            group.slots.Add(slot);
+        } else {
+            group.slots.Add(slot);
+        }
+
+
 
     }
 
+    public ItemSlot AddItem(Item item) {
+        var slot = slots.Find(x => x.dataIndex == item.dataIndex);
+        if (slot == null) {
+            slot = new ItemSlot($"{item.DebugName}", item.dataIndex);
+            slots.Add(slot);
+        }
+        slot.items.Add(item);
+        return slot;
+    }
+
     public string GetDescription() {
+
 
         // group properties
        /* SplitSlotByPropertyName();
@@ -148,16 +195,17 @@ public class ItemDescription {
         // merge groups with same properties
         MergeSlotsWithSameProperties();*/
 
-
-        groups.RemoveAll(x=> x.itemSlots.Count == 0);
-        foreach (var gr in groups)
-            gr.itemSlots.RemoveAll(x => x.items.Count == 0);
-
-
         var description = "";
         var tmp_slots = new List<ItemSlot>();
-        foreach (var group in groups) {
-            tmp_slots.AddRange(group.itemSlots);
+
+
+        if ( properties.Count > 0 ) {
+            slots.First().props.InsertRange(0, properties);
+
+        }
+
+        foreach (var slot in slots) {
+            tmp_slots.Add(slot);
         }
         while (tmp_slots.Count > 0) {
             string phrase = Phrase.GetPhrase(tmp_slots, out tmp_slots, options);
@@ -168,10 +216,10 @@ public class ItemDescription {
     }
 
     private void SplitSlotByPropertyName() {
-        foreach (var group in groups) {
+        /*foreach (var slot in slots) {
             var confName = "";
             var newSlots = new List<ItemSlot>();
-            foreach (var slot in group.itemSlots) {
+            foreach (var slot in slots) {
                 foreach (var prop in slot.props) {
                     var similarProp = slot.props.Find(x => x.name == prop.name && x.GetCurrentDescription() != prop.GetCurrentDescription());
                     if (similarProp != null) {
@@ -192,26 +240,26 @@ public class ItemDescription {
                 }
             }
             if (newSlots.Count > 0) {
-                group.itemSlots.RemoveAt(0);
-                group.itemSlots.AddRange(newSlots);
+                slot.itemSlots.RemoveAt(0);
+                slot.itemSlots.AddRange(newSlots);
             }
-        }
+        }*/
     }
 
     void MergeSlotsWithSameProperties() {
-        var allSlots = new List<ItemSlot>();
-        foreach (var group in groups)
+        /*var allSlots = new List<ItemSlot>();
+        foreach (var group in slots)
             allSlots.AddRange(group.itemSlots);
 
-        for (int i = 0; i < groups.Count; i++) {
-            var baseGroup = groups[i];
+        for (int i = 0; i < slots.Count; i++) {
+            var baseGroup = slots[i];
             for (int j = 0; j < baseGroup.itemSlots.Count; j++) {
                 var baseSlot = baseGroup.itemSlots[j];
                 if (baseSlot.props.Count == 0) continue;
                 var sameSlots = SlotsWithSameProperties(baseSlot, allSlots);
                 if (sameSlots.Count > 0) {
                     foreach (var slt in sameSlots) {
-                        var targetGroup = groups.Find(x => x.itemSlots.Find(s => s == slt) != null);
+                        var targetGroup = slots.Find(x => x.itemSlots.Find(s => s == slt) != null);
                         slt.props.Clear();
                         baseGroup.itemSlots.Add(slt);
                         targetGroup.itemSlots.RemoveAll(x=> sameSlots.Find(s=> s == slt) != null);
@@ -222,7 +270,7 @@ public class ItemDescription {
                     options.groupedSlots = true;
                 }
             }
-        }
+        }*/
     }
     List<ItemSlot> SlotsWithSameProperties(ItemSlot baseSlot, List<ItemSlot> slots) {
         var result = new List<ItemSlot>();

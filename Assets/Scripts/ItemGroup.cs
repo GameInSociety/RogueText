@@ -17,7 +17,7 @@ public class ItemGroup {
             foreach (var item in slot.items) {
                 var newSlot = newSlots.Find(x => x.key == item.GetProp(key).GetCurrentDescription());
                 if (newSlot == null) {
-                    newSlot = new ItemSlot(item.GetProp(key).GetCurrentDescription());
+                    newSlot = new ItemSlot(item.GetProp(key).GetCurrentDescription(), item.dataIndex);
                     newSlot.props.Add(item.GetProp(key));
                     newSlots.Add(newSlot);
                 }

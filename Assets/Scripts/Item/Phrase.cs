@@ -74,7 +74,7 @@ public class Phrase {
     }
     
 
-    public static string GetPhrase(List<ItemSlot> input, out List<ItemSlot> output, ItemDescription.Options options) {
+    public static string GetPhrase(List<ItemSlot> input, out List<ItemSlot> output, DescriptionGroup.Options options) {
 
         var slotCount = options.groupedSlots ? input.Count : Random.Range(1, 4);
         //slotCount = Mathf.Clamp(slotCount, 1, input.Count);

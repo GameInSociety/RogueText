@@ -86,11 +86,8 @@ public class WorldEvent {
 
     
     public static void RemoveWorldEventsWithItem(Item item) {
-
-        foreach (var itDes in ItemDescription.itemDescriptions) {
-            foreach (var group in itDes.groups) {
-                group.itemSlots.RemoveAll(x=> x.items.Contains(item));
-            }
+        foreach (var itDes in DescriptionGroup.descriptionGroups) {
+            itDes.slots.RemoveAll(x => x.items.Contains(item));
         }
     }
 }

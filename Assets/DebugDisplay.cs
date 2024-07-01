@@ -318,44 +318,20 @@ public class DebugDisplay : MonoBehaviour
 
     #region item descriptions
     void UpdateItemDescriptions() {
-        foreach (var dGroup in ItemDescription.archive) 
+        foreach (var dGroup in DescriptionGroup.archive) 
         {
             float offset = 0f;
 
             // SHOW GROUP
-            var group_button = DisplayNewButton(dGroup.Name, Color.blue, offset, wa_scale);
-            if (group_button.selected) {
-                foreach (var id in dGroup.ids) {
-
-                    // SHOW ITEM DESCRIPTION
-                    if (id.name == "line break") {
-                        DisplayNewButton(id.name, Color.gray, offset + (buttons_Decal * 1), linePartContent_Scale);
-                        continue;
-                    }
-                    var id_button = DisplayNewButton(id.name, Color.cyan, offset + (buttons_Decal * 1), line_scale);
-                    if (id_button.selected) {
-                        foreach (var itGrp in id.groups) {
-                            string s = $"[{itGrp.key}:{itGrp.itemSlots.Count}]";
-
-                            // SHOW ITEM GROUP 
-                            var itGrp_button = DisplayNewButton(s, Color.white, offset + (buttons_Decal * 2), linePart_Scale);
-                            if (itGrp_button.selected) {
-                                foreach (var itemSlot in itGrp.itemSlots) {
-                                    string it_s = $"[{itemSlot.key}] : {itemSlot.items.Count}";
-                                    // ITEM SLOTS
-                                    var it_button = DisplayNewButton(it_s, Color.yellow, offset + (buttons_Decal * 3), linePartContent_Scale);
-                                    string np_s = "";
-                                    // NESTED PROPS
-                                    var np_button = DisplayNewButton($"Nested : {np_s}", Color.magenta, offset + (buttons_Decal * 3), linePartContent_Scale);
-                                    string dp_s = "";
-                                    foreach (var prop in itemSlot.props)
-                                        dp_s += $"({prop.GetCurrentDescription()}) ";
-                                    // DESCRUBE PROPS
-                                    var dp_button = DisplayNewButton($"Describe : {dp_s}", Color.magenta, offset + (buttons_Decal * 3), linePartContent_Scale);
-
-                                }
-                            }
-                        }
+            var dGroup_Button = DisplayNewButton(dGroup.name, Color.blue, offset, wa_scale);
+            if (dGroup_Button.selected) {
+                foreach (var slot in dGroup.slots) {
+                    string it_s = $"[{slot.key}] : {slot.items.Count}";
+                    // ITEM SLOTS
+                    var it_button = DisplayNewButton(it_s, Color.yellow, offset + (buttons_Decal), line_scale);
+                    if ( it_button.selected ) {
+                        foreach (var prop in slot.props)
+                            DisplayNewButton($"{prop.name} ({prop.GetCurrentDescription()})", Color.magenta, offset + (buttons_Decal * 2), linePartContent_Scale);
                     }
                 }
             }

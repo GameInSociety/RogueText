@@ -8,6 +8,7 @@ using static UnityEngine.ParticleSystem;
 public class ItemSlot {
     // an item slot is items grouped by property TYPE ( property names : (material:wooden, orientation: left, size:small etc...)
 
+    public int dataIndex;
     public string key;
     public bool definite;
     public bool overall;
@@ -15,8 +16,9 @@ public class ItemSlot {
     public List<Property> props = new List<Property>();
     Property grammar;
 
-    public ItemSlot (string key) {
+    public ItemSlot (string key, int dataIndex) {
         this.key = key;
+        this.dataIndex = dataIndex;
     }
 
     public string Describe(bool debug = false) {
@@ -33,7 +35,7 @@ public class ItemSlot {
         var text = $"{article} {phrase}";
         text = text.Trim(' ');
 
-        ItemDescription.describedItems.Add(RefItem.dataIndex);
+        DescriptionGroup.describedItems.Add(RefItem.dataIndex);
         return text;
     }
 
@@ -109,7 +111,7 @@ public class ItemSlot {
     }
 
     bool FirstTimeDescribed() {
-        return !ItemDescription.describedItems.Contains(RefItem.dataIndex);
+        return !DescriptionGroup.describedItems.Contains(RefItem.dataIndex);
     }
     Item RefItem {
         get {

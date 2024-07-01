@@ -96,7 +96,7 @@ public class WorldActionManager : MonoBehaviour
 
     public void PendSequence() {
         DisplayTime();
-        ItemDescription.StartDescription();
+        DescriptionGroup.StartDescription();
             Debug.Log($"pending");
         Invoke("ContinueSequence", 1f);
     }
@@ -109,7 +109,7 @@ public class WorldActionManager : MonoBehaviour
 
 
         DisplayTime();
-        ItemDescription.StartDescription();
+        DescriptionGroup.StartDescription();
 
         TimeDebug.Instance.DisplayText("Interupted !");
 

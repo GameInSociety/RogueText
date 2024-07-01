@@ -282,8 +282,8 @@ public class WorldAction {
     public void EndSequences() {
         active = null;
         finishedAllSequences = true;
-        if (ItemDescription.DescriptionPending())
-            ItemDescription.StartDescription();
+        if (DescriptionGroup.DescriptionPending())
+            DescriptionGroup.StartDescription();
 
         DisplayInput.Instance.Enable();
     }

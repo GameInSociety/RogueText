@@ -244,7 +244,7 @@ public class Line {
         }
         targetItem.TransferTo(container);
 
-        ItemDescription.AddItems($"Transfer ({targetItem._debugName})", new List<Item>() { targetItem }, $"start:{container.GetText("on the dog")}, ");
+        DescriptionGroup.AddItems($"Transfer ({targetItem._debugName})", new List<Item>() { targetItem }, $"start:{container.GetText("on the dog")}, ");
 
         AvailableItems.UpdateItems();
 
@@ -278,7 +278,7 @@ public class Line {
             _ = targetTile.CreateChildItem(itemName);
 
         if (targetTile == Tile.GetCurrent) {
-            ItemDescription.AddItems($"Create Item ({newItem._debugName})", new List<Item>() { newItem });
+            DescriptionGroup.AddItems($"Create Item ({newItem._debugName})", new List<Item>() { newItem });
         } else {
             // in other tile
             //TextManager.Write($"target tile : {Tile.GetCurrent.GetCoords().ToString()} / event tile : {WorldAction.current.tile.GetCoords().ToString()}");
@@ -298,11 +298,11 @@ public class Line {
 
             var targetItem = GetPart(0).item == null ? item : GetPart(0).item;
             if (ItemParser.Instance != null && ItemParser.Instance.GetPart(0).properties != null) {
-                ItemDescription.AddProperties($"Property From Input ({targetItem._debugName})", targetItem, ItemParser.Instance.GetPart(0).properties, "list / definite");
+                DescriptionGroup.AddProperties($"Property From Input ({targetItem._debugName})", targetItem, ItemParser.Instance.GetPart(0).properties, "list / definite");
                 return;
             }
 
-            ItemDescription.AddItems($"Description", new List<Item>() { targetItem }, "list");
+            DescriptionGroup.AddItems($"Description", new List<Item>() { targetItem }, "list");
             //ItemDescription.AddItems($"Description", new List<Item>() { targetItem }, description_options);
             /*if (targetItem.HasVisibleProps())
                 ItemDescription.AddProperties($"Description ({targetItem._debugName})", targetItem, targetItem.GetVisibleProps());*/

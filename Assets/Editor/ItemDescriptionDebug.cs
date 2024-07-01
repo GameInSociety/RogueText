@@ -21,30 +21,11 @@ public class ItemDescriptionDebug : EditorWindow {
 
     }
 
-    void UpdateLog(List<ItemDescription> ids) {
-        ItemDescription.log = "";
-        foreach (var itemDescription in ids) {
-            LOG($"\n______________________________________" +
-                $"\n[{itemDescription.name}] : {itemDescription.groups.Count}", Color.cyan);
-            foreach (var group in itemDescription.groups) {
-                LOG($"[{group.key}:{group.itemSlots.Count}]", Color.yellow);
-
-                foreach (var itemSlot in group.itemSlots) {
-                    LOG($"[{itemSlot.key}] : {itemSlot.items.Count}", Color.white);
-                    string describt_text = "";
-                    foreach (var prop in itemSlot.props)
-                        describt_text += $"({prop.GetCurrentDescription()}) ";
-                    LOG($"Props : {describt_text}", Color.magenta);
-
-                }
-            }
-        }
-    }
 
     public static void LOG(string message, Color c) {
         var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(c)}>";
         string str = $"\n{txt_color}{message}</color>";
-        ItemDescription.log += str;
+        DescriptionGroup.log += str;
     }
 
 }
