@@ -3,16 +3,23 @@ using System.Linq;
 using System.Net.Mime;
 using UnityEngine;
 
+/// <summary>
+/// This class merges all the item slots into a phrase, binding them with location text ("There's", "Between" etc... )
+/// Phrase structure :
+/// "Between the [SLOT 1] and the [SLOT 2]
+/// </summary>
 [System.Serializable]
 public class Phrase {
 
     [System.Serializable]
     public class PhraseType {
-        public string key;
         public List<Phrase> phrases = new List<Phrase>();
     }
     public static List<Part> parts = new List<Part>();
 
+    /// <summary>
+    /// The content of the phrase
+    /// </summary>
     public string text;
     public int groupCount;
     public int multItemsCount = 0;
@@ -74,18 +81,38 @@ public class Phrase {
     }
     
 
-    public static string GetPhrase(List<ItemSlot> input, out List<ItemSlot> output, DescriptionGroup.Options options) {
+    public static string GetPhrase(List<ItemSlot> input_Slots, out List<ItemSlot> output_Slots) {
 
-        var slotCount = options.groupedSlots ? input.Count : Random.Range(1, 4);
-        //slotCount = Mathf.Clamp(slotCount, 1, input.Count);
-        slotCount = input.Count;
+        DescriptionGroup.Options options = new DescriptionGroup.Options("");
+
+        var results = new List<string>();
+
+        // (Debug) Very important. Return a simple list with items sorted by properties & number, without the phrase merge.
+        if (DebugManager.Instance.Description_DebugList())
+        {
+            for (int i = 0; i < input_Slots.Count; i++)
+            {
+                string itemText = input_Slots[i].GetText();
+                results.Add($"{itemText}");
+            }
+            var list = string.Join("", results);
+            input_Slots.Clear();
+            output_Slots = input_Slots;
+            return list.Trim(' ');
+        }
+
+        // Selecting the number of slots merged in the next text. ( "surrounding a TREE, some MUSHROOMS", "In front of you, a dog" )
+        var slotCount = options.groupedSlots ? input_Slots.Count : Random.Range(1, 4);
+        // ?? 
+        slotCount = input_Slots.Count;
+
 
         List<ItemSlot> slots = new List<ItemSlot>();
         for (int i = 0; i < slotCount; i++) {
-            slots.Add(input[i]);
+            slots.Add(input_Slots[i]);
             slots[i].definite = options.definite;
         }
-        input.RemoveRange(0, slotCount);
+        input_Slots.RemoveRange(0, slotCount);
 
 
         var slots_multItems = slots.FindAll(x => x.items.Count > 1);
@@ -94,13 +121,11 @@ public class Phrase {
         var sepIndex = Random.Range(0,slots.Count+1);
         bool after = Random.value > 0.5f;
         
-        var results = new List<string>();
         for (int i = 0; i < slots.Count; i++) {
 
-            string itemText = options.list ? slots[i].Describe() : slots[i].Describe();
+            string itemText = slots[i].GetText();
             string end = options.list ? "\n" : TextUtils.GetCommas(i, i < sepIndex ? sepIndex : slots.Count);
             results.Add($"{itemText}{end}");
-
         }
         if (!options.list) {
             var insert = $" {Part.GetRandom(sepIndex, slots.Count - sepIndex)} ";
@@ -109,7 +134,7 @@ public class Phrase {
 
 
         var result = string.Join("", results);
-        output = input;
+        output_Slots = input_Slots;
         return result.Trim(' ');
 
     }

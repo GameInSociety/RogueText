@@ -279,8 +279,8 @@ public class Item {
     }
     #endregion
 
+    // Getting the description of the item 
     #region description
-
     public string GetText(string prms, int propLayer = 0) {
 
         // FORM

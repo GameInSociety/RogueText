@@ -19,7 +19,6 @@ public class PhraseLoader : DataDownloader
         if (rowIndex == 0) {
             for (int i = 0; i < partsIndex; i++) {
                 var pt = new Phrase.PhraseType();
-                pt.key = cells[i];
             }
             for (int i = partsIndex; i < cells.Count; i++) {
                 if (!string.IsNullOrEmpty(cells[i]))

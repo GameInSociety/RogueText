@@ -3,36 +3,12 @@ using UnityEngine;
 
 public class DebugManager : MonoBehaviour {
 
-    public int value;
-    public int max;
-    public float lerp;
-    public int index;
-    public string result;
-    public string descriptions;
-    public bool strict = false;
+    [SerializeField] private bool _description_DebugList;
 
-    private void Update() {
-        /*lerp = (float)value / max;
-        var split = descriptions.Split('/');
-        index = (int)(lerp * split.Length);
-        result = split[index];*/
-
-        if (strict) {
-            lerp = (float)value / max;
-            var split = descriptions.Split('/');
-            index = (int)(lerp * split.Length);
-            result = split[index];
-        } else {
-            lerp = (float)value / max;
-            var split = descriptions.Split('/');
-            index = (int)(lerp * (split.Length - 2));
-            if (value == 0)
-                result = split[0];
-            else
-                result = split[1 + index];
-        }
+    public bool Description_DebugList()
+    {
+        return _description_DebugList;
     }
-
 
     private static DebugManager _instance;
     public static DebugManager Instance {
@@ -42,5 +18,4 @@ public class DebugManager : MonoBehaviour {
             return _instance;
         }
     }
-
 }

@@ -156,9 +156,6 @@ public class ItemParser {
                 return;
             }
 
-
-
-
             AssignOrdinalProps(items);
 
             var itemFromOtherPart = (Item)null;
@@ -206,9 +203,9 @@ public class ItemParser {
                 if (ordinal_prop == null) {
                     ordinal_prop = new Property();
                     ordinal_prop.name = "ordinal";
-                    ordinal_prop.AddPart("search", ordinal);
+                    ordinal_prop.AddPart("key", ordinal);
                 }
-                items[i].SetProp($"ordinal | search:{ordinal}");
+                items[i].SetProp($"ordinal | key:{ordinal}");
             }
         }
 
@@ -358,7 +355,7 @@ public class ItemParser {
         if (verb.duration > 0) {
             var timeSeq = $"add( !time>seconds passed, {verb.duration})";
             var timeAction = new WorldAction(GetPart().items.First(), timeSeq, "Player Action Duration");
-            timeAction.StartSequence();
+            timeAction.StartSequence(WorldAction.Source.Event);
         }
 
         // trigger action

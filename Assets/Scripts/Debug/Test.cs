@@ -6,11 +6,12 @@ using UnityEngine.Rendering;
 
 public class Test : MonoBehaviour {
 
-    public string tile = "north";
-    public Coords coords;
+    public List<SlotText> slots = new List<SlotText>();
 
-    public List<ItemGroup> groups = new List<ItemGroup>();
-    public string feedback;
-    public List<ItemGroup> samePropGroups = new List<ItemGroup>();
+    public class SlotText
+    {
+        public string name;
+        public string prop;
+    }
 
 }

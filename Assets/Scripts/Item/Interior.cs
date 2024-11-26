@@ -20,12 +20,8 @@ public static class Interior {
     }
     #endregion
 
-    public static TileSet InitTileSet(Item item, int id) {
-        /// Create tile set 
-		TileSet tileSet = new TileSet();
-        tileSet.width = TileSet.world.width;
-        tileSet.height = TileSet.world.height;
-
+    public static void InitTileSet(Item item, TileSet tileSet) {
+        
         // Create room types
         var rooms = item.GetProp("rooms");
 
@@ -33,9 +29,8 @@ public static class Interior {
             foreach (var prop in item.props) {
                 Debug.Log($"prop : {prop.name}");
             }
-
-                Debug.LogError($"item : {item.DebugName} has no prop ROOMS");
-            return null;
+            Debug.LogError($"item : {item.DebugName} has no prop ROOMS");
+            return;
         }
         var tileNames = rooms.GetContent("tiles").Split('\n').ToList();
         // Create hallway
@@ -49,14 +44,13 @@ public static class Interior {
             var newHallwayTile = Tile.Create("hallway" );
 
             tileSet.Add(hallway_Coords, newHallwayTile);
-
             // set entrance door
             if (b ==  0) {
                 var entrance = newHallwayTile.CreateChildItem("entrance");
             }
 
             for (int x = -1; x < 2; x += 2) {
-                var newRoomCoords = newHallwayTile.GetCoords() + new Coords(x, 0);
+                var newRoomCoords = hallway_Coords + new Coords(x, 0);
 
                 int rnd = Random.Range(0, tileNames.Count);
                 var tileName = tileNames[rnd];
@@ -73,8 +67,6 @@ public static class Interior {
                 break;
             }
         }
-
-        return tileSet;
 
     }
 }

@@ -8,6 +8,7 @@ public class MapLoader : DataDownloader
     public int mapToLoad;
     public int width;
     public int height;
+    bool createdMap = false;
 
     public List<TileInfo> tileInfos = new List<TileInfo>();
     [System.Serializable]
@@ -23,9 +24,7 @@ public class MapLoader : DataDownloader
 
     public override void Load() {
 
-        TileSet.tileSets.Clear();
-        TileSet.tileSets.Add(new TileSet());
-
+        
         base.Load();
     }
 
@@ -36,9 +35,11 @@ public class MapLoader : DataDownloader
     public override void GetCell(int row, List<string> cells) {
         base.GetCell(row, cells);
 
-        if (row == 0) {
+        if (!createdMap) {
             width = cells.Count-1;
             height = lineAmount;
+            var tileSet = TileSet.NewTileset();
+            createdMap = true;
         }
 
         for (int x = 0; x < cells.Count; x++) {

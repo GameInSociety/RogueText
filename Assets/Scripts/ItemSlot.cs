@@ -2,46 +2,87 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Android;
 using static UnityEngine.ParticleSystem;
 
+/// <summary>
+/// 
+/// </summary>
 [System.Serializable]
 public class ItemSlot {
     // an item slot is items grouped by property TYPE ( property names : (material:wooden, orientation: left, size:small etc...)
 
-    public int dataIndex;
+    /// <summary>
+    /// ??
+    /// </summary>
     public string key;
+
+    /// <summary>
+    /// Index of the item
+    /// </summary>
+    public int dataIndex;
+
+    /// <summary>
+    /// The / A
+    /// </summary>
     public bool definite;
-    public bool overall;
+
+    /// <summary>
+    /// Described Items
+    /// </summary>
     public List<Item> items = new List<Item>();
+
+    /// <summary>
+    /// Described Properties
+    /// </summary>
     public List<Property> props = new List<Property>();
-    Property grammar;
+
+    /// <summary>
+    /// The target grammar of the slot
+    /// </summary>
+    private Property grammar;
 
     public ItemSlot (string key, int dataIndex) {
         this.key = key;
         this.dataIndex = dataIndex;
     }
 
-    public string Describe(bool debug = false) {
+    public string GetText(bool debug = false) {
 
         grammar = RefItem.GetProp("grammar");
 
+        string textprops = GetPropText(props) == "" ? "" : $" ({GetPropText(props)})";
+        return $"{GetArticleText(GetItemText())} {GetItemText()}{textprops}";
+
         // get noun
-        var phrase = $"[{GetName()}] ({GetProps(props, true)})";
+        string item_name = GetItemText();
+        // Get props that are not ajdectives ( "You're standing in a clearing" => you're standing in" )
+        string props_hook = GetPropText(props.FindAll(x => x.HasPart("before article")), false);
+        // Get props before word ( "Wooden door" );
+        string props_before = GetPropText(props.FindAll(x => x.HasPart("before word")), true);
+        // Get props after word ( "door is wooden" );
+        string props_after = GetPropText(props.FindAll(x => !x.HasPart("before word")&& !x.HasPart("before article")), true);
+
+        // Merge 
+        props_before = string.IsNullOrEmpty(props_before) ? "" : $"{props_before} ";
+        props_after= string.IsNullOrEmpty(props_after) ? "" : $" {props_after}";
+        props_hook = string.IsNullOrEmpty(props_hook) ? "" : $"{props_hook} ";
+        var phrase = $"{props_before}{item_name}{props_after}";
         phrase = phrase.Trim(' ');
 
         // get articles
-        string article = GetArticle(phrase);
+        string article = GetArticleText(phrase);
         // put phrase together
-        var text = $"{article} {phrase}";
+        var text = $"{props_hook}{article} {phrase}";
         text = text.Trim(' ');
 
-        DescriptionGroup.describedItems.Add(RefItem.dataIndex);
+        DescriptionManager.Instance.describedItems.Add(RefItem.dataIndex);
         return text;
     }
 
 
-    public string GetProps(List<Property> props, bool showHook = false) {
-        if (props.Count == 0) return " ";
+    public string GetPropText(List<Property> props, bool showSetup = false) {
+        if (props.Count == 0) return "";
 
         string text = "";
 
@@ -67,8 +108,8 @@ public class ItemSlot {
             props_txt[i]= props_txt[i].Trim(' ');
 
             // aggregate prop texts
-            if (showHook) {
-                var b = showHook && i > 0 && props[i - i].GetContent("description setup") == props[i].GetContent("description setup");
+            if (showSetup) {
+                var b = showSetup && i > 0 && props[i - i].GetContent("description setup") == props[i].GetContent("description setup");
                 string hook = b ? "" : $"{setup} ";
                 text += $"{hook}{props_txt[i]}{TextUtils.GetCommas(i, props_txt.Count)}";
             } else {
@@ -85,7 +126,7 @@ public class ItemSlot {
         return items.Count > 1;
     }
 
-    string GetName() {
+    string GetItemText() {
         // check self ref
         // example : the player => you
         if (grammar != null) {
@@ -110,16 +151,21 @@ public class ItemSlot {
         return items.First().GetText($"{dog}");
     }
 
+    // ???
     bool FirstTimeDescribed() {
-        return !DescriptionGroup.describedItems.Contains(RefItem.dataIndex);
+        return !DescriptionManager.Instance.describedItems.Contains(RefItem.dataIndex);
     }
-    Item RefItem {
+
+    /// <summary>
+    /// Getting the main item of the slots
+    /// </summary>
+    private Item RefItem {
         get {
             return items.First();
         }
     }
 
-    string GetArticle(string text) {
+    private string GetArticleText(string text) {
         var article = "";
         var grammar = RefItem.GetProp("grammar");
         if (grammar.HasPart("article")) {
@@ -146,10 +192,10 @@ public class ItemSlot {
         if (grammar.HasPart("definite"))
             definite = true;
 
-        return definite ? "the" : (IsMultiple() ? Phrase.Part.GetRandom("article_mult") : (startWithVowel(text)?"an":"a"));
+        return definite ? "the" : (IsMultiple() ? Phrase.Part.GetRandom("article_mult") : (StartWithVowel(text)?"an":"a"));
     }
 
-    bool startWithVowel(string text) {
+    private bool StartWithVowel(string text) {
         char[] vowels = new char[] {
             'a','e','i','o','u'
         };

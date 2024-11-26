@@ -40,6 +40,7 @@ public class DebugButton : MonoBehaviour, IPointerClickHandler {
     }
 
     public void OnPointerClick(PointerEventData eventData) {
+        Debug.Log($"Selected");
         selected = !selected;
         UpdateUI(selected);
     }

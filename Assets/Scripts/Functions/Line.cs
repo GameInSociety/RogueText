@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
+
 public class Line {
 
     public static Line current;
@@ -205,7 +206,7 @@ public class Line {
         }
         var action = new WorldAction(targetItem, sequence.content, $"start() : {sequence.triggers[0]} ({param_text})");
         action.parameters = _parameters;
-        action.StartSequence();
+        action.StartSequence(WorldAction.Source.Event);
         return action;
     }
     void interupt() {
@@ -244,7 +245,9 @@ public class Line {
         }
         targetItem.TransferTo(container);
 
-        DescriptionGroup.AddItems($"Transfer ({targetItem._debugName})", new List<Item>() { targetItem }, $"start:{container.GetText("on the dog")}, ");
+        string DESCRIPTION_OPTIONS = $"start:{container.GetText("on the dog")}, ";
+        var description_id = $"Transfer ({targetItem._debugName})";
+        DescriptionManager.Instance.Add(description_id, targetItem);
 
         AvailableItems.UpdateItems();
 
@@ -278,7 +281,8 @@ public class Line {
             _ = targetTile.CreateChildItem(itemName);
 
         if (targetTile == Tile.GetCurrent) {
-            DescriptionGroup.AddItems($"Create Item ({newItem._debugName})", new List<Item>() { newItem });
+            var description_id = $"Create Item ({newItem._debugName})";
+            DescriptionManager.Instance.Add(description_id, newItem);
         } else {
             // in other tile
             //TextManager.Write($"target tile : {Tile.GetCurrent.GetCoords().ToString()} / event tile : {WorldAction.current.tile.GetCoords().ToString()}");
@@ -290,24 +294,30 @@ public class Line {
     void describe() {
 
         // the default describe function, 
-        if (GetPart(0).item != null || parts.Count == 0) {
+        if (parts.Count == 0 || (parts.Count > 0 && GetPart(0).HasItem()) ) {
 
             var description_options = "";
             if (HasPart(1))
                 description_options = GetPart(1).output;
 
-            var targetItem = GetPart(0).item == null ? item : GetPart(0).item;
-            if (ItemParser.Instance != null && ItemParser.Instance.GetPart(0).properties != null) {
+            var targetItem = HasPart(0) ? GetPart(0).item : item;
+            // je sais plus à quoi ça sert mais ça avait l'air important
+            /*if (ItemParser.Instance != null && ItemParser.Instance.GetPart(0).properties != null) {
                 DescriptionGroup.AddProperties($"Property From Input ({targetItem._debugName})", targetItem, ItemParser.Instance.GetPart(0).properties, "list / definite");
                 return;
-            }
+            }*/
 
-            DescriptionGroup.AddItems($"Description", new List<Item>() { targetItem }, "list");
-            //ItemDescription.AddItems($"Description", new List<Item>() { targetItem }, description_options);
-            /*if (targetItem.HasVisibleProps())
-                ItemDescription.AddProperties($"Description ({targetItem._debugName})", targetItem, targetItem.GetVisibleProps());*/
-            if (targetItem.HasVisibleItems()) {
-                //ItemDescription.AddItems($"Child Items ({targetItem._debugName})", targetItem.GetVisibleItems(), "start:there's"); */
+            // Create id for item description
+            string groupID = $"{targetItem._debugName}";
+            // Adding item to descrition group.
+            DescriptionManager.Instance.Add(groupID, new List<Item>() { targetItem });
+            // Adding non constant props to description.
+            DescriptionManager.Instance.Add(groupID, targetItem, targetItem.GetVisibleProps());
+
+            if (targetItem.HasVisibleItems())
+            {
+                DescriptionManager.Instance.Add($"{targetItem._debugName} (Child Items)", targetItem.GetVisibleItems());
+                //DescriptionGroup.AddItems($"Child Items ({targetItem._debugName})", targetItem.GetVisibleItems(), "start:there's");
             }
             return;
         }

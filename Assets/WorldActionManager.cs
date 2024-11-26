@@ -39,6 +39,12 @@ public class WorldActionManager : MonoBehaviour
     public bool waitingForInput = false;
 
     private void Update() {
+
+        if (DescriptionManager.Instance.DescriptionPending())
+        {
+            DescriptionManager.Instance.StartDescription();
+        }
+
         if (waitingForInput) {
             if (Input.GetKeyDown(KeyCode.Y)) {
                 ContinueSequence();
@@ -96,8 +102,6 @@ public class WorldActionManager : MonoBehaviour
 
     public void PendSequence() {
         DisplayTime();
-        DescriptionGroup.StartDescription();
-            Debug.Log($"pending");
         Invoke("ContinueSequence", 1f);
     }
 
@@ -106,10 +110,7 @@ public class WorldActionManager : MonoBehaviour
     }
 
     public void PauseSequence(WorldAction sequence) {
-
-
         DisplayTime();
-        DescriptionGroup.StartDescription();
 
         TimeDebug.Instance.DisplayText("Interupted !");
 
@@ -144,7 +145,7 @@ public class WorldActionManager : MonoBehaviour
     }
 
     void ContinueSequence() {
-        nextSequence.StartSequence();
+        nextSequence.StartSequence(WorldAction.Source.Event);
     }
 
     public void CallNextAction() {

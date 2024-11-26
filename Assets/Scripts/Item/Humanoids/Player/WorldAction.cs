@@ -106,12 +106,10 @@ public class WorldAction {
         this.content = content;
         debug_additionalInfo = additionalinfo;
     }
+
     #region call
     public void InvokeSequence() {
         WorldActionManager.Instance.InvokeSequence(this);
-    }
-    public void StartSequence() {
-        StartSequence(Source.Event);
     }
     public void StartSequence(Source source = Source.Event) {
 
@@ -124,7 +122,6 @@ public class WorldAction {
         nextTimeAction = null;
         if ( active != null) {
             // debug
-
             active.children.Add(this);
 
             // stack
@@ -253,10 +250,14 @@ public class WorldAction {
         if (!origin)
             return;
 
-        if (nextTimeAction != null) {
+        if (nextTimeAction != null)
+        {
             NextTimeAction();
-        } else
+        }
+        else
+        {
             EndSequences();
+        }
     }
 
     void NextTimeAction() {
@@ -282,10 +283,6 @@ public class WorldAction {
     public void EndSequences() {
         active = null;
         finishedAllSequences = true;
-        if (DescriptionGroup.DescriptionPending())
-            DescriptionGroup.StartDescription();
-
-        DisplayInput.Instance.Enable();
     }
 
     public void Error(string message) {

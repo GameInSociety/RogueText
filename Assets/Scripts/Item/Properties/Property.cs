@@ -220,7 +220,8 @@ public class Property {
                 case "new tileset":
                     int tilesetId = TileSet.tileSets.Count;
                     newContent = tilesetId.ToString();
-                    TileSet.tileSets.Add(Interior.InitTileSet(_linkedItem, tilesetId));
+                    var tileSet = TileSet.NewTileset();
+                    Interior.InitTileSet(_linkedItem, tileSet);
                     break;
                 default:
                     break;
@@ -330,7 +331,7 @@ public class Property {
             var sequence = content.Remove(0, returnIndex + 1);
             if (call) {
                 var propertyEvent = new WorldAction(_linkedItem, sequence, $"On Value:{name}");
-                propertyEvent.StartSequence();
+                propertyEvent.StartSequence(WorldAction.Source.Event);
             }
         }
     }
@@ -374,11 +375,11 @@ public class Property {
     }
     public string GetDisplayDescription() {
 
-        if (!enabled) {
+        /*if (!enabled) {
             if (updated)
                 return $"no longer {GetCurrentDescription()}";
             else return "";
-        }
+        }*/
 
         if (!updated)
             return GetCurrentDescription();
@@ -481,6 +482,10 @@ public class Property {
         return description;
     }
 
+    /// <summary>
+    /// Check if 
+    /// </summary>
+    /// <returns></returns>
     public bool Visible() {
 
         if (!HasPart("description"))

@@ -41,9 +41,11 @@ public class DisplayDescription : MonoBehaviour {
         public string currText;
         string htlm = "";
         public string GetFullText() {
+            return targetText;
             return $"<color=#{htlm}>{targetText}</color>";
         }
         public string GetCurrentText() {
+            return currText;
             return $"<color=#{htlm}>{currText}</color>";
         }
     }
@@ -130,6 +132,8 @@ public class DisplayDescription : MonoBehaviour {
         if (onTypeExit != null) {
             onTypeExit();
         }
+
+        DisplayInput.Instance.Enable();
     }
 
     public void ClearDescription() {

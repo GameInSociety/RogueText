@@ -318,13 +318,14 @@ public class DebugDisplay : MonoBehaviour
 
     #region item descriptions
     void UpdateItemDescriptions() {
-        foreach (var dGroup in DescriptionGroup.archive) 
+        foreach (var dGroup in DescriptionManager.Instance.archive) 
         {
             float offset = 0f;
 
             // SHOW GROUP
-            var dGroup_Button = DisplayNewButton(dGroup.name, Color.blue, offset, wa_scale);
+            var dGroup_Button = DisplayNewButton(dGroup.id, Color.blue, offset, wa_scale);
             if (dGroup_Button.selected) {
+                Debug.Log($"Count : {dGroup.slots.Count}");
                 foreach (var slot in dGroup.slots) {
                     string it_s = $"[{slot.key}] : {slot.items.Count}";
                     // ITEM SLOTS
