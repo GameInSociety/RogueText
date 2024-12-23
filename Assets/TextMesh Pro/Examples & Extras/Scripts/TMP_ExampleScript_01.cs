@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+using TMPro;
 
 
-namespace TMPro.Examples {
+namespace TMPro.Examples
+{
 
     public class TMP_ExampleScript_01 : MonoBehaviour
     {

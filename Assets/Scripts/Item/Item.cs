@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.LowLevelPhysics;
+using UnityEngine.Rendering;
 
 [System.Serializable]
 public class Item {
@@ -34,7 +37,7 @@ public class Item {
     }
     public int dataIndex;
     public ItemData GetData() { return ItemData.itemDatas[dataIndex]; }
-    public int debug_Id;
+    public int id;
 
     public List<Property> props = new List<Property>();
     public int wordIndex = 0;
@@ -256,7 +259,7 @@ public class Item {
     public bool SimilarPropsAs(Item otherItem) {
         bool similarProps = false;
         if (GetVisibleProps().Count > 0 && otherItem.GetVisibleProps().Count > 0) {
-            similarProps = GetVisibleProps()[0].GetCurrentDescription() == otherItem.GetVisibleProps()[0].GetCurrentDescription();
+            similarProps = GetVisibleProps()[0].GetDescription() == otherItem.GetVisibleProps()[0].GetDescription();
             if (similarProps) {
                 Debug.Log($"{DebugName} is very similar to {otherItem.DebugName}");
             }
@@ -326,57 +329,6 @@ public class Item {
     public bool HasWord(string _text) {
         wordIndex = GetData().words.FindIndex(x => x.GetText == _text);
         return wordIndex >= 0;
-    }
-
-    public bool ContainedInText(string text) {
-        return GetIndexInText(text) >= 0;
-    }
-    public int GetIndexInText(string text) {
-        var wIndex = 0;
-        // WORD //
-        foreach (var word in GetData().words) {
-            for (int i = 0; i < 2; i++) {
-                var num = (Word.Number)i;
-                string _word = word.getText(num);
-                if (Regex.IsMatch(text, @$"\b{_word}\b")) {
-                    word.currentNumber = num;
-                    wordIndex = wIndex;
-                    return text.IndexOf(_word);
-                }
-            }
-            
-            ++wIndex;
-        }
-        // TYPE //
-        if (!HasProp("types")) return -1;
-        var typeParts = GetProp("types").parts;
-        foreach (var type in typeParts) {
-            string bound = type.key;
-            if (Regex.IsMatch(text, @$"\b{bound}\b")) {
-                Debug.Log($"Found item : {DebugName} with type {bound}");
-                return text.IndexOf(bound);
-            }
-        }
-        return -1;
-    }
-    public List<Property> GetPropsInText(string text) {
-        var result = new List<Property>();
-        foreach (var prop in GetDescribableProps()) {
-            var description = prop.GetCurrentDescription();
-            if (Regex.IsMatch(text, @$"\b{description}\b") || Regex.IsMatch(text, @$"\b{prop.name}\b"))
-                result.Add(prop);
-        }
-
-        // search ( not visible but searchable )
-        foreach (var prop in props.FindAll(x => x.HasPart("key"))) {
-            var keys = prop.GetContent("key").Split('/').ToList();
-            var key = keys.Find(x => Regex.IsMatch(text, @$"\b{x}\b"));
-            if (key!=null) {
-                Debug.Log($"[item:{DebugName}], found key {key} on property {prop.name}");
-                result.Add(prop);
-            }
-        }
-        return result.Count > 0 ? result : null;
     }
     #endregion
 

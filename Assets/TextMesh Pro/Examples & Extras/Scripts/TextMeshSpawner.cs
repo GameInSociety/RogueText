@@ -1,8 +1,10 @@
 using UnityEngine;
+using System.Collections;
 
 
-namespace TMPro.Examples {
-
+namespace TMPro.Examples
+{
+    
     public class TextMeshSpawner : MonoBehaviour
     {
 

@@ -72,7 +72,7 @@ public class ItemData {
         var dataIndex = GetItemDataIndex(name);
         var item = new Item();
         item.dataIndex = dataIndex;
-        item.debug_Id = debugAll;
+        item.id = debugAll;
         debugAll++;
         item.Init();
         return item;
@@ -86,7 +86,7 @@ public class ItemData {
         }
         var item = new Item();
         item.dataIndex = index;
-        item.debug_Id = debugAll;
+        item.id = debugAll;
         debugAll++;
         var serializedParent = JsonConvert.SerializeObject(item);
         var obj = JsonConvert.DeserializeObject(serializedParent, ItemType);

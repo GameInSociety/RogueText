@@ -90,6 +90,8 @@ public class Line {
             functionName,
             BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
+        Debug.Log($"Invoke LIne : {current.content}");
+
         try {
             info.Invoke(this, null);
         } catch (Exception e) {
@@ -247,7 +249,7 @@ public class Line {
 
         string DESCRIPTION_OPTIONS = $"start:{container.GetText("on the dog")}, ";
         var description_id = $"Transfer ({targetItem._debugName})";
-        DescriptionManager.Instance.Add(description_id, targetItem);
+        DescriptionManager.Instance.AddItem(description_id, targetItem);
 
         AvailableItems.UpdateItems();
 
@@ -282,7 +284,7 @@ public class Line {
 
         if (targetTile == Tile.GetCurrent) {
             var description_id = $"Create Item ({newItem._debugName})";
-            DescriptionManager.Instance.Add(description_id, newItem);
+            DescriptionManager.Instance.AddItem(description_id, newItem);
         } else {
             // in other tile
             //TextManager.Write($"target tile : {Tile.GetCurrent.GetCoords().ToString()} / event tile : {WorldAction.current.tile.GetCoords().ToString()}");
@@ -310,15 +312,11 @@ public class Line {
             // Create id for item description
             string groupID = $"{targetItem._debugName}";
             // Adding item to descrition group.
-            DescriptionManager.Instance.Add(groupID, new List<Item>() { targetItem });
-            // Adding non constant props to description.
-            DescriptionManager.Instance.Add(groupID, targetItem, targetItem.GetVisibleProps());
+            DescriptionManager.Instance.AddItem(groupID, new List<Item>() { targetItem });
 
-            if (targetItem.HasVisibleItems())
-            {
-                DescriptionManager.Instance.Add($"{targetItem._debugName} (Child Items)", targetItem.GetVisibleItems());
-                //DescriptionGroup.AddItems($"Child Items ({targetItem._debugName})", targetItem.GetVisibleItems(), "start:there's");
-            }
+            // Adding non constant props to description.
+            if (targetItem.HasVisibleProps())
+                DescriptionManager.Instance.AddProperty(groupID, targetItem, targetItem.GetVisibleProps());
             return;
         }
 
@@ -326,7 +324,7 @@ public class Line {
         if (GetPart(0).HasProp()) {
             Debug.Log($"has prop");
             var describedItem = GetPart(0).HasItem() ? GetItem(0) : item;
-            TextManager.Write($"{describedItem.GetText("the lone dog")} {GetProp(0).GetCurrentDescription()}");
+            TextManager.Write($"{describedItem.GetText("the lone dog")} {GetProp(0).GetDescription()}");
             return;
         }
 

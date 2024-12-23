@@ -1,3 +1,4 @@
+using NUnit.Framework.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,243 +7,32 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Android;
 
+// Features of item parser
+// 1 ) Get the verb from the input
+// 2 ) Separate parts of input ( the apple /WITH the banana )
+// 3 ) 
+
 [System.Serializable]
 public class ItemParser {
 
-    public List<string> separators = new List<string>() {
-        "in",
-        "from",
-        "at",
-        "on",
-        "with",
-        "through",
-    };
-
+    public string startText = "";
+    public string _text = "";
     public Verb verb;
-    public Part[] parts;
-    string _text = "";
-    public int currentState = 0;
+    public IP_Part[] parts;
 
-
-    public List<Item> GetItems() {
-        var _its = new List<Item>();
-        foreach (var part in parts)
-            _its.AddRange(part.items);
-        return _its;
-    }
-
-    public Part GetPart(int i = 0) {
-        return parts[i];
-    }
-
-    [System.Serializable]
-    public class Part {
-        public int partIndex;
-        public bool complete;
-        public bool needsDistinction;
-        public bool skip;
-        public string problem;
-        public bool used;
-        public string text;
-        public int number = -1;
-        public List<Item> items = new List<Item>();
-        public List<Property> properties = new List<Property>();
-        private ItemParser parser;
-
-        public bool HasItems() {
-            return items.Count > 0;
-        }
-        public Item MainItem() {
-            return items.First();
-        }
-        public void SetUsed() {
-            used = true;
-        }
-        void Log(string message, Color color) {
-            parser.Log(message, color);
-        }
-        void AddLog(string message, Color color) {
-            parser.AddLog(message, color);
-        }
-
-        public Part(string _part, ItemParser parser) {
-            text = _part;
-            this.parser = parser;
-        }
-
-        public void Parse() {
-            Log($"part:[{text}]", Color.white);
-
-            if ( text.Contains(" all ")) {
-                Debug.LogError($"THE PARSER WILL TARGET ALL THE ITEMS OF THIS PART");
-            }
-
-            GetNumber();
-            GetItems();
-        }
-
-        public void GetNumber() {
-            string str = Regex.Match(text, @"\d+").Value;
-            if (string.IsNullOrEmpty(str)){
-                return;
-            }
-            number = int.Parse(str);
-            Log($"parsed number : {number}", Color.grey);
-        }
-
-        public void GetProperties() {
-            if (items.Count == 0)
-                return;
-            var item = items[0];
-            properties = item.GetPropsInText(text);
-            
-            if (properties != null) {
-                var propTxt = "";
-                foreach (var prop in properties)
-                    propTxt += $"({prop.name}) ";
-                Log($"[props] {propTxt}", Color.magenta);
-            } else {
-                Log("[no props]", Color.magenta);
-            }
-        }
-
-        public void GetItems() {
-
-            items = AvailableItems.GetAll().FindAll(x => x.ContainedInText(text));
-            if (items.Count > 0) {
-                Log($"Item Reference:{string.Join('/', items.Select(x=>x.DebugName))}", Color.white);
-            } else {
-                items = AvailableItems.GetAll().FindAll(x => x.GetPropsInText(text) !=null);
-                if (items.Count == 0) {
-                    Log($"No Items", Color.red);
-                } else {
-                    Log($"Prop Reference:{string.Join('/', items.Select(x => x.DebugName))}", Color.white);
-                }
-            }
-
-            GetProperties();
-        }
-
-        public void SortItems() {
-            if (items.Count == 1) {
-                Log("[SORT] only one item, no sorting", Color.gray);
-                return;
-            }
-
-            if (Regex.IsMatch(text, @$"\ball\b")) {
-                Log("[SORT] found 'all' in input, no sorting", Color.gray);
-                return;
-            }
-
-            var first = items[0];
-
-            // check some 
-            if (Regex.IsMatch(text, @$"\bsome\b")) {
-                float f = (float)items.Count / 2;
-                int half = (int)Mathf.Clamp(Mathf.Round(f), 1, items.Count);
-                if (half < items.Count)
-                    items.RemoveRange(half, items.Count - half);
-                Log($"[SORT] found 'some' in input, returning {half} items", Color.gray);
-                return;
-            }
-
-            // check digit
-            if (number >= 0) {
-                if (number >= items.Count)
-                    return;
-                for (int i = number; i < items.Count; i++)
-                    items.RemoveAt(i);
-                Log($"[SORT] found number in part, return {number} items", Color.gray);
-                return;
-            }
-
-            AssignOrdinalProps(items);
-
-            var itemFromOtherPart = (Item)null;
-            // look for specific item IN other parts
-            // ( take apple from bag in left hand )
-            if (partIndex == 0 && parser.parts.Length > 1) {
-                var nextPart = parser.parts[partIndex + 1];
-                itemFromOtherPart = items.Find(x => x.GetPropsInText(nextPart.text) != null);
-                if (itemFromOtherPart != null ) {
-                    var nextProps = itemFromOtherPart.GetPropsInText(nextPart.text);
-                    nextPart.SetUsed();
-                    items.RemoveAll(x => x != itemFromOtherPart);
-                    return;
-                }
-
-            }
-
-            // look for an specific item with a property
-            var narrowedIts = items.FindAll(x => x.GetPropsInText(text) != null);
-            if ( narrowedIts.Count > 0) {
-                items = narrowedIts;
-                var narrowedProps = new List<Property>();
-                string propText = $"";
-                foreach (var item in narrowedIts) {
-                    narrowedProps.AddRange(item.GetPropsInText(text));
-                    propText = string.Join('/', narrowedProps.Select(x => x.name).ToList());
-                }
-                Log($"[SORT] found prop {propText} for item {narrowedIts[0].DebugName}", Color.gray);
-            }
-            
-            // plural
-            if (MainItem().GetWord().currentNumber == Word.Number.Plural) {
-                Log($"[SORT] (plural : all)", Color.gray);
-                return;
-            }
-
-            Log($"[SORT] (no plural : first)", Color.gray);
-            items = new List<Item>() { items.First() };
-        }
-
-        void AssignOrdinalProps(List<Item> items) {
-            for (int i = 0; i < items.Count; i++) {
-                string ordinal = GetOrdinal(i);
-                var ordinal_prop = items[i].GetProp("ordinal");
-                if (ordinal_prop == null) {
-                    ordinal_prop = new Property();
-                    ordinal_prop.name = "ordinal";
-                    ordinal_prop.AddPart("key", ordinal);
-                }
-                items[i].SetProp($"ordinal | key:{ordinal}");
-            }
-        }
-
-        public string GetOrdinal(int i) {
-            var ordinals = new string[10]
-            {
-            "first",
-            "second",
-            "third",
-            "fourth",
-            "fifth",
-            "sixth",
-            "seventh",
-            "eighth",
-            "ninth",
-            "tenth",
-            };
-            if ( i >= ordinals.Length) {
-                return "other";
-            }
-            return ordinals[i];
-        }
-    }
     public void Parse(string txt) {
         // assigning seq
-        _text = txt.ToLower();
-        Log(_text, Color.cyan);
+        startText = txt.ToLower();
+        _text = startText;
 
         TextManager.Write($"\n=> {_text}\n", Color.magenta);
 
-        // verb
+        // Fetch & Extract verb before splitting input.
         FetchVerb();
-        FetchItems();
+        ExtractParts();
 
-        if (!FoundAllElements()) {
-            return; 
-        }
+        if (!IsInputComplete())
+            return;
 
         // t'as fait ce truc qui est un peu d�bile mais PAS TANT QUE �a.
         // parce que d'ici tu peux check TOUS les items avec lesquels le verb peut int�ragir.
@@ -260,7 +50,7 @@ public class ItemParser {
 
     }
 
-    bool FoundAllElements() {
+    bool IsInputComplete() {
 
         if (Verb.IsNull(verb)) {
             if (GetPart(0).HasItems()) {
@@ -277,16 +67,21 @@ public class ItemParser {
 
         foreach (var part in parts) {
             if (!part.HasItems()) {
-                TextManager.Write($"there's no {part.text} around");
+                TextManager.Write($"there's no {part.GetText} around");
                 return false;
-            }
-            if (part.needsDistinction) {
-                // for now forget it
-                //TextManager.Write($"which {part.MainItem().debug_name} do you want to {verb.GetCurrentWord}");
-                //return false;
             }
         }
 
+        // Clear all used text to see if there's unused text
+        foreach (var part in parts) {
+            part.ClearText();
+            if (!string.IsNullOrEmpty(part.finalText)) {
+                Debug.LogError($"part : !{startText}! is incomplete ({part.finalText})");
+                TextManager.Write($"There's no {part.finalText} {part.MainItem().DebugName}");
+                return false;
+            }
+        }
+        
 
         return true;
     }
@@ -294,79 +89,89 @@ public class ItemParser {
     public void TriggerAction() {
 
         string sequence = "";
+
+        // If only a verb is present in the input
+        // Get the "Any Item" sequence.
         if ( parts.Length == 0) {
             sequence = verb.GetItemSequence(WorldData.anyItem.GetData());
+            // Return if the verb doesn't have a default sequence.
             if (sequence == null) {
                 TextManager.Write($"{verb.question} do you want to {verb.GetFull}");
-                Log($"no action OR any item item for {verb.GetCurrentWord}", Color.red);
                 return;
             }
-            parts = new Part[1];
-            parts[0] = new Part("any item : no text", this);
-            parts[0].partIndex = 0;
+            // Create default verb sequence.
+            parts = new IP_Part[1];
+            parts[0] = new IP_Part("any item : no text", this);
+            parts[0].index = 0;
             parts[0].items.Add(WorldData.anyItem);
-        } else {
+        }
+        // Get verb & item combination
+        else {
             var actionItem = GetPart().items[0];
             sequence = verb.GetItemSequence(actionItem.GetData());
-            if (sequence == null) {
+            if (sequence == null)
                 sequence = verb.GetItemSequence(WorldData.anyItem.GetData());
-            }
 
             if (sequence == null) {
                 TextManager.Write($"you can't {verb.GetFull} {actionItem.GetText("the dog")}");
-                Log($"no action for {verb.GetCurrentWord} and {GetPart().items[0].DebugName}", Color.red);
                 return;
             }
         }
 
+        // Checks if input parts are used or not.
+        CheckPartsIntegrity(sequence);
 
-        // look at item keys
-        Log($"Checking Items in links", Color.white);
-        var keys = GetItemKeys(sequence);
-        GetPart(0)?.SetUsed();
-        int k = 0;
-        for (int i = 1; i < parts.Length; i++) {
-            if (parts[i].skip) {
-                Log($"skipping : {parts[i].text}", Color.gray);
-                continue;
-            }
-            if ( k < keys.Count) {
-                parts[i].SetUsed();
-                Log($"setting : {parts[i].text} to used", Color.gray);
-                ++k; 
-            }
-        }
-        foreach (var part in parts) {
-            if (!part.used && Regex.IsMatch(part.text, @$"\bfrom\b")) {
-                part.skip = true;
-                Log($"removing {part.text} from available part, it's only a info", Color.cyan);
-            }
-        }
-        foreach (var part in parts) {
-            if (!part.used ) {
-                Log($"part : {part.text} has not been used", Color.red);
-                TextManager.Write($"there's no {GetPart(0).MainItem().DebugName} {part.text}");
-                return;
-            }
-        }
-
+        // Display feedback sentence on description
         TextManager.Write($"you {verb.GetCurrentWord} {GetPart(0).items.First().GetText("a dog")}", Color.yellow);
 
+        // Trigger time actions
         if (verb.duration > 0) {
             var timeSeq = $"add( !time>seconds passed, {verb.duration})";
             var timeAction = new WorldAction(GetPart().items.First(), timeSeq, "Player Action Duration");
             timeAction.StartSequence(WorldAction.Source.Event);
         }
 
-        // trigger action
+        // Trigger actions for all items
         foreach(var item in GetPart().items) {
             var parserAction = new WorldAction(item, sequence, "Player Action");
             parserAction.StartSequence(WorldAction.Source.PlayerAction);
         }
-
-        //NewParser();
     }
 
+    private void CheckPartsIntegrity(string sequence) {
+        // look at item keys
+        var keys = GetItemKeys(sequence);
+
+        // Set first item used.
+        GetPart(0)?.SetUsed();
+
+        // Check for every item call ( !item ) in actionsequence to see if any item is not going to be used.    
+        int k = 0;
+        for (int i = 1; i < parts.Length; i++) {
+            if (parts[i].skip) {
+                continue;
+            }
+            if (k < keys.Count) {
+                parts[i].SetUsed();
+                ++k;
+            }
+        }
+        foreach (var part in parts) {
+            if (!part.used && Regex.IsMatch(part.GetText, @$"\bfrom\b")) {
+                part.skip = true;
+            }
+        }
+        foreach (var part in parts) {
+            if (!part.used) {
+                TextManager.Write($"there's no {GetPart(0).MainItem().DebugName} {part.GetText}");
+                return;
+            }
+        }
+    }
+
+    // This return the number of items the sequence refers to.
+    // Used if a part is going to be used in the sequence
+    // In order to see if a part isn't useless ( jibberish )
     List<string> GetItemKeys(string sequence) {
         // check sequence items
         var tmpSequence = new string(sequence);
@@ -408,48 +213,32 @@ public class ItemParser {
             }
         }
 
-        foreach (var key in keys) {
-            Log($"item key {key}", Color.grey);
-        }
-        if (keys.Count == 0)
-            Log("no item key", Color.grey);
-
         return keys;
     }
 
-    /// <summary>
-    /// this list is use for item link purpuses.
-    /// it is flipped because the first items may be props for spec item.
-    /// il y avait une raison.
-    /// "take apple from the left hand to the back"
-    /// sinon il prend left hand avant back.
-    /// �a va poser probleme mais on verra peut �tre pas.
-    /// </summary>
-    /// <returns></returns>
+    #region Parts
 
-    void FetchItems() {
-
+    public void ExtractParts() {
         var split = SplitParts();
-        parts = new Part[split.Length];
+        parts = new IP_Part[split.Length];
+        // Firstly, create the parts
         for (int i = 0; i < parts.Length; i++) {
-            parts[i] = new Part(split[i], this);
-            parts[i].partIndex = i;
-            parts[i].Parse();
+            parts[i] = new IP_Part(split[i], this);
+            parts[i].index = i;
         }
-        foreach(var part in parts) {
-            if (!part.HasItems()) continue;
+
+        // Parse them later, to avoir nullreference when accessing InputParser in ItemLink
+        foreach (var part in parts) {
+            part.Parse();
+        }
+
+        // Sort the items with world context
+        foreach (var part in parts) {
             part.SortItems();
-            var itemText = "";
-            for (int i = 0; i < part.items.Count; i++)
-                itemText += $"{part.items[i].DebugName} {TextUtils.GetSpaces(i, part.items.Count)}";
-            Log($"sorted:[{itemText}]", Color.green);
         }
-
-        
-
     }
-    string[] SplitParts() {
 
+    string[] SplitParts() {
         var pattern = "";
         foreach (var sep in separators) {
             pattern += @$"(\b{sep}\b)|";
@@ -471,12 +260,27 @@ public class ItemParser {
         _split.Reverse();
         return _split.ToArray();
     }
+    #endregion
+
+    /// <summary>
+    /// this list is use for item link purpuses.
+    /// it is flipped because the first items may be props for spec item.
+    /// il y avait une raison.
+    /// "take apple from the left hand to the back"
+    /// sinon il prend left hand avant back.
+    /// �a va poser probleme mais on verra peut �tre pas.
+    /// </summary>
+    /// <returns></returns>
 
 
+    /// <summary>
+    /// EXTRACT VERBS
+    /// </summary>
+    /// <returns></returns>
     public Verb FetchVerb(){
-        if ( !Verb.IsNull(verb) ) {
+        if ( !Verb.IsNull(verb) )
             return null;
-        }
+
         List<Verb> verbs = Verb.verbs.FindAll(x => x.GetIndexInText(_text) >= 0);
         if (verbs.Count == 0)
             return null;
@@ -499,30 +303,34 @@ public class ItemParser {
         verb = longestVerb;
         _text = _text.Remove(0, _text.IndexOf(verb.GetCurrentWord)+ verb.GetCurrentWord.Length);
         _text = _text.Trim(' ');
-        Log($"verb [{verb.GetCurrentWord}]", Color.white);
         return verb;
 
     }
 
-    public void Break(string message_hold, string message_fail, int state) {
-        var str = currentState == state ? message_fail : message_hold;
-        TextManager.Write(str);
-        if (currentState == state)
-            return;
-        currentState = state;
+    /// <summary>
+    /// Get & Set 
+    /// </summary>
+    /// <returns></returns>
+    public List<Item> GetItems() {
+        var _its = new List<Item>();
+        foreach (var part in parts)
+            _its.AddRange(part.items);
+        return _its;
     }
 
-    public List<Item> SearchForItemsInParts(string key) {
-        foreach (var part in parts) {
-            if (part.skip) {
-                continue;
-            }
-            var its = ItemLink.SearchItemsInRange(key, part.items);
-            if (its.Count > 0)
-                return its;
-        }
-        return null;
+    public IP_Part GetPart(int i = 0) {
+        return parts[i];
     }
+
+    private string[] separators = new string[] {
+        "in",
+        "from",
+        "at",
+        "on",
+        "with",
+        "through",
+        "with",
+    };
 
     #region singleton
     private static ItemParser _instance;
@@ -531,8 +339,10 @@ public class ItemParser {
             return _instance;
         }
     }
+    public static List<ItemParser> debug_archive = new List<ItemParser>();
     public static void Clear(){
         _instance = new ItemParser();
+        debug_archive.Add(_instance);
     }
     #endregion
 

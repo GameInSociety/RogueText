@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 
-namespace TMPro.Examples {
+namespace TMPro.Examples
+{
 
     public class TMP_FrameRateCounter : MonoBehaviour
     {
@@ -41,7 +43,7 @@ namespace TMPro.Examples {
             m_frameCounter_transform.SetParent(m_camera.transform);
             m_frameCounter_transform.localRotation = Quaternion.identity;
 
-            m_TextMeshPro.enableWordWrapping = false;
+            m_TextMeshPro.textWrappingMode = TextWrappingModes.NoWrap;
             m_TextMeshPro.fontSize = 24;
             //m_TextMeshPro.FontColor = new Color32(255, 255, 255, 128);
             //m_TextMeshPro.edgeWidth = .15f;

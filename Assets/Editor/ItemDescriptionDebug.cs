@@ -25,7 +25,7 @@ public class ItemDescriptionDebug : EditorWindow {
     public static void LOG(string message, Color c) {
         var txt_color = $"<color=#{ColorUtility.ToHtmlStringRGBA(c)}>";
         string str = $"\n{txt_color}{message}</color>";
-        DescriptionGroup.log += str;
+        Description.log += str;
     }
 
 }

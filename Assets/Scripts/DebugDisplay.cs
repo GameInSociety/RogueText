@@ -66,9 +66,6 @@ public class DebugDisplay : MonoBehaviour
             case 3:
                 UpdateLineParts();
                 break;
-            case 4:
-                UpdateItemDescriptions();
-                break;
             default : break;
         }
 
@@ -316,30 +313,6 @@ public class DebugDisplay : MonoBehaviour
     }
     #endregion
 
-    #region item descriptions
-    void UpdateItemDescriptions() {
-        foreach (var dGroup in DescriptionManager.Instance.archive) 
-        {
-            float offset = 0f;
-
-            // SHOW GROUP
-            var dGroup_Button = DisplayNewButton(dGroup.id, Color.blue, offset, wa_scale);
-            if (dGroup_Button.selected) {
-                Debug.Log($"Count : {dGroup.slots.Count}");
-                foreach (var slot in dGroup.slots) {
-                    string it_s = $"[{slot.key}] : {slot.items.Count}";
-                    // ITEM SLOTS
-                    var it_button = DisplayNewButton(it_s, Color.yellow, offset + (buttons_Decal), line_scale);
-                    if ( it_button.selected ) {
-                        foreach (var prop in slot.props)
-                            DisplayNewButton($"{prop.name} ({prop.GetCurrentDescription()})", Color.magenta, offset + (buttons_Decal * 2), linePartContent_Scale);
-                    }
-                }
-            }
-
-        }
-    }
-    #endregion
     DebugButton DisplayNewButton(string text, Color c, float offset, float height, int fontSize = 10, Color outlineColor = new Color()) {
         string sec = "";
         if (text.Contains("||")) {

@@ -1,9 +1,11 @@
 ﻿using System;
 using UnityEngine;
+using System.Collections;
 using UnityEditor;
 
 
-namespace TMPro.Examples {
+namespace TMPro.Examples
+{
 
     public class TMP_TextInfoDebugTool : MonoBehaviour
     {

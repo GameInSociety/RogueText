@@ -81,9 +81,9 @@ public class Phrase {
     }
     
 
-    public static string GetPhrase(List<ItemSlot> input_Slots, out List<ItemSlot> output_Slots) {
+    public static string GetPhrase(List<ItemDescription> input_Slots, out List<ItemDescription> output_Slots) {
 
-        DescriptionGroup.Options options = new DescriptionGroup.Options("");
+        Description.Options options = new Description.Options("");
 
         var results = new List<string>();
 
@@ -95,7 +95,7 @@ public class Phrase {
                 string itemText = input_Slots[i].GetText();
                 results.Add($"{itemText}");
             }
-            var list = string.Join("", results);
+            var list = string.Join("\n", results);
             input_Slots.Clear();
             output_Slots = input_Slots;
             return list.Trim(' ');
@@ -106,8 +106,7 @@ public class Phrase {
         // ?? 
         slotCount = input_Slots.Count;
 
-
-        List<ItemSlot> slots = new List<ItemSlot>();
+        List<ItemDescription> slots = new List<ItemDescription>();
         for (int i = 0; i < slotCount; i++) {
             slots.Add(input_Slots[i]);
             slots[i].definite = options.definite;
@@ -115,8 +114,8 @@ public class Phrase {
         input_Slots.RemoveRange(0, slotCount);
 
 
-        var slots_multItems = slots.FindAll(x => x.items.Count > 1);
-        var slots_singleItems = slots.FindAll(x => x.items.Count  == 1);
+        var slots_multItems = slots.FindAll(x => x._infos.Count > 1);
+        var slots_singleItems = slots.FindAll(x => x._infos.Count  == 1);
 
         var sepIndex = Random.Range(0,slots.Count+1);
         bool after = Random.value > 0.5f;

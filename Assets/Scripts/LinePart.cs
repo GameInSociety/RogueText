@@ -48,11 +48,6 @@ public class LinePart {
 
         Coords c = new Coords(-1, -1);
 
-
-        if (HasValue()) {
-            Debug.Log($"value : {value}");
-        }
-
         if (HasProp()) {
             c = Coords.PropToCoords(prop, tileset);
             if (c == Coords.none) {
@@ -152,7 +147,6 @@ public class LinePart {
         int TEMP_symbolIndex = output.IndexOf('%');
         if ( TEMP_symbolIndex >= 0) {
             output = output.Remove(0, TEMP_symbolIndex + 1).TrimStart(' ');
-            Debug.Log($"{input} still has öperation symbol % left");
         } else {
             output = output.Trim(' ');
         }

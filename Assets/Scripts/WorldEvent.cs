@@ -86,8 +86,6 @@ public class WorldEvent {
 
     
     public static void RemoveWorldEventsWithItem(Item item) {
-        foreach (var itDes in DescriptionManager.Instance.descriptionGroups) {
-            itDes.slots.RemoveAll(x => x.items.Contains(item));
-        }
+        Debug.Log($"???");
     }
 }

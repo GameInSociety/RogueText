@@ -13,6 +13,16 @@ public class Property {
     private Item _linkedItem;
     public bool debug_selected = false;
 
+    /// <summary>
+    /// STRICTLY FOR TESTING (workaround before having object handling Description of properties)
+    /// </summary>
+    public DescriptionState state;
+    public enum DescriptionState {
+        Shared, // The property is shared with the rest of the group
+        Unique, // The property is not present in all of the slots
+        Remove, // The slots needs to be removed. ( redondant ? )
+    }
+
     public List<Part> parts = new List<Part>();
 
     public class Part {
@@ -285,6 +295,8 @@ public class Property {
         foreach (var valueEvent in valueEvents) {
             var content = valueEvent.content;
 
+            Debug.Log($"Looking at On Value : {valueEvent.key}/{valueEvent.content}");
+
             // getting the condition
             var returnIndex = content.IndexOf('\n');
             var condition_text = content.Remove(returnIndex);
@@ -330,9 +342,13 @@ public class Property {
             // getting the sequence
             var sequence = content.Remove(0, returnIndex + 1);
             if (call) {
+                Debug.Log("Call");
                 var propertyEvent = new WorldAction(_linkedItem, sequence, $"On Value:{name}");
                 propertyEvent.StartSequence(WorldAction.Source.Event);
+            } else {
+                Debug.Log("No call");
             }
+
         }
     }
     #endregion
@@ -382,9 +398,9 @@ public class Property {
         }*/
 
         if (!updated)
-            return GetCurrentDescription();
+            return GetDescription();
 
-        var newDescription = GetCurrentDescription();
+        var newDescription = GetDescription();
         var result = "";
         if (HasPart("current description")) {
             if (newDescription != GetContent("current description"))
@@ -455,9 +471,9 @@ public class Property {
 
     }
 
-    public string GetCurrentDescription() {
+    public string GetDescription() {
         if (!HasPart("description")) {
-            Debug.LogError($"{name} of {_linkedItem.DebugName} doesnt have description");
+            //Debug.LogError($"{name} of {_linkedItem.DebugName} doesnt have description");
             return "";
         }
 

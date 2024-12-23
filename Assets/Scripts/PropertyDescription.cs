@@ -16,7 +16,7 @@ public class PropertyDescription
         } else {
             string opts = failed ? "list / definite / start:can't, " : "list / definite";
             var descriptionGroupId = $"Player Action Properties ({item._debugName})";
-            DescriptionManager.Instance.Add(descriptionGroupId, item, prop);
+            DescriptionManager.Instance.AddProperty(descriptionGroupId, item, prop);
         }
 
     }
@@ -28,7 +28,7 @@ public class PropertyDescription
         var str = "";
         for (int i = 0;i < props.Count;i++) {
             var prop = props[i];
-            str += $"{prop.GetCurrentDescription()}{TextUtils.GetCommas(i, props.Count)}";
+            str += $"{prop.GetDescription()}{TextUtils.GetCommas(i, props.Count)}";
         }
         return str;
     }

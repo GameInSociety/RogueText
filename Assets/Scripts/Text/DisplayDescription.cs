@@ -41,11 +41,11 @@ public class DisplayDescription : MonoBehaviour {
         public string currText;
         string htlm = "";
         public string GetFullText() {
-            return targetText;
+            //return targetText;
             return $"<color=#{htlm}>{targetText}</color>";
         }
         public string GetCurrentText() {
-            return currText;
+            //return currText;
             return $"<color=#{htlm}>{currText}</color>";
         }
     }

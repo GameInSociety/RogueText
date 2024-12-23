@@ -40,6 +40,7 @@ public class WorldAction {
     public bool origin = false;
     public static WorldAction active;
 
+    // Only for debug display
     public List<WorldAction> children = new List<WorldAction>();
     
     // parameters
@@ -123,27 +124,21 @@ public class WorldAction {
         if ( active != null) {
             // debug
             active.children.Add(this);
+            Debug.Log($"Queuing : {content}");
+            Debug.Log($"Parent : {parent.Name}");
 
             // stack
             if (IsTimeAction) {
+                Debug.Log($"It's a time action");
                 nextTimeAction = this;
                 return;
             }
         } else {
+            Debug.Log($"New Sequence : {content}");
             origin = true;
             debug_list.Add(this);
             parent = this;
         }
-
-        /*if (origin) {
-            AddDebug();
-            // special
-            this.source = source;
-        } else {
-            // special
-            this.source = parent.source;
-            parent.children.Add(this);
-        }*/
 
 
         // get & clear items
@@ -245,17 +240,22 @@ public class WorldAction {
     void EndSequence() {
         // remove active
         state = State.Done;
+        Debug.Log($"Ending : {content}");
 
         // only try another sequence if active is main
-        if (!origin)
+        if (!origin) {
+            Debug.Log($"Not origin : {content}");
             return;
+        }
 
         if (nextTimeAction != null)
         {
+            Debug.Log($"Calling time action");
             NextTimeAction();
         }
         else
         {
+            Debug.LogError($"Ending all");
             EndSequences();
         }
     }

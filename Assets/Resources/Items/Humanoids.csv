@@ -109,11 +109,10 @@ disable(>seconds to move)
 disable(>distance)
 disable(>seconds to attack)
 enable(>dead)","distance
-value: 0
+value: 0?10
 max:10
 
-description:(always)
-in front of you / almost in front of you / rather close / rather far / at a distance / pretty far / at a distance
+description:(always) in front of you / almost in front of you / rather close / rather far / at a distance / pretty far / at a distance
 
 OnValue:0
 x ( ! player>coords != >coords)
@@ -123,7 +122,7 @@ enable(! player>blocked)
 
 OnValue:ABOVE 0
 disable(! player>blocked)","noticed
-value:0m1
+value:0?1
 description:[] (on change) hasn't noticed the player / is moving toward the player","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","*seconds to attack
 value:0m7

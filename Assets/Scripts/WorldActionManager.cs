@@ -41,9 +41,7 @@ public class WorldActionManager : MonoBehaviour
     private void Update() {
 
         if (DescriptionManager.Instance.DescriptionPending())
-        {
             DescriptionManager.Instance.StartDescription();
-        }
 
         if (waitingForInput) {
             if (Input.GetKeyDown(KeyCode.Y)) {

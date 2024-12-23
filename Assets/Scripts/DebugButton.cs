@@ -21,9 +21,7 @@ public class DebugButton : MonoBehaviour, IPointerClickHandler {
     CanvasGroup CanvasGroup {
         get {
             if (_cg == null)
-            {
                 _cg = GetComponent<CanvasGroup>();
-            }
             return _cg;
         }
     }
@@ -40,7 +38,6 @@ public class DebugButton : MonoBehaviour, IPointerClickHandler {
     }
 
     public void OnPointerClick(PointerEventData eventData) {
-        Debug.Log($"Selected");
         selected = !selected;
         UpdateUI(selected);
     }
