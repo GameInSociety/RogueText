@@ -33,7 +33,7 @@ public class Verb {
     public static bool IsNull(Verb verb) {
         return verb == null || (verb != null && string.IsNullOrEmpty(verb.debug_word));
     }
-    public string GetItemSequence(ItemData data, bool checkUndefined = true) {
+    public Sequence GetItemSequence(ItemData data, bool checkUndefined = true) {
 
         if (data == null)
             return null;
@@ -43,7 +43,7 @@ public class Verb {
             // see if one of the verbs of the sequenbe match this verb
             foreach (var potVerb in sequence.triggers) {
                 if (words.Contains(potVerb))
-                    return sequence.content;
+                    return sequence;
             }
         }
 

@@ -16,6 +16,7 @@ public class WorldActionManager : MonoBehaviour
     public bool finishedSequence = false;
     public bool onGoing = false;
     public bool skipLines = false;
+    int _startSeconds;
 
     public bool interuptNextSequence = false;
 
@@ -29,14 +30,16 @@ public class WorldActionManager : MonoBehaviour
     int sequenceIndex = 0;
 
     public WorldAction nextSequence = null;
-
+    public bool waitingForInput = false;
     public List<WorldAction> delayedSequences = new List<WorldAction>();
+
+    public delegate void OnWaitEnd();
+    public OnWaitEnd onWaitEnd;
 
     private void Awake() {
         Instance = this;
     }
 
-    public bool waitingForInput = false;
 
     private void Update() {
 
@@ -57,10 +60,31 @@ public class WorldActionManager : MonoBehaviour
 
     }
 
-    public void InvokeSequence(WorldAction action) {
-        if ( delayedSequences.Count == 0) {
-            Invoke("InvokeSequenceDelay", 0f);
+    #region waiting
+    public void Wait(Item item, int secs) {
+        _startSeconds = secs;
+        TimeDebug.Instance.currentMax = _startSeconds;
+        StartCoroutine(WaitCoroutine(item, secs));
+    }
+
+    IEnumerator WaitCoroutine(Item item, int secs) {
+        Debug.Log($"Waiting : {secs} seconds");
+        for (int i = 0; i < secs; i++) {
+            DisplayTime(i);
+            yield return new WaitForSeconds(1f);
+            var timeSeq = $"add(!second>seconds, ${1})\ntriggerEvent(OnSeconds)";
+            var timeAction = new WorldAction(item, timeSeq, $"{item.DebugName} (Duration)");
+            timeAction.StartSequence(WorldAction.Source.Event);
         }
+        TimeDebug.Instance.Hide();
+        if (onWaitEnd != null)
+            onWaitEnd();
+    }
+    #endregion
+
+    public void InvokeSequence(WorldAction action) {
+        if ( delayedSequences.Count == 0)
+            Invoke("InvokeSequenceDelay", 0f);
 
         delayedSequences.Add(action);
         
@@ -84,7 +108,6 @@ public class WorldActionManager : MonoBehaviour
             breakLimit = 5;
         } else { breakLimit = 0; }
 
-        DisplayTime();
         Invoke("ContinueSequence", 0f);
 
         /*if ( breakIndex >= breakLimit) {
@@ -99,7 +122,6 @@ public class WorldActionManager : MonoBehaviour
     }
 
     public void PendSequence() {
-        DisplayTime();
         Invoke("ContinueSequence", 1f);
     }
 
@@ -108,18 +130,16 @@ public class WorldActionManager : MonoBehaviour
     }
 
     public void PauseSequence(WorldAction sequence) {
-        DisplayTime();
-
         TimeDebug.Instance.DisplayText("Interupted !");
 
         nextSequence = sequence;
         DisplayDescription.Instance.onTypeExit += Delay;
     }
 
-    void DisplayTime() {
-        var secondsLeft = WorldData.GetGlobalItem("time").GetProp("seconds passed").GetNumValue();
-        TimeSpan t = TimeSpan.FromSeconds(secondsLeft);
-        TimeDebug.Instance.Push(secondsLeft);
+    #region time display
+    void DisplayTime(int secs) {
+        TimeSpan t = TimeSpan.FromSeconds(secs);
+        TimeDebug.Instance.Push(secs);
 
         string time_str = string.Format("{0:D2}h, {1:D2}m, {2:D2}s",
                         t.Hours,
@@ -127,8 +147,8 @@ public class WorldActionManager : MonoBehaviour
                         t.Seconds,
                         t.Milliseconds);
         TimeDebug.Instance.DisplayText(time_str);
-
     }
+    #endregion
 
     void Delay() {
         DisplayDescription.Instance.onTypeExit -= Delay;
@@ -139,22 +159,11 @@ public class WorldActionManager : MonoBehaviour
     }
 
     void ResumeGame() {
-        DisplayInput.Instance.Enable();
+        //DisplayInput.Instance.Enable();
     }
 
     void ContinueSequence() {
         nextSequence.StartSequence(WorldAction.Source.Event);
-    }
-
-    public void CallNextAction() {
-        var next = stack[0];
-        stack.RemoveAt(0);
-        next.StartSequence(next.source);
-    }
-
-
-    public void StackWorldAction(WorldAction worldAction) {
-        stack.Add(worldAction);
     }
 
 }

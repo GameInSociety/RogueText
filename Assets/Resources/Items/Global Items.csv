@@ -59,15 +59,15 @@ value:0
 OnValue:60
 triggerEvent(OnMinutes)
 set(>seconds, 0)
-add(! minute>minutes, 1)","$ wait
-add(!time>seconds passed, _InputValue)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+add(! minute>minutes, 1)","$ wait (10)
+write(wainting...)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "minute","","","","global","minutes
 value:0
 OnValue:60
 triggerEvent(OnHours)
 set(>minutes, 0)
 add(! hour>hours, 1)","$ wait
-add(!time>seconds passed, % _InputValue X 60)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+wait(% _InputValue X 60)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "hour","","","","global","hours
 value:6
 max:24
@@ -79,7 +79,7 @@ set(>hours, 0)
 add(!day>days, 1)
 set(!part of day>part of day, 0)
 interupt","$ wait
-add(!time>seconds passed, % _InputValue X 3600)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+wait(% _InputValue X 3600)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "part of day","","","","global","part of day
 value:6
 max:24

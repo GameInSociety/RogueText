@@ -1,11 +1,8 @@
-using NUnit.Framework.Internal;
-using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.Android;
 
 // Features of item parser
 // 1 ) Get the verb from the input
@@ -19,6 +16,7 @@ public class ItemParser {
     public string _text = "";
     public Verb verb;
     public IP_Part[] parts;
+    string delayedSequence = "";
 
     public void Parse(string txt) {
         // assigning seq
@@ -88,14 +86,14 @@ public class ItemParser {
 
     public void TriggerAction() {
 
-        string sequence = "";
+        var inputSequence = (Sequence)null;
 
         // If only a verb is present in the input
         // Get the "Any Item" sequence.
         if ( parts.Length == 0) {
-            sequence = verb.GetItemSequence(WorldData.anyItem.GetData());
+            inputSequence = verb.GetItemSequence(WorldData.anyItem.GetData());
             // Return if the verb doesn't have a default sequence.
-            if (sequence == null) {
+            if (inputSequence == null) {
                 TextManager.Write($"{verb.question} do you want to {verb.GetFull}");
                 return;
             }
@@ -108,39 +106,51 @@ public class ItemParser {
         // Get verb & item combination
         else {
             var actionItem = GetPart().items[0];
-            sequence = verb.GetItemSequence(actionItem.GetData());
-            if (sequence == null)
-                sequence = verb.GetItemSequence(WorldData.anyItem.GetData());
+            inputSequence = verb.GetItemSequence(actionItem.GetData());
+            if (inputSequence == null)
+                inputSequence = verb.GetItemSequence(WorldData.anyItem.GetData());
 
-            if (sequence == null) {
+            if (inputSequence == null) {
                 TextManager.Write($"you can't {verb.GetFull} {actionItem.GetText("the dog")}");
                 return;
             }
         }
 
         // Checks if input parts are used or not.
-        CheckPartsIntegrity(sequence);
+        CheckPartsIntegrity(inputSequence);
 
         // Display feedback sentence on description
-        TextManager.Write($"you {verb.GetCurrentWord} {GetPart(0).items.First().GetText("a dog")}", Color.yellow);
+        TextManager.Write($"you start {verb.GetCurrentWord}ing {GetPart(0).items.First().GetText("a dog")}", Color.yellow);
 
-        // Trigger time actions
-        if (verb.duration > 0) {
-            var timeSeq = $"add( !time>seconds passed, {verb.duration})";
-            var timeAction = new WorldAction(GetPart().items.First(), timeSeq, "Player Action Duration");
-            timeAction.StartSequence(WorldAction.Source.Event);
+        DisplayInput.Instance.Disable();
+
+        delayedSequence = inputSequence.content;
+        if (inputSequence.duration > 0) {
+            WorldActionManager.Instance.onWaitEnd += HandleOnWaitEnd;
+            Debug.Log($"Input Sequence has duration...");
+            WorldActionManager.Instance.Wait(GetPart(0).MainItem(), inputSequence.duration);
+        } else {
+            Debug.LogError($"Input Sequence has no duration...");
+            HandleOnWaitEnd();
         }
 
-        // Trigger actions for all items
-        foreach(var item in GetPart().items) {
-            var parserAction = new WorldAction(item, sequence, "Player Action");
-            parserAction.StartSequence(WorldAction.Source.PlayerAction);
-        }
+
     }
 
-    private void CheckPartsIntegrity(string sequence) {
+    void HandleOnWaitEnd() {
+        WorldActionManager.Instance.onWaitEnd -= HandleOnWaitEnd;
+        // Trigger actions for all items
+        foreach (var item in GetPart().items) {
+            var parserAction = new WorldAction(item, delayedSequence, "Player Action");
+            parserAction.StartSequence(WorldAction.Source.PlayerAction);
+        }
+
+        DisplayInput.Instance.Enable();
+    }
+
+    private void CheckPartsIntegrity(Sequence sequence) {
         // look at item keys
-        var keys = GetItemKeys(sequence);
+        var keys = GetItemKeys(sequence.content);
 
         // Set first item used.
         GetPart(0)?.SetUsed();

@@ -39,7 +39,6 @@ public class TestDataButton : MonoBehaviour, IPointerClickHandler {
 
     IEnumerator LoadDatasInGameCoroutine() {
         TextManager.Write(text, Color.yellow);
-        DisplayInput.Instance.Disable();
         yield return new WaitForSeconds(2f);
 
         switch (type) {
@@ -63,7 +62,6 @@ public class TestDataButton : MonoBehaviour, IPointerClickHandler {
         }
         yield return new WaitForEndOfFrame();
         SceneManager.LoadScene(0);
-        DisplayInput.Instance.Enable();
     }
 
 }

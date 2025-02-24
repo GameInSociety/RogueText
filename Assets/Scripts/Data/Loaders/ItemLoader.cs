@@ -164,13 +164,29 @@ public class ItemLoader : DataDownloader {
 
             try {
                 // load sequences
+                int sequenceDuration = 0;
                 if (content.StartsWith('$') || content.StartsWith('E') || cells[i].StartsWith('!')) {
                     var cellParts = cells[i].Split(new char[1] { '\n' }, 2);
-                    var triggers = cellParts[0].Remove(0, 2).Split('/');
+                    var firstLine = cellParts[0];
+
+
+                    int parenthesesIndex = firstLine.IndexOf('(');
+                    if (parenthesesIndex >= 0) {
+                        string duration_txt = firstLine.Remove(0, parenthesesIndex+1);
+                        duration_txt = duration_txt.Remove(duration_txt.IndexOf(')'));
+                        Debug.Log($"Sequence Duration TXT : {duration_txt}");
+                        int.TryParse(duration_txt, out sequenceDuration);
+                        Debug.Log($"Sequence Duration : {sequenceDuration}");
+                        firstLine = firstLine.Remove(parenthesesIndex);
+                        Debug.Log($"First Line OUTPUT: {firstLine}");
+                    }
+
+                    var triggers = firstLine.Remove(0, 2).Split('/');
                     for (int t = 0; t < triggers.Length; t++)
                         triggers[t] = triggers[t].Trim(' ');
 
                     var seq = new Sequence(triggers, cellParts[1]);
+                    seq.duration = sequenceDuration;
                     if (content.StartsWith('$')) 
                         data.verbSequences.Add(seq);
                     if (content.StartsWith('!')) {

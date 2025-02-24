@@ -132,8 +132,6 @@ public class DisplayDescription : MonoBehaviour {
         if (onTypeExit != null) {
             onTypeExit();
         }
-
-        DisplayInput.Instance.Enable();
     }
 
     public void ClearDescription() {

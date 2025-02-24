@@ -59,7 +59,6 @@ public class WorldAction {
     public string stop_feedback;
     public string error_feedback;
     static int currentBreak = 0;
-    public static WorldAction nextTimeAction = null;
     public static bool finishedAllSequences = true;
 
     // debug
@@ -78,11 +77,6 @@ public class WorldAction {
     public int lineIndex;
     static int globalIndex;
     public int index;
-    public bool IsTimeAction {
-        get {
-            return TargetItem().DebugName == "time";
-        }
-    }
 
     public string Name {
         get {
@@ -114,27 +108,14 @@ public class WorldAction {
     }
     public void StartSequence(Source source = Source.Event) {
 
-        if (finishedAllSequences) {
-            DisplayInput.Instance.Disable();
+        if (finishedAllSequences)
             finishedAllSequences = false;
-        }
 
         this.source = source;
-        nextTimeAction = null;
         if ( active != null) {
             // debug
             active.children.Add(this);
-            Debug.Log($"Queuing : {content}");
-            Debug.Log($"Parent : {parent.Name}");
-
-            // stack
-            if (IsTimeAction) {
-                Debug.Log($"It's a time action");
-                nextTimeAction = this;
-                return;
-            }
         } else {
-            Debug.Log($"New Sequence : {content}");
             origin = true;
             debug_list.Add(this);
             parent = this;
@@ -148,14 +129,7 @@ public class WorldAction {
     }
 
     void AddDebug() {
-        if (debug_list.Count > 0 && debug_list.Last().IsTimeAction && debug_list.Last().state != WorldAction.State.Paused) {
-            debug_list.Last().debug_count++;
-            debug_additionalInfo = debug_list.Last().debug_count.ToString();
-            debug_skipped = true;
-        } else {
-            debug_list.Add(this);
-        }
-        return;
+        
     }
 
     void CallFirstLine() {
@@ -240,44 +214,13 @@ public class WorldAction {
     void EndSequence() {
         // remove active
         state = State.Done;
-        Debug.Log($"Ending : {content}");
 
         // only try another sequence if active is main
         if (!origin) {
-            Debug.Log($"Not origin : {content}");
             return;
         }
 
-        if (nextTimeAction != null)
-        {
-            Debug.Log($"Calling time action");
-            NextTimeAction();
-        }
-        else
-        {
-            Debug.LogError($"Ending all");
-            EndSequences();
-        }
-    }
-
-    void NextTimeAction() {
-
-        if (WorldActionManager.Instance.interuptNextSequence) {
-            WorldActionManager.Instance.interuptNextSequence = false;
-            state = State.Paused;
-        }
-
-        if (state == State.Paused) {
-            // debug
-            if (debug_skipped) {
-                debug_list.Last().debug_count--;
-                debug_list.Add(this);
-            }
-            currentBreak = 0;
-            WorldActionManager.Instance.PauseSequence(nextTimeAction);
-        } else {
-            WorldActionManager.Instance.NextSequence(nextTimeAction);
-        }
+        EndSequences();
     }
 
     public void EndSequences() {

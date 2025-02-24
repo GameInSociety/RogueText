@@ -90,12 +90,9 @@ public class Line {
             functionName,
             BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
-        Debug.Log($"Invoke LIne : {current.content}");
-
         try {
             info.Invoke(this, null);
         } catch (Exception e) {
-            Debug.Log($"[CURRENT LINE ERROR] ({current.content})");
             WorldAction.active.Error("Unity Error");
 
             if ( LinePart.current != null) {
@@ -216,6 +213,10 @@ public class Line {
     }
     #endregion
 
+    void wait() {
+
+    }
+
     #region items
     void transferto() {
 
@@ -285,9 +286,6 @@ public class Line {
         if (targetTile == Tile.GetCurrent) {
             var description_id = $"Create Item ({newItem._debugName})";
             DescriptionManager.Instance.AddItem(description_id, newItem);
-        } else {
-            // in other tile
-            //TextManager.Write($"target tile : {Tile.GetCurrent.GetCoords().ToString()} / event tile : {WorldAction.current.tile.GetCoords().ToString()}");
         }
         AvailableItems.UpdateItems();
 

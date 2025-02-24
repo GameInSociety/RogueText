@@ -44,7 +44,7 @@ public class Description {
         itemDescription_Input.AddInfo(item);
 
         // Adding constant properties ( "Open window", "Burning house" )
-        var constant_props = item.props.FindAll(x => x.HasPart("description") && x.GetContent("description type") == "always");
+        var constant_props = item.props.FindAll(x => x.enabled && x.HasPart("description") && x.GetContent("description type") == "always");
         foreach (var prop in constant_props)
             AddProperty(item, prop);
 

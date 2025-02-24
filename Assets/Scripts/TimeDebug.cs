@@ -11,6 +11,8 @@ public class TimeDebug : MonoBehaviour
     public Image fillImage;
     public Text uiText;
 
+    public bool visible = false;
+
     public int currentMax = 0;
 
     private void Awake() {
@@ -23,20 +25,18 @@ public class TimeDebug : MonoBehaviour
     }
 
     public void Hide() {
+        visible = false;
         gameObject.SetActive(false);
+        Debug.Log($"Hide");
     }
     public void Show() {
+        visible = true;
         gameObject.SetActive(true);
+        Debug.Log($"Show");
     }
 
     public void Push(int i) {
-
         Show();
-
-        if ( i > currentMax ) {
-            currentMax = i;
-        }
-
         fillImage.fillAmount = (float)(currentMax - i) / currentMax;
     }
 

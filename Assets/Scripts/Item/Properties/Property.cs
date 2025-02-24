@@ -295,7 +295,6 @@ public class Property {
         foreach (var valueEvent in valueEvents) {
             var content = valueEvent.content;
 
-            Debug.Log($"Looking at On Value : {valueEvent.key}/{valueEvent.content}");
 
             // getting the condition
             var returnIndex = content.IndexOf('\n');
@@ -345,8 +344,6 @@ public class Property {
                 Debug.Log("Call");
                 var propertyEvent = new WorldAction(_linkedItem, sequence, $"On Value:{name}");
                 propertyEvent.StartSequence(WorldAction.Source.Event);
-            } else {
-                Debug.Log("No call");
             }
 
         }

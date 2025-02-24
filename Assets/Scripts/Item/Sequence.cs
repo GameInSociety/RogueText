@@ -10,6 +10,7 @@ public class Sequence {
         content = _seq;
     }
 
+    public int duration = 0;
     public string[] triggers;
     public string content;
 }

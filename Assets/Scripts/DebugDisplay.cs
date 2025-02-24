@@ -117,7 +117,7 @@ public class DebugDisplay : MonoBehaviour
 
     DebugButton DisplayWorldAction(WorldAction wa, float offset) {
 
-        Color color = wa.source == WorldAction.Source.PlayerAction ? Color.yellow : wa.IsTimeAction ? Color.magenta : Color.white;
+        Color color = Color.yellow;
         string sideLabel = "";
         switch (wa.state) {
             case WorldAction.State.None:
@@ -143,13 +143,6 @@ public class DebugDisplay : MonoBehaviour
         }
 
         string mainLabel = wa.Name;
-        if (wa.IsTimeAction) {
-            if (wa.state == WorldAction.State.Paused) {
-                mainLabel = wa.Name;
-            } else {
-                mainLabel = wa.debug_count.ToString();
-            }
-        }
 
         sideLabel += wa.children.Count > 0 ? $" (+{wa.children.Count})" : "";
 
