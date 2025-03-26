@@ -1,40 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.LowLevelPhysics;
-using UnityEngine.Rendering;
 
 [System.Serializable]
 public class Item {
-
-    public Tile GetTile() {
-        return TileSet.GetTileSet(GetTileSet()).GetTile(GetCoords());
-    }
-    public int GetTileSet() {
-        var p = GetProp("tileset");
-        if (p == null) {
-            return 0;
-        }
-
-        return p.GetNumValue();
-    }
-    public Coords GetCoords() {
-        var p = GetProp("coords");
-        if( p == null) {
-            return Coords.zero;
-        }
-        return Coords.PropToCoords(p);
-    }
     public string _debugName = "";
-    public string DebugName {
-        get {
-            return _debugName;
-            //return $"{_debugName} [l:{_debugName.Length}] [id:{debug_Id}]";
-        }
-    }
     public int dataIndex;
     public ItemData GetData() { return ItemData.itemDatas[dataIndex]; }
     public int id;
@@ -46,22 +18,27 @@ public class Item {
     [SerializeField]
     private List<Item> mChildItems;
 
+    void LoadProperties(ItemData data) {
+        foreach (var dataProp in data.properties)
+            AddProp(dataProp, false);
+        foreach (var root in data.roots)
+            LoadProperties(root);
+    }
 
     public virtual void Init() {
         _debugName = GetData().words[0].GetText;
 
-        foreach (var dataProp in GetData().properties) {
-            AddProp(dataProp, false);
-        }
+        LoadProperties(GetData());
 
+        // Initializing all props 
         foreach (var prop in props)
             prop.Init(this);
-       
+
+        // Calling on create event ( ehg )
         var actName = "OnCreate";
-        var itemAct = GetData().acts.Find(x => x.triggers[0] == actName);
-        if ( itemAct != null) {
-            var action = new WorldAction(this, itemAct.content, "On Create Event");
-            action.InvokeSequence();
+        var seq_OnCreate = GetData().sequences.Find(x => x.triggers[0] == actName);
+        if ( seq_OnCreate != null) {
+            seq_OnCreate.StartSequence();
         }
     }
 
@@ -270,7 +247,7 @@ public class Item {
     public bool sameTypeAs(Item otherItem) {
         if (otherItem == null)
             return false;
-        return otherItem.GetData().index == GetData().index;
+        return otherItem.GetData().id == GetData().id;
     }
     public bool exactSameAs(Item otherItem) {
         if (otherItem == null) {
@@ -527,6 +504,29 @@ public class Item {
     }
     #endregion
 
+    public Tile GetTile() {
+        return TileSet.GetTileSet(GetTileSet()).GetTile(GetCoords());
+    }
+    public int GetTileSet() {
+        var p = GetProp("tileset");
+        if (p == null) {
+            return 0;
+        }
 
+        return p.GetNumValue();
+    }
+    public Coords GetCoords() {
+        var p = GetProp("coords");
+        if (p == null) {
+            return Coords.zero;
+        }
+        return Coords.PropToCoords(p);
+    }
+    public string DebugName {
+        get {
+            return _debugName;
+            //return $"{_debugName} [l:{_debugName.Length}] [id:{debug_Id}]";
+        }
+    }
 
 }

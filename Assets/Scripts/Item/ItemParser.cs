@@ -124,11 +124,11 @@ public class ItemParser {
 
         DisplayInput.Instance.Disable();
 
-        delayedSequence = inputSequence.content;
+        delayedSequence = inputSequence.mContent;
         if (inputSequence.duration > 0) {
-            WorldActionManager.Instance.onWaitEnd += HandleOnWaitEnd;
+            SequenceManager.Instance.onWaitEnd += HandleOnWaitEnd;
             Debug.Log($"Input Sequence has duration...");
-            WorldActionManager.Instance.Wait(GetPart(0).MainItem(), inputSequence.duration);
+            SequenceManager.Instance.Wait(GetPart(0).MainItem(), inputSequence.duration);
         } else {
             Debug.LogError($"Input Sequence has no duration...");
             HandleOnWaitEnd();
@@ -138,11 +138,11 @@ public class ItemParser {
     }
 
     void HandleOnWaitEnd() {
-        WorldActionManager.Instance.onWaitEnd -= HandleOnWaitEnd;
+        SequenceManager.Instance.onWaitEnd -= HandleOnWaitEnd;
         // Trigger actions for all items
         foreach (var item in GetPart().items) {
-            var parserAction = new WorldAction(item, delayedSequence, "Player Action");
-            parserAction.StartSequence(WorldAction.Source.PlayerAction);
+            var parserSequence = new Sequence(item, delayedSequence);
+            parserSequence.StartSequence(Sequence.Source.PlayerAction);
         }
 
         DisplayInput.Instance.Enable();
@@ -150,7 +150,7 @@ public class ItemParser {
 
     private void CheckPartsIntegrity(Sequence sequence) {
         // look at item keys
-        var keys = GetItemKeys(sequence.content);
+        var keys = GetItemKeys(sequence.mContent);
 
         // Set first item used.
         GetPart(0)?.SetUsed();

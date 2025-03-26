@@ -212,11 +212,11 @@ public static class ItemLink
             var tsSplit = key.Split('|');
             var tilesetKey = tsSplit[0];
             key = tsSplit[1];
-            var tilesetPart = LinePart.Parse(tilesetKey, sourceItem, "Tile Set");
+            var tilesetPart = Slot.Parse(tilesetKey, sourceItem, "Tile Set");
             Log($"Found Tileset : {tilesetPart.value}");
         }
 
-        var linePart = LinePart.Parse(key, sourceItem, "Tile Fetching");
+        var linePart = Slot.Parse(key, sourceItem, "Tile Fetching");
         var coords = linePart.GetCoords(tilesetId);
         var result = TileSet.tileSets[tilesetId].GetTile(coords);
         if (result == null)
@@ -293,10 +293,10 @@ public static class ItemLink
     }
 
     public static void ThrowFail( string message) {
-        LinePart.current.linkLog.Add($"<color=red>{message}</color>");
+        Slot.current.linkLog.Add($"<color=red>{message}</color>");
     }
     public static void Log(string message) {
-        LinePart.current.linkLog.Add($"<color=white>{message}</color>");
+        Slot.current.linkLog.Add($"<color=white>{message}</color>");
     }
 
     public static Item CheckForItemInHistory(string key) {

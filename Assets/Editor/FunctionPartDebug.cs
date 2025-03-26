@@ -15,26 +15,18 @@ public class FunctionPartDebug : EditorWindow {
     // Add menu named "My Window" to the Window menu
     private void OnGUI() {
 
-        if (WorldActionManager.Instance == null)
+        if (SequenceManager.Instance == null)
             return;
 
 
-        foreach (var worldAction in WorldAction.debug_list) {
+        foreach (var worldAction in Sequence.debug_list) {
         }
     }
 
-    void DisplayWorldAction(WorldAction worldAction) {
+    void DisplayWorldAction(Sequence worldAction) {
         string name = $" [{worldAction.TargetItem().DebugName}] ({worldAction.source})";
         if (worldAction.debug_selected) {
-            foreach (var line in worldAction.lines) {
-                if (GUILayout.Button(line.content, line_Style))
-                    line.debug_selected = !line.debug_selected;
-
-                if (line.debug_selected) {
-                    foreach (var part in line.parts) {
-                        GUILayout.Label($"<color=cyan>{part.output}</color>", part_Style);
-                    }
-                }
+            foreach (var line in worldAction.steps) {
             }
 
            /* if (worldAction.nestedActions.Count > 0) {

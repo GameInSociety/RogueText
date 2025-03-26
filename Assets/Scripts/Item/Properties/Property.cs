@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
+using UnityEngine.TestTools;
 
 [System.Serializable]
 public class Property {
@@ -12,18 +13,16 @@ public class Property {
     public bool destroy = false;
     private Item _linkedItem;
     public bool debug_selected = false;
-
-    /// <summary>
-    /// STRICTLY FOR TESTING (workaround before having object handling Description of properties)
-    /// </summary>
+    public List<Part> parts = new List<Part>();
     public DescriptionState state;
+
+    public List<Sequence> sequences = new List<Sequence>();
+
     public enum DescriptionState {
         Shared, // The property is shared with the rest of the group
         Unique, // The property is not present in all of the slots
         Remove, // The slots needs to be removed. ( redondant ? )
     }
-
-    public List<Part> parts = new List<Part>();
 
     public class Part {
         public string key = "";
@@ -89,11 +88,11 @@ public class Property {
         if (enabled)
             return;
         enabled = true;
-        var eventParts = parts.FindAll(x => x.key.StartsWith('E'));
+        var eventParts = parts.Where(x => x.key.StartsWith('E'));
         foreach (var e in eventParts) {
             string eventName = e.key.Remove(0, 2);
             string sequence = e.content;
-            WorldEvent.Unsubscribe(eventName, _linkedItem, this, sequence);
+            WorldEvent.Subscribe(eventName, _linkedItem, this, sequence);
         }
     }
 
@@ -116,26 +115,20 @@ public class Property {
 
         char[] chars = { '\r', '\t', '\b', '\n', ' ' };
         for (int i = 1; i < lines.Length; i++) {
-            try {
-                // skip empty lines
-                if (string.IsNullOrEmpty(lines[i])) continue;
+            if (string.IsNullOrEmpty(lines[i]))
+                continue;
 
-                if (lines[i].Contains(':')) {
-                    // new part
-                    var strs = lines[i].Split(':');
-                    var text = strs[1].Trim(chars);
-                    AddPart(strs[0], text);
+            if (lines[i].Contains(':')) {
+                // new part
+                var strs = lines[i].Split(':');
+                var text = strs[1].Trim(chars);
+                AddPart(strs[0], text);
 
-                } else {
-                    // continue part
-                    var str = lines[i].Trim(chars);
-                    var part = parts.Last();
-                    part.content += string.IsNullOrEmpty(part.content) ? str : $"\n{str}";
-                }
-            } catch (Exception e) {
-                TextManager.Write($"[Error Loading Properties] at part [ {lines[i]} ]", Color.red);
-                Debug.LogException(e);
-                
+            } else {
+                // continue part
+                var str = lines[i].Trim(chars);
+                var part = parts.Last();
+                part.content += string.IsNullOrEmpty(part.content) ? str : $"\n{str}";
             }
         }
     }
@@ -180,7 +173,7 @@ public class Property {
 
         // if the key starts with an asterisk, the link will happen everytime
         bool keepLink = content.StartsWith('*');
-        string result = LinePart.ParseBrackets(content, _linkedItem);
+        string result = Slot.ParseBrackets(content, _linkedItem);
         if ( !keepLink) {
             GetPart(key).content = result;
         }
@@ -221,7 +214,7 @@ public class Property {
             var parts = s.Split('/');
             switch (parts[0]) {
                 case "type":
-                    string type = ItemData.GetItemData(ItemData.GetRandomDataOfType(parts[1])).name;
+                    string type = ItemData.itemDatas[ItemData.GetRandomDataOfType(parts[1])].name;
                     Debug.Log($"setting value of property {name} to {type}");
                     newContent = type;
                     break;
@@ -272,8 +265,8 @@ public class Property {
         // if the value has been changed, so that the item description displays it
         updated = true;
         CheckValueEvents();
-        if ( WorldAction.active != null) {
-            PropertyDescription.Add(_linkedItem, this, WorldAction.active.source, false);
+        if ( Sequence.active != null) {
+            PropertyDescription.Add(_linkedItem, this, Sequence.active.source, false);
         }
     }
     #endregion
@@ -288,13 +281,12 @@ public class Property {
         if (!enabled)
             return;
 
-        var valueEvents = parts.FindAll(x => x.key == "OnValue");
-        if (valueEvents.Count == 0)
+        var sequences_onValue = sequences.FindAll(x => x.triggers.Length > 0 && x.triggers[0] == "OnValue");
+        if (sequences_onValue.Count == 0)
             return;
 
-        foreach (var valueEvent in valueEvents) {
-            var content = valueEvent.content;
-
+        foreach (var seq in sequences_onValue) {
+            var content = seq.mContent;
 
             // getting the condition
             var returnIndex = content.IndexOf('\n');
@@ -319,7 +311,7 @@ public class Property {
 
             if (condition_text.StartsWith('[')) {
                 var key = TextUtils.Extract('[', condition_text, out condition_text);
-                var onValuePart = LinePart.Parse(key, _linkedItem, "OnValue Condition");
+                var onValuePart = Slot.Parse(key, _linkedItem, "OnValue Condition");
                 targetValue = onValuePart.prop.GetNumValue();
             } else {
                 targetValue = int.Parse(condition_text);
@@ -341,9 +333,8 @@ public class Property {
             // getting the sequence
             var sequence = content.Remove(0, returnIndex + 1);
             if (call) {
-                Debug.Log("Call");
-                var propertyEvent = new WorldAction(_linkedItem, sequence, $"On Value:{name}");
-                propertyEvent.StartSequence(WorldAction.Source.Event);
+                var propertyEvent = new Sequence(_linkedItem, sequence);
+                propertyEvent.StartSequence(Sequence.Source.Event);
             }
 
         }
@@ -386,6 +377,10 @@ public class Property {
 
         GetPart("description").content = description;
     }
+    public bool HasDescription() {
+        return GetPart("description") != null;
+    }
+
     public string GetDisplayDescription() {
 
         /*if (!enabled) {

@@ -851,6 +851,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: field
     color: {r: 0.85658044, g: 0.88235295, b: 0.41522488, a: 1}
     prop:
@@ -859,6 +860,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: clearing
     color: {r: 0.628, g: 0.8235294, b: 0.49048445, a: 1}
     prop:
@@ -867,6 +869,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: hill
     color: {r: 0.74264705, g: 0.54389584, b: 0.33309907, a: 1}
     prop:
@@ -875,6 +878,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: mountain
     color: {r: 0.52205884, g: 0.38549086, b: 0.23799743, a: 1}
     prop:
@@ -883,6 +887,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: forest
     color: {r: 0.1813365, g: 0.31617647, b: 0.1813365, a: 1}
     prop:
@@ -891,6 +896,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: wood
     color: {r: 0.3328287, g: 0.5955882, b: 0.3328287, a: 1}
     prop:
@@ -899,6 +905,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: sea
     color: {r: 0.15512636, g: 0.2986382, b: 0.3962264, a: 1}
     prop:
@@ -907,6 +914,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: lake
     color: {r: 0.2901961, g: 0.4862745, b: 0.61960787, a: 1}
     prop:
@@ -915,6 +923,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: river
     color: {r: 0.7305091, g: 0.83559984, b: 0.9056604, a: 1}
     prop:
@@ -923,6 +932,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: beach
     color: {r: 0.8867924, g: 0.80460155, b: 0.47267708, a: 1}
     prop:
@@ -931,6 +941,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: road
     color: {r: 0.85294116, g: 0.85294116, b: 0.85294116, a: 1}
     prop:
@@ -939,6 +950,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: village road
     color: {r: 0.85294116, g: 0.797, b: 0.809, a: 1}
     prop:
@@ -947,6 +959,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: costal road
     color: {r: 0.854902, g: 0.854902, b: 0.854902, a: 1}
     prop:
@@ -955,6 +968,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: path
     color: {r: 0.854902, g: 0.854902, b: 0.678, a: 1}
     prop:
@@ -963,6 +977,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: bridge
     color: {r: 0.7089266, g: 0.8252167, b: 0.8396226, a: 1}
     prop:
@@ -971,6 +986,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: plain
     color: {r: 0.7372549, g: 0.36078432, b: 0.36078432, a: 1}
     prop:
@@ -979,6 +995,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: field
     color: {r: 0.69803923, g: 0.5294118, b: 0.3019608, a: 1}
     prop:
@@ -987,6 +1004,7 @@ MonoBehaviour:
       enabled: 1
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: forest
     color: {r: 0.69803923, g: 0.3019608, b: 0.5568628, a: 1}
     prop:
@@ -995,6 +1013,7 @@ MonoBehaviour:
       enabled: 1
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: mansion
     color: {r: 1, g: 0, b: 0.28235292, a: 1}
     prop:
@@ -1003,6 +1022,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: hallway
     color: {r: 0.7205882, g: 0.69409597, b: 0.70146775, a: 1}
     prop:
@@ -1011,6 +1031,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: stairs
     color: {r: 0.72794116, g: 0.5566609, b: 0.6055981, a: 1}
     prop:
@@ -1019,6 +1040,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: living room
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1027,6 +1049,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: kitchen
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1035,6 +1058,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: dining room
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1043,6 +1067,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: children's room
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1051,6 +1076,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: bedroom
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1059,6 +1085,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: bathroom
     color: {r: 0.24705884, g: 0.24705884, b: 0.24705884, a: 1}
     prop:
@@ -1067,6 +1094,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: toilets
     color: {r: 0.6392157, g: 0.48627454, b: 0.5294118, a: 1}
     prop:
@@ -1075,6 +1103,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: attic
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1083,6 +1112,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: basement
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1091,6 +1121,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: cellar
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1099,6 +1130,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   - name: office
     color: {r: 0.7294118, g: 0.5568628, b: 0.6039216, a: 1}
     prop:
@@ -1107,6 +1139,7 @@ MonoBehaviour:
       enabled: 0
       destroy: 0
       debug_selected: 0
+      state: 0
   testcolorx: 0
   testcolory: 0
 --- !u!114 &388731316
@@ -1221,7 +1254,7 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -1231,17 +1264,17 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 85.85635
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -1281,12 +1314,12 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 214.64088
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -20
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -1640,6 +1673,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _description_DebugList: 1
+  parsers: []
 --- !u!4 &553828643
 Transform:
   m_ObjectHideFlags: 0
@@ -2251,7 +2285,7 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -2261,17 +2295,17 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 85.85635
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -2311,12 +2345,12 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 42.928177
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -20
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -2591,7 +2625,7 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -2601,17 +2635,17 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 85.85635
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -2651,12 +2685,12 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 128.78453
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -20
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -2865,8 +2899,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e406306a0b038ff46bec41c8e3168ee5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  input:
+    id: 
+    _infos: []
+    definite: 0
   archive: []
-  descriptionGroups: []
+  descriptions: []
   describedItems: 
 --- !u!4 &971515385
 Transform:
@@ -3045,7 +3083,7 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -3055,17 +3093,17 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 85.85635
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -3105,12 +3143,12 @@ PrefabInstance:
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 300.49725
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -20
       objectReference: {fileID: 0}
     - target: {fileID: 5322256303505575240, guid: 96f534ca718d58b4495230377d56e777,
         type: 3}
@@ -3215,6 +3253,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_FontData.m_Alignment
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5207295651013893614, guid: e9cab6d71e43ebf4e85c598620100451,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -2.4999695
       objectReference: {fileID: 0}
     - target: {fileID: 5595308330619224289, guid: e9cab6d71e43ebf4e85c598620100451,
         type: 3}
@@ -3366,6 +3409,11 @@ PrefabInstance:
       propertyPath: m_FontData.m_FontStyle
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 6728842906083265365, guid: e9cab6d71e43ebf4e85c598620100451,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -2.4999695
+      objectReference: {fileID: 0}
     - target: {fileID: 8866686686061296370, guid: e9cab6d71e43ebf4e85c598620100451,
         type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -3446,8 +3494,8 @@ MonoBehaviour:
     debug_additionalInfo: 
     lineIndex: 0
     index: 0
-  delayedSequences: []
   waitingForInput: 0
+  delayedSequences: []
 --- !u!1 &1165325920
 GameObject:
   m_ObjectHideFlags: 0
@@ -5755,10 +5803,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 748650630}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 171.7127, y: -101.878456}
+  m_SizeDelta: {x: 303.4254, y: 163.75691}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2010397798
 MonoBehaviour:
@@ -6289,6 +6337,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fillImage: {fileID: 2002645606}
   uiText: {fileID: 213669392}
+  visible: 0
   currentMax: 0
 --- !u!114 &2144733993
 MonoBehaviour:

@@ -1,43 +1,18 @@
-using System.Collections.Generic;
+ using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 public class ContentLoader : DataDownloader{
     public static ContentLoader Instance;
-
-    public List<Property> properties_debug = new List<Property>();
-    public List<Group> groups_debug = new List<Group>();
-    public List<Sequence> sequences_debug = new List<Sequence>();
-
-    public static List<Group> groups = new List<Group>();
-    [System.Serializable]
-    public class Group {
-        public Group(string name) {
-            this.name = name;
-        }
-
-        public string name;
-        public List<string> contents = new List<string>();
-    }
-
-    public static Group GetGroup(string name) {
-        return groups.Find(x => x.name == name);
-    }
+    bool setDescription = false;
 
     private void Awake() {
         Instance = this;
     }
 
     public override void Load() {
-        groups.Clear();
-        Property.sharedProps.Clear();
         base.Load();
-    }
-
-    public override void FinishLoading() {
-        base.FinishLoading();
-        properties_debug = Property.sharedProps;
-        groups_debug = groups;
-        sequences_debug = Sequence.sequences;
     }
 
     public override void GetCell(int rowIndex, List<string> cells) {
@@ -46,28 +21,71 @@ public class ContentLoader : DataDownloader{
         if (rowIndex == 0)
             return;
 
-        var group = (Group)null;
-        if (!string.IsNullOrEmpty(cells[0])) {
-            if (cells[0] == "x") {
-                group = groups[groups.Count - 1];
-            } else {
-                group = new Group(cells[0]);
-                groups.Add(group);
-            }
-            
+        if (!string.IsNullOrEmpty(cells[1]) ) {
+            var newStepData = new Step.Data(cells[1]);
+            Step._datas.Add(newStepData);
+            setDescription = false;
         }
 
-        for (int i = 1; i < cells.Count; i++) {
-            if (string.IsNullOrEmpty(cells[i])) continue;
+        var stepData = Step._datas.Last();
 
-            if (cells[i].StartsWith('$') || cells[i].StartsWith('E') || cells[i].StartsWith('!')) {
-                if (group != null) group.contents.Add(cells[i]);
-            } else {
-                var dataProp = new Property();
-                dataProp.Parse(cells[i].Split('\n'));
-                Property.AddPropertyData(dataProp);
-                if (group != null) group.contents.Add(cells[i]);
-            }
+        string descriptionCell = cells[2];
+        if (!string.IsNullOrEmpty(descriptionCell)) {
+            // new profile
+            var newStepProfile = new Step.Profile(descriptionCell);
+            stepData._profiles.Add(newStepProfile);
         }
+
+        var profile = stepData._profiles.Last();
+
+        if (!setDescription) {
+            for (int i = 3; i < cells.Count; i++) {
+                string cell = cells[i];
+                if (string.IsNullOrEmpty(cell))
+                    break;
+                Slot.Type type = Slot.Type.None;
+                switch (cell) {
+                    case "none":
+                        type = Slot.Type.None;
+                        break;
+                    case "sequence":
+                        type = Slot.Type.Sequence;
+                        break;
+                    case "text":
+                        type = Slot.Type.Text;
+                        break;
+                    case "item":
+                        type = Slot.Type.Item;
+                        break;
+                    case "property":
+                        type = Slot.Type.Property;
+                        break;
+                    case "value":
+                        type = Slot.Type.Value;
+                        break;
+                    case "check":
+                        type = Slot.Type.Check;
+                        break;
+                    case "tile":
+                        type = Slot.Type.Tile;
+                        break;
+                    default:
+                        Debug.LogError($"loading step types : no {cell}");
+                        type = Slot.Type.None;
+                        break;
+                }
+
+                var newSlotData = new Slot.Data();
+                newSlotData._type = type;
+                profile._slotDatas.Add(newSlotData);
+            }
+        } else {
+            for (int i = 3; i < 3 + profile._slotDatas.Count; i++)
+                profile._slotDatas.Last()._description = cells[i];
+        }
+
+        setDescription = !setDescription;
     }
+
+
 }

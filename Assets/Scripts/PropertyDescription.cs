@@ -5,11 +5,11 @@ using UnityEngine.Animations;
 [System.Serializable]
 public class PropertyDescription
 {
-    public static void Add(Item item, Property prop, WorldAction.Source source, bool failed) {
+    public static void Add(Item item, Property prop, Sequence.Source source, bool failed) {
         if (!prop.HasPart("description"))
             return;
 
-        if ( source == WorldAction.Source.Event) {
+        if ( source == Sequence.Source.Event) {
             if (!prop.CanBeDescribed())
                 return;
             //ItemDescription.AddProperties($"Event Properties ({item._debugName})", item, new List<Property>() { prop }, "list / definite / filter events");

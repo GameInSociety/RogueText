@@ -1,5 +1,7 @@
 "NAME","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"plain","Tile","10","on","","% tile","","contents
+"plain","Tile","10","on","","% tile","$ look / look at
+
+write(elle est belle)","contents
 tools:3*5%
 wardrobe:2
 tree:10

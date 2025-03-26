@@ -61,18 +61,18 @@ public class WorldEvent {
 
     public static void TriggerEvent(string name) {
         var worldEvent = GetWorldEvent(name);
-        var targetActions = new List<WorldAction>();
+        var targetActions = new List<Sequence>();
         foreach (var itemGroup in worldEvent.itemGroups) {
             foreach (var propGroup in itemGroup.propGroups) {
                 if (!propGroup.prop.enabled)
                     continue;
-                var worldAction = new WorldAction(itemGroup.item, propGroup.sequence, $"Event:{name}"); ;
+                var worldAction = new Sequence(itemGroup.item, propGroup.sequence); ;
                 targetActions.Add(worldAction);
             }
         }
 
         foreach (var item in targetActions) {
-            item.StartSequence(WorldAction.Source.Event);
+            item.StartSequence(Sequence.Source.Event);
         }
 
     }

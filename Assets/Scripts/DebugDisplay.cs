@@ -97,8 +97,8 @@ public class DebugDisplay : MonoBehaviour
     #region world actions
     float wa_offset = 0f;
     public void UpdateWorldActions() {
-        for (int i = 0; i < WorldAction.debug_list.Count; i++) {
-            var wa = WorldAction.debug_list[i];
+        for (int i = 0; i < Sequence.debug_list.Count; i++) {
+            var wa = Sequence.debug_list[i];
             wa_offset = 0f;
             var origin_button = DisplayWorldAction(wa, wa_offset);
            
@@ -115,28 +115,28 @@ public class DebugDisplay : MonoBehaviour
     // skipped : green / gray ?
     // paused : yellow / blue
 
-    DebugButton DisplayWorldAction(WorldAction wa, float offset) {
+    DebugButton DisplayWorldAction(Sequence wa, float offset) {
 
         Color color = Color.yellow;
         string sideLabel = "";
         switch (wa.state) {
-            case WorldAction.State.None:
+            case Sequence.State.None:
             color = Color.Lerp(color, Color.clear, 0.5f);
                 sideLabel = "None";
                 break;
-            case WorldAction.State.Done:
+            case Sequence.State.Done:
                 sideLabel = "Done";
             color = Color.Lerp(color, Color.green, 0.5f);
                 break;
-            case WorldAction.State.Broken:
+            case Sequence.State.Broken:
                 sideLabel = $"Stopped : {wa.stop_feedback}";
             color = Color.Lerp(color, Color.gray, 0.5f);
                 break;
-            case WorldAction.State.Paused:
+            case Sequence.State.Paused:
                 sideLabel = "Paused";
             color = Color.Lerp(color, Color.blue, 0.5f);
                 break;
-            case WorldAction.State.Error:
+            case Sequence.State.Error:
                 sideLabel = "Error";
             color = Color.Lerp(color, Color.red, 0.5f);
                 break;
@@ -150,38 +150,14 @@ public class DebugDisplay : MonoBehaviour
 
         if (wa_button.selected) {
             offset += buttons_Decal;
-            foreach (var line in wa.lines) {
+            foreach (var line in wa.steps) {
                 Color lineColor = Color.white;
                 string lineText = "";
-                switch (line.state) {
-                    case Line.State.None:
-                        lineText = "None";
-                        lineColor = Color.Lerp(lineColor, Color.clear, 0.5f);
-                        break;
-                    case Line.State.Skipped:
-                        lineText = "Skipped";
-                        lineColor = Color.Lerp(lineColor, Color.grey, 0.5f);
-                        break;
-                    case Line.State.Broken:
-                        lineText = "Stopped";
-                        lineColor = Color.Lerp(lineColor, Color.yellow, 0.5f);
-                        break;
-                    case Line.State.Error:
-                        lineText = "Error";
-                        lineColor = Color.Lerp(lineColor, Color.red, 0.5f);
-                        break;
-                    case Line.State.Done:
-                        lineText = "Done";
-                        lineColor = Color.Lerp(lineColor, Color.green, 0.5f);
-                        break;
-                    default:
-                        break;
-                }
-                var line_button = DisplayNewButton($"{line.content}\n{line.debug_text} || {lineText}", lineColor, offset, line_scale, line_fontSize, Color.blue);
+                var line_button = DisplayNewButton($"{line._content}\n{line.debug_text} || {lineText}", lineColor, offset, line_scale, line_fontSize, Color.blue);
                 if (line_button.selected) {
                     string p = "";
-                    for (int i = 0; i < line.parts.Count; i++) {
-                        DisplayLinePart(line.parts[i], offset + buttons_Decal);
+                    for (int i = 0; i < line._slots.Count; i++) {
+                        DisplayLinePart(line._slots[i], offset + buttons_Decal);
                     }
                 }
             }
@@ -242,30 +218,30 @@ public class DebugDisplay : MonoBehaviour
 
     #region line parts
     void UpdateLineParts() {
-        foreach (var linePart in LinePart.debug_lineParts) {
+        foreach (var linePart in Slot.debug_slots) {
             float offset = 0f;
             DisplayLinePart(linePart, offset);
         }
     }
 
-    void DisplayLinePart(LinePart linePart, float offset) {
+    void DisplayLinePart(Slot linePart, float offset) {
 
         Color baseColor = Color.black;
         string feedback = "";
         switch (linePart.state) {
-            case LinePart.State.None:
+            case Slot.State.None:
                 baseColor = Color.Lerp(baseColor, Color.clear, 0.5f);
                 feedback = "None";
                 break;
-            case LinePart.State.Done:
+            case Slot.State.Done:
                 baseColor = Color.Lerp(baseColor, Color.green, 0.5f);
                 feedback = "Sucess";
                 break;
-            case LinePart.State.Failed:
+            case Slot.State.Failed:
                 baseColor = Color.Lerp(baseColor, Color.yellow, 0.5f);
                 feedback = "Failed";
                 break;
-            case LinePart.State.Error:
+            case Slot.State.Error:
                 feedback = "Error";
                 baseColor = Color.Lerp(baseColor, Color.red, 0.5f);
                 break;
@@ -273,8 +249,8 @@ public class DebugDisplay : MonoBehaviour
                 break;
         }
 
-        string str = $"<i>{linePart.input}</i> => <b>{linePart.output}</b>";
-        string sec = $"{ feedback +  (linePart.children.Count > 0 ? $"(+{linePart.children.Count})" : "")}{linePart.label}";
+        string str = $"<i>{linePart._input}</i> => <b>{linePart._output}</b>";
+        string sec = $"{ feedback +  (linePart.children.Count > 0 ? $"(+{linePart.children.Count})" : "")}{linePart._label}";
 
         var partButton = DisplayNewButton($"<color=white>{str}</color>||<color=white>{sec}</color>", baseColor, offset, linePart_Scale);
 

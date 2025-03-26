@@ -11,23 +11,7 @@ highest:0","tilesets
 value:0","! OnCreate
 key ( Start Tile : {!player>coords} )
 start(! Start Tile, Area Description)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"rain","","s","in","global","*rain
-value:0
-max:[>duration]
-description:(on change)
-falling / still falling / pouring down / getting lighter / about to stop
-
-OnValue:ABOVE 0
-triggerEvent(OnRain)
-
-OnValue:ABOVE [>duration]
-set(>rain, 0)
-disable(>rain)
-enable(! sky >sky)
-set(!sky>hours to rain, 20?50)
-
-E OnHours:
-add(>rain, 1)","duration
+"rain","","s","in","global"," ","duration
 value:5?50","! OnCreatedfsfdsdf
 set(>highest, 0)
 start (Describe Direction, 1@10, 0)","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
